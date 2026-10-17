@@ -31,11 +31,13 @@ Oct 16, 2026 · @jiusi
 3. **决策日志**:仓库根目录维护 `docs/DECISIONS.md`。每个设计决策写一条:问题是什么 → 考虑过哪些方案 → 选了哪个、为什么 → 对比数据(跑完评测后填)。
 4. **一切可追踪**:每次模型调用、工具调用写入事件表,记录输入摘要、输出摘要、token 数、耗时。
 5. **模型可替换**:模型和向量接口都走 OpenAI 兼容协议,`base_url`、`model` 写在 `.env`。
-6. **小步提交**:每个 Step 结束时,能运行的命令、测试通过、README 对应小节更新,然后 git commit。
+6. **小步提交**:每个 Step 结束时,能运行的命令、测试通过、README 对应小节更新。每次修改完成后 git commit,并自动 git push 到当前分支配置的 GitHub 远端。
 7. **不要过度扩展**:Step 里没要求的功能不做。
 
 8) **固定随机性**:所有模型调用 `temperature=0`,并记录模型名和版本。否则同一配置跑两次结果不同,对比没有意义。
 9) **每步讲解检查**:每个 Step 验收时,由你本人用自己的话向 Claude 讲清楚这一步的设计决策和数据结论。讲不清楚,不进入下一步。
+10) **运行证据**:关键运行的证据文件放入 `evidence/` 并提交,包括 pytest XML、导入摘要以及每次 `eval/run.py` 的汇总 JSON。`README.md`、`docs/DECISIONS.md`、`docs/RESULTS.md` 中的证据链接指向 `evidence/`。
+11) **数据库迁移**:所有表结构变更必须通过 `sql/migrations/` 下新增的编号迁移文件实现,由 `init-data` 自动执行未执行的迁移,并在 `agent` 库的 `schema_migrations` 表记录;不得修改已执行的迁移。
 
 **技术栈**:Python 3.11、FastAPI、PostgreSQL 16 + pgvector、Docker Compose、原生 HTML + JS 前端(无构建步骤)、pytest。
 
@@ -328,7 +330,7 @@ Oct 16, 2026 · @jiusi
    - 语义检查(模型):这条 SQL 是否真的回答了这个 claim(例如口径是否正确)
    - 不通过的结论退回对应分析者重做一次;再不通过就丢弃,并在报告里注明"未能验证"
 4. **撰写者 Writer**:只能使用通过审核的结论。写完后再用代码扫描报告里的所有数字,每个数字必须能对应一条已通过的结论,否则标红。
-5. **协作方式**:智能体之间不自由聊天。共享状态存在 `agent` 库的一张任务状态表(黑板模式),每个角色读写其中有类型约束的字段。
+5. **协作方式**:智能体之间不自由聊天。共享状态存在 `agent` 库的一张任务状态表(黑板模式),任务状态表及所需新增字段通过新增迁移文件实现,每个角色读写其中有类型约束的字段。
 6. 开关 `AGENT_MODE=single|multi|multi_no_review`。
 
 **面试要点**
@@ -360,7 +362,7 @@ Oct 16, 2026 · @jiusi
 
 **给 Codex 的要求**
 
-1. `memories` 表增加 `finding` 类型:结论文本、`evidence`(result\_id 列表)、`data_version`、向量。
+1. `memories` 表支持 `finding` 类型:结论文本、`evidence`(result\_id 列表)、`data_version`、向量。复用已有字段,所需新增字段及类型约束变更通过新增迁移文件实现。
 2. 写入:只有审核者通过的结论才写,没通过或"未能验证"的一律不写。
 3. 读取:规划阶段按向量相似度取前 3 条,低于阈值不取。复用的结论在报告中标注"来自历史分析"并保留证据链接。
 4. 过期:数据重新导入后 `data_version` 变化,旧 finding 降级为线索,只能提示分析方向,不能直接当事实写进报告。
@@ -390,12 +392,12 @@ Oct 16, 2026 · @jiusi
 
 **给 Codex 的要求**
 
-1. 任务模型:`POST /tasks` 只写入一条任务记录并立即返回 `task_id`。独立的 worker 进程用 `SELECT ... FOR UPDATE SKIP LOCKED` 领取任务,不引入额外消息队列。
-2. 事件表(只追加):`task_id`、`seq`、`type`(plan / tool\_call / tool\_result / finding / review / report)、`payload`、`tokens`、`latency_ms`。表结构已在 Step 0 建好,所有步骤的事件都写这里。
+1. 任务模型:复用已有 `tasks` 表,所需新增字段通过新增迁移文件实现。`POST /tasks` 只写入一条任务记录并立即返回 `task_id`。独立的 worker 进程用 `SELECT ... FOR UPDATE SKIP LOCKED` 领取任务,不引入额外消息队列。
+2. 事件表(只追加):`task_id`、`seq`、`type`(plan / tool\_call / tool\_result / finding / review / report)、`payload`、`tokens`、`latency_ms`。复用 Step 0 已建的表,所有步骤的事件都写这里;所需新增字段及类型约束变更通过新增迁移文件实现。
 3. 实时进度:`GET /tasks/{id}/events` 用 SSE 推送事件;断线重连时根据 `Last-Event-ID` 从断点继续推。
-4. 人在回路:规划完成后任务进入 `awaiting_confirmation`,用户在页面上确认或修改子问题后,`POST /tasks/{id}/confirm` 继续执行。
-5. 断点续跑:worker 领取任务时写租约和心跳;心跳超时后任务可被其他 worker 重新领取,已完成的子问题结论直接复用,只重跑未完成的子问题。
-6. 登录:最简单的用户表 + JWT,Memory 按用户隔离。
+4. 人在回路:规划完成后任务进入 `awaiting_confirmation`,用户在页面上确认或修改子问题后,`POST /tasks/{id}/confirm` 继续执行。计划和确认状态所需新增表、字段及状态约束变更通过新增迁移文件实现。
+5. 断点续跑:worker 领取任务时写租约和心跳;心跳超时后任务可被其他 worker 重新领取,已完成的子问题结论直接复用,只重跑未完成的子问题。租约、心跳及子问题恢复状态所需新增表或字段通过新增迁移文件实现。
+6. 登录:复用已有 `users` 表实现最简单的登录 + JWT,Memory 按用户隔离;登录与用户隔离所需新增表或字段通过新增迁移文件实现。
 7. 前端(单页面,原生 HTML + JS):登录、提问、确认计划、实时时间线、报告页(点击数字展开对应 SQL 和结果表)、每个任务的 token 和耗时。
 8. `docker compose up` 一键启动:数据库、MCP 服务、API、worker。
 
