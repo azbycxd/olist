@@ -38,6 +38,8 @@ services:
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
       EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-local}
       RAG_MODE: ${RAG_MODE:-off}
+      USE_MEMORY: ${USE_MEMORY:-false}
+      SMALL_MODEL: ${SMALL_MODEL:-}
       MCP_URL: http://mcp-olist:8001/mcp
       MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:-}
       SCHEMA_MODE: ${SCHEMA_MODE:-on_demand}
@@ -101,6 +103,21 @@ services:
       retries: 20
     restart: unless-stopped
 
+  memory-api:
+    image: olist-agent:local
+    profiles: ["memory"]
+    entrypoint: ["uvicorn", "api.memories:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
+      MEMORY_API_SECRET: ${MEMORY_API_SECRET:-}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      init-data:
+        condition: service_completed_successfully
+
   agent:
     image: olist-agent:local
     profiles: ["cli"]
@@ -114,6 +131,8 @@ services:
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
       EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-local}
       RAG_MODE: ${RAG_MODE:-off}
+      USE_MEMORY: ${USE_MEMORY:-false}
+      SMALL_MODEL: ${SMALL_MODEL:-}
       MCP_URL: http://mcp-olist:8001/mcp
       MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:-}
       OPENAI_API_KEY: ${DEEPSEEK_API_KEY:-${OPENAI_API_KEY:-}}

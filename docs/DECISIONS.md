@@ -191,3 +191,24 @@
 | tool | 17 / 17 | 13233.06 | 5502.75 | [eval_rag-tool_20261017T081145Z_8479a05d.summary.json](../evidence/eval_rag-tool_20261017T081145Z_8479a05d.summary.json)；`eval_rag-tool_20261017T081145Z_8479a05d.jsonl` |
 
 这只是 dev 单次运行，不报告未运行的 holdout 成绩或稳定性。最终检索读取采用只读可重复读事务，避免与重建索引混用版本；[最终测试](../evidence/step4_final_tests.xml)通过。
+
+## Step 5 用户偏好、冲突与授权
+
+**问题**：用户明确口径应跨会话保留，但模型推断和错误结论不能变成长期事实；一个人的偏好不能影响别人。
+
+**选择**：只抽取 preference，短期历史仍由上下文管理负责。模型只能返回限定 key 和逐字 source_quote，运行器在写入前再次验证；value 直接采用原话，不接受模型另写的规则。没有明确长期措辞、不在当前用户输入中的引文或重复 key 全部拒绝。一次性问题、助手回答和 SQL 分析结论都不进入此存储。键更新在锁定用户的事务内使旧版本 superseded，保留历史；同值重写幂等。读取从任务所属用户反查，模型不能传入其他用户 ID。
+
+**接口边界**：GET/DELETE 依据 HS256 签名 token 的 subject，而非请求中的 user_id。每条 DELETE 都同时约束所有者与 memory_id，别人的记录返回不存在。当前只提供本机管理员签发短期 token 的入口，交互登录仍留给 Step 8。API 独立密钥不进入模型进程，业务数据库凭据也不进入模型进程。本步复用已有表，无表结构修改；后续任何新增字段仍须新迁移。
+
+**用量边界**：SMALL_MODEL 可单独指定，未配置则复用当前模型，不能据名称推断费用。设置和查询会话分别启动新进程，抽取调用也计入全任务观测预算，缺 usage 不能记作零。并行角色的预算在后续多智能体中共用同一对象；不能在发送前精确预测尚未返回的 prompt_tokens。
+
+**初次抽取审计**：[20 条真实抽取](../evidence/memory_audit_20261017T081721Z_7e8a19bb.summary.json)，原始日志 `memory_audit_20261017T081721Z_7e8a19bb.jsonl`，严格原话/key 匹配为 15/20。销售额的状态限制曾误归入通用订单状态；一些引文略去“记住”等前缀而被边界校验拒绝；另有语义正确但不是全句的引文在严格核对中失败。修复提示要求保留完整原句并按最具体指标分类，没有改变预先声明的审计样例或评分标准。
+
+**修复后抽取**：[相同样例复跑](../evidence/memory_audit_20261017T081910Z_35671a53.summary.json)，原始日志 `memory_audit_20261017T081910Z_35671a53.jsonl`，严格原话/key 匹配 20/20。[逐条审查表](../eval/MEMORY_REVIEW.md)保留人工结论空栏；这不是人工准确率，也不代表任意用户输入的效果。
+
+| 配置 | E dev 正确 | 总 token（含抽取） | 证据与日志 |
+| --- | --- | --- | --- |
+| 无记忆 | 3 / 6 | 42737 | [eval_memory-false_20261017T081732Z_2f7f2766.summary.json](../evidence/eval_memory-false_20261017T081732Z_2f7f2766.summary.json)；`eval_memory-false_20261017T081732Z_2f7f2766.jsonl` |
+| 有记忆（最终） | 6 / 6 | 51054 | [eval_memory-true-final_20261017T081912Z_fe1f13c9.summary.json](../evidence/eval_memory-true-final_20261017T081912Z_fe1f13c9.summary.json)；`eval_memory-true-final_20261017T081912Z_fe1f13c9.jsonl` |
+
+首次有记忆实验也完整保留在 RESULTS。两组后续问题使用独立新进程、同题用户的数据库偏好，没有复用设置会话消息。知识库关闭，避免替代偏好影响对照。[完整测试](../evidence/step5_final_tests.xml) 148 passed，原始日志 `step5_final_tests.log`，包含真实数据库与鉴权测试。

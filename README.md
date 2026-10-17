@@ -179,3 +179,15 @@ docker compose run --rm init-data python eval/run.py --adapter single --categori
 ```
 
 第三条命令原子重建索引并保存内容哈希与真实模型文件哈希证据。首次下载公开向量权重需要网络；不会以随机向量或关键词向量代替下载失败的模型。KB 与 C 题源于同一批业务陷阱，因此 C dev 提升不能直接解释为未知知识泛化；全部 C 标注均固定，当前只评 dev，不据 holdout 调参。
+
+Step 5 的 `USE_MEMORY=true` 只保存用户明确要求长期遵守的偏好。抽取结果必须逐字引用当前用户输入，value 直接保存原话，拒绝编造转述、重复 key 或没有长期偏好措辞的引文。每轮结束仅进行一次逻辑抽取请求，接口故障仍有明确退避；`SMALL_MODEL` 未配置时复用当前模型，不虚构单价或小模型节省。模型失败不会写记忆。相同 key 的新偏好令旧记录 superseded，保留历史。
+
+CLI 通过稳定用户名跨会话复用偏好，例如：
+
+```powershell
+docker compose run --rm -e USE_MEMORY=true agent --username demo --preference-only "以后订单数只统计 delivered 状态。"
+docker compose run --rm -e USE_MEMORY=true agent --username demo "2017 年有多少订单？"
+docker compose run --rm init-data python eval/run.py --adapter single --categories E --use-memory true --rag-mode off --tag memory-on
+```
+
+查看和删除接口使用签名用户 token 的 subject，不能通过参数冒充其他用户。先在 `.env` 设置独立的 `MEMORY_API_SECRET`（至少 32 字符），再启动 `docker compose up -d memory-api`。交互登录留到 Step 8；本步只允许本机管理员用 `docker compose run --rm --entrypoint python memory-api -m scripts.memory_token --username demo` 签发一小时 token。将 token 放入 Authorization Bearer 请求头调用 `GET http://localhost:8000/memories` 或 `DELETE http://localhost:8000/memories/{id}`。不要把 token 写入 Git 或评测证据。

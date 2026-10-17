@@ -55,11 +55,13 @@ class SingleAdapter:
             raise ValueError("Configure OPENAI_API_KEY, OPENAI_MODEL and MCP_BEARER_TOKEN before evaluating")
 
     def run(self, case, emit):
-        if case.setup_turns:
-            raise ValueError("Persistent preference memory is not implemented until Step 5")
         from scripts.runtime import run_runtime
+        if case.setup_turns:
+            emit('preference_session',{'phase':'setup','task_id':case.setup_task_id})
+            run_runtime('\n'.join(case.setup_turns),case.setup_task_id,emit,preference_only=True)
+            emit('preference_session',{'phase':'new_session','task_id':case.task_id})
         # Pass only public question fields into the isolated model process.
         question = case.question+"\n输出类型："+case.answer_type
         if case.required_facts:
             question += "；报告需要的事实字段："+", ".join(case.required_facts)
-        return run_runtime(question, case.task_id, emit)
+        return run_runtime(question, case.task_id, emit,user_text=case.question)

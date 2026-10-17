@@ -1,13 +1,13 @@
 # Olist 数据画像
 
 本文件由 `scripts/profile_data.py` 连接业务库、执行只读 SQL 生成；不是评测结果。
-生成时间（UTC）：2026-10-17T08:07:42.007023+00:00
+生成时间（UTC）：2026-10-17T08:18:14.518019+00:00
 
 数据版本（源文件清单的 SHA-256）：`b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a`
 
-画像来源证据：[profile_data_20261017T080740Z_b3f9ab0a.summary.json](../evidence/profile_data_20261017T080740Z_b3f9ab0a.summary.json)；原始运行日志：`profile_data_20261017T080740Z_b3f9ab0a.jsonl`
+画像来源证据：[profile_data_20261017T081812Z_71cccaff.summary.json](../evidence/profile_data_20261017T081812Z_71cccaff.summary.json)；原始运行日志：`profile_data_20261017T081812Z_71cccaff.jsonl`
 
-导入来源证据：[load_olist_20261017T080738Z_b09e86b8.summary.json](../evidence/load_olist_20261017T080738Z_b09e86b8.summary.json)；原始运行日志：`load_olist_20261017T080738Z_b09e86b8.jsonl`
+导入来源证据：[load_olist_20261017T081808Z_ca94404d.summary.json](../evidence/load_olist_20261017T081808Z_ca94404d.summary.json)；原始运行日志：`load_olist_20261017T081808Z_ca94404d.jsonl`
 
 ## 原始文件与入库行数
 

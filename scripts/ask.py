@@ -18,11 +18,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("question")
     parser.add_argument("--schema-mode", choices=["full","on_demand"], default=SCHEMA_MODE)
+    parser.add_argument('--username',default='default')
+    parser.add_argument('--preference-only',action='store_true')
     args = parser.parse_args()
     os.environ["SCHEMA_MODE"] = args.schema_mode
     logger, path = start_log("ask")
     with psycopg.connect(**db_kwargs("agent","app"), autocommit=True) as conn:
-        user = conn.execute("INSERT INTO users(username) VALUES(%s) RETURNING user_id", ("cli-"+str(uuid4()),)).fetchone()[0]
+        user = conn.execute("INSERT INTO users(username) VALUES(%s) ON CONFLICT(username) DO UPDATE SET username=excluded.username RETURNING user_id", (args.username,)).fetchone()[0]
         task = conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,%s,'running') RETURNING task_id",
                             (user,args.question)).fetchone()[0]
         sequence, termination = 0, None
@@ -36,7 +38,8 @@ def main():
             conn.execute("INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)",
                          (task,sequence,kind,Jsonb(payload),tokens,latency_ms))
         try:
-            response = run_runtime(args.question, task, emit)
+            response = run_runtime(args.question, task, emit,preference_only=args.preference_only)
+            if args.preference_only: termination='final_answer'
             record(logger, "answer", task_id=str(task), response=response.model_dump(), schema_mode=args.schema_mode)
             print(json.dumps(response.model_dump(),ensure_ascii=False,indent=2))
         finally:

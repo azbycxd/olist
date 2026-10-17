@@ -108,6 +108,7 @@ def execute(args):
     os.environ["CONTEXT_STRATEGY"] = args.context_strategy
     os.environ["CONTEXT_LIMIT"] = str(args.context_limit)
     os.environ["RAG_MODE"] = args.rag_mode
+    os.environ["USE_MEMORY"] = args.use_memory
     selected = [q for q in load_questions() if q["category"] in args.categories and q["split"] == args.split]
     if not selected:
         raise ValueError("No matching questions")
@@ -197,6 +198,7 @@ def execute(args):
                 "schema_mode":args.schema_mode,
                 "context_strategy":args.context_strategy,"context_limit":args.context_limit,
                 "rag_mode":args.rag_mode,
+                "use_memory":args.use_memory,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
                 "runtime": {"python": sys.version.split()[0], **{p: package_version(p) for p in ("psycopg", "pydantic", "openai", "mcp", "sqlglot")}},
@@ -272,6 +274,7 @@ def main():
     parser.add_argument("--recheck-evidence",type=Path)
     parser.add_argument("--rag-mode",default="off",choices=["off","inject","tool"])
     parser.add_argument("--retrieval",action="store_true")
+    parser.add_argument("--use-memory",default="false",choices=["true","false"])
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.tag):
         parser.error("tag must contain only ASCII letters, digits, underscores and hyphens")

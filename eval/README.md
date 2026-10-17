@@ -56,7 +56,7 @@ number 正确率允许相对误差不超过 1%；标准值为零时只允许绝�
 
 ## Step 2 真实模型与第三方客户端
 
-`--adapter single --schema-mode full|on_demand` 调用 `agent/loop.py`。评测器只将公开问题和输出约定送入独立子进程；该进程环境按白名单构造，去除所有数据库凭据并禁止 dotenv 加载。MCP 服务负责业务查询和结果持久化；评测器仍独立执行 gold 和核查证据。`--judge off` 只关闭评分模型，不能关闭 single 的 Agent 调用。E 的前置偏好尚待 Step 5，single 暂时明确拒绝 E，不伪装成已经支持记忆。
+`--adapter single --schema-mode full|on_demand` 调用 `agent/loop.py`。评测器只将公开问题和输出约定送入独立子进程；该进程环境按白名单构造，去除所有数据库凭据并禁止 dotenv 加载。MCP 服务负责业务查询和结果持久化；评测器仍独立执行 gold 和核查证据。`--judge off` 只关闭评分模型，不能关闭 single 的 Agent 调用。Step 5 已实现 E 的独立偏好设置会话与后续查询会话，使用同一用户的持久偏好、不同子进程和任务 ID。
 
 ```powershell
 docker compose run --rm init-data python eval/run.py --adapter single --schema-mode full --tag baseline-full --categories A,B --split dev --judge off
@@ -88,3 +88,9 @@ docker compose run --rm init-data python -m scripts.inspector_demo verify --resp
 `eval/retrieval_labels.json` 为全部 C 题固定目标知识块；`--retrieval --split dev` 只计算该划分的 BM25、向量、混合 recall@3，逐题列出命中块和遗漏。知识内容哈希、标签哈希及模型标识保存在汇总。此模式同样只能由 `eval/run.py` 写 RESULTS；它不运行回答模型，所以答案准确率和模型用量留空。
 
 `--adapter single --categories C --rag-mode off|inject|tool` 使用相同题库、数据版本和独立核查器测量三种知识访问方式。查询预处理不读取 template_id 或 gold；标注文件只进入离线检索评分，Agent 和 MCP 检索不会导入 eval 模块。holdout 暂不运行。
+
+## 用户偏好
+
+`--adapter single --categories E --use-memory false|true --rag-mode off` 测量跨会话偏好遵循率，避免知识库替代用户偏好掩盖差别。设置会话只抽取用户原话，不把前置文本塞入后续会话；每题创建独立用户，其他题无法命中其记忆。所有抽取模型调用和用量都在事件里，失败不写入。
+
+`python -m eval.memory_audit` 对预先声明的原话/key 样例做真实抽取，严格全文引用检查与人工准确率不是一回事；human_verdict 留空。此脚本的数值只放 evidence 和 DECISIONS，不写 RESULTS。偏好审查记录见 MEMORY_REVIEW.md。

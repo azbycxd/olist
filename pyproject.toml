@@ -7,7 +7,7 @@ name = "olist-agent"
 version = "0.1.0"
 description = "Evidence-backed analysis of the Olist dataset"
 requires-python = ">=3.11"
-dependencies = ["psycopg[binary]>=3.2,<4", "python-dotenv>=1,<2", "pydantic>=2,<3", "openai>=1,<3", "mcp==1.30.0", "sqlglot==30.23.0", "uvicorn>=0.35,<1", "pandas==2.3.3", "jieba==0.42.1", "fastapi>=0.115,<1"]
+dependencies = ["psycopg[binary]>=3.2,<4", "python-dotenv>=1,<2", "pydantic>=2,<3", "openai>=1,<3", "mcp==1.30.0", "sqlglot==30.23.0", "uvicorn>=0.35,<1", "pandas==2.3.3", "jieba==0.42.1", "fastapi>=0.115,<1", "PyJWT>=2,<3"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]
@@ -16,7 +16,7 @@ dev = ["pytest>=8,<9"]
 py-modules = ["config", "contracts"]
 
 [tool.setuptools.packages.find]
-include = ["scripts*", "eval*", "agent*", "mcp_olist*"]
+include = ["scripts*", "eval*", "agent*", "mcp_olist*", "api*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

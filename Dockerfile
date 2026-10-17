@@ -8,6 +8,7 @@ COPY scripts ./scripts
 COPY eval ./eval
 COPY agent ./agent
 COPY mcp_olist ./mcp_olist
+COPY api ./api
 COPY kb ./kb
 COPY sql ./sql
 COPY tests ./tests
