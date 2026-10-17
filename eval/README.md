@@ -82,3 +82,9 @@ docker compose run --rm init-data python -m scripts.inspector_demo verify --resp
 `--context-strategy none|mask|summary --context-limit 16000` 在 D dev 上比较原始历史、省略、模型摘要。每个 model_call 的真实 usage 和每轮 context_usage 保存在日志与汇总；摘要调用包含在总用量中。工具结果取回和笔记区不授予数据指令权限。
 
 `--recheck-evidence evidence/<原始汇总>.summary.json --tag <新标签>` 不调用模型：验证题库哈希和数据版本，重新执行 gold SQL，用原始响应及原任务的持久化结果重新评分。新收据保留原收据哈希和评分代码哈希；记录的模型用量、模型调用和题目耗时均来自原始运行，不是新增消耗。此入口用于修复行对象数组的事实读取，不能更改 gold，也不能将重核行与原行的 token 相加。
+
+## 检索与口径实验
+
+`eval/retrieval_labels.json` 为全部 C 题固定目标知识块；`--retrieval --split dev` 只计算该划分的 BM25、向量、混合 recall@3，逐题列出命中块和遗漏。知识内容哈希、标签哈希及模型标识保存在汇总。此模式同样只能由 `eval/run.py` 写 RESULTS；它不运行回答模型，所以答案准确率和模型用量留空。
+
+`--adapter single --categories C --rag-mode off|inject|tool` 使用相同题库、数据版本和独立核查器测量三种知识访问方式。查询预处理不读取 template_id 或 gold；标注文件只进入离线检索评分，Agent 和 MCP 检索不会导入 eval 模块。holdout 暂不运行。

@@ -170,3 +170,24 @@
 | summary | 16 / 25 | 7761 | 202430 | 6 / 8 | [eval_context-summary-rechecked_20261017T080253Z_0be96515.summary.json](../evidence/eval_context-summary-rechecked_20261017T080253Z_0be96515.summary.json)；`eval_context-summary-rechecked_20261017T080253Z_0be96515.jsonl`；原模型日志 `eval_context-summary_20261017T080054Z_e8ed1cbe.jsonl` |
 
 全部报告按严格的 D 完整正确标准仍未通过；事实字段遗漏、口径与未经 SQL 计算的叙述数字都保留。没有只报告结构化无证据结论比例来掩盖报告数字问题。summary 在真实运行中触发了摘要，费用仍因未配置单价留空。[最终镜像测试](../evidence/step3_image_tests.xml) 142 passed，原始日志 `step3_image_tests.log`。
+
+## Step 4 业务知识与混合检索
+
+**问题**：语法正确不意味着业务口径正确；客户标识、GMV 状态、商品金额、评价粒度与时间缺失都需要企业定义。
+
+**方案**：按指标和陷阱的语义边界切分，保留 SQL 例子；jieba BM25 与真实多语言向量分别排名，使用 RRF 融合取前三块。向量保存在新增 004 迁移创建的 knowledge_chunks 中，内容、模型名、维数与哈希一同存储，重建在事务内替换。off 隐藏知识工具，inject 自动检索，tool 由模型选择时机。
+
+**向量模型**：本机没有额外向量接口配置，按提前声明的默认方案使用公开 multilingual-e5-small，FastEmbed CPU 推理，通过独立服务暴露 OpenAI 兼容接口。遵循[模型作者](https://huggingface.co/intfloat/multilingual-e5-small)的 query/passage 前缀与归一化约定，模型加载方式依据[FastEmbed 官方说明](https://github.com/qdrant/fastembed)。[真实索引收据](../evidence/knowledge_index_20261017T080829Z_a1331a1e.summary.json)记录全部知识块与模型文件哈希，原始日志 `knowledge_index_20261017T080829Z_a1331a1e.jsonl`；不是随机向量或用词频伪装的 embedding。
+
+**独立检索测量**：[C dev 检索汇总](../evidence/eval_retrieval-dev_20261017T080834Z_51697037.summary.json)，原始日志 `eval_retrieval-dev_20261017T080834Z_51697037.jsonl`，BM25 recall@3 为 14/17，向量 16/17，混合 16/17。RRF 并非每题都优于单路：C02 的目标 buyers 被挤出前三，不能宣称融合总是更好。全部 C 题已标注所需块，未用 holdout 表现调参；只运行 dev。KB 与 C 的陷阱有共同来源，未来必须用留出的改写题核对泛化。
+
+[完整复核测试](../evidence/step4_verified_tests.xml)为 144 passed，原始日志 `step4_verified_tests.log`。首次运行的旧核心表测试错误地禁止任何新表，更新为验证原核心表必须存在；原失败 XML 也保留。迁移幂等、不可修改历史和只读权限测试未放宽。
+
+**选择与真实回答比较**：保留三种开关，推荐 inject。此次 inject 与 tool 都答对全部 C dev，inject 平均用量和耗时较低。项目默认值仍为 off 便于显式做消融；后续完整配置和多智能体对比显式使用 inject。
+| 模式 | 正确题数 | 平均 token | 平均耗时 ms | 证据与日志 |
+| --- | --- | --- | --- | --- |
+| off | 12 / 17 | 10913.76 | 5146.68 | [eval_rag-off_20261017T080858Z_efce07fa.summary.json](../evidence/eval_rag-off_20261017T080858Z_efce07fa.summary.json)；`eval_rag-off_20261017T080858Z_efce07fa.jsonl` |
+| inject | 17 / 17 | 10606.35 | 4402.09 | [eval_rag-inject_20261017T081027Z_be4ffcde.summary.json](../evidence/eval_rag-inject_20261017T081027Z_be4ffcde.summary.json)；`eval_rag-inject_20261017T081027Z_be4ffcde.jsonl` |
+| tool | 17 / 17 | 13233.06 | 5502.75 | [eval_rag-tool_20261017T081145Z_8479a05d.summary.json](../evidence/eval_rag-tool_20261017T081145Z_8479a05d.summary.json)；`eval_rag-tool_20261017T081145Z_8479a05d.jsonl` |
+
+这只是 dev 单次运行，不报告未运行的 holdout 成绩或稳定性。最终检索读取采用只读可重复读事务，避免与重建索引混用版本；[最终测试](../evidence/step4_final_tests.xml)通过。

@@ -64,7 +64,7 @@ def test_core_tables_and_evidence_roundtrip():
     conn = psycopg.connect(**db_kwargs("agent", "app"))
     try:
         names = {r[0] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")}
-        assert names == {"users", "tasks", "events", "query_results", "memories", "schema_migrations"}
+        assert {"users", "tasks", "events", "query_results", "memories", "schema_migrations"} <= names
         user = conn.execute("INSERT INTO users (username) VALUES (%s) RETURNING user_id", (f"test-{uuid4()}",)).fetchone()[0]
         task = conn.execute("INSERT INTO tasks (user_id, question) VALUES (%s, 'test') RETURNING task_id", (user,)).fetchone()[0]
         conn.execute("INSERT INTO events (task_id, seq, type, payload, tokens, latency_ms) VALUES (%s, 1, 'tool_result', '{\"output_summary\":\"ok\"}', 0, 1.5)", (task,))

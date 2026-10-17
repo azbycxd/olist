@@ -1,0 +1,756 @@
+{
+  "tag": "retrieval-dev",
+  "split": "dev",
+  "total": 17,
+  "metrics": {
+    "bm25": 0.8235294117647058,
+    "vector": 0.9411764705882353,
+    "hybrid": 0.9411764705882353
+  },
+  "cases": [
+    {
+      "question_id": "C01",
+      "expected": [
+        "buyers"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "geography",
+            "identity",
+            "delivery_days"
+          ],
+          "recall_at_3": 0.0
+        },
+        "vector": {
+          "retrieved": [
+            "buyers",
+            "identity",
+            "repeat_rate"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "identity",
+            "delivery_days",
+            "buyers"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C02",
+      "expected": [
+        "buyers"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "geography",
+            "identity",
+            "delivery_days"
+          ],
+          "recall_at_3": 0.0
+        },
+        "vector": {
+          "retrieved": [
+            "identity",
+            "buyers",
+            "repeat_rate"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "identity",
+            "delivery_days",
+            "reviewed_orders"
+          ],
+          "recall_at_3": 0.0
+        }
+      }
+    },
+    {
+      "question_id": "C03",
+      "expected": [
+        "buyers"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "geography",
+            "identity",
+            "delivery_days"
+          ],
+          "recall_at_3": 0.0
+        },
+        "vector": {
+          "retrieved": [
+            "identity",
+            "buyers",
+            "table_sellers"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "identity",
+            "statuses",
+            "buyers"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C05",
+      "expected": [
+        "gmv"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "gmv",
+            "sales",
+            "identity"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "gmv",
+            "sales",
+            "statuses"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "gmv",
+            "sales",
+            "statuses"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C06",
+      "expected": [
+        "gmv"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "gmv",
+            "sales",
+            "identity"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "gmv",
+            "statuses",
+            "sales"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "gmv",
+            "sales",
+            "statuses"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C08",
+      "expected": [
+        "sales"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "sales",
+            "identity",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "sales",
+            "unknown_category",
+            "observed_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "sales",
+            "delivery_days",
+            "observed_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C09",
+      "expected": [
+        "sales"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "sales",
+            "identity",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "delivery_days",
+            "sales",
+            "unknown_category"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "sales",
+            "delivery_days",
+            "statuses"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C11",
+      "expected": [
+        "paid_sales"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "paid_sales",
+            "sales",
+            "identity"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "sales",
+            "paid_sales",
+            "observed_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "paid_sales",
+            "sales",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C12",
+      "expected": [
+        "paid_sales"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "paid_sales",
+            "sales",
+            "identity"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "sales",
+            "payment",
+            "delivery_days"
+          ],
+          "recall_at_3": 0.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "sales",
+            "paid_sales",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C14",
+      "expected": [
+        "observed_days"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "sales",
+            "observed_days",
+            "sparse_months"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "observed_days",
+            "sparse_months",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "observed_days",
+            "sparse_months",
+            "review_duplicates"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C15",
+      "expected": [
+        "observed_days"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "sales",
+            "observed_days",
+            "sparse_months"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "observed_days",
+            "delivery_days",
+            "sparse_months"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "observed_days",
+            "sparse_months",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C17",
+      "expected": [
+        "unknown_category"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "unknown_category",
+            "category_nulls",
+            "table_translation"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "unknown_category",
+            "category_nulls",
+            "table_translation"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "unknown_category",
+            "category_nulls",
+            "table_translation"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C18",
+      "expected": [
+        "unknown_category"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "unknown_category",
+            "category_nulls",
+            "table_translation"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "unknown_category",
+            "category_nulls",
+            "table_translation"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "unknown_category",
+            "category_nulls",
+            "table_translation"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C20",
+      "expected": [
+        "missing_signature"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "missing_signature",
+            "timestamps",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "missing_signature",
+            "late_rate",
+            "timestamps"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "missing_signature",
+            "timestamps",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C21",
+      "expected": [
+        "missing_signature"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "missing_signature",
+            "timestamps",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "missing_signature",
+            "timestamps",
+            "late_rate"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "missing_signature",
+            "timestamps",
+            "delivery_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C23",
+      "expected": [
+        "reviewed_orders"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "reviewed_orders",
+            "sales",
+            "geography"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "reviewed_orders",
+            "review_duplicates",
+            "orders_count"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "reviewed_orders",
+            "review_duplicates",
+            "identity"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    },
+    {
+      "question_id": "C24",
+      "expected": [
+        "reviewed_orders"
+      ],
+      "methods": {
+        "bm25": {
+          "retrieved": [
+            "reviewed_orders",
+            "sales",
+            "geography"
+          ],
+          "recall_at_3": 1.0
+        },
+        "vector": {
+          "retrieved": [
+            "reviewed_orders",
+            "table_reviews",
+            "observed_days"
+          ],
+          "recall_at_3": 1.0
+        },
+        "hybrid": {
+          "retrieved": [
+            "reviewed_orders",
+            "table_reviews",
+            "observed_days"
+          ],
+          "recall_at_3": 1.0
+        }
+      }
+    }
+  ],
+  "embedding_model": "intfloat/multilingual-e5-small",
+  "question_file_sha256": "78bf8cba03b97e06e44dcae3990f9ef44454131bf2ae2eb749a7b594fb61e80a",
+  "labels_sha256": "eab7aa5c6ee67e24b495d75ebb415fc1e952d96ba31bff93259c154c13c74a68",
+  "knowledge": [
+    [
+      "buyers",
+      "45f0df38c0e457ebaea454427b7c55d4ba70da1cea802890a04cc53ae6bc94d5",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "cancellation",
+      "2cb7f0f58ad200de168e6f711e7671f73e4684f26748fdb941680d845e862e83",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "category_nulls",
+      "e3a12130140c596d47b8180f922d7b2e7e8c24df0d83b26f423990f98b0e940a",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "delivery_days",
+      "0affa4591ca3e03f277546a903c53feac2227f5dc37903ebd74d3ab00a95c4f2",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "freight",
+      "2cd7f2f784ae8ba45abd67d9a3d1f4e7e089a79390e8f2ef86c118b9d61954da",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "geography",
+      "1ba661e251d683f25e4270f789cb5ef38f02cd54725ca91db7f5fb18e9aefe09",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "gmv",
+      "4cd827d98d0d48d6effd539906e0c4f25dc9c5abba21d44229010a96a0ae2f5a",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "grain",
+      "2a058328ffde10864b81f433253fe2e75fed23ee06fcacc182cc46a8489236d1",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "identity",
+      "9489986de690dc2f3ef935ac107d5c47c7602e98aa621cc59c31067d1c849e1c",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "late_rate",
+      "a187c40324550113b170b7e49c27df2800a6fe46b9bab61448306e1df5bfd85d",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "missing_signature",
+      "1100537b9cdb7bcc2252aa65b339c2cf39cbc04a62e734089503f2d214516b54",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "observed_days",
+      "488311d77e3cca8c1075f5b28270d590a8d591ebeab2bc4a9296c02b9d35bb9e",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "orders_count",
+      "f70f18bcfa10662b07e91f182d1ebfde21c26eceacb4bb728136910e1c7cf979",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "paid_sales",
+      "19ca90b0d0c9a60866923b9cae648ce114f7c2b4304bd7b8264fbc4fb39665ff",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "payment",
+      "5c9dc155c0194e3080ff49ca97b999072c0331229123adb4c9184ae709857baa",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "repeat_rate",
+      "f82ace7d1061126ef33cd05f934d46e6037b404c9eddec9d86fa1c92fb9880d5",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "review_duplicates",
+      "8fcbfde4582f9dc48b3a16ba2af7cf836aa03df884727e8adc45d0ae2a8f8df0",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "reviewed_orders",
+      "eefe3ba0f4afd1e775438ff89b1a326781eaa6f4b2ae4285f171e55a871fdbc2",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "sales",
+      "6ea984cdaf4c7e770e7e786e5c66c1c1484f38039aa66d1d562a9073aca2d290",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "sparse_months",
+      "2f40bab51c42dbf1cbe512bad5630ecccc5bc4559b0cba75d5a32a3a43e8daf3",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "statuses",
+      "0fd1ad4bb64eda20f3825e87d83064e49af8db6cd2a99d72baaa4053e0471167",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_customers",
+      "3bab429e5c728c91a0389f212a87beeceb0cae2c5e729d03aaab7278e0fe75a3",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_geolocation",
+      "391b97f7327187bdcd89a1e170b3150e5b2935339f4c5b5c89fd0742d756c14b",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_items",
+      "4ca69d5d7b6663c204c48e1f2f1debc451b1f0d5e22b796d7eb351cc80c38f0d",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_orders",
+      "902903d46fe9a797b8c6ca5725841e0bac68a1fd0190833825594b4c1514e9d1",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_payments",
+      "1c01c612eeb2ae68b2e22221b8eea40f8acb9d44aabd167a53937de624cc1e73",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_products",
+      "a941a39eeae8eed8da9c166f88d55fcd44898da3fa8ae4a90faa6a0d5ccb5749",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_reviews",
+      "9eae5d4b04c3b87a969d0c8fcc9d4f44b360b920341951558bed4033bf534721",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_sellers",
+      "a5283ba2027b4c5a4728ab1b2db2aa2bced6bc74dc34337f6fa3e98248bd01eb",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "table_translation",
+      "46471ca74eb769ff2d7435d0af4d8378269aa646c51b44c7a16fd2463a6bec6b",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "timestamps",
+      "1ad16dd95a83893e9e74bdad54e1975fb8c88e4292c26fb197002835c4f9047a",
+      "intfloat/multilingual-e5-small",
+      384
+    ],
+    [
+      "unknown_category",
+      "2a26090f5f586fdbab83f9cf7eeb5a37b424d8931160914b10133cee31314852",
+      "intfloat/multilingual-e5-small",
+      384
+    ]
+  ],
+  "source_log": "eval_retrieval-dev_20261017T080834Z_51697037.jsonl",
+  "holdout_policy": "Labels cover every C case; only requested split executed, no answer generation",
+  "source_log_sha256": "213924fe73bef6c372555c4379998b0c74da0a994cf014a829c411d09817d7e3"
+}

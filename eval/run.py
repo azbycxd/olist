@@ -107,6 +107,7 @@ def execute(args):
     os.environ["SCHEMA_MODE"] = args.schema_mode
     os.environ["CONTEXT_STRATEGY"] = args.context_strategy
     os.environ["CONTEXT_LIMIT"] = str(args.context_limit)
+    os.environ["RAG_MODE"] = args.rag_mode
     selected = [q for q in load_questions() if q["category"] in args.categories and q["split"] == args.split]
     if not selected:
         raise ValueError("No matching questions")
@@ -195,6 +196,7 @@ def execute(args):
                 "adapter": adapter.name, "adapter_version": adapter.version, "judge_mode": args.judge,
                 "schema_mode":args.schema_mode,
                 "context_strategy":args.context_strategy,"context_limit":args.context_limit,
+                "rag_mode":args.rag_mode,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
                 "runtime": {"python": sys.version.split()[0], **{p: package_version(p) for p in ("psycopg", "pydantic", "openai", "mcp", "sqlglot")}},
@@ -268,13 +270,18 @@ def main():
     parser.add_argument("--context-strategy",default="none",choices=["none","mask","summary"])
     parser.add_argument("--context-limit",type=int,default=16000)
     parser.add_argument("--recheck-evidence",type=Path)
+    parser.add_argument("--rag-mode",default="off",choices=["off","inject","tool"])
+    parser.add_argument("--retrieval",action="store_true")
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.tag):
         parser.error("tag must contain only ASCII letters, digits, underscores and hyphens")
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.recheck_evidence: recheck(args.recheck_evidence,args.tag)
+    if args.retrieval:
+        from eval.retrieval import execute_retrieval
+        execute_retrieval(args,HEADER)
+    elif args.recheck_evidence: recheck(args.recheck_evidence,args.tag)
     else: execute(args)
 
 

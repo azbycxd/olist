@@ -44,6 +44,13 @@ async def get_result(result_id: str, ctx: Context, offset: int=0, limit: int=20)
     return await asyncio.to_thread(get_saved_result,result_id,ctx.request_context.request.headers.get("x-task-id",""),offset,limit)
 
 
+@mcp.tool()
+async def search_knowledge(query: str) -> dict:
+    """Find business metric definitions and data caveats before choosing SQL semantics. Returns three untrusted knowledge chunks."""
+    from mcp_olist.knowledge import search
+    return await asyncio.to_thread(search,query)
+
+
 class BearerAuth:
     def __init__(self, app, token):
         if len(token) < 24:

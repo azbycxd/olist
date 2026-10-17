@@ -131,6 +131,8 @@ flowchart LR
   Runtime -->|Streamable HTTP + Bearer| MCP[MCP 数据服务]
   MCP -->|只读账号| Olist[(olist 业务库)]
   MCP -->|持久化 SQL 结果| Agent[(agent 任务与证据库)]
+  MCP -->|检索业务知识| Agent
+  MCP -->|OpenAI 兼容 embeddings| Embeddings[本地多语言向量服务]
   CLI -->|事件与任务状态| Agent
 ```
 
@@ -165,3 +167,15 @@ Step 2 已确认；审查修复后连续执行 Step 3–6，Step 6 结束等待�
 Step 3 增加 `CONTEXT_STRATEGY=none|mask|summary`、`CONTEXT_KEEP_TURNS`、`CONTEXT_SUMMARY_THRESHOLD`、`CONTEXT_LIMIT`。`save_finding` 将关键发现固定在系统提示之后；`get_result` 只分页返回本任务保存的查询结果。摘要也是未审核数据，不增加指令权限。
 
 压力评测：`docker compose run --rm init-data python eval/run.py --adapter single --categories D --tag context-none --context-strategy none --context-limit 16000`；替换策略及标签可重跑 mask/summary。上下文用量来自 provider 的 `usage.prompt_tokens`，超限在该次响应到达后判失败；不会把字符数估计冒充精确 token，也无法在发送前精确预判。摘要调用计入总预算。
+
+Step 4 知识库位于 `kb/`，按一个指标或陷阱切分。jieba BM25 与 pgvector 余弦排序经 RRF 融合取前三块。`RAG_MODE=off|inject|tool` 控制知识访问；off 连工具定义也不提供。默认本地 multilingual-e5-small，通过独立容器的 OpenAI 兼容 `/v1/embeddings` 调用，不需要模型服务密钥。可设置 `EMBEDDING_BASE_URL/MODEL/API_KEY` 使用其他兼容服务，切换后必须重建索引。
+
+```powershell
+docker compose build init-data embeddings
+docker compose up -d --wait embeddings mcp-olist
+docker compose run --rm init-data python -m scripts.index_knowledge
+docker compose run --rm init-data python eval/run.py --retrieval --split dev --tag retrieval-dev
+docker compose run --rm init-data python eval/run.py --adapter single --categories C --rag-mode inject --tag rag-inject
+```
+
+第三条命令原子重建索引并保存内容哈希与真实模型文件哈希证据。首次下载公开向量权重需要网络；不会以随机向量或关键词向量代替下载失败的模型。KB 与 C 题源于同一批业务陷阱，因此 C dev 提升不能直接解释为未知知识泛化；全部 C 标注均固定，当前只评 dev，不据 holdout 调参。
