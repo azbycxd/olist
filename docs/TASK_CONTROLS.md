@@ -23,3 +23,5 @@
 验证：最终完整测试 [XML](../evidence/step11_final_tests.xml) 中 216 项通过，包含并发抢槽/额度预留、取消授权与幂等、排队/确认超时、阻塞子进程终止、UTC 分日结算、真实子进程与本地 HTTP 模型替身握手、MCP 租约失效、事务开始后仍按实际时钟判断截止时间与迁移恢复。HTTP 替身的零 usage 是测试数据，不是模型费用证据。首轮 [测试记录](../evidence/step11_controls_initial.xml) 的失败来自新测试未设置测试用 JWT secret，修正测试夹具后通过；失败记录保留。
 
 [GitHub Actions](../.github/workflows/unit-tests.yml) 对 push 和 pull_request 运行 Python 3.11 离线测试，不需要密钥、原始 CSV、Postgres、MCP 或向量服务。显式排除 integration；`CI_OFFLINE=1` 下测试连接数据库或网络会直接失败。[最终本地同配置 XML](../evidence/step11_final_offline_tests.xml)：175 项通过，41 项集成测试不进入该作业。动作版本按 [checkout 官方用法](https://github.com/actions/checkout)和 [setup-python 官方用法](https://github.com/actions/setup-python)配置。
+
+实现提交 `e428eb220c643ea667aa028ed9e360d4e746a572` 的远程 [Actions 运行](https://github.com/azbycxd/olist/actions/runs/39030520333) 已成功：175 项通过、41 项 deselected；[CI 收据](../evidence/step11_ci_39030520333.summary.json) 保存作业状态、原始日志摘录和 XML artifact 元数据。
