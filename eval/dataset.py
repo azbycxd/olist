@@ -18,6 +18,9 @@ def load_questions(path=QUESTION_FILE):
             raise ValueError("Invalid answer_type")
         if q["category"] in "CE" and not q.get("template_id"):
             raise ValueError("Parameterized cases require template_id")
+        if q["category"] == "C" and (q["answer_type"] != "number" or not isinstance(q.get("naive_sql"), str)
+                                      or not q["naive_sql"].strip()):
+            raise ValueError("C cases require numeric answers and a nonempty naive_sql")
         if q["category"] == "E" and (not q.get("setup_turns") or not q.get("new_session")):
             raise ValueError("Memory cases require setup turns followed by a new session")
         ids.add(q["id"])

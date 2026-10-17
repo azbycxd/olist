@@ -6,3 +6,4 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | zero-smoke | C,D | dev | 1 / 25 | 4.00% | 0.00% | 100.00% | 100.00% |  | 0 | 0 | `eval_zero-smoke_20261017T062921Z_e275effa.jsonl` | [eval_zero-smoke_20261017T062921Z_e275effa.summary.json](../evidence/eval_zero-smoke_20261017T062921Z_e275effa.summary.json) |
 | zero-smoke-final | C,D | dev | 1 / 25 | 4.00% | 0.00% | 100.00% | 100.00% |  | 0 | 0 | `eval_zero-smoke-final_20261017T063318Z_b7b7e550.jsonl` | [eval_zero-smoke-final_20261017T063318Z_b7b7e550.summary.json](../evidence/eval_zero-smoke-final_20261017T063318Z_b7b7e550.summary.json) |
+| zero-smoke-revision | C,D | dev | 0 / 25 | 0.00% | 0.00% | 100.00% | 100.00% |  | 0 | 0 | `eval_zero-smoke-revision_20261017T064502Z_4a4ae9ce.jsonl` | [eval_zero-smoke-revision_20261017T064502Z_4a4ae9ce.summary.json](../evidence/eval_zero-smoke-revision_20261017T064502Z_4a4ae9ce.summary.json) |

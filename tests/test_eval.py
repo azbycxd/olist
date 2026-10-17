@@ -21,6 +21,8 @@ from eval.generate_questions import generate
 from eval.judge import ModelJudge
 from eval.run import HEADER, append_results, summarize, usage_summary
 from eval.scoring import gold_answer, score
+from eval.validate_gold import compare_trap
+from eval import validate_gold
 
 REF = str(uuid4())
 
@@ -43,6 +45,41 @@ def test_questions_are_reproducible_and_stratified():
     profile = (ROOT/"docs/data_profile.md").read_text(encoding="utf-8")
     assert all("## " + q["profile_section"] in profile for q in actual if q["category"] == "C")
     assert len({q["question"] for q in actual}) == len(actual)
+
+
+def test_c_questions_hide_rules_and_private_naive_queries():
+    for q in load_questions():
+        if q["category"] != "C":
+            continue
+        assert q["naive_sql"] != q["gold_sql"]
+        assert not any(hint in q["question"] for hint in (
+            "去重", "运费", "配送费", "排除", "剔除", "所有状态", "默认口径",
+            "customer_id", "customer_unique_id", "price", "一单多评", "只计一次"))
+        case = public_case(q, "user", None, "task")
+        assert not hasattr(case, "naive_sql") and not hasattr(case, "gold_sql")
+        assert not hasattr(case, "template_id") and not hasattr(case, "parameters")
+
+
+@pytest.mark.parametrize("gold,naive,passed,reason", [
+    (100, "100.999", False, "difference_below_threshold"),
+    (100, 101, True, None), (100, 99, True, None),
+    (-100, -101, True, None), (100, 100, False, "difference_below_threshold"),
+    (0, 100, False, "zero_gold"), (0, 0, False, "zero_gold"),
+])
+def test_trap_strength_requires_nonzero_gold_and_one_percent_gap(gold, naive, passed, reason):
+    result = compare_trap(gold, naive)
+    assert result["passed"] is passed and result["reason"] == reason
+    assert result["relative_difference"] == (abs(Decimal(naive)-Decimal(gold))/abs(Decimal(gold)) if gold else None)
+
+
+@pytest.mark.parametrize("field,value", [("naive_sql", ""), ("naive_sql", None), ("answer_type", "list")])
+def test_c_validation_requires_a_numeric_naive_oracle(tmp_path, field, value):
+    question = next(q for q in load_questions() if q["category"] == "C")
+    question[field] = value
+    path = tmp_path/"questions.jsonl"
+    path.write_text(json.dumps(question), encoding="utf-8")
+    with pytest.raises(ValueError, match="naive_sql"):
+        load_questions(path)
 
 
 def test_checker_rejects_fabricated_evidence():
@@ -75,6 +112,34 @@ def test_report_scanner_catches_unclaimed_numbers():
     assert report_numbers("2018 年 Q2，2018-04-01，收入 1.5 万元，增长 12.5%，1,234 个。") == [Decimal(15000),Decimal("12.5"),Decimal(1234)]
     assert check(FinalAnswer(answer="利润 999", claims=[]), lambda _: {}, "task", "v1")["unsupported_number_ratio"] == 1
     assert check(FinalAnswer(answer="无法回答", claims=[]), lambda _: {}, "task", "v1")["unsupported_claim_ratio"] is None
+
+
+@pytest.mark.parametrize("text,value", [
+    ("销售额下降 5%", -5), ("销售额减少 5%", -5), ("环比为 -5%", -5),
+    ("环比为负 5%", -5), ("环比为 −5%", -5), ("销售额减少 5 万元", -50000),
+    ("降幅为 -5%", 5),
+])
+def test_report_numbers_match_signed_sql_by_magnitude(text, value):
+    verified = audit(answer(value=value, evidence=[REF], text=text, report=text), rows=[{"change": value}])
+    assert verified["unsupported_claims"] == 0
+    assert verified["report_number_count"] == 2
+    assert verified["unsupported_numbers"] == 0
+
+
+def test_report_sign_normalization_preserves_evidence_checks():
+    # Structured values preserve the SQL sign, and wrong magnitudes still fail.
+    assert not supports(5, [{"change": -5}])
+    checked = audit(answer(value=-5, evidence=[REF], text="下降 6%", report="减少 6%"), rows=[{"change": -5}])
+    assert checked["unsupported_numbers"] == 2
+    assert audit(answer(value=-5, text="下降 5%", report="下降 5%"))["unsupported_numbers"] == 2
+
+
+def test_checker_rejects_arithmetic_not_returned_by_sql():
+    checked = audit(answer(value={"before":100, "after":80}, evidence=[REF],
+                          text="销售额从 100 降到 80", report="减少 20，下降 20%"),
+                    rows=[{"before":100, "after":80}])
+    assert checked["unsupported_claims"] == 0
+    assert checked["unsupported_numbers"] == 2
 
 
 @pytest.mark.parametrize("value", [True, "答案100以及99", [100], "NaN"])
@@ -190,6 +255,32 @@ def test_checker_does_not_import_agent_code():
     tree=ast.parse((ROOT/"eval/checker.py").read_text(encoding="utf-8"))
     imports=[n.module for n in ast.walk(tree) if isinstance(n,ast.ImportFrom)]
     assert all(not name.startswith(("agent", "mcp_olist")) for name in imports if name)
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(os.getenv("RUN_DB_TESTS") != "1", reason="requires Compose databases")
+@pytest.mark.parametrize("gold_sql,naive_sql,reason", [
+    ("SELECT 0", "SELECT 100", "zero_gold"),
+    ("SELECT 100", "SELECT 100.9", "difference_below_threshold"),
+    ("SELECT 1/0", "SELECT 100", None),
+])
+def test_validator_rejects_bad_traps_and_keeps_validating(monkeypatch, tmp_path, gold_sql, naive_sql, reason):
+    template = next(q for q in load_questions() if q["category"] == "C")
+    questions = [{**template, "id":"bad", "gold_sql":gold_sql, "naive_sql":naive_sql},
+                 {**template, "id":"good", "gold_sql":"SELECT 100", "naive_sql":"SELECT 102"}]
+    records, published = [], []
+    monkeypatch.setattr(validate_gold, "load_questions", lambda: questions)
+    # Synthetic regression cases must never become committed run evidence.
+    monkeypatch.setattr(validate_gold, "start_log", lambda _: (None, tmp_path/"unit.jsonl"))
+    monkeypatch.setattr(validate_gold, "record", lambda logger, event, **fields: records.append({"event":event, **fields}))
+    monkeypatch.setattr(validate_gold, "publish_log", lambda path: published.append(path))
+    assert validate_gold.main() is True
+    summary = records[-1]
+    assert summary["event"] == "validation_summary" and summary["failures"] == ["bad"]
+    assert summary["passed"] == 1 and summary["c_passed"] == 1 and len(published) == 1
+    if reason:
+        comparison = next(r for r in records if r["event"] == "trap_compared" and r["question_id"] == "bad")
+        assert comparison["reason"] == reason and not comparison["passed"]
 
 
 @pytest.mark.integration

@@ -2,6 +2,7 @@
 
 import json
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 
 if __package__ in (None, ""):
@@ -22,11 +23,14 @@ def generate():
         parameters = template.get("cases", DEFAULT_CASES)
         for index, values in enumerate(parameters):
             params = dict(zip(("start", "end", "state"), values))
+            wording = {**params, "last_day": (date.fromisoformat(params["end"])-timedelta(days=1)).isoformat()}
+            sql_params = {k: literal(v) for k,v in params.items()}
             split = "holdout" if index == len(parameters)-1 else "dev"
             c_number += 1
             questions.append({"id": f"C{c_number:02d}", "category": "C", "split": split,
-                "question": template["holdout" if split == "holdout" else "dev"].format(**params),
-                "gold_sql": template["sql"].format(**{k: literal(v) for k,v in params.items()}),
+                "question": template["holdout" if split == "holdout" else "dev"].format(**wording),
+                "gold_sql": template["sql"].format(**sql_params),
+                "naive_sql": template["naive_sql"].format(**sql_params),
                 "answer_type": template["answer_type"], "template_id": template["id"],
                 "parameters": params, "profile_section": template["source"],
                 "profile_source": "docs/data_profile.md", "required_facts": []})

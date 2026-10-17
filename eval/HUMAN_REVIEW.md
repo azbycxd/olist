@@ -4,11 +4,11 @@ SQL 执行成功和自动测试通过不等于人工核对。以下项目由用�
 
 ## C 类模板
 
-逐条核对 `templates.py` 的 SQL、参数、对应 `docs/data_profile.md` 发现，以及生成题的 dev／holdout 问法。尤其核对左闭右开时间区间、原始表粒度和 NULL 处理。
+这是评测侧的私有审查清单，不传给 Agent。逐条核对 `templates.py` 的 gold／naive SQL、参数、对应 `docs/data_profile.md` 发现，以及生成题的 dev／holdout 问法。尤其核对左闭右开时间区间、原始表粒度和 NULL 处理。确认 naive 是不了解口径时自然会写的错误 SQL，题干不提示修正方式；两种答案及差异须与最新 `evidence/validate_gold_*.summary.json` 一致。自动验证不能代替这些人工判断。
 
 - [ ] C_unique_customer：使用真实客户标识，按指定州与购买时间去重。
 - [ ] C_gmv_status：采用显式业务约定排除取消／不可用订单。
-- [ ] C_freight：商品金额不含运费，题目要求的所有状态均保留。
+- [ ] C_freight：核对私有标准 SQL 的商品金额口径，题干不提示费用或状态范围。
 - [ ] C_join_grain：用 EXISTS 限定有支付记录的订单，不重复商品明细。
 - [ ] C_boundary_month：自然日去重，不把边界月当作完整观测。
 - [ ] C_category_coverage：LEFT JOIN 保留空品类及翻译缺失的商品。

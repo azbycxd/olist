@@ -119,10 +119,11 @@ Oct 16, 2026 · @jiusi
 **给 Codex 的要求**
 
 1. `eval/questions.jsonl`:每题包含 `id`、`category`、`question`、`gold_sql`、`answer_type`(number / list / key\_facts)、`split`、`template_id`(参数化题才有)。
-2. C、E 类用模板生成:每个陷阱写一个带参数的 gold SQL 模板,自动填入不同参数生成多道题。
-3. C 类陷阱必须来自 `data_profile.md` 的真实发现,例如复购按 `customer_unique_id` 统计、GMV 排除已取消订单、首尾不完整月份不能做环比。
+2. C、E 类用模板生成:每个陷阱写一个带参数的 gold SQL 模板,自动填入不同参数生成多道题。每个 C 类模板另加 `naive_sql`,表示不了解口径时最自然的错误写法;gold 和 naive SQL 均不传给 Agent。
+3. C 类陷阱必须来自 `data_profile.md` 的真实发现。dev 和 holdout 题干均使用业务人员的自然问法,不得写出去重方式、是否含运费或是否排除某些状态;Agent 所需口径只在 Step 4 知识库中提供。holdout 换问法或组合两个陷阱。`validate_gold.py` 对每道 C 题执行 gold 和 naive SQL,标准答案为零或相对差异不足 1% 的题目必须剔除或换参数,逐题差异与判定写入 `evidence/`。
 4. **统一输出格式**:任何模式的 Agent 最终都必须输出 `answer` 和 `claims` 列表,每条 claim 含 `text`、`value`、`evidence`(result\_id 列表)。
 5. **独立核查器** `eval/checker.py`:不调用 Agent 的任何代码,自己从 `query_results` 表取出 evidence 对应的结果,判断每条 claim 的 value 是否被结果支撑,输出"无证据结论比例"。运行时的审核者(Step 6)不参与评测打分。
+   - 报告数字按绝对值匹配证据,兼容“下降／减少”加正数幅度等写法;结构化 claim.value 保留 SQL 符号与精度。报告中所有业务数字(包括差值、比率)必须由 SQL 计算得到,Agent 不得自行计算。
 6. 判分规则:
    - number:相对误差 1% 以内算对;list:集合一致算对
    - D 类三个指标一起看:关键事实命中率、报告中无证据数字的比例(防止堆数字)、模型按评分标准给归因结论打 1–5 分
@@ -144,6 +145,7 @@ Oct 16, 2026 · @jiusi
 **验收**
 
 - [ ] 全部 gold SQL 可执行
+- [ ] 每道 C 类题标准答案非零,与 naive SQL 答案的相对差异达到 1%,证据已提交
 - [ ] 核查器单测:伪造一条无证据的 claim 能被识别出来
 - [ ] 用一个"永远回答 0"的假 Agent 跑通评测,`RESULTS.md` 有一行
 

@@ -93,7 +93,10 @@ def check(response: FinalAnswer, fetch, task_id: str, data_version: str):
     texts = [response.answer if isinstance(response.answer, str) else json.dumps(response.answer, ensure_ascii=False)]
     texts.extend(claim.text for claim in response.claims)
     measured = [n for text in texts for n in report_numbers(text)]
-    unsupported_numbers = sum(not any(equal(n, source, Decimal("0.01")) for source in grounded_numbers) for n in measured)
+    # Prose may say "下降 5%" for SQL's -5. Claims retain the signed SQL value;
+    # only the report's numeric surface form is matched by magnitude.
+    unsupported_numbers = sum(not any(equal(abs(n), abs(source), Decimal("0.01"))
+                                     for source in grounded_numbers) for n in measured)
     unsupported_claims = sum(not item["supported"] for item in outcomes)
     return {"claims": outcomes, "claim_count": len(outcomes), "unsupported_claims": unsupported_claims,
         "unsupported_claim_ratio": unsupported_claims/len(outcomes) if outcomes else None,
