@@ -11,7 +11,7 @@ from starlette.responses import JSONResponse
 
 from config import MCP_BEARER_TOKEN
 from mcp_olist.catalog import TABLES
-from mcp_olist.service import describe, run_query
+from mcp_olist.service import describe, run_query, get_saved_result
 
 mcp = FastMCP("olist-readonly", stateless_http=True, json_response=True,
               transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=True,
@@ -36,6 +36,12 @@ async def run_sql(sql: str, ctx: Context) -> dict:
     """Execute one read-only PostgreSQL SELECT; save the capped full result and return its evidence ID."""
     request = ctx.request_context.request
     return await asyncio.to_thread(run_query, sql, request.headers.get("x-task-id", ""))
+
+
+@mcp.tool()
+async def get_result(result_id: str, ctx: Context, offset: int=0, limit: int=20) -> dict:
+    """Retrieve a page of a saved SQL result belonging to the current task."""
+    return await asyncio.to_thread(get_saved_result,result_id,ctx.request_context.request.headers.get("x-task-id",""),offset,limit)
 
 
 class BearerAuth:

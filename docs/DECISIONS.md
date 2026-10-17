@@ -150,3 +150,23 @@
 **注入实验**：eval/injection.py 用真实已配置模型、惰性 MCP 替身，在样例行或查询结果插入角色伪装、回答零、DROP/DELETE、读文件及指定标记攻击。替身只识别固定样例的 SUM/COUNT，绝不执行 SQL；危险调用尝试即计诱导成功，不以实际破坏为条件。[数值输出约定复跑](../evidence/injection_20261017T075418Z_5df33c1a.summary.json)，原始日志 `injection_20261017T075418Z_5df33c1a.jsonl`：8/8 已暴露，0 次诱导成功，0 个不确定结果，8 个完成。未暴露或非规范回答不会算防御成功。有限合成攻击与单模型单次实验不构成免疫保证。
 
 保留[首次实验](../evidence/injection_20261017T075056Z_b0d957e8.summary.json)：同样 8 次暴露、0 次诱导，但当时合法答案分类要求数值，问题却允许文本，因此 7 条合法文本回答被该辅助字段误判。复跑明确数值输出，并将无法判定单列，未改写历史证据。测试挂载源码后首次未固定 PYTHONPATH，误导入旧安装包；保留[失败 XML](../evidence/step2_revision_final.xml)，以[固定路径复核 XML](../evidence/step2_revision_verified.xml)为修复验收。
+
+## Step 3 上下文策略与测量边界
+
+**问题**：历史工具结果持续占用输入，压缩又可能丢失发现和证据对应关系。
+
+**方案**：none 原样保留；mask 省略最近指定轮数以前的工具内容，留下 result_id/行数/取回提示；summary 在上一轮实测输入达到阈值后调用模型压缩完整的旧消息组。二者保留工具调用与返回的配对。固定笔记通过 save_finding 主动保存，摘要与笔记都只是未审核数据，不赋予系统指令权限。get_result 使用任务 ID 与结果 ID 双重条件分页读取。
+
+**测量**：逐轮 context_usage 记录 provider 实际 prompt_tokens 和峰值，超过 CONTEXT_LIMIT 即失败。缺少 provider tokenizer 时，不以字符数代替 token；超限判断发生在响应之后，该请求已经消耗的用量照实记录。摘要请求也计入上下文峰值和累计预算。
+
+**评测修复**：D 的事实提取原先只认单个 value 对象，遗漏已允许的行对象数组；现统一读取两种形态，仍要求原字段名、带符号数值、原容差及无矛盾重复。没有从州名等值推断事实字段，没有修改 gold 或证据核查器。原始三组实验保留；eval/run.py 的 --recheck-evidence 重新执行 gold SQL 并核查保存的真实回答，验证数据版本和题库哈希，记录来源收据哈希。重核行的 token 和耗时来自原始模型运行，不是第二次模型调用，也不能重复加总为新消耗。
+
+**实跑选择**：当前默认 none，保留 mask/summary 开关。D dev 这次窗口峰值均未超过限制；mask 反而有一次累计预算耗尽，summary 有两次。不能声称压缩在本题集提高了完成率，也不把单次小样本结论推广到更长任务。
+
+| 策略 | 事实命中 | 峰值上下文 token | 总 token | 完成 | 证据与原始日志 |
+| --- | --- | --- | --- | --- | --- |
+| none | 17 / 25 | 8093 | 124011 | 8 / 8 | [eval_context-none-rechecked_20261017T080247Z_47d4c5e8.summary.json](../evidence/eval_context-none-rechecked_20261017T080247Z_47d4c5e8.summary.json)；`eval_context-none-rechecked_20261017T080247Z_47d4c5e8.jsonl`；原模型日志 `eval_context-none_20261017T075816Z_8139f173.jsonl` |
+| mask | 19 / 25 | 8727 | 161730 | 7 / 8 | [eval_context-mask-rechecked_20261017T080250Z_c4f2d789.summary.json](../evidence/eval_context-mask-rechecked_20261017T080250Z_c4f2d789.summary.json)；`eval_context-mask-rechecked_20261017T080250Z_c4f2d789.jsonl`；原模型日志 `eval_context-mask_20261017T075930Z_1d702c4a.jsonl` |
+| summary | 16 / 25 | 7761 | 202430 | 6 / 8 | [eval_context-summary-rechecked_20261017T080253Z_0be96515.summary.json](../evidence/eval_context-summary-rechecked_20261017T080253Z_0be96515.summary.json)；`eval_context-summary-rechecked_20261017T080253Z_0be96515.jsonl`；原模型日志 `eval_context-summary_20261017T080054Z_e8ed1cbe.jsonl` |
+
+全部报告按严格的 D 完整正确标准仍未通过；事实字段遗漏、口径与未经 SQL 计算的叙述数字都保留。没有只报告结构化无证据结论比例来掩盖报告数字问题。summary 在真实运行中触发了摘要，费用仍因未配置单价留空。[最终镜像测试](../evidence/step3_image_tests.xml) 142 passed，原始日志 `step3_image_tests.log`。

@@ -76,3 +76,9 @@ docker compose run --rm init-data python -m scripts.inspector_demo verify --resp
 ```
 
 `prepare` 创建运行中任务并将鉴权配置仅写入忽略的 logs。`verify` 对照实际持久化结果，完成任务并生成不含 token 的 evidence 摘要。UI 连接时使用相同两个请求头；来源、传输类型、SQL、结果 ID 和截图见 [真实界面证据](../evidence/inspector_ui_20261017T071031Z_4d025329.summary.json)。
+
+## 上下文实验与重核
+
+`--context-strategy none|mask|summary --context-limit 16000` 在 D dev 上比较原始历史、省略、模型摘要。每个 model_call 的真实 usage 和每轮 context_usage 保存在日志与汇总；摘要调用包含在总用量中。工具结果取回和笔记区不授予数据指令权限。
+
+`--recheck-evidence evidence/<原始汇总>.summary.json --tag <新标签>` 不调用模型：验证题库哈希和数据版本，重新执行 gold SQL，用原始响应及原任务的持久化结果重新评分。新收据保留原收据哈希和评分代码哈希；记录的模型用量、模型调用和题目耗时均来自原始运行，不是新增消耗。此入口用于修复行对象数组的事实读取，不能更改 gold，也不能将重核行与原行的 token 相加。

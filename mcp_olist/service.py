@@ -74,3 +74,14 @@ def run_query(statement, task_id):
     return {"result_id":str(result_id), "sql":executable, "data_version":version, "row_count":len(rows),
             "row_limit":MAX_ROWS, "columns":columns, "preview":rows[:20], "statistics":stats,
             "notice":"row_count and statistics describe the executed, capped query. Compute report numbers in SQL."}
+
+
+def get_saved_result(result_id, task_id, offset=0, limit=20):
+    if not isinstance(offset,int) or not isinstance(limit,int) or offset<0 or not 1<=limit<=1000:
+        raise ValueError("offset must be nonnegative; limit must be 1..1000")
+    with psycopg.connect(**db_kwargs("agent","app")) as conn:
+        row = conn.execute("SELECT sql,columns,rows,row_count,data_version FROM query_results WHERE result_id=%s AND task_id=%s",
+            (UUID(result_id),UUID(task_id))).fetchone()
+    if not row: raise ValueError("Result is unavailable for this task")
+    return {"result_id":str(result_id),"sql":row[0],"columns":row[1],"preview":row[2][offset:offset+limit],
+            "row_count":row[3],"data_version":row[4],"offset":offset,"limit":limit}

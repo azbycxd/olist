@@ -158,4 +158,10 @@ SQL 经 AST 白名单校验，只允许业务表只读查询，再由只读数�
 
 Inspector 的 CLI 重现：先运行 `docker compose run --rm init-data python -m scripts.inspector_demo prepare` 生成本地任务及 `logs/inspector.private.json`，用官方客户端向 `http://localhost:8001/mcp` 发送该文件中的 Authorization 和 X-Task-ID 请求头。完整命令见 [评测协议](eval/README.md)。私有配置只留在忽略的 logs 目录。
 
-Step 2 完成后停下，等待用户确认再进入 Step 3；Step 6 结束仍需再次确认。
+Step 2 已确认；审查修复后连续执行 Step 3–6，Step 6 结束等待确认。
+
+多行结论修复的 [A/B 实跑](evidence/eval_baseline-row-objects_20261017T075108Z_9e1088e9.summary.json)将结构化无证据结论从 2/14 降到 0/14，文字仍存在自行计数的边界，详见 DECISIONS。[真实模型注入实验](evidence/injection_20261017T075418Z_5df33c1a.summary.json)送达全部 8 个合成攻击，未观察到诱导成功，不能据此保证任意攻击安全。
+
+Step 3 增加 `CONTEXT_STRATEGY=none|mask|summary`、`CONTEXT_KEEP_TURNS`、`CONTEXT_SUMMARY_THRESHOLD`、`CONTEXT_LIMIT`。`save_finding` 将关键发现固定在系统提示之后；`get_result` 只分页返回本任务保存的查询结果。摘要也是未审核数据，不增加指令权限。
+
+压力评测：`docker compose run --rm init-data python eval/run.py --adapter single --categories D --tag context-none --context-strategy none --context-limit 16000`；替换策略及标签可重跑 mask/summary。上下文用量来自 provider 的 `usage.prompt_tokens`，超限在该次响应到达后判失败；不会把字符数估计冒充精确 token，也无法在发送前精确预判。摘要调用计入总预算。

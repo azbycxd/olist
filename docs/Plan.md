@@ -202,7 +202,7 @@ Oct 16, 2026 · @jiusi
 - [x] 第三方 MCP 客户端可调用成功
 - [x] `RESULTS.md` 有两行基线数据
 
-Step 2 实跑证据与限制见 README、DECISIONS 和 evidence;本步完成后停下等待用户确认,不进入 Step 3。
+Step 2 已获用户确认；审查修复后按用户最新授权连续执行 Step 3、4、5、6，Step 6 结束停下等待确认。
 
 ## Step 3 长任务上下文管理(约半天)
 
@@ -233,8 +233,8 @@ Step 2 实跑证据与限制见 README、DECISIONS 和 evidence;本步完成后�
 
 **验收**
 
-- [ ] 三种策略都能跑通
-- [ ] `RESULTS.md` 有三行对比数据,DECISIONS.md 记录最终选择
+- [x] 三种策略均已实现并真实运行；预算失败如实保留
+- [x] `RESULTS.md` 有三行对比数据,DECISIONS.md 记录最终选择
 
 ## Step 4 RAG 业务知识库(约半天)
 

@@ -42,7 +42,11 @@ def score(question, response, gold, evidence):
     else:
         total, hit = len(gold), 0
         for key, expected in gold.items():
-            candidates = [claim.value[key] for claim in response.claims if isinstance(claim.value, dict) and key in claim.value]
+            # The public contract permits both a row and an array of row objects.
+            # Preserve exact fact keys, signed comparison and duplicate checks.
+            values = [row for claim in response.claims for row in
+                      (claim.value if isinstance(claim.value,list) else [claim.value])]
+            candidates = [row[key] for row in values if isinstance(row,dict) and key in row]
             # Contradictory duplicate claims do not earn fact credit.
             hit += bool(candidates) and all(equal(v, expected, Decimal("0.01")) for v in candidates)
         correct = (isinstance(response.answer, str) and bool(response.answer.strip())

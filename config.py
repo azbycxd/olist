@@ -30,6 +30,10 @@ MODEL_TIMEOUT = float(os.getenv("MODEL_TIMEOUT", "60"))
 MODEL_MAX_OUTPUT_TOKENS = int(os.getenv("MODEL_MAX_OUTPUT_TOKENS", "4096"))
 MCP_URL = os.getenv("MCP_URL", "http://localhost:8001/mcp")
 MCP_BEARER_TOKEN = os.getenv("MCP_BEARER_TOKEN", "")
+CONTEXT_STRATEGY = os.getenv("CONTEXT_STRATEGY", "none")
+CONTEXT_KEEP_TURNS = int(os.getenv("CONTEXT_KEEP_TURNS", "2"))
+CONTEXT_SUMMARY_THRESHOLD = int(os.getenv("CONTEXT_SUMMARY_THRESHOLD", "6000"))
+CONTEXT_LIMIT = int(os.getenv("CONTEXT_LIMIT", "16000"))
 
 
 def db_kwargs(database: str = "olist", role: str = "admin") -> dict:

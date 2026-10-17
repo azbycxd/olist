@@ -32,8 +32,8 @@ HEADER = """# 评测结果
 
 仅由 `eval/run.py` 的真实运行追加。每行标注原始日志文件名，并链接 Git 跟踪的汇总证据。未运行或不可取得的指标留空。zero 是固定回答零的测试夹具，只验证评测链路，不代表模型能力；费用由实际用量与显式配置单价计算。
 
-| 标签 | 类别 | 划分 | 正确题数 / 总题数 | 准确率 | D 关键事实命中率 | 无证据结论比例 | D 无证据数字比例 | D 归因评分 | 总 token | 费用 USD | 运行日志文件名 | 汇总证据 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 标签 | 类别 | 划分 | 正确题数 / 总题数 | 准确率 | D 关键事实命中率 | 无证据结论比例 | D 无证据数字比例 | D 归因评分 | 总 token | 费用 USD | 峰值上下文 token | 完成率 | 平均 token | 平均耗时 ms | BM25 recall@3 | 向量 recall@3 | 混合 recall@3 | 运行日志文件名 | 汇总证据 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 """
 
 
@@ -45,6 +45,8 @@ def summarize(rows):
     d_rows = [row for row in rows if row["category"] == "D"]
     grades = [row["judge"]["score"] for row in d_rows if row.get("judge")]
     return {"total": len(rows), "correct": sum(row["correct"] for row in rows),
+        "completion_rate":ratio(sum(r.get("termination")=="final_answer" for r in rows),len(rows)),
+        "peak_context_tokens":max((r.get("peak_context_tokens",0) for r in rows),default=0),
         "accuracy": ratio(sum(row["correct"] for row in rows), len(rows)),
         "fact_hits": sum(row["fact_hits"] or 0 for row in d_rows),
         "fact_total": sum(row["fact_total"] or 0 for row in d_rows),
@@ -89,6 +91,9 @@ def append_results(summary, receipt, path=ROOT / "docs" / "RESULTS.md"):
         percent(metrics["unsupported_claim_ratio"]), percent(metrics["d_unsupported_number_ratio"]),
         "" if metrics["judge_mean"] is None else f"{metrics['judge_mean']:.3f}",
         "" if usage["total_tokens"] is None else str(usage["total_tokens"]), usage["cost_usd"] or "",
+        str(metrics.get("peak_context_tokens","")),percent(metrics.get("completion_rate")),
+        "" if metrics.get("average_tokens") is None else f"{metrics['average_tokens']:.2f}",
+        "" if metrics.get("average_latency_ms") is None else f"{metrics['average_latency_ms']:.2f}", "", "", "",
         f"`{summary['source_log']}`", f"[{receipt.name}](../evidence/{receipt.name})"]
     if not path.exists():
         path.write_text(HEADER, encoding="utf-8")
@@ -100,6 +105,8 @@ def append_results(summary, receipt, path=ROOT / "docs" / "RESULTS.md"):
 
 def execute(args):
     os.environ["SCHEMA_MODE"] = args.schema_mode
+    os.environ["CONTEXT_STRATEGY"] = args.context_strategy
+    os.environ["CONTEXT_LIMIT"] = str(args.context_limit)
     selected = [q for q in load_questions() if q["category"] in args.categories and q["split"] == args.split]
     if not selected:
         raise ValueError("No matching questions")
@@ -150,6 +157,8 @@ def execute(args):
                         calls.append(payload)
                     if kind == "termination":
                         row.update({"termination":payload["reason"], "steps":payload["steps"]})
+                    if kind == "context_usage":
+                        row["peak_context_tokens"] = max(row.get("peak_context_tokens",0),payload["prompt_tokens"])
 
                 started = perf_counter()
                 row = {"question_id": q["id"], "category": q["category"], "task_id": str(task_id),
@@ -185,6 +194,7 @@ def execute(args):
             summary = {"run_id": run_id, "tag": args.tag, "categories": args.categories, "split": args.split,
                 "adapter": adapter.name, "adapter_version": adapter.version, "judge_mode": args.judge,
                 "schema_mode":args.schema_mode,
+                "context_strategy":args.context_strategy,"context_limit":args.context_limit,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
                 "runtime": {"python": sys.version.split()[0], **{p: package_version(p) for p in ("psycopg", "pydantic", "openai", "mcp", "sqlglot")}},
@@ -211,6 +221,42 @@ def execute(args):
         raise
 
 
+def recheck(path, tag):
+    """Recheck recorded real responses; never call the model or edit old receipts."""
+    original = json.loads(Path(path).read_text(encoding="utf-8"))
+    if original["question_file_sha256"] != hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest():
+        raise ValueError("Question file changed since the source run")
+    logger, log_path = start_log("eval_"+tag)
+    questions = {q["id"]:q for q in load_questions()}
+    with psycopg.connect(**db_kwargs("agent","app"),autocommit=True) as db, psycopg.connect(**db_kwargs(role="reader")) as oracle:
+        if not db.execute("SELECT pg_try_advisory_lock(730018)").fetchone()[0]: raise ValueError("Another evaluation is running")
+        oracle.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+        if oracle.execute("SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0] != original["data_version"]:
+            raise ValueError("Data version changed")
+        rows=[]
+        for case in original["cases"]:
+            row=dict(case)
+            if "response" in case:
+                response=FinalAnswer.model_validate(case["response"])
+                q=questions[case["question_id"]]
+                gold=execute_gold(oracle,q)[0]
+                audit=check(response,DatabaseEvidence(db),case["task_id"],original["data_version"])
+                row.update(score(q,response,gold,audit),evidence=audit)
+            rows.append(row)
+            record(logger,"rechecked_case",**row)
+        summary={**original,"tag":tag,"run_id":str(uuid4()),"cases":rows,"metrics":summarize(rows),
+            "by_category":{c:summarize([r for r in rows if r["category"]==c]) for c in original["categories"]},
+            "source_receipt":Path(path).name,"source_receipt_sha256":hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+            "recheck_only":True,"new_model_calls":0,"usage_provenance":"Original real model run; no new model usage",
+            "source_log":log_path.name,"recheck_scoring_sha256":hashlib.sha256((ROOT/"eval/scoring.py").read_bytes()).hexdigest()}
+        summary["metrics"]["average_tokens"]=original["metrics"].get("average_tokens")
+        record(logger,"run_summary",**summary)
+        summary["source_log_sha256"]=hashlib.sha256(log_path.read_bytes()).hexdigest()
+        receipt=write_evidence(log_path.stem+".summary.json",summary)
+        append_results(summary,receipt)
+        print("Evidence:",receipt.name)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tag", required=True)
@@ -219,13 +265,17 @@ def main():
     parser.add_argument("--adapter", default=EVAL_ADAPTER, choices=["zero", "single"])
     parser.add_argument("--schema-mode", default=SCHEMA_MODE, choices=["full", "on_demand"])
     parser.add_argument("--judge", default=EVAL_JUDGE, choices=["off", "model"])
+    parser.add_argument("--context-strategy",default="none",choices=["none","mask","summary"])
+    parser.add_argument("--context-limit",type=int,default=16000)
+    parser.add_argument("--recheck-evidence",type=Path)
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.tag):
         parser.error("tag must contain only ASCII letters, digits, underscores and hyphens")
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    execute(args)
+    if args.recheck_evidence: recheck(args.recheck_evidence,args.tag)
+    else: execute(args)
 
 
 if __name__ == "__main__":

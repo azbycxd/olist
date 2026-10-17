@@ -1,12 +1,13 @@
 FROM python:3.11-slim
 WORKDIR /app
-ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
-COPY pyproject.toml config.py contracts.py ./
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/app
+COPY pyproject.toml ./
+RUN python -c "import tomllib,subprocess; p=tomllib.load(open('pyproject.toml','rb'))['project']; subprocess.check_call(['pip','install','--no-cache-dir',*p['dependencies'],*p['optional-dependencies']['dev']])"
+COPY config.py contracts.py ./
 COPY scripts ./scripts
 COPY eval ./eval
 COPY agent ./agent
 COPY mcp_olist ./mcp_olist
-RUN pip install --no-cache-dir '.[dev]'
 COPY sql ./sql
 COPY tests ./tests
 ENTRYPOINT ["python", "-m", "scripts.entrypoint"]

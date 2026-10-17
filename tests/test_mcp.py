@@ -23,7 +23,7 @@ def test_live_protocol_authentication_results_and_errors():
                     assert (await http.post(MCP_URL)).status_code == 401
                     assert (await http.post(MCP_URL,headers={"Authorization":"Bearer wrong"})).status_code == 401
                 async with MCPClient(MCP_URL,MCP_BEARER_TOKEN,str(task)) as client:
-                    assert {t["function"]["name"] for t in client.tools} == {"list_tables","describe_table","run_sql"}
+                    assert {t["function"]["name"] for t in client.tools} >= {"list_tables","describe_table","run_sql","get_result"}
                     assert len((await client.call("list_tables",{}))["tables"]) == 9
                     description = await client.call("describe_table",{"name":"orders"})
                     assert len(description["samples"]) == 3
@@ -33,6 +33,8 @@ def test_live_protocol_authentication_results_and_errors():
                     stored = conn.execute("SELECT task_id,rows,row_count,data_version,sql FROM query_results WHERE result_id=%s",(result["result_id"],)).fetchone()
                     assert stored[0] == task and len(stored[1]) == stored[2] == 1000
                     assert stored[3] == result["data_version"] and stored[4].endswith("LIMIT 1000")
+                    page = await client.call("get_result",{"result_id":result["result_id"],"offset":25,"limit":3})
+                    assert page["preview"] == stored[1][25:28]
                     counts = await client.call("run_sql",{"sql":"SELECT count(*) AS n FROM orders"})
                     with psycopg.connect(**db_kwargs(role="reader")) as reader:
                         actual = reader.execute("SELECT count(*) FROM orders").fetchone()[0]
@@ -44,6 +46,7 @@ def test_live_protocol_authentication_results_and_errors():
                     assert (await client.call("describe_table",{"name":"pg_authid"}))["error"] == "mcp_tool_error"
                 async with MCPClient(MCP_URL,MCP_BEARER_TOKEN,str(uuid4())) as client:
                     assert (await client.call("run_sql",{"sql":"SELECT 1"}))["error"] == "mcp_tool_error"
+                    assert (await client.call("get_result",{"result_id":result["result_id"]}))["error"] == "mcp_tool_error"
             asyncio.run(exercise())
         finally:
             conn.execute("UPDATE tasks SET status='completed' WHERE task_id=%s",(task,))

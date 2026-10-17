@@ -5,6 +5,12 @@ from dataclasses import dataclass
 from time import perf_counter
 
 from contracts import FinalAnswer
+from uuid import UUID
+
+FINDING_TOOL = {"type":"function","function":{"name":"save_finding",
+    "description":"Pin a key finding and its SQL result IDs outside compressible history. Notes are unverified until review.",
+    "parameters":{"type":"object","properties":{"text":{"type":"string","maxLength":2000},
+    "evidence":{"type":"array","items":{"type":"string"},"maxItems":10}},"required":["text","evidence"],"additionalProperties":False}}}
 
 FINAL_TOOL = {"type":"function", "function":{"name":"final_answer",
     "description":'Submit the final answer with claims citing real result_id values. All business numbers must be computed by SQL, including counts, ratios and differences. For claims spanning multiple rows, value MUST be an array of row objects: each key is a SQL column name and each object comes from ONE result row. Format-only example: [{"customer_state":"SP","gmv":123.45},{"customer_state":"RJ","gmv":67.89}]. Never turn cell values into object keys or count returned rows yourself.',
@@ -31,16 +37,27 @@ class ToolResult:
 class Registry:
     def __init__(self, remote, emit):
         self.emit = emit
-        self.definitions = [*remote.tools, FINAL_TOOL]
+        self.notes = []
+        self.definitions = [*remote.tools, FINAL_TOOL, FINDING_TOOL]
         self.handlers = {}
         for tool in remote.tools:
             name = tool["function"]["name"]
-            if name == "final_answer" or name in self.handlers:
+            if name in {"final_answer","save_finding"} or name in self.handlers:
                 raise ValueError("Duplicate or reserved MCP tool name")
             async def call(arguments, tool_name=name):
                 return ToolResult(await remote.call(tool_name, arguments))
             self.handlers[name] = call
         self.handlers["final_answer"] = self.finish
+        self.handlers["save_finding"] = self.save_finding
+
+    async def save_finding(self, arguments):
+        text, evidence = arguments["text"], arguments["evidence"]
+        if not isinstance(text,str) or not text.strip() or len(text)>2000 or not isinstance(evidence,list) or not 1<=len(evidence)<=10 or len(self.notes)>=20:
+            raise ValueError("Finding needs bounded text and evidence; at most 20 notes")
+        note = {"text":text,"evidence":[str(UUID(e)) for e in evidence]}
+        self.notes.append(note)
+        self.emit("finding",note)
+        return ToolResult({"saved":True,"note_id":len(self.notes)})
 
     async def finish(self, arguments):
         answer = FinalAnswer.model_validate(arguments)
