@@ -27,6 +27,7 @@ from eval.judge import ModelJudge
 from eval.scoring import score
 from scripts.common import record, start_log
 from scripts.evidence import write_evidence
+from mcp_olist.embedding_config import provenance
 
 HEADER = """# 评测结果
 
@@ -59,6 +60,7 @@ def summarize(rows):
         "d_unsupported_number_ratio": ratio(sum(row["evidence"]["unsupported_numbers"] for row in d_rows), sum(row["evidence"]["report_number_count"] for row in d_rows)),
         "judge_mean": sum(grades)/len(grades) if grades else None, "judged_reports": len(grades),
         "average_latency_ms": sum(row["latency_ms"] for row in rows)/len(rows) if rows else None,
+        "average_agent_latency_ms":sum(r["agent_latency_ms"] for r in rows)/len(rows) if rows and all('agent_latency_ms' in r for r in rows) else None,
         "failures": sum(bool(row.get("error")) for row in rows),
         "average_steps": sum(row.get("steps",0) for row in rows)/len(rows) if rows and all("steps" in r for r in rows) else None,
         "terminations": {reason:sum(r.get("termination") == reason for r in rows)
@@ -109,6 +111,8 @@ def execute(args):
     os.environ["CONTEXT_LIMIT"] = str(args.context_limit)
     os.environ["RAG_MODE"] = args.rag_mode
     os.environ["USE_MEMORY"] = args.use_memory
+    os.environ["AGENT_MODE"] = args.agent_mode
+    os.environ["TOKEN_BUDGET"] = str(args.token_budget)
     selected = [q for q in load_questions() if q["category"] in args.categories and q["split"] == args.split]
     if not selected:
         raise ValueError("No matching questions")
@@ -134,9 +138,11 @@ def execute(args):
             data_version = oracle_db.execute("SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
             # Validate ALL selected gold queries before any adapter work or metrics.
             gold = {q["id"]: execute_gold(oracle_db, q)[0] for q in selected}
+            embedding = provenance(used=args.adapter != 'zero' and args.rag_mode != 'off')
             record(logger, "run_started", run_id=run_id, tag=args.tag, adapter=adapter.name,
                 adapter_version=adapter.version, judge=args.judge, split=args.split, categories=args.categories,
-                data_version=data_version, temperature=MODEL_TEMPERATURE, schema_mode=args.schema_mode)
+                data_version=data_version, temperature=MODEL_TEMPERATURE, schema_mode=args.schema_mode,
+                embedding=embedding)
             for q in selected:
                 # Private evaluator log only: never store the oracle in agent
                 # query_results or pass it across the adapter boundary.
@@ -168,6 +174,7 @@ def execute(args):
                     "judge": None, "judge_status": "off" if q["category"] == "D" else "not_applicable"}
                 try:
                     response = FinalAnswer.model_validate(adapter.run(public_case(q, user_id, setup_task, task_id), emit))
+                    row['agent_latency_ms']=(perf_counter()-started)*1000
                     audit = check(response, DatabaseEvidence(agent_db), str(task_id), data_version)
                     row.update(score(q, response, gold[q["id"]], audit))
                     row["evidence"] = audit
@@ -199,6 +206,8 @@ def execute(args):
                 "context_strategy":args.context_strategy,"context_limit":args.context_limit,
                 "rag_mode":args.rag_mode,
                 "use_memory":args.use_memory,
+                "agent_mode":args.agent_mode,"token_budget":args.token_budget,
+                "embedding":embedding,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
                 "runtime": {"python": sys.version.split()[0], **{p: package_version(p) for p in ("psycopg", "pydantic", "openai", "mcp", "sqlglot")}},
@@ -208,6 +217,7 @@ def execute(args):
                         *sorted((ROOT/"mcp_olist").glob("*.py"))]},
                 "metrics": summarize(results), "by_category": {c: summarize([r for r in results if r["category"] == c]) for c in args.categories},
                 "usage": usage_summary(calls, *prices), "pricing": {"input_per_million": prices[0], "output_per_million": prices[1]},
+                "agent_usage":usage_summary([c for c in calls if c.get('role')!='eval_judge'],*prices),
                 "model_calls": calls, "cases": results, "oracle_values": gold, "source_log": log_path.name,
                 "human_calibration": "pending"}
             summary["metrics"]["average_tokens"] = (summary["usage"]["total_tokens"]/len(results)
@@ -253,6 +263,7 @@ def recheck(path, tag):
             "source_receipt":Path(path).name,"source_receipt_sha256":hashlib.sha256(Path(path).read_bytes()).hexdigest(),
             "recheck_only":True,"new_model_calls":0,"usage_provenance":"Original real model run; no new model usage",
             "source_log":log_path.name,"recheck_scoring_sha256":hashlib.sha256((ROOT/"eval/scoring.py").read_bytes()).hexdigest()}
+        summary['recheck_checker_sha256']=hashlib.sha256((ROOT/'eval/checker.py').read_bytes()).hexdigest()
         summary["metrics"]["average_tokens"]=original["metrics"].get("average_tokens")
         record(logger,"run_summary",**summary)
         summary["source_log_sha256"]=hashlib.sha256(log_path.read_bytes()).hexdigest()
@@ -274,14 +285,20 @@ def main():
     parser.add_argument("--recheck-evidence",type=Path)
     parser.add_argument("--rag-mode",default="off",choices=["off","inject","tool"])
     parser.add_argument("--retrieval",action="store_true")
+    parser.add_argument("--embedding-benchmark",action="store_true")
     parser.add_argument("--use-memory",default="false",choices=["true","false"])
+    parser.add_argument("--agent-mode",default="single",choices=["single","multi_no_review","multi"])
+    parser.add_argument("--token-budget",type=int,default=50000)
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.tag):
         parser.error("tag must contain only ASCII letters, digits, underscores and hyphens")
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.retrieval:
+    if args.embedding_benchmark:
+        from eval.embedding_benchmark import execute as benchmark
+        benchmark(args)
+    elif args.retrieval:
         from eval.retrieval import execute_retrieval
         execute_retrieval(args,HEADER)
     elif args.recheck_evidence: recheck(args.recheck_evidence,args.tag)

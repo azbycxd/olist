@@ -1,0 +1,441 @@
+{
+  "source_log": "profile_data_20261017T084258Z_e4ebf6bf.jsonl",
+  "source_log_sha256": "dc9d3001b1609176892fabe2fee51cb832ec8fad8a1d1ad69320c3d10f2316bf",
+  "records": [
+    {
+      "at": "2026-10-17T08:42:58.372134+00:00",
+      "event": "profile_source",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a",
+      "manifest": {
+        "orders": {
+          "file": "olist_orders_dataset.csv",
+          "rows": 99441,
+          "sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf"
+        },
+        "sellers": {
+          "file": "olist_sellers_dataset.csv",
+          "rows": 3095,
+          "sha256": "1f643d2b950373b85735e7794b20986f528d7a000432e7c6f9bcbb44d0846a0e"
+        },
+        "products": {
+          "file": "olist_products_dataset.csv",
+          "rows": 32951,
+          "sha256": "3e6569628a17fbc75fd206ee357b59e20364b9afa90f5b6cd5b4d624c58aa9cc"
+        },
+        "customers": {
+          "file": "olist_customers_dataset.csv",
+          "rows": 99441,
+          "sha256": "983a422239e1712ded753b3bf9ecf47dc73f144d306029dcfa99e70a226883d2"
+        },
+        "geolocation": {
+          "file": "olist_geolocation_dataset.csv",
+          "rows": 1000163,
+          "sha256": "b514f6fc991b9566aeba02aa5d67e2c3630f034b60a0e05aa0d082a3b66d88d6"
+        },
+        "order_items": {
+          "file": "olist_order_items_dataset.csv",
+          "rows": 112650,
+          "sha256": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279"
+        },
+        "order_reviews": {
+          "file": "olist_order_reviews_dataset.csv",
+          "rows": 99224,
+          "sha256": "012b61c7593e34f51fa614efdf802b9c7056ce6aae5307ddb93236e7cfc797d7"
+        },
+        "order_payments": {
+          "file": "olist_order_payments_dataset.csv",
+          "rows": 103886,
+          "sha256": "4f713964f2815dbbaa40b9488268c55aac3627bfce5aa96cf58d1f3616de3cc0"
+        },
+        "product_category_name_translation": {
+          "file": "product_category_name_translation.csv",
+          "rows": 71,
+          "sha256": "a81f0d1f27b27e7293f761bc79e3ce8f348ee39c4b3ed3e49bde38f478586278"
+        }
+      },
+      "imported_at": "2026-10-17 06:10:08.286697+00:00",
+      "import_log": "load_olist_20261017T084252Z_685430c1.jsonl"
+    },
+    {
+      "at": "2026-10-17T08:42:58.381753+00:00",
+      "event": "query_result",
+      "name": "订单时间范围",
+      "sql": "SELECT count(*) AS orders,\n        min(order_purchase_timestamp) AS first_purchase,\n        max(order_purchase_timestamp) AS last_purchase FROM orders",
+      "rows": [
+        {
+          "orders": 99441,
+          "first_purchase": "2016-09-04 21:15:19",
+          "last_purchase": "2018-10-17 17:30:18"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:42:58.470159+00:00",
+      "event": "query_result",
+      "name": "每月订单数",
+      "sql": "WITH months AS (\n        SELECT generate_series(date_trunc('month', min(order_purchase_timestamp)),\n            date_trunc('month', max(order_purchase_timestamp)), interval '1 month') AS month\n        FROM orders)\n        SELECT to_char(m.month, 'YYYY-MM') AS month, count(o.order_id) AS orders,\n            min(o.order_purchase_timestamp)::date AS first_observed_day,\n            max(o.order_purchase_timestamp)::date AS last_observed_day\n        FROM months m LEFT JOIN orders o\n          ON o.order_purchase_timestamp >= m.month\n         AND o.order_purchase_timestamp < m.month + interval '1 month'\n        GROUP BY m.month ORDER BY m.month",
+      "rows": [
+        {
+          "month": "2016-09",
+          "orders": 4,
+          "first_observed_day": "2016-09-04",
+          "last_observed_day": "2016-09-15"
+        },
+        {
+          "month": "2016-10",
+          "orders": 324,
+          "first_observed_day": "2016-10-02",
+          "last_observed_day": "2016-10-22"
+        },
+        {
+          "month": "2016-11",
+          "orders": 0,
+          "first_observed_day": null,
+          "last_observed_day": null
+        },
+        {
+          "month": "2016-12",
+          "orders": 1,
+          "first_observed_day": "2016-12-23",
+          "last_observed_day": "2016-12-23"
+        },
+        {
+          "month": "2017-01",
+          "orders": 800,
+          "first_observed_day": "2017-01-05",
+          "last_observed_day": "2017-01-31"
+        },
+        {
+          "month": "2017-02",
+          "orders": 1780,
+          "first_observed_day": "2017-02-01",
+          "last_observed_day": "2017-02-28"
+        },
+        {
+          "month": "2017-03",
+          "orders": 2682,
+          "first_observed_day": "2017-03-01",
+          "last_observed_day": "2017-03-31"
+        },
+        {
+          "month": "2017-04",
+          "orders": 2404,
+          "first_observed_day": "2017-04-01",
+          "last_observed_day": "2017-04-30"
+        },
+        {
+          "month": "2017-05",
+          "orders": 3700,
+          "first_observed_day": "2017-05-01",
+          "last_observed_day": "2017-05-31"
+        },
+        {
+          "month": "2017-06",
+          "orders": 3245,
+          "first_observed_day": "2017-06-01",
+          "last_observed_day": "2017-06-30"
+        },
+        {
+          "month": "2017-07",
+          "orders": 4026,
+          "first_observed_day": "2017-07-01",
+          "last_observed_day": "2017-07-31"
+        },
+        {
+          "month": "2017-08",
+          "orders": 4331,
+          "first_observed_day": "2017-08-01",
+          "last_observed_day": "2017-08-31"
+        },
+        {
+          "month": "2017-09",
+          "orders": 4285,
+          "first_observed_day": "2017-09-01",
+          "last_observed_day": "2017-09-30"
+        },
+        {
+          "month": "2017-10",
+          "orders": 4631,
+          "first_observed_day": "2017-10-01",
+          "last_observed_day": "2017-10-31"
+        },
+        {
+          "month": "2017-11",
+          "orders": 7544,
+          "first_observed_day": "2017-11-01",
+          "last_observed_day": "2017-11-30"
+        },
+        {
+          "month": "2017-12",
+          "orders": 5673,
+          "first_observed_day": "2017-12-01",
+          "last_observed_day": "2017-12-31"
+        },
+        {
+          "month": "2018-01",
+          "orders": 7269,
+          "first_observed_day": "2018-01-01",
+          "last_observed_day": "2018-01-31"
+        },
+        {
+          "month": "2018-02",
+          "orders": 6728,
+          "first_observed_day": "2018-02-01",
+          "last_observed_day": "2018-02-28"
+        },
+        {
+          "month": "2018-03",
+          "orders": 7211,
+          "first_observed_day": "2018-03-01",
+          "last_observed_day": "2018-03-31"
+        },
+        {
+          "month": "2018-04",
+          "orders": 6939,
+          "first_observed_day": "2018-04-01",
+          "last_observed_day": "2018-04-30"
+        },
+        {
+          "month": "2018-05",
+          "orders": 6873,
+          "first_observed_day": "2018-05-01",
+          "last_observed_day": "2018-05-31"
+        },
+        {
+          "month": "2018-06",
+          "orders": 6167,
+          "first_observed_day": "2018-06-01",
+          "last_observed_day": "2018-06-30"
+        },
+        {
+          "month": "2018-07",
+          "orders": 6292,
+          "first_observed_day": "2018-07-01",
+          "last_observed_day": "2018-07-31"
+        },
+        {
+          "month": "2018-08",
+          "orders": 6512,
+          "first_observed_day": "2018-08-01",
+          "last_observed_day": "2018-08-31"
+        },
+        {
+          "month": "2018-09",
+          "orders": 16,
+          "first_observed_day": "2018-09-03",
+          "last_observed_day": "2018-09-29"
+        },
+        {
+          "month": "2018-10",
+          "orders": 4,
+          "first_observed_day": "2018-10-01",
+          "last_observed_day": "2018-10-17"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:42:58.478140+00:00",
+      "event": "query_result",
+      "name": "订单状态分布",
+      "sql": "SELECT order_status, count(*) AS orders\n        FROM orders GROUP BY order_status ORDER BY orders DESC, order_status",
+      "rows": [
+        {
+          "order_status": "delivered",
+          "orders": 96478
+        },
+        {
+          "order_status": "shipped",
+          "orders": 1107
+        },
+        {
+          "order_status": "canceled",
+          "orders": 625
+        },
+        {
+          "order_status": "unavailable",
+          "orders": 609
+        },
+        {
+          "order_status": "invoiced",
+          "orders": 314
+        },
+        {
+          "order_status": "processing",
+          "orders": 301
+        },
+        {
+          "order_status": "created",
+          "orders": 5
+        },
+        {
+          "order_status": "approved",
+          "orders": 2
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:42:58.516313+00:00",
+      "event": "query_result",
+      "name": "客户标识与复购",
+      "sql": "SELECT count(*) AS customer_ids,\n        count(DISTINCT customer_unique_id) AS unique_customers,\n        count(*) - count(DISTINCT customer_unique_id) AS id_difference,\n        (SELECT count(*) FROM (SELECT customer_unique_id FROM customers\n         GROUP BY customer_unique_id HAVING count(*) > 1) c) AS customers_with_multiple_ids\n        FROM customers",
+      "rows": [
+        {
+          "customer_ids": 99441,
+          "unique_customers": 96096,
+          "id_difference": 3345,
+          "customers_with_multiple_ids": 2997
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:42:58.526562+00:00",
+      "event": "query_result",
+      "name": "品类翻译覆盖率",
+      "sql": "SELECT count(*) AS products,\n        count(p.product_category_name) AS products_with_category,\n        count(*) FILTER (WHERE p.product_category_name IS NULL) AS products_missing_category,\n        count(t.product_category_name) AS translated_products,\n        count(DISTINCT p.product_category_name) AS observed_categories,\n        count(DISTINCT t.product_category_name) AS translated_categories,\n        round(100.0 * count(DISTINCT t.product_category_name) /\n          nullif(count(DISTINCT p.product_category_name), 0), 4) AS category_coverage_pct,\n        round(100.0 * count(t.product_category_name) /\n          nullif(count(p.product_category_name), 0), 4) AS named_product_coverage_pct,\n        round(100.0 * count(t.product_category_name) / nullif(count(*), 0), 4) AS all_product_coverage_pct\n        FROM products p LEFT JOIN product_category_name_translation t USING (product_category_name)",
+      "rows": [
+        {
+          "products": 32951,
+          "products_with_category": 32341,
+          "products_missing_category": 610,
+          "translated_products": 32328,
+          "observed_categories": 73,
+          "translated_categories": 71,
+          "category_coverage_pct": "97.2603",
+          "named_product_coverage_pct": "99.9598",
+          "all_product_coverage_pct": "98.1093"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:42:58.531533+00:00",
+      "event": "query_result",
+      "name": "未翻译的非空品类",
+      "sql": "SELECT p.product_category_name, count(*) AS products\n        FROM products p LEFT JOIN product_category_name_translation t USING (product_category_name)\n        WHERE p.product_category_name IS NOT NULL AND t.product_category_name IS NULL\n        GROUP BY p.product_category_name ORDER BY p.product_category_name",
+      "rows": [
+        {
+          "product_category_name": "pc_gamer",
+          "products": 3
+        },
+        {
+          "product_category_name": "portateis_cozinha_e_preparadores_de_alimentos",
+          "products": 10
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:42:59.992683+00:00",
+      "event": "query_result",
+      "name": "子表粒度与订单缺失关联",
+      "sql": "SELECT\n        (SELECT count(*) FROM (SELECT order_id FROM order_items GROUP BY order_id HAVING count(*) > 1) i) AS multi_item_orders,\n        (SELECT count(*) FROM (SELECT order_id FROM order_payments GROUP BY order_id HAVING count(*) > 1) p) AS multi_payment_orders,\n        (SELECT count(*) FROM (SELECT order_id FROM order_reviews GROUP BY order_id HAVING count(*) > 1) r) AS multi_review_orders,\n        count(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM order_items i WHERE i.order_id = o.order_id)) AS orders_without_items,\n        count(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id = o.order_id)) AS orders_without_payments,\n        count(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id = o.order_id)) AS orders_without_reviews\n        FROM orders o",
+      "rows": [
+        {
+          "multi_item_orders": 9803,
+          "multi_payment_orders": 2961,
+          "multi_review_orders": 547,
+          "orders_without_items": 775,
+          "orders_without_payments": 1,
+          "orders_without_reviews": 768
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:43:00.081035+00:00",
+      "event": "query_result",
+      "name": "金额口径与关联膨胀",
+      "sql": "SELECT\n        (SELECT sum(price) FROM order_items) AS item_price_total,\n        (SELECT sum(freight_value) FROM order_items) AS freight_total,\n        (SELECT sum(payment_value) FROM order_payments) AS payment_total,\n        (SELECT sum(i.price) FROM order_items i JOIN order_payments p USING (order_id)) AS naive_join_item_price_total,\n        (SELECT sum(i.price) FROM order_items i JOIN orders o USING (order_id)\n         WHERE o.order_status IN ('canceled', 'unavailable')) AS canceled_unavailable_item_price",
+      "rows": [
+        {
+          "item_price_total": "13591643.70",
+          "freight_total": "2251909.54",
+          "payment_total": "16008872.12",
+          "naive_join_item_price_total": "14209115.34",
+          "canceled_unavailable_item_price": "97242.96"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:43:00.097445+00:00",
+      "event": "query_result",
+      "name": "交付时间缺失",
+      "sql": "SELECT order_status, count(*) AS orders,\n        count(*) FILTER (WHERE order_delivered_customer_date IS NULL) AS missing_customer_delivery,\n        count(*) FILTER (WHERE order_delivered_carrier_date IS NULL) AS missing_carrier_delivery,\n        count(*) FILTER (WHERE order_approved_at IS NULL) AS missing_approval\n        FROM orders GROUP BY order_status ORDER BY order_status",
+      "rows": [
+        {
+          "order_status": "approved",
+          "orders": 2,
+          "missing_customer_delivery": 2,
+          "missing_carrier_delivery": 2,
+          "missing_approval": 0
+        },
+        {
+          "order_status": "canceled",
+          "orders": 625,
+          "missing_customer_delivery": 619,
+          "missing_carrier_delivery": 550,
+          "missing_approval": 141
+        },
+        {
+          "order_status": "created",
+          "orders": 5,
+          "missing_customer_delivery": 5,
+          "missing_carrier_delivery": 5,
+          "missing_approval": 5
+        },
+        {
+          "order_status": "delivered",
+          "orders": 96478,
+          "missing_customer_delivery": 8,
+          "missing_carrier_delivery": 2,
+          "missing_approval": 14
+        },
+        {
+          "order_status": "invoiced",
+          "orders": 314,
+          "missing_customer_delivery": 314,
+          "missing_carrier_delivery": 314,
+          "missing_approval": 0
+        },
+        {
+          "order_status": "processing",
+          "orders": 301,
+          "missing_customer_delivery": 301,
+          "missing_carrier_delivery": 301,
+          "missing_approval": 0
+        },
+        {
+          "order_status": "shipped",
+          "orders": 1107,
+          "missing_customer_delivery": 1107,
+          "missing_carrier_delivery": 0,
+          "missing_approval": 0
+        },
+        {
+          "order_status": "unavailable",
+          "orders": 609,
+          "missing_customer_delivery": 609,
+          "missing_carrier_delivery": 609,
+          "missing_approval": 0
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:43:00.221201+00:00",
+      "event": "query_result",
+      "name": "评价与地理位置键",
+      "sql": "SELECT\n        (SELECT count(*) FROM order_reviews) AS reviews,\n        (SELECT count(DISTINCT review_id) FROM order_reviews) AS distinct_review_ids,\n        (SELECT count(*) FROM order_reviews WHERE review_comment_message IS NULL) AS reviews_without_text,\n        (SELECT count(*) FROM geolocation) AS geolocation_rows,\n        (SELECT count(DISTINCT geolocation_zip_code_prefix) FROM geolocation) AS distinct_zip_prefixes",
+      "rows": [
+        {
+          "reviews": 99224,
+          "distinct_review_ids": 98410,
+          "reviews_without_text": 58247,
+          "geolocation_rows": 1000163,
+          "distinct_zip_prefixes": 19015
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T08:43:00.225849+00:00",
+      "event": "profile_written",
+      "output": "/app/docs/data_profile.md"
+    }
+  ]
+}

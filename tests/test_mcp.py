@@ -44,6 +44,10 @@ def test_live_protocol_authentication_results_and_errors():
                                       "SELECT order_id,order_id FROM orders"):
                         assert (await client.call("run_sql",{"sql":statement}))["error"] == "mcp_tool_error"
                     assert (await client.call("describe_table",{"name":"pg_authid"}))["error"] == "mcp_tool_error"
+                    ident='declining_count_and_largest_drop'
+                    state=await client.call('state_write',{'role':'planner','payload':{'subtasks':[{'id':ident,'question':'integration probe','depends_on':[]}]}})
+                    assert ident in state['subtasks']
+                    assert (await client.call('state_read',{}))['plan']['subtasks'][0]['id']==ident
                 async with MCPClient(MCP_URL,MCP_BEARER_TOKEN,str(uuid4())) as client:
                     assert (await client.call("run_sql",{"sql":"SELECT 1"}))["error"] == "mcp_tool_error"
                     assert (await client.call("get_result",{"result_id":result["result_id"]}))["error"] == "mcp_tool_error"

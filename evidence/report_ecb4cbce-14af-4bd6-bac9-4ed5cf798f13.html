@@ -1,0 +1,634 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D02；任务 ecb4cbce-14af-4bd6-bac9-4ed5cf798f13</p>
+<h2>原始问题</h2><p>2018 年 Q2 相比 Q1，有多少个原始葡文品类 GMV 下降？给出降幅金额最大的品类及下降金额，分析可能原因。只比较两个季度都有商品成交的非空品类，排除取消及不可用订单。</p><h2>回答</h2>
+<pre>在 2018 年 Q2 与 Q1 均有商品成交的非空原始葡文品类中（排除取消及不可用订单），Q2 GMV 低于 Q1 的品类数量为 30 个 <a href="#result-708f7e45-4921-431c-9f58-c00e3bd38bea">证据</a>。
+
+降幅金额最大的品类是 informatica_acessorios，下降金额为 114709.72（GMV 由 Q1 的 267645.70 降至 Q2 的 152935.98，环比 -0.4286）<a href="#result-f14043bd-9a65-4ca2-a4d8-d87754ae6e52">证据</a> <a href="#result-6984d9c1-7369-4537-8103-977c67987302">证据</a>。其后依次为 esporte_lazer（-78843.82）、papelaria（-27690.34）、cool_stuff（-24284.24）、moveis_escritorio（-15263.65）<a href="#result-f14043bd-9a65-4ca2-a4d8-d87754ae6e52">证据</a>。
+
+对 informatica_acessorios 的量价拆解显示：订单量由 2018 降至 1243（-0.3840），件数由 2432 降至 1409（-0.4206），每单件数由 1.2052 降至 1.1335，AOV 由 132.63 降至 123.04（-9.59），单件均价由 110.05 降至 108.54（-1.51）；订单量效应 -102787.62，客单价效应 -11922.10，合计等于 GMV 差额 <a href="#result-6984d9c1-7369-4537-8103-977c67987302">证据</a> <a href="#result-d8ccf4a7-15cd-4198-8d7c-6b818911f2e6">证据</a>。
+
+可能原因：该品类 GMV 下滑主要来自成交规模收缩而非价格，订单量效应远大于客单价效应，且件数降幅大于订单量降幅、每单件数同步走低，说明下滑更多体现为购买频次与单次购买件数的减少；涉及商品数由 564 降至 422，供给面收窄也可能参与其中。上述为基于量价拆解的关联性描述，数据本身不足以证明因果，具体驱动因素（如需求变化、促销节奏、库存或流量分配）未能验证。
+
+数据局限：结论仅覆盖两季度均有成交的非空原始葡文品类（共 <span style="color:red" title="未验证数字">67 </span>个），已排除取消及不可用订单；未覆盖两季度中任一季度无成交的品类，也未纳入非原始葡文或空品类，因此“30 个下降品类”与“最大降幅品类”均限于该口径，不能外推至全量品类。</pre><h2>结构化结论</h2>
+<p>GMV 降幅最大的原始葡文品类 informatica_acessorios 的 2018 Q1/Q2 有效订单指标：订单量 2018→1243，件数 2432→1409，客单价 132.63→123.04，涉及商品数 564→422 <a href="#result-d8ccf4a7-15cd-4198-8d7c-6b818911f2e6">证据</a></p><pre>[
+  {
+    &quot;aov_q1&quot;: &quot;132.63&quot;,
+    &quot;aov_q2&quot;: &quot;123.04&quot;,
+    &quot;items_q1&quot;: 2432,
+    &quot;items_q2&quot;: 1409,
+    &quot;orders_q1&quot;: 2018,
+    &quot;orders_q2&quot;: 1243,
+    &quot;products_q1&quot;: 564,
+    &quot;products_q2&quot;: 422,
+    &quot;product_category_name&quot;: &quot;informatica_acessorios&quot;
+  }
+]</pre>
+<p>该品类 GMV 由 Q1 267645.70 降至 Q2 152935.98，差额 -114709.72，环比 -0.4286；单件均价 110.05→108.54（-1.51） <a href="#result-6984d9c1-7369-4537-8103-977c67987302">证据</a></p><pre>[
+  {
+    &quot;gmv_q1&quot;: &quot;267645.70&quot;,
+    &quot;gmv_q2&quot;: &quot;152935.98&quot;,
+    &quot;gmv_diff&quot;: &quot;-114709.72&quot;,
+    &quot;gmv_qoq_ratio&quot;: &quot;-0.4286&quot;,
+    &quot;avg_item_price_q1&quot;: &quot;110.05&quot;,
+    &quot;avg_item_price_q2&quot;: &quot;108.54&quot;,
+    &quot;avg_item_price_diff&quot;: &quot;-1.51&quot;
+  }
+]</pre>
+<p>量价拆解：订单量减少 775 单（-0.3840）、件数减少 1023 件（-0.4206）、每单件数 1.2052→1.1335、AOV 下降 9.59；订单量效应 -102787.62，客单价效应 -11922.10，合计等于 GMV 差额 <a href="#result-6984d9c1-7369-4537-8103-977c67987302">证据</a></p><pre>[
+  {
+    &quot;aov_diff&quot;: &quot;-9.59&quot;,
+    &quot;items_diff&quot;: -1023,
+    &quot;orders_diff&quot;: -775,
+    &quot;price_effect&quot;: &quot;-11922.10&quot;,
+    &quot;volume_effect&quot;: &quot;-102787.62&quot;,
+    &quot;items_qoq_ratio&quot;: &quot;-0.4206&quot;,
+    &quot;orders_qoq_ratio&quot;: &quot;-0.3840&quot;,
+    &quot;items_per_order_q1&quot;: &quot;1.2052&quot;,
+    &quot;items_per_order_q2&quot;: &quot;1.1335&quot;
+  }
+]</pre>
+<p>2018 Q2 相对 Q1 有效订单 GMV 下降金额最大的原始葡文品类为 informatica_acessorios，下降金额 114709.72 <a href="#result-f14043bd-9a65-4ca2-a4d8-d87754ae6e52">证据</a></p><pre>[
+  {
+    &quot;largest_drop_amount&quot;: 114709.72,
+    &quot;largest_drop_category&quot;: &quot;informatica_acessorios&quot;
+  }
+]</pre>
+<p>下降金额排名第 2–5 的品类（按下降金额降序） <a href="#result-f14043bd-9a65-4ca2-a4d8-d87754ae6e52">证据</a></p><pre>[
+  {
+    &quot;largest_drop_amount&quot;: 78843.82,
+    &quot;largest_drop_category&quot;: &quot;esporte_lazer&quot;
+  },
+  {
+    &quot;largest_drop_amount&quot;: 27690.34,
+    &quot;largest_drop_category&quot;: &quot;papelaria&quot;
+  },
+  {
+    &quot;largest_drop_amount&quot;: 24284.24,
+    &quot;largest_drop_category&quot;: &quot;cool_stuff&quot;
+  },
+  {
+    &quot;largest_drop_amount&quot;: 15263.65,
+    &quot;largest_drop_category&quot;: &quot;moveis_escritorio&quot;
+  }
+]</pre>
+<p>2018 年 Q2 与 Q1 均有成交（非空原始葡文品类、排除 canceled/unavailable）的品类中，Q2 GMV 低于 Q1 的品类数量为 30 个。 <a href="#result-708f7e45-4921-431c-9f58-c00e3bd38bea">证据</a></p><pre>{
+  &quot;declining_categories&quot;: 30
+}</pre>
+<p>两季度均有成交的非空原始葡文品类共 67 个，其 Q1/Q2 GMV 与差额明细（按差额降序，前 20 行） <a href="#result-29cb357a-e5d2-4a84-a789-729333da6e90">证据</a></p><pre>[
+  {
+    &quot;gmv_q1&quot;: 236399.51,
+    &quot;gmv_q2&quot;: 303416.79,
+    &quot;gmv_diff&quot;: 67017.28,
+    &quot;product_category_name&quot;: &quot;relogios_presentes&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 110384.87,
+    &quot;gmv_q2&quot;: 164386.03,
+    &quot;gmv_diff&quot;: 54001.16,
+    &quot;product_category_name&quot;: &quot;utilidades_domesticas&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 248511.71,
+    &quot;gmv_q2&quot;: 295497.71,
+    &quot;gmv_diff&quot;: 46986.0,
+    &quot;product_category_name&quot;: &quot;beleza_saude&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 7450.0,
+    &quot;gmv_q2&quot;: 36331.84,
+    &quot;gmv_diff&quot;: 28881.84,
+    &quot;product_category_name&quot;: &quot;pcs&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 29204.63,
+    &quot;gmv_q2&quot;: 56990.15,
+    &quot;gmv_diff&quot;: 27785.52,
+    &quot;product_category_name&quot;: &quot;construcao_ferramentas_construcao&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 23277.13,
+    &quot;gmv_q2&quot;: 43495.65,
+    &quot;gmv_diff&quot;: 20218.52,
+    &quot;product_category_name&quot;: &quot;eletrodomesticos_2&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 35044.51,
+    &quot;gmv_q2&quot;: 54310.3,
+    &quot;gmv_diff&quot;: 19265.79,
+    &quot;product_category_name&quot;: &quot;instrumentos_musicais&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 97695.86,
+    &quot;gmv_q2&quot;: 114410.58,
+    &quot;gmv_diff&quot;: 16714.72,
+    &quot;product_category_name&quot;: &quot;bebes&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 59580.68,
+    &quot;gmv_q2&quot;: 76184.24,
+    &quot;gmv_diff&quot;: 16603.56,
+    &quot;product_category_name&quot;: &quot;brinquedos&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 11285.79,
+    &quot;gmv_q2&quot;: 27641.58,
+    &quot;gmv_diff&quot;: 16355.79,
+    &quot;product_category_name&quot;: &quot;portateis_casa_forno_e_cafe&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 34104.69,
+    &quot;gmv_q2&quot;: 49756.74,
+    &quot;gmv_diff&quot;: 15652.05,
+    &quot;product_category_name&quot;: &quot;pet_shop&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 122225.57,
+    &quot;gmv_q2&quot;: 135659.62,
+    &quot;gmv_diff&quot;: 13434.05,
+    &quot;product_category_name&quot;: &quot;automotivo&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 16692.99,
+    &quot;gmv_q2&quot;: 28568.37,
+    &quot;gmv_diff&quot;: 11875.38,
+    &quot;product_category_name&quot;: &quot;casa_construcao&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 17214.09,
+    &quot;gmv_q2&quot;: 27190.29,
+    &quot;gmv_diff&quot;: 9976.2,
+    &quot;product_category_name&quot;: &quot;eletrodomesticos&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 81020.32,
+    &quot;gmv_q2&quot;: 90919.53,
+    &quot;gmv_diff&quot;: 9899.21,
+    &quot;product_category_name&quot;: &quot;ferramentas_jardim&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 5778.73,
+    &quot;gmv_q2&quot;: 15545.13,
+    &quot;gmv_diff&quot;: 9766.4,
+    &quot;product_category_name&quot;: &quot;livros_interesse_geral&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 206034.47,
+    &quot;gmv_q2&quot;: 215538.86,
+    &quot;gmv_diff&quot;: 9504.39,
+    &quot;product_category_name&quot;: &quot;cama_mesa_banho&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 60771.48,
+    &quot;gmv_q2&quot;: 69883.87,
+    &quot;gmv_diff&quot;: 9112.39,
+    &quot;product_category_name&quot;: &quot;perfumaria&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 145342.99,
+    &quot;gmv_q2&quot;: 152989.38,
+    &quot;gmv_diff&quot;: 7646.39,
+    &quot;product_category_name&quot;: &quot;moveis_decoracao&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 6540.49,
+    &quot;gmv_q2&quot;: 13945.89,
+    &quot;gmv_diff&quot;: 7405.4,
+    &quot;product_category_name&quot;: &quot;construcao_ferramentas_iluminacao&quot;
+  }
+]</pre>
+<p>明细（第 21–47 行，按差额降序） <a href="#result-29cb357a-e5d2-4a84-a789-729333da6e90">证据</a></p><pre>[
+  {
+    &quot;gmv_q1&quot;: 54690.22,
+    &quot;gmv_q2&quot;: 60979.92,
+    &quot;gmv_diff&quot;: 6289.7,
+    &quot;product_category_name&quot;: &quot;telefonia&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 2686.48,
+    &quot;gmv_q2&quot;: 8768.98,
+    &quot;gmv_diff&quot;: 6082.5,
+    &quot;product_category_name&quot;: &quot;sinalizacao_e_seguranca&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 5237.75,
+    &quot;gmv_q2&quot;: 9374.49,
+    &quot;gmv_diff&quot;: 4136.74,
+    &quot;product_category_name&quot;: &quot;bebidas&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 34717.1,
+    &quot;gmv_q2&quot;: 38715.45,
+    &quot;gmv_diff&quot;: 3998.35,
+    &quot;product_category_name&quot;: &quot;eletroportateis&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 4218.98,
+    &quot;gmv_q2&quot;: 7332.28,
+    &quot;gmv_diff&quot;: 3113.3,
+    &quot;product_category_name&quot;: &quot;artes&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 3501.23,
+    &quot;gmv_q2&quot;: 5975.01,
+    &quot;gmv_diff&quot;: 2473.78,
+    &quot;product_category_name&quot;: &quot;livros_tecnicos&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 1139.76,
+    &quot;gmv_q2&quot;: 3234.88,
+    &quot;gmv_diff&quot;: 2095.12,
+    &quot;product_category_name&quot;: &quot;cine_foto&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 593.91,
+    &quot;gmv_q2&quot;: 2534.94,
+    &quot;gmv_diff&quot;: 1941.03,
+    &quot;product_category_name&quot;: &quot;musica&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 3081.4,
+    &quot;gmv_q2&quot;: 4515.87,
+    &quot;gmv_diff&quot;: 1434.47,
+    &quot;product_category_name&quot;: &quot;moveis_quarto&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 2953.2,
+    &quot;gmv_q2&quot;: 4251.98,
+    &quot;gmv_diff&quot;: 1298.78,
+    &quot;product_category_name&quot;: &quot;fashion_calcados&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 10232.75,
+    &quot;gmv_q2&quot;: 11396.43,
+    &quot;gmv_diff&quot;: 1163.68,
+    &quot;product_category_name&quot;: &quot;moveis_sala&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 11320.04,
+    &quot;gmv_q2&quot;: 12191.5,
+    &quot;gmv_diff&quot;: 871.46,
+    &quot;product_category_name&quot;: &quot;industria_comercio_e_negocios&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 124.5,
+    &quot;gmv_q2&quot;: 915.32,
+    &quot;gmv_diff&quot;: 790.82,
+    &quot;product_category_name&quot;: &quot;dvds_blu_ray&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 4211.83,
+    &quot;gmv_q2&quot;: 4579.54,
+    &quot;gmv_diff&quot;: 367.71,
+    &quot;product_category_name&quot;: &quot;alimentos&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 388.0,
+    &quot;gmv_q2&quot;: 587.0,
+    &quot;gmv_diff&quot;: 199.0,
+    &quot;product_category_name&quot;: &quot;fraldas_higiene&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 1167.0,
+    &quot;gmv_q2&quot;: 1197.08,
+    &quot;gmv_diff&quot;: 30.08,
+    &quot;product_category_name&quot;: &quot;livros_importados&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 79.98,
+    &quot;gmv_q2&quot;: 89.99,
+    &quot;gmv_diff&quot;: 10.01,
+    &quot;product_category_name&quot;: &quot;fashion_roupa_infanto_juvenil&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 73.69,
+    &quot;gmv_q2&quot;: 38.7,
+    &quot;gmv_diff&quot;: -34.99,
+    &quot;product_category_name&quot;: &quot;casa_conforto_2&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 27979.93,
+    &quot;gmv_q2&quot;: 27862.96,
+    &quot;gmv_diff&quot;: -116.97,
+    &quot;product_category_name&quot;: &quot;fashion_bolsas_e_acessorios&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 209.7,
+    &quot;gmv_q2&quot;: 89.9,
+    &quot;gmv_diff&quot;: -119.8,
+    &quot;product_category_name&quot;: &quot;fashion_esporte&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 311.74,
+    &quot;gmv_q2&quot;: 174.95,
+    &quot;gmv_diff&quot;: -136.79,
+    &quot;product_category_name&quot;: &quot;fashion_roupa_feminina&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 938.69,
+    &quot;gmv_q2&quot;: 772.79,
+    &quot;gmv_diff&quot;: -165.9,
+    &quot;product_category_name&quot;: &quot;fashion_roupa_masculina&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 501.0,
+    &quot;gmv_q2&quot;: 280.0,
+    &quot;gmv_diff&quot;: -221.0,
+    &quot;product_category_name&quot;: &quot;la_cuisine&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 508.75,
+    &quot;gmv_q2&quot;: 282.8,
+    &quot;gmv_diff&quot;: -225.95,
+    &quot;product_category_name&quot;: &quot;flores&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 2781.8,
+    &quot;gmv_q2&quot;: 2277.89,
+    &quot;gmv_diff&quot;: -503.91,
+    &quot;product_category_name&quot;: &quot;construcao_ferramentas_ferramentas&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 1443.2,
+    &quot;gmv_q2&quot;: 696.1,
+    &quot;gmv_diff&quot;: -747.1,
+    &quot;product_category_name&quot;: &quot;fashion_underwear_e_moda_praia&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 1049.7,
+    &quot;gmv_q2&quot;: 229.3,
+    &quot;gmv_diff&quot;: -820.4,
+    &quot;product_category_name&quot;: &quot;artigos_de_festas&quot;
+  }
+]</pre>
+<p>明细（第 48–67 行，按差额降序） <a href="#result-29cb357a-e5d2-4a84-a789-729333da6e90">证据</a></p><pre>[
+  {
+    &quot;gmv_q1&quot;: 1116.06,
+    &quot;gmv_q2&quot;: 151.9,
+    &quot;gmv_diff&quot;: -964.16,
+    &quot;product_category_name&quot;: &quot;tablets_impressao_imagem&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 9969.21,
+    &quot;gmv_q2&quot;: 8680.99,
+    &quot;gmv_diff&quot;: -1288.22,
+    &quot;product_category_name&quot;: &quot;climatizacao&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 8555.3,
+    &quot;gmv_q2&quot;: 7102.49,
+    &quot;gmv_diff&quot;: -1452.81,
+    &quot;product_category_name&quot;: &quot;casa_conforto&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 3751.04,
+    &quot;gmv_q2&quot;: 2138.36,
+    &quot;gmv_diff&quot;: -1612.68,
+    &quot;product_category_name&quot;: &quot;alimentos_bebidas&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 13569.51,
+    &quot;gmv_q2&quot;: 11895.54,
+    &quot;gmv_diff&quot;: -1673.97,
+    &quot;product_category_name&quot;: &quot;construcao_ferramentas_seguranca&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 4288.38,
+    &quot;gmv_q2&quot;: 2141.14,
+    &quot;gmv_diff&quot;: -2147.24,
+    &quot;product_category_name&quot;: &quot;market_place&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 3766.1,
+    &quot;gmv_q2&quot;: 1105.87,
+    &quot;gmv_diff&quot;: -2660.23,
+    &quot;product_category_name&quot;: &quot;artigos_de_natal&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 9113.37,
+    &quot;gmv_q2&quot;: 5848.46,
+    &quot;gmv_diff&quot;: -3264.91,
+    &quot;product_category_name&quot;: &quot;telefonia_fixa&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 12302.32,
+    &quot;gmv_q2&quot;: 9013.99,
+    &quot;gmv_diff&quot;: -3288.33,
+    &quot;product_category_name&quot;: &quot;moveis_cozinha_area_de_servico_jantar_e_jardim&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 7963.46,
+    &quot;gmv_q2&quot;: 3199.51,
+    &quot;gmv_diff&quot;: -4763.95,
+    &quot;product_category_name&quot;: &quot;construcao_ferramentas_jardim&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 17255.46,
+    &quot;gmv_q2&quot;: 11573.44,
+    &quot;gmv_diff&quot;: -5682.02,
+    &quot;product_category_name&quot;: &quot;audio&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 43316.18,
+    &quot;gmv_q2&quot;: 37628.79,
+    &quot;gmv_diff&quot;: -5687.39,
+    &quot;product_category_name&quot;: &quot;eletronicos&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 19277.24,
+    &quot;gmv_q2&quot;: 11296.25,
+    &quot;gmv_diff&quot;: -7980.99,
+    &quot;product_category_name&quot;: &quot;agro_industria_e_comercio&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 31073.54,
+    &quot;gmv_q2&quot;: 20369.82,
+    &quot;gmv_diff&quot;: -10703.72,
+    &quot;product_category_name&quot;: &quot;malas_acessorios&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 32038.43,
+    &quot;gmv_q2&quot;: 18506.93,
+    &quot;gmv_diff&quot;: -13531.5,
+    &quot;product_category_name&quot;: &quot;consoles_games&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 69189.81,
+    &quot;gmv_q2&quot;: 53926.16,
+    &quot;gmv_diff&quot;: -15263.65,
+    &quot;product_category_name&quot;: &quot;moveis_escritorio&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 108665.13,
+    &quot;gmv_q2&quot;: 84380.89,
+    &quot;gmv_diff&quot;: -24284.24,
+    &quot;product_category_name&quot;: &quot;cool_stuff&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 65174.16,
+    &quot;gmv_q2&quot;: 37483.82,
+    &quot;gmv_diff&quot;: -27690.34,
+    &quot;product_category_name&quot;: &quot;papelaria&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 251331.53,
+    &quot;gmv_q2&quot;: 172487.71,
+    &quot;gmv_diff&quot;: -78843.82,
+    &quot;product_category_name&quot;: &quot;esporte_lazer&quot;
+  },
+  {
+    &quot;gmv_q1&quot;: 267645.7,
+    &quot;gmv_q2&quot;: 152935.98,
+    &quot;gmv_diff&quot;: -114709.72,
+    &quot;product_category_name&quot;: &quot;informatica_acessorios&quot;
+  }
+]</pre>
+<section id="result-29cb357a-e5d2-4a84-a789-729333da6e90"><h2>SQL 证据 29cb357a-e5d2-4a84-a789-729333da6e90</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; END AS q, i.price FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN q = &#x27;Q1&#x27; THEN price END) AS gmv_q1, SUM(CASE WHEN q = &#x27;Q2&#x27; THEN price END) AS gmv_q2 FROM base GROUP BY cat) SELECT cat AS product_category_name, ROUND(gmv_q1, 2) AS gmv_q1, ROUND(gmv_q2, 2) AS gmv_q2, ROUND(gmv_q2 - gmv_q1, 2) AS gmv_diff FROM agg WHERE gmv_q1 IS NOT NULL AND gmv_q2 IS NOT NULL ORDER BY gmv_diff DESC LIMIT 1000</pre>
+<table><thead><tr><th>product_category_name</th><th>gmv_q1</th><th>gmv_q2</th><th>gmv_diff</th></tr></thead><tbody>
+<tr><td>relogios_presentes</td><td>236399.51</td><td>303416.79</td><td>67017.28</td></tr>
+<tr><td>utilidades_domesticas</td><td>110384.87</td><td>164386.03</td><td>54001.16</td></tr>
+<tr><td>beleza_saude</td><td>248511.71</td><td>295497.71</td><td>46986.00</td></tr>
+<tr><td>pcs</td><td>7450.00</td><td>36331.84</td><td>28881.84</td></tr>
+<tr><td>construcao_ferramentas_construcao</td><td>29204.63</td><td>56990.15</td><td>27785.52</td></tr>
+<tr><td>eletrodomesticos_2</td><td>23277.13</td><td>43495.65</td><td>20218.52</td></tr>
+<tr><td>instrumentos_musicais</td><td>35044.51</td><td>54310.30</td><td>19265.79</td></tr>
+<tr><td>bebes</td><td>97695.86</td><td>114410.58</td><td>16714.72</td></tr>
+<tr><td>brinquedos</td><td>59580.68</td><td>76184.24</td><td>16603.56</td></tr>
+<tr><td>portateis_casa_forno_e_cafe</td><td>11285.79</td><td>27641.58</td><td>16355.79</td></tr>
+<tr><td>pet_shop</td><td>34104.69</td><td>49756.74</td><td>15652.05</td></tr>
+<tr><td>automotivo</td><td>122225.57</td><td>135659.62</td><td>13434.05</td></tr>
+<tr><td>casa_construcao</td><td>16692.99</td><td>28568.37</td><td>11875.38</td></tr>
+<tr><td>eletrodomesticos</td><td>17214.09</td><td>27190.29</td><td>9976.20</td></tr>
+<tr><td>ferramentas_jardim</td><td>81020.32</td><td>90919.53</td><td>9899.21</td></tr>
+<tr><td>livros_interesse_geral</td><td>5778.73</td><td>15545.13</td><td>9766.40</td></tr>
+<tr><td>cama_mesa_banho</td><td>206034.47</td><td>215538.86</td><td>9504.39</td></tr>
+<tr><td>perfumaria</td><td>60771.48</td><td>69883.87</td><td>9112.39</td></tr>
+<tr><td>moveis_decoracao</td><td>145342.99</td><td>152989.38</td><td>7646.39</td></tr>
+<tr><td>construcao_ferramentas_iluminacao</td><td>6540.49</td><td>13945.89</td><td>7405.40</td></tr>
+<tr><td>telefonia</td><td>54690.22</td><td>60979.92</td><td>6289.70</td></tr>
+<tr><td>sinalizacao_e_seguranca</td><td>2686.48</td><td>8768.98</td><td>6082.50</td></tr>
+<tr><td>bebidas</td><td>5237.75</td><td>9374.49</td><td>4136.74</td></tr>
+<tr><td>eletroportateis</td><td>34717.10</td><td>38715.45</td><td>3998.35</td></tr>
+<tr><td>artes</td><td>4218.98</td><td>7332.28</td><td>3113.30</td></tr>
+<tr><td>livros_tecnicos</td><td>3501.23</td><td>5975.01</td><td>2473.78</td></tr>
+<tr><td>cine_foto</td><td>1139.76</td><td>3234.88</td><td>2095.12</td></tr>
+<tr><td>musica</td><td>593.91</td><td>2534.94</td><td>1941.03</td></tr>
+<tr><td>moveis_quarto</td><td>3081.40</td><td>4515.87</td><td>1434.47</td></tr>
+<tr><td>fashion_calcados</td><td>2953.20</td><td>4251.98</td><td>1298.78</td></tr>
+<tr><td>moveis_sala</td><td>10232.75</td><td>11396.43</td><td>1163.68</td></tr>
+<tr><td>industria_comercio_e_negocios</td><td>11320.04</td><td>12191.50</td><td>871.46</td></tr>
+<tr><td>dvds_blu_ray</td><td>124.50</td><td>915.32</td><td>790.82</td></tr>
+<tr><td>alimentos</td><td>4211.83</td><td>4579.54</td><td>367.71</td></tr>
+<tr><td>fraldas_higiene</td><td>388.00</td><td>587.00</td><td>199.00</td></tr>
+<tr><td>livros_importados</td><td>1167.00</td><td>1197.08</td><td>30.08</td></tr>
+<tr><td>fashion_roupa_infanto_juvenil</td><td>79.98</td><td>89.99</td><td>10.01</td></tr>
+<tr><td>casa_conforto_2</td><td>73.69</td><td>38.70</td><td>-34.99</td></tr>
+<tr><td>fashion_bolsas_e_acessorios</td><td>27979.93</td><td>27862.96</td><td>-116.97</td></tr>
+<tr><td>fashion_esporte</td><td>209.70</td><td>89.90</td><td>-119.80</td></tr>
+<tr><td>fashion_roupa_feminina</td><td>311.74</td><td>174.95</td><td>-136.79</td></tr>
+<tr><td>fashion_roupa_masculina</td><td>938.69</td><td>772.79</td><td>-165.90</td></tr>
+<tr><td>la_cuisine</td><td>501.00</td><td>280.00</td><td>-221.00</td></tr>
+<tr><td>flores</td><td>508.75</td><td>282.80</td><td>-225.95</td></tr>
+<tr><td>construcao_ferramentas_ferramentas</td><td>2781.80</td><td>2277.89</td><td>-503.91</td></tr>
+<tr><td>fashion_underwear_e_moda_praia</td><td>1443.20</td><td>696.10</td><td>-747.10</td></tr>
+<tr><td>artigos_de_festas</td><td>1049.70</td><td>229.30</td><td>-820.40</td></tr>
+<tr><td>tablets_impressao_imagem</td><td>1116.06</td><td>151.90</td><td>-964.16</td></tr>
+<tr><td>climatizacao</td><td>9969.21</td><td>8680.99</td><td>-1288.22</td></tr>
+<tr><td>casa_conforto</td><td>8555.30</td><td>7102.49</td><td>-1452.81</td></tr>
+<tr><td>alimentos_bebidas</td><td>3751.04</td><td>2138.36</td><td>-1612.68</td></tr>
+<tr><td>construcao_ferramentas_seguranca</td><td>13569.51</td><td>11895.54</td><td>-1673.97</td></tr>
+<tr><td>market_place</td><td>4288.38</td><td>2141.14</td><td>-2147.24</td></tr>
+<tr><td>artigos_de_natal</td><td>3766.10</td><td>1105.87</td><td>-2660.23</td></tr>
+<tr><td>telefonia_fixa</td><td>9113.37</td><td>5848.46</td><td>-3264.91</td></tr>
+<tr><td>moveis_cozinha_area_de_servico_jantar_e_jardim</td><td>12302.32</td><td>9013.99</td><td>-3288.33</td></tr>
+<tr><td>construcao_ferramentas_jardim</td><td>7963.46</td><td>3199.51</td><td>-4763.95</td></tr>
+<tr><td>audio</td><td>17255.46</td><td>11573.44</td><td>-5682.02</td></tr>
+<tr><td>eletronicos</td><td>43316.18</td><td>37628.79</td><td>-5687.39</td></tr>
+<tr><td>agro_industria_e_comercio</td><td>19277.24</td><td>11296.25</td><td>-7980.99</td></tr>
+<tr><td>malas_acessorios</td><td>31073.54</td><td>20369.82</td><td>-10703.72</td></tr>
+<tr><td>consoles_games</td><td>32038.43</td><td>18506.93</td><td>-13531.50</td></tr>
+<tr><td>moveis_escritorio</td><td>69189.81</td><td>53926.16</td><td>-15263.65</td></tr>
+<tr><td>cool_stuff</td><td>108665.13</td><td>84380.89</td><td>-24284.24</td></tr>
+<tr><td>papelaria</td><td>65174.16</td><td>37483.82</td><td>-27690.34</td></tr>
+<tr><td>esporte_lazer</td><td>251331.53</td><td>172487.71</td><td>-78843.82</td></tr>
+<tr><td>informatica_acessorios</td><td>267645.70</td><td>152935.98</td><td>-114709.72</td></tr>
+</tbody></table></section>
+<section id="result-708f7e45-4921-431c-9f58-c00e3bd38bea"><h2>SQL 证据 708f7e45-4921-431c-9f58-c00e3bd38bea</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS qtr, i.price FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27;), agg AS (SELECT cat, SUM(CASE WHEN qtr = &#x27;Q1&#x27; THEN price ELSE 0 END) AS gmv_q1, SUM(CASE WHEN qtr = &#x27;Q2&#x27; THEN price ELSE 0 END) AS gmv_q2 FROM q GROUP BY cat) SELECT COUNT(*) AS declining_categories FROM agg WHERE gmv_q1 &gt; 0 AND gmv_q2 &gt; 0 AND gmv_q2 &lt; gmv_q1 LIMIT 1000</pre>
+<table><thead><tr><th>declining_categories</th></tr></thead><tbody>
+<tr><td>30</td></tr>
+</tbody></table></section>
+<section id="result-f14043bd-9a65-4ca2-a4d8-d87754ae6e52"><h2>SQL 证据 f14043bd-9a65-4ca2-a4d8-d87754ae6e52</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>SELECT p.product_category_name AS largest_drop_category, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN i.price ELSE 0 END) - SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN i.price ELSE 0 END) AS largest_drop_amount FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; GROUP BY p.product_category_name HAVING SUM(CASE WHEN o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN i.price ELSE 0 END) &gt; 0 AND SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; THEN i.price ELSE 0 END) &gt; 0 ORDER BY largest_drop_amount DESC LIMIT 5</pre>
+<table><thead><tr><th>largest_drop_category</th><th>largest_drop_amount</th></tr></thead><tbody>
+<tr><td>informatica_acessorios</td><td>114709.72</td></tr>
+<tr><td>esporte_lazer</td><td>78843.82</td></tr>
+<tr><td>papelaria</td><td>27690.34</td></tr>
+<tr><td>cool_stuff</td><td>24284.24</td></tr>
+<tr><td>moveis_escritorio</td><td>15263.65</td></tr>
+</tbody></table></section>
+<section id="result-d8ccf4a7-15cd-4198-8d7c-6b818911f2e6"><h2>SQL 证据 d8ccf4a7-15cd-4198-8d7c-6b818911f2e6</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>SELECT p.product_category_name, COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN o.order_id END) AS orders_q1, COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN o.order_id END) AS orders_q2, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN 1 ELSE 0 END) AS items_q1, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN 1 ELSE 0 END) AS items_q2, ROUND(SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN i.price ELSE 0 END) / NULLIF(COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN o.order_id END), 0), 2) AS aov_q1, ROUND(SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN i.price ELSE 0 END) / NULLIF(COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN o.order_id END), 0), 2) AS aov_q2, COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN i.product_id END) AS products_q1, COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN i.product_id END) AS products_q2 FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name = &#x27;informatica_acessorios&#x27; GROUP BY p.product_category_name LIMIT 1000</pre>
+<table><thead><tr><th>product_category_name</th><th>orders_q1</th><th>orders_q2</th><th>items_q1</th><th>items_q2</th><th>aov_q1</th><th>aov_q2</th><th>products_q1</th><th>products_q2</th></tr></thead><tbody>
+<tr><td>informatica_acessorios</td><td>2018</td><td>1243</td><td>2432</td><td>1409</td><td>132.63</td><td>123.04</td><td>564</td><td>422</td></tr>
+</tbody></table></section>
+<section id="result-6984d9c1-7369-4537-8103-977c67987302"><h2>SQL 证据 6984d9c1-7369-4537-8103-977c67987302</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH q AS (SELECT COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN o.order_id END) AS orders_q1, COUNT(DISTINCT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN o.order_id END) AS orders_q2, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN 1 ELSE 0 END) AS items_q1, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN 1 ELSE 0 END) AS items_q2, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN i.price ELSE 0 END) AS gmv_q1, SUM(CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN i.price ELSE 0 END) AS gmv_q2 FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name = &#x27;informatica_acessorios&#x27;) SELECT orders_q1, orders_q2, orders_q2 - orders_q1 AS orders_diff, ROUND(CAST((orders_q2 - orders_q1) AS DECIMAL) / orders_q1, 4) AS orders_qoq_ratio, items_q1, items_q2, items_q2 - items_q1 AS items_diff, ROUND(CAST((items_q2 - items_q1) AS DECIMAL) / items_q1, 4) AS items_qoq_ratio, ROUND(CAST(items_q1 AS DECIMAL) / orders_q1, 4) AS items_per_order_q1, ROUND(CAST(items_q2 AS DECIMAL) / orders_q2, 4) AS items_per_order_q2, gmv_q1, gmv_q2, gmv_q2 - gmv_q1 AS gmv_diff, ROUND(CAST((gmv_q2 - gmv_q1) AS DECIMAL) / gmv_q1, 4) AS gmv_qoq_ratio, ROUND(gmv_q1 / orders_q1, 2) AS aov_q1, ROUND(gmv_q2 / orders_q2, 2) AS aov_q2, ROUND(gmv_q2 / orders_q2 - gmv_q1 / orders_q1, 2) AS aov_diff, ROUND(gmv_q1 / items_q1, 2) AS avg_item_price_q1, ROUND(gmv_q2 / items_q2, 2) AS avg_item_price_q2, ROUND(gmv_q2 / items_q2 - gmv_q1 / items_q1, 2) AS avg_item_price_diff, ROUND((orders_q2 - orders_q1) * (gmv_q1 / orders_q1), 2) AS volume_effect, ROUND(orders_q2 * (gmv_q2 / orders_q2 - gmv_q1 / orders_q1), 2) AS price_effect FROM q LIMIT 1000</pre>
+<table><thead><tr><th>orders_q1</th><th>orders_q2</th><th>orders_diff</th><th>orders_qoq_ratio</th><th>items_q1</th><th>items_q2</th><th>items_diff</th><th>items_qoq_ratio</th><th>items_per_order_q1</th><th>items_per_order_q2</th><th>gmv_q1</th><th>gmv_q2</th><th>gmv_diff</th><th>gmv_qoq_ratio</th><th>aov_q1</th><th>aov_q2</th><th>aov_diff</th><th>avg_item_price_q1</th><th>avg_item_price_q2</th><th>avg_item_price_diff</th><th>volume_effect</th><th>price_effect</th></tr></thead><tbody>
+<tr><td>2018</td><td>1243</td><td>-775</td><td>-0.3840</td><td>2432</td><td>1409</td><td>-1023</td><td>-0.4206</td><td>1.2052</td><td>1.1335</td><td>267645.70</td><td>152935.98</td><td>-114709.72</td><td>-0.4286</td><td>132.63</td><td>123.04</td><td>-9.59</td><td>110.05</td><td>108.54</td><td>-1.51</td><td>-102787.62</td><td>-11922.10</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 9,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 63,
+    &quot;unsupported_numbers&quot;: 9,
+    &quot;unsupported_number_ratio&quot;: 0.14285714285714285
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 4,
+    &quot;rationale&quot;: &quot;报告正确回答了核心问题：30 个品类下降、informatica_acessorios 降幅最大（-114709.72），并明确说明比较口径（两季度均有成交的非空原始葡文品类，排除取消及不可用订单）。量价拆解量化了订单量效应与客单价效应，且合计与 GMV 差额一致；同时明确将原因表述为关联性描述，并说明数据不足以证明因果，未凭空归咎营销或竞争。扣分点：67 个品类这一数字被标注为未验证，且证据核对显示存在未支撑数字；原因分析仍停留在量价分解层面，未交叉核对替代解释（如品类结构、季节性、促销日历等），也未给出可验证的后续行动，因此未达到 5 分。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>

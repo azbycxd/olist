@@ -11,9 +11,7 @@ import psycopg
 from openai import OpenAI
 
 from config import ROOT,db_kwargs
-
-MODEL=os.getenv("EMBEDDING_MODEL") or "intfloat/multilingual-e5-small"
-BASE=os.getenv("EMBEDDING_BASE_URL") or "http://embeddings:8002/v1"
+from mcp_olist.embedding_config import MODEL, REVISION, BASE, provenance
 
 
 def chunks():
@@ -34,6 +32,8 @@ def embed(texts,query=False):
     prefix=("query: " if query else "passage: ") if "e5" in MODEL else ""
     with OpenAI(base_url=BASE,api_key=os.getenv("EMBEDDING_API_KEY") or "local",timeout=300,max_retries=2) as client:
         response=client.embeddings.create(model=MODEL,input=[prefix+t for t in texts],encoding_format="float")
+    if response.model != MODEL or getattr(response, 'revision', None) != REVISION:
+        raise ValueError('Embedding response model/revision changed')
     vectors=[item.embedding for item in sorted(response.data,key=lambda x:x.index)]
     if len(vectors)!=len(texts) or len({len(v) for v in vectors})!=1 or not all(v and all(math.isfinite(n) for n in v) for v in vectors):
         raise ValueError("Invalid embedding response")
@@ -67,14 +67,16 @@ def fuse(*rankings):
 
 def rebuild():
     records=chunks()
+    identity=provenance(used=True)
     vectors=embed([r["content"] for r in records])
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
         conn.execute("SELECT pg_advisory_xact_lock(730019)")
         conn.execute("DELETE FROM knowledge_chunks")
         for row,vector in zip(records,vectors):
-            conn.execute("INSERT INTO knowledge_chunks(chunk_id,source,content,content_sha256,embedding,embedding_model,dimensions) VALUES(%s,%s,%s,%s,%s::vector,%s,%s)",
-                (row['chunk_id'],row['source'],row['content'],row['content_sha256'],json.dumps(vector),MODEL,len(vector)))
-    return {"chunks":len(records),"embedding_model":MODEL,"dimensions":len(vectors[0]),"contents":[{k:v for k,v in r.items() if k!='content'} for r in records]}
+            conn.execute("INSERT INTO knowledge_chunks(chunk_id,source,content,content_sha256,embedding,embedding_model,dimensions,embedding_revision) VALUES(%s,%s,%s,%s,%s::vector,%s,%s,%s)",
+                (row['chunk_id'],row['source'],row['content'],row['content_sha256'],json.dumps(vector),MODEL,len(vector),REVISION))
+    return {"chunks":len(records),"embedding_model":MODEL,"embedding_revision":REVISION,"embedding":identity,
+        "dimensions":len(vectors[0]),"contents":[{k:v for k,v in r.items() if k!='content'} for r in records]}
 
 
 def search(query,method="hybrid",limit=3):
@@ -82,8 +84,9 @@ def search(query,method="hybrid",limit=3):
     if not query.strip() or len(query)>6000: raise ValueError("Query must contain 1..6000 characters")
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
         conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
-        records=conn.execute("SELECT chunk_id,source,content,content_sha256,embedding_model,dimensions FROM knowledge_chunks ORDER BY chunk_id").fetchall()
-        if not records or any(r[4]!=MODEL for r in records): raise ValueError("Rebuild knowledge index for the configured model")
+        records=conn.execute("SELECT chunk_id,source,content,content_sha256,embedding_model,dimensions,embedding_revision FROM knowledge_chunks ORDER BY chunk_id").fetchall()
+        if not records or any(r[4]!=MODEL or r[6]!=REVISION for r in records):
+            raise ValueError("Rebuild knowledge index for the configured model/revision")
         keyword=[records[i][0] for i in bm25(query,[r[2] for r in records])] if method!='vector' else []
         vector=[]
         if method!='bm25':
@@ -92,4 +95,4 @@ def search(query,method="hybrid",limit=3):
             vector=[r[0] for r in conn.execute("SELECT chunk_id FROM knowledge_chunks ORDER BY embedding <=> %s::vector,chunk_id",(json.dumps(embedding),)).fetchall()]
     order=keyword if method=="bm25" else vector if method=="vector" else fuse(keyword,vector)
     lookup={r[0]:{"chunk_id":r[0],"source":r[1],"content":r[2],"content_sha256":r[3]} for r in records}
-    return {"method":method,"embedding_model":MODEL,"chunks":[lookup[i] for i in order[:limit]]}
+    return {"method":method,"embedding_model":MODEL,"embedding_revision":REVISION,"chunks":[lookup[i] for i in order[:limit]]}

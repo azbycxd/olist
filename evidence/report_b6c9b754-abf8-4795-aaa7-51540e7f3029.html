@@ -1,0 +1,77 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D04；任务 b6c9b754-abf8-4795-aaa7-51540e7f3029</p>
+<h2>原始问题</h2><p>2018 年 Q1 与 Q2，已送达且有实际送达时间的订单，平均交付天数各是多少、两期相差多少天？按购买日期分期、小数天计算，讨论时效变化。</p><h2>回答</h2>
+<pre>按购买日期分期（Q1：2018-01-01 至 2018-03-31；Q2：2018-04-01 至 2018-06-30），仅统计 order_status=&#x27;delivered&#x27; 且实际送达时间非空的订单，用「实际送达时间 − 购买时间」的秒数除以 86400 取平均（保留时分秒，不做 DATE 相减）：
+
+- 2018 Q1 平均交付天数：15.7449 天（样本 20,627 单）
+- 2018 Q2 平均交付天数：10.7703 天（样本 19,643 单）
+- 两期差值（Q2 − Q1）：−4.9746 天
+
+时效变化讨论：Q2 平均交付时长比 Q1 缩短约 4.97 天（降幅约三成），交付效率明显改善。需注意两点口径说明：一是平均值仅覆盖已送达且实际送达时间非空的订单，未送达订单缺实际交付时间属正常，被排除在分母之外，因此该指标反映的是「已履约订单」的时效，若 Q1 存在更多长期未送达订单被排除，可能低估 Q1 的真实等待体验；二是 Q1 包含 1 月，可能受年初物流与假期因素影响，Q2 的改善部分可能来自季节性因素，建议结合月度趋势与承运商/地区拆分进一步验证是否为结构性改善。</pre><h2>结构化结论</h2>
+<p>2018 Q1 已送达且有实际送达时间订单的平均交付天数为 15.74488046389216578796 天 <a href="#result-1f93e081-ad79-452e-aefc-a7d132b7ed53">证据</a></p><pre>{
+  &quot;q1_days&quot;: 15.744880463892166
+}</pre>
+<p>2018 Q2 已送达且有实际送达时间订单的平均交付天数为 10.77030644457265900003 天 <a href="#result-1f93e081-ad79-452e-aefc-a7d132b7ed53">证据</a></p><pre>{
+  &quot;q2_days&quot;: 10.77030644457266
+}</pre>
+<p>Q2 相对 Q1 的平均交付天数变化为 -4.97457401931950678793 天（缩短） <a href="#result-1f93e081-ad79-452e-aefc-a7d132b7ed53">证据</a></p><pre>{
+  &quot;change_days&quot;: -4.9745740193195065
+}</pre>
+<p>两期样本量：Q1 为 20627 单，Q2 为 19643 单（已送达且实际送达时间非空） <a href="#result-d8488320-23ad-40d9-b048-a5b3b3abcddf">证据</a></p><pre>[
+  {
+    &quot;period&quot;: &quot;Q1&quot;,
+    &quot;avg_days&quot;: 15.744880463892166,
+    &quot;n&quot;: 20627
+  },
+  {
+    &quot;period&quot;: &quot;Q2&quot;,
+    &quot;avg_days&quot;: 10.77030644457266,
+    &quot;n&quot;: 19643
+  }
+]</pre>
+<section id="result-1f93e081-ad79-452e-aefc-a7d132b7ed53"><h2>SQL 证据 1f93e081-ad79-452e-aefc-a7d132b7ed53</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH q AS (SELECT CASE WHEN order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS period, EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 AS d FROM orders WHERE order_status = &#x27;delivered&#x27; AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND order_purchase_timestamp &lt; &#x27;2018-07-01&#x27;) SELECT AVG(d) FILTER(WHERE period = &#x27;Q1&#x27;) AS q1_days, AVG(d) FILTER(WHERE period = &#x27;Q2&#x27;) AS q2_days, AVG(d) FILTER(WHERE period = &#x27;Q2&#x27;) - AVG(d) FILTER(WHERE period = &#x27;Q1&#x27;) AS change_days FROM q LIMIT 1000</pre>
+<table><thead><tr><th>q1_days</th><th>q2_days</th><th>change_days</th></tr></thead><tbody>
+<tr><td>15.74488046389216578796</td><td>10.77030644457265900003</td><td>-4.97457401931950678793</td></tr>
+</tbody></table></section>
+<section id="result-d8488320-23ad-40d9-b048-a5b3b3abcddf"><h2>SQL 证据 d8488320-23ad-40d9-b048-a5b3b3abcddf</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>SELECT &#x27;Q1&#x27; AS period, AVG(EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0) AS avg_days, COUNT(*) AS n FROM orders WHERE order_status = &#x27;delivered&#x27; AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; UNION ALL SELECT &#x27;Q2&#x27;, AVG(EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0), COUNT(*) FROM orders WHERE order_status = &#x27;delivered&#x27; AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; LIMIT 1000</pre>
+<table><thead><tr><th>period</th><th>avg_days</th><th>n</th></tr></thead><tbody>
+<tr><td>Q2</td><td>10.77030644457265900003</td><td>19643</td></tr>
+<tr><td>Q1</td><td>15.74488046389216578796</td><td>20627</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 4,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 13,
+    &quot;unsupported_numbers&quot;: 2,
+    &quot;unsupported_number_ratio&quot;: 0.15384615384615385
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 4,
+    &quot;rationale&quot;: &quot;核心数值与口径均正确：按购买日期分期、仅统计已送达且实际送达时间非空、用秒数/86400 计算小数天，Q1=15.7449、Q2=10.7703、差值−4.9746，与金标准一致；并量化了约4.97天、约三成的降幅。报告也说明了分母口径限制（排除未送达订单可能低估Q1等待体验）和季节性替代解释（Q1含1月假期因素），但仅停留在“建议进一步验证”，未给出可验证的后续行动或交叉核对承运商/地区拆分，因此未达5分。样本量数字未被证据直接支撑，但不影响核心结论。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>

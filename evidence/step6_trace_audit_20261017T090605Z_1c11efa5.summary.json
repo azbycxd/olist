@@ -1,0 +1,58 @@
+{
+  "source_log": "step6_trace_audit_20261017T090605Z_1c11efa5.jsonl",
+  "source_log_sha256": "787c7c15dd8178b5059cd373cd60ce6f16e9a7eeae2fb58202cb4e4a1d3d112c",
+  "records": [
+    {
+      "at": "2026-10-17T09:06:05.106545+00:00",
+      "event": "trace_verified",
+      "source_receipt": "ask_20261017T090344Z_1019015d.summary.json",
+      "source_receipt_sha256": "bc0ad565d77c4303072d0ae0abeb3abe271f1184eb8bfc6bc70dbf4b77abaa97",
+      "task_id": "5c1791c8-1a85-4cbd-9298-ed2cd48a647d",
+      "mcp_calls": 8,
+      "mcp_results": 8,
+      "database_events": 16,
+      "tools": [
+        "search_knowledge",
+        "state_write",
+        "state_write",
+        "list_tables",
+        "describe_table",
+        "run_sql",
+        "state_write",
+        "state_write"
+      ],
+      "state_roles": [
+        "planner",
+        "analyst",
+        "analyst",
+        "writer"
+      ],
+      "source_run_log": "ask_20261017T090344Z_1019015d.jsonl",
+      "termination": [
+        {
+          "reason": "final_answer",
+          "steps": 3,
+          "total_tokens": 9190,
+          "scope": "task"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-17T09:06:05.112372+00:00",
+      "event": "operational_run_exclusion",
+      "source_receipt": "eval_bge-single-repeat_20261017T090134Z_4257c690.summary.json",
+      "source_receipt_sha256": "bbf8214ae705ebc4c70162486a9b652c3187d337cacc7a58195666252ab25a37",
+      "source_run_log": "eval_bge-single-repeat_20261017T090134Z_4257c690.jsonl",
+      "affected_cases": [
+        "D02",
+        "D03",
+        "D04",
+        "D05"
+      ],
+      "reason": "Compose CLI smoke recreated the MCP dependency while the repeat was active; preserve the run but exclude it from mode comparison.",
+      "trigger_log": "step6_trace_smoke.console.log",
+      "trigger_log_sha256": "488fe7b9c295320812fee2a5263f99ec3b5eed997a69d9dcf4ef04a185b3e041",
+      "recovery": "No-deps isolated single rerun; frozen Agent snapshot matches original comparison code hashes."
+    }
+  ]
+}

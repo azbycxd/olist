@@ -1,0 +1,108 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D03；任务 b4ef2a38-dca3-4972-a421-6777d1b91a0a</p>
+<h2>原始问题</h2><p>2018 年 Q2，比较 SP 与 RJ 两州的真实下单客户数和 GMV，共四个关键事实。GMV 排除取消及不可用订单，客户数保留所有状态；讨论规模与客单结构。</p><h2>回答</h2>
+<pre>2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp 归属）SP 与 RJ 对比：
+
+1) 真实下单客户数（customer_unique_id 去重，保留全部订单状态）：SP 8,913 人，RJ 2,345 人；SP 比 RJ 多 6,568 人，为 RJ 的 3.8009 倍。
+2) GMV（order_items.price 之和，排除 canceled / unavailable 订单，不含运费）：SP 1,173,308.82，RJ 352,617.27；SP 比 RJ 高 820,691.55，为 RJ 的 3.3274 倍。
+3) 规模结构：SP 在客户数与 GMV 上均约为 RJ 的 3.3–3.8 倍，是绝对体量更大的市场；但客户数倍数（3.8009）高于 GMV 倍数（3.3274），说明 SP 的规模优势主要来自买家基数，而非单客产出。
+4) 客单结构：以 GMV/买家 粗略衡量，SP 为 131.64，RJ 为 150.37，SP 仅为 RJ 的 0.8754（约低 12.5%）。即 RJ 买家更少但人均贡献更高，SP 属于&quot;人多、单客偏低&quot;的规模型市场，RJ 属于&quot;人少、单客偏高&quot;的结构型市场。
+
+口径提示：客户数按全部状态统计、GMV 排除取消与不可用订单，两者分母不完全一致，故 GMV/买家 仅为近似客单指标，非严格同口径客单价。</pre><h2>结构化结论</h2>
+<p>2018 Q2 SP 真实下单客户数（customer_unique_id 去重，保留所有状态）为 8,913 人 <a href="#result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48">证据</a></p><pre>{
+  &quot;sp_buyers&quot;: 8913
+}</pre>
+<p>2018 Q2 RJ 真实下单客户数为 2,345 人 <a href="#result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48">证据</a></p><pre>{
+  &quot;rj_buyers&quot;: 2345
+}</pre>
+<p>2018 Q2 SP GMV（price 之和，排除 canceled/unavailable）为 1,173,308.82 <a href="#result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48">证据</a></p><pre>{
+  &quot;sp_gmv&quot;: &quot;1173308.82&quot;
+}</pre>
+<p>2018 Q2 RJ GMV（同口径）为 352,617.27 <a href="#result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48">证据</a></p><pre>{
+  &quot;rj_gmv&quot;: &quot;352617.27&quot;
+}</pre>
+<p>规模差距：SP 客户数比 RJ 多 6,568 人（3.8009 倍），GMV 比 RJ 高 820,691.55（3.3274 倍） <a href="#result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48">证据</a></p><pre>[
+  {
+    &quot;buyers_diff&quot;: 6568,
+    &quot;buyers_ratio&quot;: &quot;3.8009&quot;,
+    &quot;gmv_diff&quot;: &quot;820691.55&quot;,
+    &quot;gmv_ratio&quot;: &quot;3.3274&quot;
+  }
+]</pre>
+<p>客单结构：GMV/买家 SP 为 131.6401682935038708，RJ 为 150.3698379530916844，SP 仅为 RJ 的 0.8754 倍 <a href="#result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48">证据</a></p><pre>[
+  {
+    &quot;sp_gmv_per_buyer&quot;: &quot;131.6401682935038708&quot;,
+    &quot;rj_gmv_per_buyer&quot;: &quot;150.3698379530916844&quot;,
+    &quot;gmv_per_buyer_ratio&quot;: &quot;0.8754&quot;
+  }
+]</pre>
+<p>分州明细（客户数与 GMV 同表并列） <a href="#result-74065186-c44c-45d6-a8ab-738f843781bc">证据</a></p><pre>[
+  {
+    &quot;customer_state&quot;: &quot;RJ&quot;,
+    &quot;buyers&quot;: 2345,
+    &quot;gmv&quot;: &quot;352617.27&quot;
+  },
+  {
+    &quot;customer_state&quot;: &quot;SP&quot;,
+    &quot;buyers&quot;: 8913,
+    &quot;gmv&quot;: &quot;1173308.82&quot;
+  }
+]</pre>
+<section id="result-74065186-c44c-45d6-a8ab-738f843781bc"><h2>SQL 证据 74065186-c44c-45d6-a8ab-738f843781bc</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH q2 AS (SELECT o.order_id, o.customer_id, o.order_status FROM orders AS o WHERE o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27;), buyers AS (SELECT c.customer_state, COUNT(DISTINCT c.customer_unique_id) AS buyers FROM q2 JOIN customers AS c USING (customer_id) WHERE c.customer_state IN (&#x27;SP&#x27;, &#x27;RJ&#x27;) GROUP BY c.customer_state), gmv AS (SELECT c.customer_state, SUM(oi.price) AS gmv FROM q2 JOIN customers AS c USING (customer_id) JOIN order_items AS oi USING (order_id) WHERE c.customer_state IN (&#x27;SP&#x27;, &#x27;RJ&#x27;) AND NOT q2.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) GROUP BY c.customer_state) SELECT b.customer_state, b.buyers, g.gmv FROM buyers AS b JOIN gmv AS g USING (customer_state) ORDER BY b.customer_state LIMIT 1000</pre>
+<table><thead><tr><th>customer_state</th><th>buyers</th><th>gmv</th></tr></thead><tbody>
+<tr><td>RJ</td><td>2345</td><td>352617.27</td></tr>
+<tr><td>SP</td><td>8913</td><td>1173308.82</td></tr>
+</tbody></table></section>
+<section id="result-86f2940a-cdbd-45fc-8ae0-dd02c0a26b48"><h2>SQL 证据 86f2940a-cdbd-45fc-8ae0-dd02c0a26b48</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH q2 AS (SELECT o.order_id, o.customer_id, o.order_status FROM orders AS o WHERE o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27;), buyers AS (SELECT c.customer_state, COUNT(DISTINCT c.customer_unique_id) AS buyers FROM q2 JOIN customers AS c USING (customer_id) WHERE c.customer_state IN (&#x27;SP&#x27;, &#x27;RJ&#x27;) GROUP BY c.customer_state), gmv AS (SELECT c.customer_state, SUM(oi.price) AS gmv FROM q2 JOIN customers AS c USING (customer_id) JOIN order_items AS oi USING (order_id) WHERE c.customer_state IN (&#x27;SP&#x27;, &#x27;RJ&#x27;) AND NOT q2.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) GROUP BY c.customer_state), j AS (SELECT b.customer_state, b.buyers, g.gmv, g.gmv / b.buyers AS gmv_per_buyer FROM buyers AS b JOIN gmv AS g USING (customer_state)) SELECT MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN buyers END) AS sp_buyers, MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN buyers END) AS rj_buyers, MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN gmv END) AS sp_gmv, MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN gmv END) AS rj_gmv, MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN gmv END) - MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN gmv END) AS gmv_diff, ROUND(MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN gmv END) / MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN gmv END), 4) AS gmv_ratio, MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN buyers END) - MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN buyers END) AS buyers_diff, ROUND(CAST(MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN buyers END) AS DECIMAL) / MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN buyers END), 4) AS buyers_ratio, MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN gmv_per_buyer END) AS sp_gmv_per_buyer, MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN gmv_per_buyer END) AS rj_gmv_per_buyer, ROUND(MAX(CASE WHEN customer_state = &#x27;SP&#x27; THEN gmv_per_buyer END) / MAX(CASE WHEN customer_state = &#x27;RJ&#x27; THEN gmv_per_buyer END), 4) AS gmv_per_buyer_ratio FROM j LIMIT 1000</pre>
+<table><thead><tr><th>sp_buyers</th><th>rj_buyers</th><th>sp_gmv</th><th>rj_gmv</th><th>gmv_diff</th><th>gmv_ratio</th><th>buyers_diff</th><th>buyers_ratio</th><th>sp_gmv_per_buyer</th><th>rj_gmv_per_buyer</th><th>gmv_per_buyer_ratio</th></tr></thead><tbody>
+<tr><td>8913</td><td>2345</td><td>1173308.82</td><td>352617.27</td><td>820691.55</td><td>3.3274</td><td>6568</td><td>3.8009</td><td>131.6401682935038708</td><td>150.3698379530916844</td><td>0.8754</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 7,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 27,
+    &quot;unsupported_numbers&quot;: 1,
+    &quot;unsupported_number_ratio&quot;: 0.037037037037037035
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 4,
+    &quot;rationale&quot;: &quot;四个关键事实与金标完全一致，规模倍数、差额及 GMV/买家比值计算正确，并明确提示客户数与 GMV 状态口径不同、该比值仅为近似客单指标，未将其误读为严格同口径客单价。报告量化了关键差异并说明限制，但未进一步交叉核对替代解释（如订单状态构成、品类/运费差异对人均贡献的影响），也未给出可验证的后续行动，故未达 5 分。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>

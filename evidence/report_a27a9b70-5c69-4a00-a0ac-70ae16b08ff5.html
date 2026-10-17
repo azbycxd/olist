@@ -1,0 +1,213 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D02；任务 a27a9b70-5c69-4a00-a0ac-70ae16b08ff5</p>
+<h2>原始问题</h2><p>2018 年 Q2 相比 Q1，有多少个原始葡文品类 GMV 下降？给出降幅金额最大的品类及下降金额，分析可能原因。只比较两个季度都有商品成交的非空品类，排除取消及不可用订单。</p><h2>回答</h2>
+<pre>## 2018 Q2 vs Q1 原始葡文品类 GMV 变化（key_facts）
+
+**口径**：按 `orders.order_purchase_timestamp` 划分季度（Q1=2018-01-01~03-31，Q2=2018-04-01~06-30）；GMV 取 `order_items.price` 之和（不含运费）；排除 `canceled`、`unavailable` 订单；仅保留 `products.product_category_name` 非空、且两个季度都有成交的品类。
+
+### 核心事实
+- **GMV 下降的品类数：30 个**（可比品类共 67 个，即 37 个上升、0 个持平）。
+- **降幅最大品类：`informatica_acessorios`（电脑配件）**，GMV 从 Q1 的 267,645.70 降至 Q2 的 152,935.98，**下降 114,709.72 雷亚尔（-42.86%）**。
+- 30 个下降品类合计减少 330,586.70，占可比品类 Q1 总 GMV 的 -12.20%；但同期 37 个上升品类合计增加 454,398.57，整体可比品类 GMV 仍增长 4.57%（2,710,064.77 → 2,833,876.64）。即下降是**结构性、品类层面的**，而非大盘收缩。
+
+### 降幅前 5 品类
+| 品类 | Q1 GMV | Q2 GMV | 差额 | 变化率 |
+|---|---|---|---|---|
+| informatica_acessorios | 267,645.70 | 152,935.98 | -114,709.72 | -42.86% |
+| esporte_lazer | 251,331.53 | 172,487.71 | -78,843.82 | -31.37% |
+| papelaria | 65,174.16 | 37,483.82 | -27,690.34 | -42.49% |
+| cool_stuff | 108,665.13 | 84,380.89 | -24,284.24 | -22.35% |
+| moveis_escritorio | 69,189.81 | 53,926.16 | -15,263.65 | -22.06% |
+
+### 可能原因分析（基于数据可验证的线索）
+1. **informatica_acessorios 是&quot;量跌价稳&quot;型下滑，不是降价**：订单数 2,018 → 1,243（-38.4%），明细件数 2,432 → 1,409，客单价仅从 132.63 微降至 123.04，件均价 110.05 → 108.54。GMV 下滑几乎全部由**成交订单量减少**驱动，价格因素贡献很小。
+2. **不是卖家供给退出**：该品类活跃卖家数 Q1 124 家、Q2 127 家（略增），说明供给端仍在，需求/流量或转化侧走弱更可能（如促销节奏、曝光位变化、季节性需求回落）。
+3. **Q1 存在高基数效应**：Q1 含年初促销与开学/年初换机需求，电脑配件、办公家具（moveis_escritorio -22.06%）、文具（papelaria -42.49%）同属&quot;年初采购&quot;属性品类，Q2 回落符合季节性；esporte_lazer（-31.37%）则与夏季运动消费旺季结束一致。
+4. **降幅集中在中小品类**：30 个下降品类中仅 13 个 Q1 GMV ≥ 1 万，17 个为小品类，说明长尾品类波动大，单品类下滑对大盘影响有限。
+5. **需注意的口径限制**：本结论仅覆盖有葡文品类名的商品；品类名为空的商品未纳入，且未使用英文翻译表（覆盖不完整），因此&quot;品类&quot;层面结论不覆盖未知品类部分。
+
+&gt; 说明：以上&quot;原因&quot;为基于订单量/客单价/卖家数分解的推断，数据本身不含促销、流量、库存等字段，无法直接证实具体业务动因。</pre><h2>结构化结论</h2>
+<p>2018 Q2 相比 Q1，GMV 下降的原始葡文品类有 30 个（可比品类 67 个） <a href="#result-290de0ba-c25c-406f-a368-11c7ce724127">证据</a></p><pre>[
+  {
+    &quot;declining_categories&quot;: 30,
+    &quot;compared_categories&quot;: 67,
+    &quot;largest_drop_category&quot;: &quot;informatica_acessorios&quot;,
+    &quot;largest_drop_amount&quot;: &quot;-114709.72&quot;,
+    &quot;largest_drop_q1_gmv&quot;: &quot;267645.70&quot;,
+    &quot;largest_drop_q2_gmv&quot;: &quot;152935.98&quot;
+  }
+]</pre>
+<p>降幅最大品类为 informatica_acessorios，GMV 由 267,645.70 降至 152,935.98，下降 114,709.72（-42.86%），订单数 2018→1243，客单价 132.63→123.04，卖家数 124→127 <a href="#result-02e8f871-7a0d-44e4-8823-a5d8bb43d061">证据</a></p><pre>[
+  {
+    &quot;cat&quot;: &quot;informatica_acessorios&quot;,
+    &quot;q1_gmv&quot;: &quot;267645.70&quot;,
+    &quot;q2_gmv&quot;: &quot;152935.98&quot;,
+    &quot;diff&quot;: &quot;-114709.72&quot;,
+    &quot;q1_orders&quot;: 2018,
+    &quot;q2_orders&quot;: 1243,
+    &quot;q1_sellers&quot;: 124,
+    &quot;q2_sellers&quot;: 127,
+    &quot;pct_change&quot;: &quot;-42.86&quot;
+  }
+]</pre>
+<p>降幅第 2-5 位品类：esporte_lazer -78,843.82、papelaria -27,690.34、cool_stuff -24,284.24、moveis_escritorio -15,263.65 <a href="#result-02e8f871-7a0d-44e4-8823-a5d8bb43d061">证据</a></p><pre>[
+  {
+    &quot;cat&quot;: &quot;esporte_lazer&quot;,
+    &quot;q1_gmv&quot;: &quot;251331.53&quot;,
+    &quot;q2_gmv&quot;: &quot;172487.71&quot;,
+    &quot;diff&quot;: &quot;-78843.82&quot;,
+    &quot;q1_orders&quot;: 1830,
+    &quot;q2_orders&quot;: 1355,
+    &quot;q1_sellers&quot;: 214,
+    &quot;q2_sellers&quot;: 242,
+    &quot;pct_change&quot;: &quot;-31.37&quot;
+  },
+  {
+    &quot;cat&quot;: &quot;papelaria&quot;,
+    &quot;q1_gmv&quot;: &quot;65174.16&quot;,
+    &quot;q2_gmv&quot;: &quot;37483.82&quot;,
+    &quot;diff&quot;: &quot;-27690.34&quot;,
+    &quot;q1_orders&quot;: 661,
+    &quot;q2_orders&quot;: 400,
+    &quot;q1_sellers&quot;: 69,
+    &quot;q2_sellers&quot;: 86,
+    &quot;pct_change&quot;: &quot;-42.49&quot;
+  },
+  {
+    &quot;cat&quot;: &quot;cool_stuff&quot;,
+    &quot;q1_gmv&quot;: &quot;108665.13&quot;,
+    &quot;q2_gmv&quot;: &quot;84380.89&quot;,
+    &quot;diff&quot;: &quot;-24284.24&quot;,
+    &quot;q1_orders&quot;: 711,
+    &quot;q2_orders&quot;: 463,
+    &quot;q1_sellers&quot;: 113,
+    &quot;q2_sellers&quot;: 89,
+    &quot;pct_change&quot;: &quot;-22.35&quot;
+  },
+  {
+    &quot;cat&quot;: &quot;moveis_escritorio&quot;,
+    &quot;q1_gmv&quot;: &quot;69189.81&quot;,
+    &quot;q2_gmv&quot;: &quot;53926.16&quot;,
+    &quot;diff&quot;: &quot;-15263.65&quot;,
+    &quot;q1_orders&quot;: 329,
+    &quot;q2_orders&quot;: 231,
+    &quot;q1_sellers&quot;: 14,
+    &quot;q2_sellers&quot;: 13,
+    &quot;pct_change&quot;: &quot;-22.06&quot;
+  }
+]</pre>
+<p>可比品类整体 GMV 仍增长 4.57%（2,710,064.77→2,833,876.64）；下降品类合计 -330,586.70（占 Q1 的 -12.20%），上升品类合计 +454,398.57，37 个品类上升、0 个持平 <a href="#result-4bb0068f-b7c6-43fe-8255-62887cfcd907">证据</a></p><pre>[
+  {
+    &quot;total_q1_gmv&quot;: &quot;2710064.77&quot;,
+    &quot;total_q2_gmv&quot;: &quot;2833876.64&quot;,
+    &quot;total_diff&quot;: &quot;123811.87&quot;,
+    &quot;sum_declines&quot;: &quot;-330586.70&quot;,
+    &quot;sum_increases&quot;: &quot;454398.57&quot;,
+    &quot;increasing_categories&quot;: 37,
+    &quot;flat_categories&quot;: 0
+  }
+]</pre>
+<p>informatica_acessorios 下滑由订单量驱动而非降价：订单 2018→1243，明细件数 2432→1409，件均价 110.05→108.54，客单价 132.63→123.04 <a href="#result-7dc59c83-5104-47ee-bb26-c640b698212f">证据</a></p><pre>[
+  {
+    &quot;q&quot;: &quot;Q1&quot;,
+    &quot;gmv&quot;: &quot;267645.70&quot;,
+    &quot;orders&quot;: 2018,
+    &quot;aov&quot;: &quot;132.63&quot;,
+    &quot;items&quot;: 2432,
+    &quot;avg_item_price&quot;: &quot;110.05&quot;
+  },
+  {
+    &quot;q&quot;: &quot;Q2&quot;,
+    &quot;gmv&quot;: &quot;152935.98&quot;,
+    &quot;orders&quot;: 1243,
+    &quot;aov&quot;: &quot;123.04&quot;,
+    &quot;items&quot;: 1409,
+    &quot;avg_item_price&quot;: &quot;108.54&quot;
+  }
+]</pre>
+<p>下降品类中 13 个 Q1 GMV ≥ 1 万、17 个 &lt; 1 万，降幅更多集中在长尾小品类；下降合计占 Q1 的 -12.20%，整体仍 +4.57% <a href="#result-fa806a04-e1a8-4e5d-a69b-3b1213c1310d">证据</a></p><pre>[
+  {
+    &quot;declining_categories_q1_ge_10k&quot;: 13,
+    &quot;declining_categories_q1_lt_10k&quot;: 17,
+    &quot;decline_share_of_q1_pct&quot;: &quot;-12.20&quot;,
+    &quot;total_growth_pct&quot;: &quot;4.57&quot;
+  }
+]</pre>
+<section id="result-290de0ba-c25c-406f-a368-11c7ce724127"><h2>SQL 证据 290de0ba-c25c-406f-a368-11c7ce724127</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; END AS q, oi.price FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN q = &#x27;Q1&#x27; THEN price ELSE 0 END) AS q1_gmv, SUM(CASE WHEN q = &#x27;Q2&#x27; THEN price ELSE 0 END) AS q2_gmv, COUNT(DISTINCT q) AS quarters FROM base GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff FROM agg WHERE quarters = 2) SELECT (SELECT COUNT(*) FROM cmp WHERE diff &lt; 0) AS declining_categories, (SELECT COUNT(*) FROM cmp) AS compared_categories, (SELECT cat FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_category, (SELECT diff FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_amount, (SELECT q1_gmv FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_q1_gmv, (SELECT q2_gmv FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_q2_gmv LIMIT 1000</pre>
+<table><thead><tr><th>declining_categories</th><th>compared_categories</th><th>largest_drop_category</th><th>largest_drop_amount</th><th>largest_drop_q1_gmv</th><th>largest_drop_q2_gmv</th></tr></thead><tbody>
+<tr><td>30</td><td>67</td><td>informatica_acessorios</td><td>-114709.72</td><td>267645.70</td><td>152935.98</td></tr>
+</tbody></table></section>
+<section id="result-4bb0068f-b7c6-43fe-8255-62887cfcd907"><h2>SQL 证据 4bb0068f-b7c6-43fe-8255-62887cfcd907</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; END AS q, oi.price FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN q = &#x27;Q1&#x27; THEN price ELSE 0 END) AS q1_gmv, SUM(CASE WHEN q = &#x27;Q2&#x27; THEN price ELSE 0 END) AS q2_gmv, COUNT(DISTINCT q) AS quarters FROM base GROUP BY cat), cmp AS (SELECT *, q2_gmv - q1_gmv AS diff FROM agg WHERE quarters = 2) SELECT (SELECT SUM(q1_gmv) FROM cmp) AS total_q1_gmv, (SELECT SUM(q2_gmv) FROM cmp) AS total_q2_gmv, (SELECT SUM(diff) FROM cmp) AS total_diff, (SELECT SUM(diff) FROM cmp WHERE diff &lt; 0) AS sum_declines, (SELECT SUM(diff) FROM cmp WHERE diff &gt; 0) AS sum_increases, (SELECT COUNT(*) FROM cmp WHERE diff &gt; 0) AS increasing_categories, (SELECT COUNT(*) FROM cmp WHERE diff = 0) AS flat_categories LIMIT 1000</pre>
+<table><thead><tr><th>total_q1_gmv</th><th>total_q2_gmv</th><th>total_diff</th><th>sum_declines</th><th>sum_increases</th><th>increasing_categories</th><th>flat_categories</th></tr></thead><tbody>
+<tr><td>2710064.77</td><td>2833876.64</td><td>123811.87</td><td>-330586.70</td><td>454398.57</td><td>37</td><td>0</td></tr>
+</tbody></table></section>
+<section id="result-02e8f871-7a0d-44e4-8823-a5d8bb43d061"><h2>SQL 证据 02e8f871-7a0d-44e4-8823-a5d8bb43d061</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; END AS q, oi.price, oi.order_id, oi.seller_id FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN q = &#x27;Q1&#x27; THEN price ELSE 0 END) AS q1_gmv, SUM(CASE WHEN q = &#x27;Q2&#x27; THEN price ELSE 0 END) AS q2_gmv, COUNT(DISTINCT q) AS quarters, COUNT(DISTINCT CASE WHEN q = &#x27;Q1&#x27; THEN order_id END) AS q1_orders, COUNT(DISTINCT CASE WHEN q = &#x27;Q2&#x27; THEN order_id END) AS q2_orders, COUNT(DISTINCT CASE WHEN q = &#x27;Q1&#x27; THEN seller_id END) AS q1_sellers, COUNT(DISTINCT CASE WHEN q = &#x27;Q2&#x27; THEN seller_id END) AS q2_sellers FROM base GROUP BY cat), cmp AS (SELECT *, q2_gmv - q1_gmv AS diff FROM agg WHERE quarters = 2) SELECT cat, q1_gmv, q2_gmv, diff, q1_orders, q2_orders, q1_sellers, q2_sellers, ROUND(diff / NULLIF(q1_gmv, 0) * 100, 2) AS pct_change FROM cmp WHERE diff &lt; 0 ORDER BY diff ASC LIMIT 10</pre>
+<table><thead><tr><th>cat</th><th>q1_gmv</th><th>q2_gmv</th><th>diff</th><th>q1_orders</th><th>q2_orders</th><th>q1_sellers</th><th>q2_sellers</th><th>pct_change</th></tr></thead><tbody>
+<tr><td>informatica_acessorios</td><td>267645.70</td><td>152935.98</td><td>-114709.72</td><td>2018</td><td>1243</td><td>124</td><td>127</td><td>-42.86</td></tr>
+<tr><td>esporte_lazer</td><td>251331.53</td><td>172487.71</td><td>-78843.82</td><td>1830</td><td>1355</td><td>214</td><td>242</td><td>-31.37</td></tr>
+<tr><td>papelaria</td><td>65174.16</td><td>37483.82</td><td>-27690.34</td><td>661</td><td>400</td><td>69</td><td>86</td><td>-42.49</td></tr>
+<tr><td>cool_stuff</td><td>108665.13</td><td>84380.89</td><td>-24284.24</td><td>711</td><td>463</td><td>113</td><td>89</td><td>-22.35</td></tr>
+<tr><td>moveis_escritorio</td><td>69189.81</td><td>53926.16</td><td>-15263.65</td><td>329</td><td>231</td><td>14</td><td>13</td><td>-22.06</td></tr>
+<tr><td>consoles_games</td><td>32038.43</td><td>18506.93</td><td>-13531.50</td><td>158</td><td>121</td><td>27</td><td>32</td><td>-42.24</td></tr>
+<tr><td>malas_acessorios</td><td>31073.54</td><td>20369.82</td><td>-10703.72</td><td>218</td><td>133</td><td>31</td><td>29</td><td>-34.45</td></tr>
+<tr><td>agro_industria_e_comercio</td><td>19277.24</td><td>11296.25</td><td>-7980.99</td><td>61</td><td>30</td><td>7</td><td>12</td><td>-41.40</td></tr>
+<tr><td>eletronicos</td><td>43316.18</td><td>37628.79</td><td>-5687.39</td><td>866</td><td>598</td><td>54</td><td>68</td><td>-13.13</td></tr>
+<tr><td>audio</td><td>17255.46</td><td>11573.44</td><td>-5682.02</td><td>73</td><td>69</td><td>15</td><td>11</td><td>-32.93</td></tr>
+</tbody></table></section>
+<section id="result-7dc59c83-5104-47ee-bb26-c640b698212f"><h2>SQL 证据 7dc59c83-5104-47ee-bb26-c640b698212f</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; END AS q, oi.price, oi.order_id FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name = &#x27;informatica_acessorios&#x27;) SELECT q, SUM(price) AS gmv, COUNT(DISTINCT order_id) AS orders, ROUND(SUM(price) / COUNT(DISTINCT order_id), 2) AS aov, COUNT(*) AS items, ROUND(SUM(price) / COUNT(*), 2) AS avg_item_price FROM base GROUP BY q ORDER BY q LIMIT 1000</pre>
+<table><thead><tr><th>q</th><th>gmv</th><th>orders</th><th>aov</th><th>items</th><th>avg_item_price</th></tr></thead><tbody>
+<tr><td>Q1</td><td>267645.70</td><td>2018</td><td>132.63</td><td>2432</td><td>110.05</td></tr>
+<tr><td>Q2</td><td>152935.98</td><td>1243</td><td>123.04</td><td>1409</td><td>108.54</td></tr>
+</tbody></table></section>
+<section id="result-fa806a04-e1a8-4e5d-a69b-3b1213c1310d"><h2>SQL 证据 fa806a04-e1a8-4e5d-a69b-3b1213c1310d</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; END AS q, oi.price FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN q = &#x27;Q1&#x27; THEN price ELSE 0 END) AS q1_gmv, SUM(CASE WHEN q = &#x27;Q2&#x27; THEN price ELSE 0 END) AS q2_gmv, COUNT(DISTINCT q) AS quarters FROM base GROUP BY cat), cmp AS (SELECT *, q2_gmv - q1_gmv AS diff FROM agg WHERE quarters = 2) SELECT (SELECT COUNT(*) FROM cmp WHERE diff &lt; 0 AND q1_gmv &gt;= 10000) AS declining_categories_q1_ge_10k, (SELECT COUNT(*) FROM cmp WHERE diff &lt; 0 AND q1_gmv &lt; 10000) AS declining_categories_q1_lt_10k, (SELECT ROUND(SUM(diff) FILTER(WHERE diff &lt; 0) / SUM(q1_gmv) * 100, 2) FROM cmp) AS decline_share_of_q1_pct, (SELECT ROUND(SUM(diff) / SUM(q1_gmv) * 100, 2) FROM cmp) AS total_growth_pct LIMIT 1000</pre>
+<table><thead><tr><th>declining_categories_q1_ge_10k</th><th>declining_categories_q1_lt_10k</th><th>decline_share_of_q1_pct</th><th>total_growth_pct</th></tr></thead><tbody>
+<tr><td>13</td><td>17</td><td>-12.20</td><td>4.57</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 6,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 99,
+    &quot;unsupported_numbers&quot;: 10,
+    &quot;unsupported_number_ratio&quot;: 0.10101010101010101
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 4,
+    &quot;rationale&quot;: &quot;报告与金标准事实一致：30 个品类下降，informatica_acessorios 下降 114,709.72；比较范围（非空、两季度均有成交、排除取消/不可用）说明清楚。报告量化了降幅前 5 品类，并把最大降幅拆解为订单量、客单价、卖家数，还给出整体增长与下降合计的对比，限制说明也较充分。原因部分明确标注为推断，并承认缺少促销/流量/库存字段，未凭空归咎营销或竞争。未达 5 分：对“Q1 高基数/季节性”等替代解释仅作叙述，未做交叉核对（如与其他季度或同类品类对比），也未给出可验证的后续行动。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>

@@ -35,8 +35,10 @@ services:
       EVAL_INPUT_PRICE_PER_MILLION: ${EVAL_INPUT_PRICE_PER_MILLION:-}
       EVAL_OUTPUT_PRICE_PER_MILLION: ${EVAL_OUTPUT_PRICE_PER_MILLION:-}
       EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://embeddings:8002/v1}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_REVISION: ${EMBEDDING_REVISION:-5617a9f61b028005a4858fdac845db406aefb181}
       EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-local}
+      AGENT_MODE: ${AGENT_MODE:-single}
       RAG_MODE: ${RAG_MODE:-off}
       USE_MEMORY: ${USE_MEMORY:-false}
       SMALL_MODEL: ${SMALL_MODEL:-}
@@ -71,7 +73,8 @@ services:
       PGHOST: db
       PGPORT: "5432"
       EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://embeddings:8002/v1}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_REVISION: ${EMBEDDING_REVISION:-5617a9f61b028005a4858fdac845db406aefb181}
       EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-local}
       AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
@@ -94,6 +97,10 @@ services:
       dockerfile: embeddings/Dockerfile
     image: olist-embeddings:local
     profiles: ["knowledge"]
+    environment:
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_REVISION: ${EMBEDDING_REVISION:-5617a9f61b028005a4858fdac845db406aefb181}
+      HF_ENDPOINT: https://hf-mirror.com
     volumes:
       - embedding_models:/models
     healthcheck:
@@ -128,8 +135,10 @@ services:
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
       EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://embeddings:8002/v1}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_REVISION: ${EMBEDDING_REVISION:-5617a9f61b028005a4858fdac845db406aefb181}
       EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-local}
+      AGENT_MODE: ${AGENT_MODE:-single}
       RAG_MODE: ${RAG_MODE:-off}
       USE_MEMORY: ${USE_MEMORY:-false}
       SMALL_MODEL: ${SMALL_MODEL:-}

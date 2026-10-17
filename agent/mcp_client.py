@@ -3,6 +3,9 @@
 from contextlib import AsyncExitStack
 from datetime import timedelta
 import json
+import hashlib
+from time import perf_counter
+from uuid import uuid4
 
 import httpx
 from mcp import ClientSession
@@ -10,8 +13,9 @@ from mcp.client.streamable_http import streamable_http_client
 
 
 class MCPClient:
-    def __init__(self, url, token, task_id):
+    def __init__(self, url, token, task_id, emit=None):
         self.url, self.token, self.task_id = url, token, task_id
+        self.emit = emit
         self.stack = AsyncExitStack()
 
     async def __aenter__(self):
@@ -40,6 +44,28 @@ class MCPClient:
         return await self.stack.__aexit__(*args)
 
     async def call(self, name, arguments):
+        ident=str(uuid4())
+        started=perf_counter()
+        def summary(value):
+            body=json.dumps(value,ensure_ascii=False,sort_keys=True,default=str)
+            return {'keys':sorted(value) if isinstance(value,dict) else [],'characters':len(body),
+                    'sha256':hashlib.sha256(body.encode()).hexdigest()}
+        if self.emit:
+            state_payload=arguments.get('payload')
+            self.emit('mcp_call',{'call_id':ident,'name':name,'input_summary':summary(arguments),
+                'state_role':arguments.get('role') if name=='state_write' else None,
+                'subtask_id':state_payload.get('id') if name=='state_write' and isinstance(state_payload,dict) else None})
+        try:
+            result=await self._call(name,arguments)
+        except Exception as exc:
+            if self.emit:self.emit('mcp_result',{'call_id':ident,'name':name,'error':type(exc).__name__},0,(perf_counter()-started)*1000)
+            raise
+        if self.emit:
+            self.emit('mcp_result',{'call_id':ident,'name':name,'output_summary':summary(result),
+                'result_id':result.get('result_id'),'error':result.get('error')},0,(perf_counter()-started)*1000)
+        return result
+
+    async def _call(self, name, arguments):
         result = await self.session.call_tool(name, arguments)
         if result.isError:
             return {"error":"mcp_tool_error", "detail":"\n".join(c.text for c in result.content if c.type == "text")[:2000]}

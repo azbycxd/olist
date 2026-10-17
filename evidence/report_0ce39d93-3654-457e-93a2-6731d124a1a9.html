@@ -1,0 +1,53 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D03；任务 0ce39d93-3654-457e-93a2-6731d124a1a9</p>
+<h2>原始问题</h2><p>2018 年 Q2，比较 SP 与 RJ 两州的真实下单客户数和 GMV，共四个关键事实。GMV 排除取消及不可用订单，客户数保留所有状态；讨论规模与客单结构。</p><h2>回答</h2>
+<pre>2018 年 Q2，SP 州去重真实下单客户数为 8913，RJ 州为 2345，客户数统计保留所有订单状态 <a href="#result-22864c7c-f06d-4eaf-9d56-ff3cffba72dd">证据</a>。同期，SP 州有效订单 GMV（排除 canceled/unavailable）为 1173308.82，RJ 州为 352617.27 <a href="#result-092b434c-a038-4e55-b889-399c70528c8f">证据</a>。从规模看，SP 州在客户数与 GMV 两项指标上均高于 RJ 州，说明该季度 SP 州的市场体量更大 <a href="#result-22864c7c-f06d-4eaf-9d56-ff3cffba72dd">证据</a> <a href="#result-092b434c-a038-4e55-b889-399c70528c8f">证据</a>。关于客单结构，现有证据仅提供两州 GMV 与客户数，未提供客单价或订单结构数据，因此无法据此判断两州客单水平差异，相关客单对比未能验证。需注意，客户数保留所有订单状态而 GMV 排除取消及不可用订单，两者口径不同，不能直接相除推导客单价；且上述比较仅为描述性事实，不构成因果结论。</pre><h2>结构化结论</h2>
+<p>2018 Q2 SP 州与 RJ 州有效订单 GMV（排除 canceled/unavailable） <a href="#result-092b434c-a038-4e55-b889-399c70528c8f">证据</a></p><pre>[
+  {
+    &quot;rj_gmv&quot;: 352617.27,
+    &quot;sp_gmv&quot;: 1173308.82
+  }
+]</pre>
+<p>2018 Q2 SP 州去重真实下单客户数为 8913，RJ 州为 2345（保留所有订单状态） <a href="#result-22864c7c-f06d-4eaf-9d56-ff3cffba72dd">证据</a></p><pre>[
+  {
+    &quot;rj_buyers&quot;: 2345,
+    &quot;sp_buyers&quot;: 8913
+  }
+]</pre>
+<section id="result-22864c7c-f06d-4eaf-9d56-ff3cffba72dd"><h2>SQL 证据 22864c7c-f06d-4eaf-9d56-ff3cffba72dd</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>SELECT COUNT(DISTINCT c.customer_unique_id) FILTER(WHERE c.customer_state = &#x27;SP&#x27;) AS sp_buyers, COUNT(DISTINCT c.customer_unique_id) FILTER(WHERE c.customer_state = &#x27;RJ&#x27;) AS rj_buyers FROM orders AS o JOIN customers AS c USING (customer_id) WHERE o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; LIMIT 1000</pre>
+<table><thead><tr><th>sp_buyers</th><th>rj_buyers</th></tr></thead><tbody>
+<tr><td>8913</td><td>2345</td></tr>
+</tbody></table></section>
+<section id="result-092b434c-a038-4e55-b889-399c70528c8f"><h2>SQL 证据 092b434c-a038-4e55-b889-399c70528c8f</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>SELECT SUM(CASE WHEN c.customer_state = &#x27;SP&#x27; THEN i.price END) AS sp_gmv, SUM(CASE WHEN c.customer_state = &#x27;RJ&#x27; THEN i.price END) AS rj_gmv FROM orders AS o JOIN customers AS c USING (customer_id) JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND c.customer_state IN (&#x27;SP&#x27;, &#x27;RJ&#x27;) LIMIT 1000</pre>
+<table><thead><tr><th>sp_gmv</th><th>rj_gmv</th></tr></thead><tbody>
+<tr><td>1173308.82</td><td>352617.27</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 2,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 6,
+    &quot;unsupported_numbers&quot;: 0,
+    &quot;unsupported_number_ratio&quot;: 0.0
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 4,
+    &quot;rationale&quot;: &quot;报告准确给出四项关键事实（SP/RJ 客户数 8913/2345、GMV 1173308.82/352617.27），并明确区分客户数保留所有状态与 GMV 排除取消/不可用订单的口径差异，正确拒绝用两者相除推导客单价，避免混淆分母。规模比较有数据支撑，且说明客单结构缺乏数据、结论仅为描述性。不足之处：未量化两州规模差异（如倍数或占比），未交叉核对替代解释（如客户数含取消订单对客单结构的影响方向），也未给出可验证的后续行动（如按有效订单客户数重算客单价）。整体达到 4 分水平。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>

@@ -140,7 +140,7 @@ flowchart LR
 
 SQL 经 AST 白名单校验，只允许业务表只读查询，再由只读数据库账号和查询超时兜底。未指定或超过上限的 LIMIT 均限制到 1000；`row_count`、数值统计与持久化完整结果均对应**实际执行的限行查询**，预览只传前 20 行。全量总数和报告中的差值、比率应在 SQL 中聚合计算。新列注释通过 `003_olist_column_comments.sql` 迁移添加，既有迁移不修改。
 
-本次模型为 `deepseek-flash`，Agent 请求固定 temperature=0，并显式关闭该服务的 thinking 模式；原始响应的模型名、fingerprint 和 usage 保存在每次评测证据中。A、B 类 dev 实跑结果如下，D／C／E 和 holdout 模型评测尚未运行：
+本次模型为 `deepseek-flash`，Agent 请求固定 temperature=0，并显式关闭该服务的 thinking 模式；原始响应的模型名、fingerprint 和 usage 保存在每次评测证据中。下面保留 Step 2 当时的 A、B dev 基线；后续 C/D/E 实验见 RESULTS，holdout 模型评测仍未运行：
 
 | 结构模式 | 答案正确 | 平均 token / 题 | 平均模型步数 | 无证据结论 | 真实运行证据 |
 | --- | --- | --- | --- | --- | --- |
@@ -168,17 +168,20 @@ Step 3 增加 `CONTEXT_STRATEGY=none|mask|summary`、`CONTEXT_KEEP_TURNS`、`CON
 
 压力评测：`docker compose run --rm init-data python eval/run.py --adapter single --categories D --tag context-none --context-strategy none --context-limit 16000`；替换策略及标签可重跑 mask/summary。上下文用量来自 provider 的 `usage.prompt_tokens`，超限在该次响应到达后判失败；不会把字符数估计冒充精确 token，也无法在发送前精确预判。摘要调用计入总预算。
 
-Step 4 知识库位于 `kb/`，按一个指标或陷阱切分。jieba BM25 与 pgvector 余弦排序经 RRF 融合取前三块。`RAG_MODE=off|inject|tool` 控制知识访问；off 连工具定义也不提供。默认本地 multilingual-e5-small，通过独立容器的 OpenAI 兼容 `/v1/embeddings` 调用，不需要模型服务密钥。可设置 `EMBEDDING_BASE_URL/MODEL/API_KEY` 使用其他兼容服务，切换后必须重建索引。
+Step 4 知识库位于 `kb/`，按一个指标或陷阱切分。jieba BM25 与 pgvector 余弦排序经 RRF 融合取前三块。`RAG_MODE=off|inject|tool` 控制知识访问；off 连工具定义也不提供。默认本地 `BAAI/bge-m3`，固定 revision `5617a9f61b028005a4858fdac845db406aefb181`，通过独立容器的 OpenAI 兼容 `/v1/embeddings` 调用，不需要新密钥。服务使用 `HF_ENDPOINT=https://hf-mirror.com`，模型缓存到 `embedding_models` Docker 数据卷。每次评测 evidence 记录模型名和 revision；启用 RAG 时还记录服务实际文件哈希。服务响应、配置和索引 revision 必须相符，否则拒绝检索并要求重建。
 
 ```powershell
 docker compose build init-data embeddings
+docker compose run --rm --no-deps embeddings python -c "from server import encoder; encoder()"
 docker compose up -d --wait embeddings mcp-olist
 docker compose run --rm init-data python -m scripts.index_knowledge
 docker compose run --rm init-data python eval/run.py --retrieval --split dev --tag retrieval-dev
 docker compose run --rm init-data python eval/run.py --adapter single --categories C --rag-mode inject --tag rag-inject
 ```
 
-第三条命令原子重建索引并保存内容哈希与真实模型文件哈希证据。首次下载公开向量权重需要网络；不会以随机向量或关键词向量代替下载失败的模型。KB 与 C 题源于同一批业务陷阱，因此 C dev 提升不能直接解释为未知知识泛化；全部 C 标注均固定，当前只评 dev，不据 holdout 调参。
+索引新增 `embedding_revision` 字段通过 `006_embedding_revision.sql` 迁移实现。旧行保留 `unrecorded`，必须重建，不能猜测版本回填。`docker compose run --rm init-data python eval/run.py --tag bge-cpu --embedding-benchmark --split dev` 可独立实测暖启动 CPU 延迟。
+
+先预下载并验证固定模型快照，避免首次大文件下载受 HTTP 请求超时限制；缓存命中后无需重新下载。`index_knowledge` 命令原子重建索引并保存内容哈希与真实模型文件哈希证据。首次下载公开向量权重需要网络；不会以随机向量或关键词向量代替下载失败的模型。KB 与 C 题源于同一批业务陷阱，因此 C dev 提升不能直接解释为未知知识泛化；全部 C 标注均固定，当前只评 dev，不据 holdout 调参。
 
 Step 5 的 `USE_MEMORY=true` 只保存用户明确要求长期遵守的偏好。抽取结果必须逐字引用当前用户输入，value 直接保存原话，拒绝编造转述、重复 key 或没有长期偏好措辞的引文。每轮结束仅进行一次逻辑抽取请求，接口故障仍有明确退避；`SMALL_MODEL` 未配置时复用当前模型，不虚构单价或小模型节省。模型失败不会写记忆。相同 key 的新偏好令旧记录 superseded，保留历史。
 
@@ -191,3 +194,38 @@ docker compose run --rm init-data python eval/run.py --adapter single --categori
 ```
 
 查看和删除接口使用签名用户 token 的 subject，不能通过参数冒充其他用户。先在 `.env` 设置独立的 `MEMORY_API_SECRET`（至少 32 字符），再启动 `docker compose up -d memory-api`。交互登录留到 Step 8；本步只允许本机管理员用 `docker compose run --rm --entrypoint python memory-api -m scripts.memory_token --username demo` 签发一小时 token。将 token 放入 Authorization Bearer 请求头调用 `GET http://localhost:8000/memories` 或 `DELETE http://localhost:8000/memories/{id}`。不要把 token 写入 Git 或评测证据。
+
+Step 6 的 `AGENT_MODE=single|multi_no_review|multi` 控制角色编排。Planner 为单一查询保留直接路由，复杂报告拆成有依赖约束的子问题。各 Analyst 运行独立循环，按就绪依赖并行。multi 对 SQL 单元格做确定性核对，再审查 SQL 与结论语义；失败只重做一次，再失败的部分注明未能验证。multi_no_review 保留相同规划、分析和撰写流程，只跳过审核。
+
+```mermaid
+flowchart LR
+  Planner --> Route{单一查询?}
+  Route -->|是| Single[单 Agent]
+  Route -->|否| Analysts[独立 Analyst 上下文 / 依赖调度]
+  Analysts --> Reviewer[确定性 + 语义审核]
+  Reviewer -->|一次退回| Analysts
+  Reviewer --> Writer[只用通过的结构化结论]
+  Writer --> Scan[未验证业务数字标红]
+  Planner <--> Board[(agent.task_state)]
+  Analysts <--> Board
+  Reviewer <--> Board
+  Writer <--> Board
+```
+
+黑板通过 `005_task_state.sql` 新迁移创建；角色写入由服务端类型和字段权限验证。控制工具仅供运行器使用，不暴露给语言模型。Writer 不能凭空新增或使用已拒绝 claim；正文仍可能写出无依据数字，扫描将其标红而不是偷偷删除，独立评测仍将其视为问题。报告中的 `[证据](#result-UUID)` 对应结构化 claim 的 result_id，可用 MCP get_result 检查 SQL 和行；交互式展开界面留到 Step 8。
+
+```powershell
+docker compose run --rm -e AGENT_MODE=multi -e RAG_MODE=inject -e TOKEN_BUDGET=100000 agent --username demo "分析多个经营指标并说明证据和限制"
+docker compose run --rm init-data python eval/run.py --adapter single --agent-mode multi --categories C,D --rag-mode inject --context-strategy none --token-budget 100000 --use-memory false --judge model --tag modes-multi
+```
+
+这里 `--adapter single` 是隔离模型进程适配器，实际架构由 `--agent-mode` 决定。对比三种模式时保持其余参数一致。任务预算计入全部运行时角色及摘要/抽取；已发出的并行请求可能共同越过观测预算，越过即判失败。RESULTS 的总用量包括独立评测评分器，汇总另有 `agent_usage` 和 `average_agent_latency_ms` 便于单独比较 Agent 开销；价格未配置的费用留空。
+
+
+Step 6 已完成实现和 dev 主对比，停在审查点，未开始 Step 7。主运行的 C 准确率均为 17/17；D 事实命中 single、无审核、多角色审核分别为 24/25、24/25、23/25，未证明多角色稳定更好，默认保持 single。见 [single 证据](evidence/eval_bge-single_20261017T084857Z_46aad30b.summary.json)、[无审核证据](evidence/eval_bge-multi_no_review_20261017T085232Z_e18784c6.summary.json)、[完整 multi 证据](evidence/eval_bge-multi_20261017T085648Z_947b5a76.summary.json)；原始日志文件名均为同名 `.jsonl`。未知 usage 与费用保持空白，失败运行不删除，执行事故与补跑说明见 DECISIONS。
+
+[最终测试 XML](evidence/step6_release_tests.xml)记录 164 passed，原始日志 `step6_release_tests.log`。[内部 MCP 日志核验](evidence/step6_trace_audit_20261017T090605Z_1c11efa5.summary.json)确认最终命令行运行的调用记录确实落库，原始日志 `step6_trace_audit_20261017T090605Z_1c11efa5.jsonl`。传输层的 mcp_call/result 包括内部黑板与取证调用，模型层 tool_call/result 只描述模型工具流程，两层不能相加计数。
+
+[报告审查清单](eval/REPORT_REVIEW.md)链接十份真实 HTML 报告，点击证据可查看本任务 SQL 和保存结果；[导出收据](evidence/report_exports_20261017T090708Z_289d1726.summary.json)对应 `report_exports_20261017T090708Z_289d1726.jsonl`。人工核查和人工评分尚未填写，不能视为模型评分已校准。数据只覆盖 dev，holdout 仍留待计划中的最终评测。
+
+[single 隔离复跑](evidence/eval_bge-single-isolated_20261017T090525Z_c75a15fc.summary.json)的 D 事实为 23/25、正文无证据数字 56/210，与主运行存在波动；原始日志 `eval_bge-single-isolated_20261017T090525Z_c75a15fc.jsonl`。复跑也有未知 usage，完整 token 继续留空。没有择优替换主比较，也不声称某模式已有稳定优势。

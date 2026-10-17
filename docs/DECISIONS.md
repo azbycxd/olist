@@ -212,3 +212,62 @@
 | 有记忆（最终） | 6 / 6 | 51054 | [eval_memory-true-final_20261017T081912Z_fe1f13c9.summary.json](../evidence/eval_memory-true-final_20261017T081912Z_fe1f13c9.summary.json)；`eval_memory-true-final_20261017T081912Z_fe1f13c9.jsonl` |
 
 首次有记忆实验也完整保留在 RESULTS。两组后续问题使用独立新进程、同题用户的数据库偏好，没有复用设置会话消息。知识库关闭，避免替代偏好影响对照。[完整测试](../evidence/step5_final_tests.xml) 148 passed，原始日志 `step5_final_tests.log`，包含真实数据库与鉴权测试。
+
+
+## 固定 bge-m3 容器、镜像源与索引版本
+
+**问题**：用户进一步指定 bge-m3。原 e5 结果只代表当时的配置，不能在换模型后直接沿用为最终对比；只记录模型名字也不足以重现可变的 main 权重。
+
+**方案**：继续使用小模型；下载未固定的最新权重；或固定官方仓库 commit，独立服务返回身份，索引与评测同时保存版本。按用户要求选最后一种，只有 CPU 实测过慢才考虑回退。
+
+**选择**：`BAAI/bge-m3` revision `5617a9f61b028005a4858fdac845db406aefb181`，`HF_ENDPOINT=https://hf-mirror.com`，持久化到 Docker 数据卷 `embedding_models`。采用官方 ONNX dense 表示、CLS pooling 和归一化，经 `/v1/embeddings` 提供；不把 BM25 冒充模型的 sparse 输出。模型能力和不需要 query 前缀的规则参照[官方模型说明](https://huggingface.co/BAAI/bge-m3/blob/5617a9f61b028005a4858fdac845db406aefb181/README.md)。通过新增迁移 006 增加索引 revision，旧行标记 unrecorded 并强制重建；每个响应、服务身份、配置和索引版本必须一致。每次新评测保存模型名、revision、是否实际使用；RAG 启用时额外验证服务并保存权重哈希。关闭时明确 used=false，旧收据不伪造回填新身份。
+
+**数据**：[bge-m3 CPU 实测](../evidence/eval_bge-cpu_20261017T084350Z_c3e5ae16.summary.json)，原始日志 `eval_bge-cpu_20261017T084350Z_c3e5ae16.jsonl`：通过 `eval/run.py --embedding-benchmark` 在 C dev 的 17 个查询上暖启动串行测量，平均 101.59 ms，P95 123.63 ms，向量 1024 维且归一化检查通过。服务首次加载已缓存权重耗时 2.19 秒，下载时间不计入暖请求。CPU 延迟可接受，因此保留 bge-m3，没有回退或虚构更小模型的速度对比。这不是并发压力测试或 GPU 性能结论。
+
+[bge 索引收据](../evidence/knowledge_index_20261017T084451Z_7fffe624.summary.json)对应 `knowledge_index_20261017T084451Z_7fffe624.jsonl`，原子重建 32 个知识块。由 `eval/run.py` 产生的[检索汇总](../evidence/eval_bge-retrieval-dev_20261017T084507Z_4e08bbbf.summary.json)，原始日志 `eval_bge-retrieval-dev_20261017T084507Z_4e08bbbf.jsonl`：BM25 命中 14/17，bge 向量 17/17，固定 RRF 混合 15/17。混合没有优于纯向量；仍保留计划规定的混合实现和固定融合参数，不因为本轮 dev 成绩临时调权重。历史 e5 的混合 16/17 只作配置变化记录，见前述 Step 4 收据；未据此推断 holdout 表现。
+
+## Step 6：类型化黑板、并行分析与独立审核
+
+**问题**：复杂分析需要独立的上下文、可追溯的证据审核和可控的重做次数。多角色可能增加模型成本，也可能因为拆题丢失关键事实，不能预设一定优于单 Agent。
+
+**方案**：让角色自由对话；在一个上下文里串联全部角色；或用带类型和角色字段约束的数据库黑板控制状态流转。选择黑板，通过新增迁移 005 实现任务状态，不修改已有迁移。
+
+**选择**：Planner 为简单查询输出单个子问题，保留原问题直接路由；复杂问题拆成有向无环依赖图，各 Analyst 使用独立循环，无依赖任务 asyncio 并行。Reviewer 从黑板取结论，经完整保存结果做同一行、同名列、带符号数值校验，再用模型判断 SQL 的口径与论断；拒绝后只允许重做一次，再失败保留“未能验证”。Writer 只接收已批准 claims，数据库拒绝自增或被否决的 claim；正文中缺乏支持的数字标红，独立 eval/checker 仍照常扣分。multi_no_review 保留规划、分析、撰写，仅跳过审核；简单路由两种 multi 模式都跳过 Reviewer。任务控制工具被运行器隐藏，LLM 不能通过猜测名称调用。内部服务 token 仍属于可信运行器边界，面向用户的完整登录和后台恢复留待后续步骤。
+
+**证据边界**：所有角色实际调用和用量进入事件日志，独立归因评分另记 eval_judge，比较时分别展示 Agent 用量和评测总量。共同使用预算 100000；已发出的并行请求可能越过阈值，统计真实响应 usage 并将任务记为预算终止。数字值在结果中出现不能证明 SQL 语义、因果方向正确，Reviewer 与评分模型也不是人工校准的替代品。
+
+**实现过程中发现的问题**：首次复杂拆题生成了合法但较长的 ID，被未写入提示的旧长度限制拒绝；已将限制明确为最长六十四字符并测试真实 MCP。旧完整 multi 运行在升级期间中止，保留[中止收据](../evidence/eval_modes-multi_20261017T083241Z_f8b8d34a.summary.json)，没有为不完整运行填 RESULTS 汇总。UUID 证据链接和 `YYYY Qn` 时间标签曾被数字扫描误识别，运行时扫描与独立核查器分别修复并测试；金额本身不因此豁免。另有 Writer 返回 `type: json_object` 的无害格式元数据，被严格 JSON 形状判为失败；现在只容许该已知元数据，仍拒绝 Writer 提交 claims。所有旧结果留存，最终对比重新运行，不通过修改 gold 改成绩。
+
+
+**日志补齐**：主对比和隔离复跑的评测／Agent 代码哈希一致，收据保存各文件的代码哈希。之后仅补充 MCP 传输层审计与报告导出原始问题：内部 state_read/state_write、Reviewer 的 get_result 和普通 MCP 调用均记录成对的 mcp_call/mcp_result，包含调用 ID、输入输出摘要与实际耗时，不记录鉴权头。这些事件与模型请求的 tool_call 分层，不能把两层相加为工具次数。此补丁不改变模型输入、SQL、审核规则或评分；对比表使用实测版本耗时，不估算加入日志后的延迟。新版本另做真实命令行与数据库日志核验。
+
+**bge-m3 主对比**：三轮使用相同代码哈希、题库、数据版本、模型、温度、RAG inject、无 Memory、上下文 none 与任务预算。全部是 dev 单次结果。平均 token 含独立归因评分；Agent 调用数和 Agent 耗时单列，调用数包括失败重试。空白用量表示有请求未取得 usage，不能把失败尝试当零。
+
+| 模式 | C 正确 | D 整题正确 | D 事实命中 | 无证据 claims | D 无证据正文数字 | 归因均分 | 平均 token | Agent 调用数 | Agent 平均 ms |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [single](../evidence/eval_bge-single_20261017T084857Z_46aad30b.summary.json) | 17/17 | 2/8 | 24/25 | 0/51 | 21/223 | 4.125 |  | 83 | 7819.05 |
+| [multi_no_review](../evidence/eval_bge-multi_no_review_20261017T085232Z_e18784c6.summary.json) | 17/17 | 3/8 | 24/25 | 0/50 | 24/221 | 4.000 |  | 121 | 8827.21 |
+| [multi](../evidence/eval_bge-multi_20261017T085648Z_947b5a76.summary.json) | 17/17 | 3/8 | 23/25 | 0/45 | 35/179 | 4.000 | 18207.60 | 137 | 9462.30 |
+
+原始运行日志：
+- single：`eval_bge-single_20261017T084857Z_46aad30b.jsonl`。
+- multi_no_review：`eval_bge-multi_no_review_20261017T085232Z_e18784c6.jsonl`。
+- multi：`eval_bge-multi_20261017T085648Z_947b5a76.jsonl`。
+
+**判断**：这轮加入 Reviewer 没有带来一致收益：结构化 claims 本来就都能在 SQL 结果中找到，正文额外数字仍然存在，multi 的事实命中低于 single，正文无证据数字比例更高。暂保留 single 默认，multi 和 multi_no_review 作为可比较的开关；不把多角色包装成已证明更好。multi 与无审核模式各有 21 个简单路由、4 个复杂拆题；完整 multi 的审核记录包括 18 次批准、3 次拒绝和 1 次退回事件，说明机制实际执行过，但不等于判断总是正确。这里审核事件按每次审查累计，不能与最终 claim 数直接相加。
+
+**口径实验补充**：固定 bge 后，[off](../evidence/eval_bge-rag-off_20261017T084538Z_ce634d66.summary.json) 为 12/17，[tool](../evidence/eval_bge-rag-tool_20261017T084721Z_aa02efa3.summary.json) 为 17/17，主对比 single 的 inject C 部分为 17/17。原始日志分别为 `eval_bge-rag-off_20261017T084538Z_ce634d66.jsonl`、`eval_bge-rag-tool_20261017T084721Z_aa02efa3.jsonl` 与主对比 single 日志。inject 本轮存在未知 usage，不能据此编造它与 tool 的完整 token 差；保留 inject 作为主动提供口径的实验配置。
+
+**运行故障与保留规则**：single 主运行在 C11、D08 各经历两次 APIConnectionError，最终完成但总用量未知；无审核模式也存在无 usage 的连接失败。一次 single 补跑又被本地 Compose 冒烟启动引发的 MCP 重建影响，D02–D05 失败；[受影响收据](../evidence/eval_bge-single-repeat_20261017T090134Z_4257c690.summary.json)与其真实 RESULTS 行均保留，明确排除出模式比较。[调用日志核验与排除说明](../evidence/step6_trace_audit_20261017T090605Z_1c11efa5.summary.json)，原始日志 `step6_trace_audit_20261017T090605Z_1c11efa5.jsonl`，记录已落库的 8 对 MCP 调用及事故来源。恢复运行使用 --no-deps 和与原始哈希逐文件相符的冻结 Agent 快照；不以正确率择优选择运行。
+
+**验证与界限**：[最终回归 XML](../evidence/step6_release_tests.xml)为 164 passed，原始日志 `step6_release_tests.log`；[原始问题与 HTML 转义测试](../evidence/step6_report_export_test.xml)通过，原始日志 `step6_report_export_test.log`。没有运行 holdout，没有模型单价，所以费用留空。偏好抽取与报告的人工评分仍未完成，不声称评分模型已校准。
+
+
+**具体失败机制**：主 multi 的 D02 先输出正确的最大下降品类，又在其他下降品类列表中重复使用 `largest_drop_category/amount` 字段，产生多个互相不同的“最大值”。独立核查器按防止堆答案的规则只认可无歧义的事实；不能因正确值混在列表里就放宽判分。D08 的 Reviewer 还出现了“最大值为 2 不能支持每单最多 2 条”的错误拒绝理由；审核模型本身也会犯逻辑错误。两者都见主 multi 收据与同名日志，因此没有把模型审核当作可信真值，也没有为提高成绩改 gold 或核查规则。
+
+[十份真实报告导出收据](../evidence/report_exports_20261017T090708Z_289d1726.summary.json)，原始日志 `report_exports_20261017T090708Z_289d1726.jsonl`。按模式轮流选取 D 报告，原始问题、SQL、结果、自动核查和模型评分可一起审阅；HTML 内证据锚点已检查。人工判断与评分仍留空，清单在 `eval/REPORT_REVIEW.md`。
+
+
+**隔离复跑结果也保留**：[single 隔离复跑](../evidence/eval_bge-single-isolated_20261017T090525Z_c75a15fc.summary.json)，原始日志 `eval_bge-single-isolated_20261017T090525Z_c75a15fc.jsonl`。代码、依赖版本、题库、数据与向量身份与主对比一致；完成 25/25，整题正确 18/25，D 事实 23/25，无证据 claims 2/47，D 正文无证据数字 56/210，归因均分 4.125。Agent 调用 83 次，平均 Agent 耗时 7295.55 ms。仍有连接失败尝试没有 usage，所以完整 token 和费用继续留空，不再反复重跑以挑出完整或更好看的成绩。复跑更差的数字没有替换或隐藏主运行；温度固定也未保证输出相同。本步不能据单次主对比断言 single 或 multi 稳定更优，更不能报告精确 token 成本增幅。十份报告按预先选定的三轮主运行导出，未根据复跑成绩重挑样本。
+
+[最终证据一致性核验](../evidence/step6_integrity_20261017T091012Z.summary.json)，原始日志 `step6_integrity_20261017T091012Z.jsonl`：RESULTS 所有已填指标与真实运行收据一致，原始日志哈希匹配；旧表未填列继续留空，新 bge 行逐列核对，包括缺失用量空白。主对比与隔离复跑的代码、依赖、题库和数据版本一致。

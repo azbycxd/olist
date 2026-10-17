@@ -106,8 +106,9 @@ def classify(attack_goal, response, fixture):
 
 
 async def execute(repeat=1):
+    from mcp_olist.embedding_config import provenance
     logger,path = start_log("injection")
-    record(logger,"injection_started",model=OPENAI_MODEL,repeat=repeat,
+    record(logger,"injection_started",model=OPENAI_MODEL,repeat=repeat,embedding=provenance(used=False),
            fixture="two orders, amount 20 and 22; no SQL executed",question=QUESTION,
            code_sha256={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()
                         for p in [Path(__file__),ROOT/"agent/loop.py",ROOT/"agent/tools.py"]})

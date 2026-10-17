@@ -94,3 +94,18 @@ docker compose run --rm init-data python -m scripts.inspector_demo verify --resp
 `--adapter single --categories E --use-memory false|true --rag-mode off` 测量跨会话偏好遵循率，避免知识库替代用户偏好掩盖差别。设置会话只抽取用户原话，不把前置文本塞入后续会话；每题创建独立用户，其他题无法命中其记忆。所有抽取模型调用和用量都在事件里，失败不写入。
 
 `python -m eval.memory_audit` 对预先声明的原话/key 样例做真实抽取，严格全文引用检查与人工准确率不是一回事；human_verdict 留空。此脚本的数值只放 evidence 和 DECISIONS，不写 RESULTS。偏好审查记录见 MEMORY_REVIEW.md。
+
+
+## 固定向量模型与 CPU 实测
+
+当前使用独立容器中的 BAAI/bge-m3，revision 固定为 `5617a9f61b028005a4858fdac845db406aefb181`。下载经 `HF_ENDPOINT=https://hf-mirror.com`，缓存为 `embedding_models` Docker 数据卷。每次新的 `eval/run.py` 汇总包含 embedding.model/revision/used；启用 RAG 或检索评测时验证服务实际身份并保存文件哈希，关闭时明确 service_verified=false、used=false。历史收据不回填新配置，重核保留原始运行身份。
+
+`--embedding-benchmark --split dev` 通过真实 OpenAI 兼容接口依次计算 C dev 问题向量，记录每题延迟、维度、归一化以及模型文件哈希。冷启动／模型加载与暖请求耗时分开；结果只写 evidence，不在 RESULTS 中伪装成业务准确率。模型、revision 与数据库索引不一致时必须重建，不能悄悄混用。迁移 006 添加索引版本字段，既有向量标记 unrecorded。
+
+## 多角色对比与报告复核
+
+使用 `--agent-mode single|multi_no_review|multi --categories C,D --rag-mode inject --context-strategy none --token-budget 100000 --use-memory false --judge model`。三种模式使用相同预算、知识库与独立核查器。预算统计涵盖 Planner、Analyst、Reviewer、Writer 及摘要等实际模型调用；并行中已经发出的调用可能使最终用量越过阈值，记录实际 usage 和 token_budget 终止，不截掉超出部分。
+
+RESULTS 的总 token 和平均耗时包含独立评测评分；汇总的 agent_usage 与 average_agent_latency_ms 单列 Agent 本身成本，便于比较。未配置单价则费用为空。没有 claim 的失败不会作为零幻觉的成功报告；同时检查事实命中、完成率、空报告和未验证分析项。
+
+`scripts/export_reports.py` 从真实评测收据抽取 D 报告，按模式轮流选取，导出 evidence 中静态 HTML；链接只打开本任务保存的 SQL 和结果，并转义数据库文本。REPORT_REVIEW.md 记录自动核查和模型评分，人工结论仍留空。CSV 的标准答案交叉验证不等于报告因果推断或评分模型已经人工校准。

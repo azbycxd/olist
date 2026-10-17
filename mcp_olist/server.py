@@ -51,6 +51,20 @@ async def search_knowledge(query: str) -> dict:
     return await asyncio.to_thread(search,query)
 
 
+@mcp.tool()
+async def state_read(ctx: Context) -> dict:
+    """Internal orchestrator control: read the current task's typed blackboard."""
+    from mcp_olist.blackboard import read_state
+    return await asyncio.to_thread(read_state,ctx.request_context.request.headers.get('x-task-id',''))
+
+
+@mcp.tool()
+async def state_write(role: str, payload: dict, ctx: Context) -> dict:
+    """Internal orchestrator control: persist an allowed typed role update."""
+    from mcp_olist.blackboard import write_state
+    return await asyncio.to_thread(write_state,ctx.request_context.request.headers.get('x-task-id',''),role,payload)
+
+
 class BearerAuth:
     def __init__(self, app, token):
         if len(token) < 24:

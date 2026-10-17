@@ -1,0 +1,49 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D01；任务 671560e3-24ed-437e-a3ec-86e10240dc7e</p>
+<h2>原始问题</h2><p>比较 2018 年 Q1、Q2 的 GMV 和变化率（百分数）。先排除取消及不可用订单，再分析变化；不要把统计相关写成确定原因。</p><h2>回答</h2>
+<pre>2018 年 Q1 GMV 为 2,764,402.78（BRL），Q2 为 2,849,730.26，环比变化 +3.09%。口径：GMV = order_items.price 之和（不含运费），已排除 canceled 与 unavailable 订单，按订单购买时间分期。Q2 相对 Q1 小幅上升，但本查询仅呈现金额与变化率，未做归因分析，因此不能据此断定上升的具体原因。</pre><h2>结构化结论</h2>
+<p>2018 年 Q1（排除取消及不可用订单）GMV 为 2,764,402.78 BRL <a href="#result-d24e2fa4-6afa-4a2e-ab0e-54ba0abd3153">证据</a></p><pre>{
+  &quot;q1_gmv&quot;: 2764402.78
+}</pre>
+<p>2018 年 Q2（排除取消及不可用订单）GMV 为 2,849,730.26 BRL <a href="#result-d24e2fa4-6afa-4a2e-ab0e-54ba0abd3153">证据</a></p><pre>{
+  &quot;q2_gmv&quot;: 2849730.26
+}</pre>
+<p>Q2 相对 Q1 的 GMV 变化率为 +3.09%（由 SQL 计算） <a href="#result-d24e2fa4-6afa-4a2e-ab0e-54ba0abd3153">证据</a></p><pre>{
+  &quot;change_pct&quot;: 3.09
+}</pre>
+<section id="result-d24e2fa4-6afa-4a2e-ab0e-54ba0abd3153"><h2>SQL 证据 d24e2fa4-6afa-4a2e-ab0e-54ba0abd3153</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH q AS (SELECT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS quarter, SUM(i.price) AS gmv FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; GROUP BY 1) SELECT MAX(gmv) FILTER(WHERE quarter = &#x27;Q1&#x27;) AS q1_gmv, MAX(gmv) FILTER(WHERE quarter = &#x27;Q2&#x27;) AS q2_gmv, ROUND(100.0 * (MAX(gmv) FILTER(WHERE quarter = &#x27;Q2&#x27;) - MAX(gmv) FILTER(WHERE quarter = &#x27;Q1&#x27;)) / NULLIF(MAX(gmv) FILTER(WHERE quarter = &#x27;Q1&#x27;), 0), 2) AS change_pct FROM q LIMIT 1000</pre>
+<table><thead><tr><th>q1_gmv</th><th>q2_gmv</th><th>change_pct</th></tr></thead><tbody>
+<tr><td>2764402.78</td><td>2849730.26</td><td>3.09</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 3,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 6,
+    &quot;unsupported_numbers&quot;: 0,
+    &quot;unsupported_number_ratio&quot;: 0.0
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 4,
+    &quot;rationale&quot;: &quot;报告正确给出Q1、Q2 GMV及+3.09%变化率，与gold_facts一致；明确排除取消及不可用订单，并说明GMV口径和分期依据；同时明确区分变化描述与因果假设，未将统计相关写成确定原因。但报告仅呈现金额与变化率，未进一步量化关键差异、说明限制或交叉核对替代解释，也未给出可验证的后续行动，因此未达到5分。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>

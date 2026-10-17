@@ -8,6 +8,7 @@ from config import OPENAI_BASE_URL,OPENAI_MODEL,MODEL_TIMEOUT
 from agent.preferences import extract
 from scripts.common import start_log,record
 from scripts.evidence import publish_log
+from mcp_olist.embedding_config import provenance
 
 CASES=[
 ('sales_amount_definition',q) for q in ['以后销售额都只算商品价格，不包含运费。','请记住我的销售额口径：商品价格加运费。','以后商品销售额保留所有订单状态。','从现在起销售额只看已送达订单的商品金额。']
@@ -19,7 +20,7 @@ CASES=[
 
 async def main():
     logger,path=start_log('memory_audit')
-    record(logger,'audit_started',model=OPENAI_MODEL,
+    record(logger,'audit_started',model=OPENAI_MODEL,embedding=provenance(used=False),
         extractor_sha256=hashlib.sha256((Path(__file__).resolve().parents[1]/'agent/preferences.py').read_bytes()).hexdigest(),
         cases_sha256=hashlib.sha256(json.dumps(CASES,ensure_ascii=False).encode()).hexdigest())
     outcomes=[]

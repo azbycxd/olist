@@ -1,0 +1,269 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>证据审阅报告</title>
+<style>body{font:16px/1.6 system-ui;max-width:1100px;margin:32px auto;padding:0 24px;color:#17212b}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:16px}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd3da;padding:7px}section{margin:32px 0}a{color:#145fbe}</style>
+<h1>真实运行报告及证据</h1>
+<p>问题 D02；任务 e094a044-0b86-4b58-b161-c565ec2571dc</p>
+<h2>原始问题</h2><p>2018 年 Q2 相比 Q1，有多少个原始葡文品类 GMV 下降？给出降幅金额最大的品类及下降金额，分析可能原因。只比较两个季度都有商品成交的非空品类，排除取消及不可用订单。</p><h2>回答</h2>
+<pre>在 2018 年 Q2 与 Q1 都有商品成交的非空品类中，Q2 GMV 低于 Q1 的品类共有 30 个（两季度均有成交的非空品类共 67 个）<a href="#result-764c1f27-075d-420d-8000-9b9d30722275">证据</a>。降幅金额最大的品类是 informatica_acessorios，下降金额为 -114709.72（Q1 GMV 267645.70，Q2 GMV 152935.98）<a href="#result-70a454db-913c-414f-a8c9-6977f8fc830a">证据</a><a href="#result-3231864e-9bdb-454a-802f-78d7ab09d40e">证据</a>。按 gmv_change 升序，降幅前五品类依次为 informatica_acessorios、esporte_lazer、papelaria、cool_stuff、moveis_escritorio<a href="#result-70a454db-913c-414f-a8c9-6977f8fc830a">证据</a>。
+
+对 informatica_acessorios 的下降，可从已批准的归因分解观察：GMV 变化 -114709.72（-42.86%），其中订单量效应 -102787.62，客单价效应 -11922.10；客单价效应再拆为件单价效应 -2126.85 与购物篮件数效应 -9795.25<a href="#result-347596ba-5fe3-4f72-b2eb-216855a037c1">证据</a><a href="#result-5dc6fed8-2621-4f01-b83c-d69f82ef3f98">证据</a>。同期订单数 2018→1243（-775，-38.40%）、商品件数 2432→1409（-1023，-42.06%）、客户数变化 -775（-38.40%），客单价 132.6292→123.0378（-9.59，-7.23%），件单价 110.0517→108.5422（-1.51，-1.37%），每单件数 1.2052→1.1335（-0.0716），每客户订单数两季度均为 1.0000<a href="#result-23fcd8a9-c23b-4778-81db-c5873fda996c">证据</a><a href="#result-347596ba-5fe3-4f72-b2eb-216855a037c1">证据</a>。在售商品数 564→422（-142），活跃卖家数 124→127（+3）<a href="#result-5dc6fed8-2621-4f01-b83c-d69f82ef3f98">证据</a>。
+
+据此，降幅主要与订单量收缩同向，客单价与购物篮件数的下滑是次要贡献；在售商品数减少而活跃卖家数略增，提示供给端商品覆盖收缩可能与需求走弱同时存在。需要强调，以上为描述性归因分解，不能据此认定因果；订单量下降的具体驱动（需求、流量、促销、缺货或数据口径等）未能验证。数据范围限于两季度均有成交的非空品类，并已排除取消及不可用订单；未覆盖两季度中仅单季有成交的品类，也未提供月度或日度波动、流量与促销信息，因此季节性、活动节奏等解释均未能验证。</pre><h2>结构化结论</h2>
+<p>两季度均有成交的非空品类共 67 个，其中 Q2 GMV 低于 Q1 的品类有 30 个；降幅最大品类为 informatica_acessorios，下降金额 -114709.72。 <a href="#result-764c1f27-075d-420d-8000-9b9d30722275">证据</a></p><pre>[
+  {
+    &quot;total_categories&quot;: 67,
+    &quot;largest_drop_amount&quot;: -114709.72,
+    &quot;declining_categories&quot;: 30,
+    &quot;largest_drop_category&quot;: &quot;informatica_acessorios&quot;
+  }
+]</pre>
+<p>降幅最大的品类 informatica_acessorios：Q1 GMV 267645.70，Q2 GMV 152935.98，gmv_change -114709.72。 <a href="#result-70a454db-913c-414f-a8c9-6977f8fc830a">证据</a></p><pre>[
+  {
+    &quot;q1_gmv&quot;: 267645.7,
+    &quot;q2_gmv&quot;: 152935.98,
+    &quot;gmv_change&quot;: -114709.72,
+    &quot;category_name&quot;: &quot;informatica_acessorios&quot;
+  }
+]</pre>
+<p>降幅前五品类（按 gmv_change 升序）：informatica_acessorios、esporte_lazer、papelaria、cool_stuff、moveis_escritorio。 <a href="#result-70a454db-913c-414f-a8c9-6977f8fc830a">证据</a></p><pre>[
+  {
+    &quot;q1_gmv&quot;: 267645.7,
+    &quot;q2_gmv&quot;: 152935.98,
+    &quot;gmv_change&quot;: -114709.72,
+    &quot;category_name&quot;: &quot;informatica_acessorios&quot;
+  },
+  {
+    &quot;q1_gmv&quot;: 251331.53,
+    &quot;q2_gmv&quot;: 172487.71,
+    &quot;gmv_change&quot;: -78843.82,
+    &quot;category_name&quot;: &quot;esporte_lazer&quot;
+  },
+  {
+    &quot;q1_gmv&quot;: 65174.16,
+    &quot;q2_gmv&quot;: 37483.82,
+    &quot;gmv_change&quot;: -27690.34,
+    &quot;category_name&quot;: &quot;papelaria&quot;
+  },
+  {
+    &quot;q1_gmv&quot;: 108665.13,
+    &quot;q2_gmv&quot;: 84380.89,
+    &quot;gmv_change&quot;: -24284.24,
+    &quot;category_name&quot;: &quot;cool_stuff&quot;
+  },
+  {
+    &quot;q1_gmv&quot;: 69189.81,
+    &quot;q2_gmv&quot;: 53926.16,
+    &quot;gmv_change&quot;: -15263.65,
+    &quot;category_name&quot;: &quot;moveis_escritorio&quot;
+  }
+]</pre>
+<p>两季度均有成交的非空品类中，GMV 降幅最大的为 informatica_acessorios：Q1 267645.70，Q2 152935.98，gmv_change -114709.72。 <a href="#result-3231864e-9bdb-454a-802f-78d7ab09d40e">证据</a></p><pre>[
+  {
+    &quot;q1_gmv&quot;: 267645.7,
+    &quot;q2_gmv&quot;: 152935.98,
+    &quot;gmv_change&quot;: -114709.72,
+    &quot;category_name&quot;: &quot;informatica_acessorios&quot;
+  }
+]</pre>
+<p>该品类 Q1/Q2 分季度指标：Q1 gmv 267645.70、orders_cnt 2018、items_cnt 2432、products_cnt 564、sellers_cnt 124、aov_per_order 132.6292、avg_item_price 110.0517、items_per_order 1.2052；Q2 gmv 152935.98、orders_cnt 1243、items_cnt 1409、products_cnt 422、sellers_cnt 127、aov_per_order 123.0378、avg_item_price 108.5422、items_per_order 1.1335。 <a href="#result-23fcd8a9-c23b-4778-81db-c5873fda996c">证据</a></p><pre>[
+  {
+    &quot;gmv&quot;: 267645.7,
+    &quot;quarter&quot;: &quot;Q1&quot;,
+    &quot;items_cnt&quot;: 2432,
+    &quot;orders_cnt&quot;: 2018,
+    &quot;sellers_cnt&quot;: 124,
+    &quot;products_cnt&quot;: 564,
+    &quot;aov_per_order&quot;: 132.62918731417244,
+    &quot;avg_item_price&quot;: 110.05168585526316,
+    &quot;items_per_order&quot;: 1.2051536174430129
+  },
+  {
+    &quot;gmv&quot;: 152935.98,
+    &quot;quarter&quot;: &quot;Q2&quot;,
+    &quot;items_cnt&quot;: 1409,
+    &quot;orders_cnt&quot;: 1243,
+    &quot;sellers_cnt&quot;: 127,
+    &quot;products_cnt&quot;: 422,
+    &quot;aov_per_order&quot;: 123.03779565567176,
+    &quot;avg_item_price&quot;: 108.5422143364088,
+    &quot;items_per_order&quot;: 1.1335478680611424
+  }
+]</pre>
+<p>变化量与变化率：gmv_change -114709.72（-42.86%）；orders_change -775（-38.40%）；items_change -1023（-42.06%）；customers_change -775（-38.40%）；aov_change -9.59（-7.23%）；avg_item_price_change -1.51（-1.37%）；items_per_order_change -0.0716；orders_per_customer 两季度均为 1.0000。 <a href="#result-347596ba-5fe3-4f72-b2eb-216855a037c1">证据</a></p><pre>[
+  {
+    &quot;aov_change&quot;: -9.59,
+    &quot;gmv_change&quot;: -114709.72,
+    &quot;items_change&quot;: -1023,
+    &quot;orders_change&quot;: -775,
+    &quot;aov_change_pct&quot;: -7.23,
+    &quot;gmv_change_pct&quot;: -42.86,
+    &quot;customers_change&quot;: -775,
+    &quot;items_change_pct&quot;: -42.06,
+    &quot;orders_change_pct&quot;: -38.4,
+    &quot;customers_change_pct&quot;: -38.4,
+    &quot;avg_item_price_change&quot;: -1.51,
+    &quot;items_per_order_change&quot;: -0.0716,
+    &quot;q1_orders_per_customer&quot;: 1.0,
+    &quot;q2_orders_per_customer&quot;: 1.0,
+    &quot;avg_item_price_change_pct&quot;: -1.37
+  }
+]</pre>
+<p>GMV 归因分解：订单量效应 -102787.62，客单价效应 -11922.10；客单价再拆为件单价效应 -2126.85 与购物篮件数效应 -9795.25；在售商品数 564→422（-142），活跃卖家数 124→127（+3）。 <a href="#result-5dc6fed8-2621-4f01-b83c-d69f82ef3f98">证据</a></p><pre>[
+  {
+    &quot;aov_effect&quot;: -11922.1,
+    &quot;q1_sellers&quot;: 124,
+    &quot;q2_sellers&quot;: 127,
+    &quot;q1_products&quot;: 564,
+    &quot;q2_products&quot;: 422,
+    &quot;price_effect&quot;: -2126.85,
+    &quot;sellers_change&quot;: 3,
+    &quot;products_change&quot;: -142,
+    &quot;basket_size_effect&quot;: -9795.25,
+    &quot;orders_volume_effect&quot;: -102787.62
+  }
+]</pre>
+<section id="result-764c1f27-075d-420d-8000-9b9d30722275"><h2>SQL 证据 764c1f27-075d-420d-8000-9b9d30722275</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS category_name, o.order_purchase_timestamp AS ts, i.price FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27;), agg AS (SELECT category_name, SUM(CASE WHEN ts &lt; &#x27;2018-04-01&#x27; THEN price ELSE 0 END) AS q1_gmv, SUM(CASE WHEN ts &gt;= &#x27;2018-04-01&#x27; THEN price ELSE 0 END) AS q2_gmv FROM base GROUP BY category_name), paired AS (SELECT category_name, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS gmv_change FROM agg WHERE q1_gmv &gt; 0 AND q2_gmv &gt; 0) SELECT COUNT(*) AS total_categories, COUNT(*) FILTER(WHERE gmv_change &lt; 0) AS declining_categories, (SELECT category_name FROM paired ORDER BY gmv_change ASC LIMIT 1) AS largest_drop_category, (SELECT gmv_change FROM paired ORDER BY gmv_change ASC LIMIT 1) AS largest_drop_amount FROM paired LIMIT 1000</pre>
+<table><thead><tr><th>total_categories</th><th>declining_categories</th><th>largest_drop_category</th><th>largest_drop_amount</th></tr></thead><tbody>
+<tr><td>67</td><td>30</td><td>informatica_acessorios</td><td>-114709.72</td></tr>
+</tbody></table></section>
+<section id="result-70a454db-913c-414f-a8c9-6977f8fc830a"><h2>SQL 证据 70a454db-913c-414f-a8c9-6977f8fc830a</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS category_name, o.order_purchase_timestamp AS ts, i.price FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27;), agg AS (SELECT category_name, SUM(CASE WHEN ts &lt; &#x27;2018-04-01&#x27; THEN price ELSE 0 END) AS q1_gmv, SUM(CASE WHEN ts &gt;= &#x27;2018-04-01&#x27; THEN price ELSE 0 END) AS q2_gmv FROM base GROUP BY category_name), paired AS (SELECT category_name, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS gmv_change FROM agg WHERE q1_gmv &gt; 0 AND q2_gmv &gt; 0) SELECT category_name, q1_gmv, q2_gmv, gmv_change FROM paired ORDER BY gmv_change ASC LIMIT 1000</pre>
+<table><thead><tr><th>category_name</th><th>q1_gmv</th><th>q2_gmv</th><th>gmv_change</th></tr></thead><tbody>
+<tr><td>informatica_acessorios</td><td>267645.70</td><td>152935.98</td><td>-114709.72</td></tr>
+<tr><td>esporte_lazer</td><td>251331.53</td><td>172487.71</td><td>-78843.82</td></tr>
+<tr><td>papelaria</td><td>65174.16</td><td>37483.82</td><td>-27690.34</td></tr>
+<tr><td>cool_stuff</td><td>108665.13</td><td>84380.89</td><td>-24284.24</td></tr>
+<tr><td>moveis_escritorio</td><td>69189.81</td><td>53926.16</td><td>-15263.65</td></tr>
+<tr><td>consoles_games</td><td>32038.43</td><td>18506.93</td><td>-13531.50</td></tr>
+<tr><td>malas_acessorios</td><td>31073.54</td><td>20369.82</td><td>-10703.72</td></tr>
+<tr><td>agro_industria_e_comercio</td><td>19277.24</td><td>11296.25</td><td>-7980.99</td></tr>
+<tr><td>eletronicos</td><td>43316.18</td><td>37628.79</td><td>-5687.39</td></tr>
+<tr><td>audio</td><td>17255.46</td><td>11573.44</td><td>-5682.02</td></tr>
+<tr><td>construcao_ferramentas_jardim</td><td>7963.46</td><td>3199.51</td><td>-4763.95</td></tr>
+<tr><td>moveis_cozinha_area_de_servico_jantar_e_jardim</td><td>12302.32</td><td>9013.99</td><td>-3288.33</td></tr>
+<tr><td>telefonia_fixa</td><td>9113.37</td><td>5848.46</td><td>-3264.91</td></tr>
+<tr><td>artigos_de_natal</td><td>3766.10</td><td>1105.87</td><td>-2660.23</td></tr>
+<tr><td>market_place</td><td>4288.38</td><td>2141.14</td><td>-2147.24</td></tr>
+<tr><td>construcao_ferramentas_seguranca</td><td>13569.51</td><td>11895.54</td><td>-1673.97</td></tr>
+<tr><td>alimentos_bebidas</td><td>3751.04</td><td>2138.36</td><td>-1612.68</td></tr>
+<tr><td>casa_conforto</td><td>8555.30</td><td>7102.49</td><td>-1452.81</td></tr>
+<tr><td>climatizacao</td><td>9969.21</td><td>8680.99</td><td>-1288.22</td></tr>
+<tr><td>tablets_impressao_imagem</td><td>1116.06</td><td>151.90</td><td>-964.16</td></tr>
+<tr><td>artigos_de_festas</td><td>1049.70</td><td>229.30</td><td>-820.40</td></tr>
+<tr><td>fashion_underwear_e_moda_praia</td><td>1443.20</td><td>696.10</td><td>-747.10</td></tr>
+<tr><td>construcao_ferramentas_ferramentas</td><td>2781.80</td><td>2277.89</td><td>-503.91</td></tr>
+<tr><td>flores</td><td>508.75</td><td>282.80</td><td>-225.95</td></tr>
+<tr><td>la_cuisine</td><td>501.00</td><td>280.00</td><td>-221.00</td></tr>
+<tr><td>fashion_roupa_masculina</td><td>938.69</td><td>772.79</td><td>-165.90</td></tr>
+<tr><td>fashion_roupa_feminina</td><td>311.74</td><td>174.95</td><td>-136.79</td></tr>
+<tr><td>fashion_esporte</td><td>209.70</td><td>89.90</td><td>-119.80</td></tr>
+<tr><td>fashion_bolsas_e_acessorios</td><td>27979.93</td><td>27862.96</td><td>-116.97</td></tr>
+<tr><td>casa_conforto_2</td><td>73.69</td><td>38.70</td><td>-34.99</td></tr>
+<tr><td>fashion_roupa_infanto_juvenil</td><td>79.98</td><td>89.99</td><td>10.01</td></tr>
+<tr><td>livros_importados</td><td>1167.00</td><td>1197.08</td><td>30.08</td></tr>
+<tr><td>fraldas_higiene</td><td>388.00</td><td>587.00</td><td>199.00</td></tr>
+<tr><td>alimentos</td><td>4211.83</td><td>4579.54</td><td>367.71</td></tr>
+<tr><td>dvds_blu_ray</td><td>124.50</td><td>915.32</td><td>790.82</td></tr>
+<tr><td>industria_comercio_e_negocios</td><td>11320.04</td><td>12191.50</td><td>871.46</td></tr>
+<tr><td>moveis_sala</td><td>10232.75</td><td>11396.43</td><td>1163.68</td></tr>
+<tr><td>fashion_calcados</td><td>2953.20</td><td>4251.98</td><td>1298.78</td></tr>
+<tr><td>moveis_quarto</td><td>3081.40</td><td>4515.87</td><td>1434.47</td></tr>
+<tr><td>musica</td><td>593.91</td><td>2534.94</td><td>1941.03</td></tr>
+<tr><td>cine_foto</td><td>1139.76</td><td>3234.88</td><td>2095.12</td></tr>
+<tr><td>livros_tecnicos</td><td>3501.23</td><td>5975.01</td><td>2473.78</td></tr>
+<tr><td>artes</td><td>4218.98</td><td>7332.28</td><td>3113.30</td></tr>
+<tr><td>eletroportateis</td><td>34717.10</td><td>38715.45</td><td>3998.35</td></tr>
+<tr><td>bebidas</td><td>5237.75</td><td>9374.49</td><td>4136.74</td></tr>
+<tr><td>sinalizacao_e_seguranca</td><td>2686.48</td><td>8768.98</td><td>6082.50</td></tr>
+<tr><td>telefonia</td><td>54690.22</td><td>60979.92</td><td>6289.70</td></tr>
+<tr><td>construcao_ferramentas_iluminacao</td><td>6540.49</td><td>13945.89</td><td>7405.40</td></tr>
+<tr><td>moveis_decoracao</td><td>145342.99</td><td>152989.38</td><td>7646.39</td></tr>
+<tr><td>perfumaria</td><td>60771.48</td><td>69883.87</td><td>9112.39</td></tr>
+<tr><td>cama_mesa_banho</td><td>206034.47</td><td>215538.86</td><td>9504.39</td></tr>
+<tr><td>livros_interesse_geral</td><td>5778.73</td><td>15545.13</td><td>9766.40</td></tr>
+<tr><td>ferramentas_jardim</td><td>81020.32</td><td>90919.53</td><td>9899.21</td></tr>
+<tr><td>eletrodomesticos</td><td>17214.09</td><td>27190.29</td><td>9976.20</td></tr>
+<tr><td>casa_construcao</td><td>16692.99</td><td>28568.37</td><td>11875.38</td></tr>
+<tr><td>automotivo</td><td>122225.57</td><td>135659.62</td><td>13434.05</td></tr>
+<tr><td>pet_shop</td><td>34104.69</td><td>49756.74</td><td>15652.05</td></tr>
+<tr><td>portateis_casa_forno_e_cafe</td><td>11285.79</td><td>27641.58</td><td>16355.79</td></tr>
+<tr><td>brinquedos</td><td>59580.68</td><td>76184.24</td><td>16603.56</td></tr>
+<tr><td>bebes</td><td>97695.86</td><td>114410.58</td><td>16714.72</td></tr>
+<tr><td>instrumentos_musicais</td><td>35044.51</td><td>54310.30</td><td>19265.79</td></tr>
+<tr><td>eletrodomesticos_2</td><td>23277.13</td><td>43495.65</td><td>20218.52</td></tr>
+<tr><td>construcao_ferramentas_construcao</td><td>29204.63</td><td>56990.15</td><td>27785.52</td></tr>
+<tr><td>pcs</td><td>7450.00</td><td>36331.84</td><td>28881.84</td></tr>
+<tr><td>beleza_saude</td><td>248511.71</td><td>295497.71</td><td>46986.00</td></tr>
+<tr><td>utilidades_domesticas</td><td>110384.87</td><td>164386.03</td><td>54001.16</td></tr>
+<tr><td>relogios_presentes</td><td>236399.51</td><td>303416.79</td><td>67017.28</td></tr>
+</tbody></table></section>
+<section id="result-3231864e-9bdb-454a-802f-78d7ab09d40e"><h2>SQL 证据 3231864e-9bdb-454a-802f-78d7ab09d40e</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT p.product_category_name AS category_name, CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS quarter, o.order_id, i.order_item_id, i.price FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name IS NOT NULL), agg AS (SELECT category_name, quarter, SUM(price) AS gmv, COUNT(DISTINCT order_id) AS orders_cnt, COUNT(*) AS items_cnt FROM base GROUP BY category_name, quarter), piv AS (SELECT category_name, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN gmv END) AS q1_gmv, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN gmv END) AS q2_gmv FROM agg GROUP BY category_name HAVING MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN gmv END) IS NOT NULL AND MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN gmv END) IS NOT NULL) SELECT category_name, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS gmv_change FROM piv ORDER BY gmv_change ASC LIMIT 5</pre>
+<table><thead><tr><th>category_name</th><th>q1_gmv</th><th>q2_gmv</th><th>gmv_change</th></tr></thead><tbody>
+<tr><td>informatica_acessorios</td><td>267645.70</td><td>152935.98</td><td>-114709.72</td></tr>
+<tr><td>esporte_lazer</td><td>251331.53</td><td>172487.71</td><td>-78843.82</td></tr>
+<tr><td>papelaria</td><td>65174.16</td><td>37483.82</td><td>-27690.34</td></tr>
+<tr><td>cool_stuff</td><td>108665.13</td><td>84380.89</td><td>-24284.24</td></tr>
+<tr><td>moveis_escritorio</td><td>69189.81</td><td>53926.16</td><td>-15263.65</td></tr>
+</tbody></table></section>
+<section id="result-23fcd8a9-c23b-4778-81db-c5873fda996c"><h2>SQL 证据 23fcd8a9-c23b-4778-81db-c5873fda996c</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS quarter, o.order_id, i.order_item_id, i.price, i.freight_value, i.product_id, i.seller_id FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name = &#x27;informatica_acessorios&#x27;), agg AS (SELECT quarter, SUM(price) AS gmv, COUNT(DISTINCT order_id) AS orders_cnt, COUNT(*) AS items_cnt, COUNT(DISTINCT product_id) AS products_cnt, COUNT(DISTINCT seller_id) AS sellers_cnt, SUM(price) / COUNT(DISTINCT order_id) AS aov_per_order, SUM(price) / COUNT(*) AS avg_item_price, SUM(freight_value) AS freight_total, SUM(freight_value) / COUNT(*) AS avg_freight_per_item FROM base GROUP BY quarter) SELECT a.quarter, a.gmv, a.orders_cnt, a.items_cnt, a.products_cnt, a.sellers_cnt, a.aov_per_order, a.avg_item_price, a.freight_total, a.avg_freight_per_item, CAST(a.items_cnt AS DECIMAL) / a.orders_cnt AS items_per_order FROM agg AS a ORDER BY a.quarter LIMIT 1000</pre>
+<table><thead><tr><th>quarter</th><th>gmv</th><th>orders_cnt</th><th>items_cnt</th><th>products_cnt</th><th>sellers_cnt</th><th>aov_per_order</th><th>avg_item_price</th><th>freight_total</th><th>avg_freight_per_item</th><th>items_per_order</th></tr></thead><tbody>
+<tr><td>Q1</td><td>267645.70</td><td>2018</td><td>2432</td><td>564</td><td>124</td><td>132.6291873141724480</td><td>110.0516858552631579</td><td>44936.35</td><td>18.4771175986842105</td><td>1.2051536174430129</td></tr>
+<tr><td>Q2</td><td>152935.98</td><td>1243</td><td>1409</td><td>422</td><td>127</td><td>123.0377956556717619</td><td>108.5422143364088006</td><td>27488.61</td><td>19.5093044712562101</td><td>1.1335478680611424</td></tr>
+</tbody></table></section>
+<section id="result-347596ba-5fe3-4f72-b2eb-216855a037c1"><h2>SQL 证据 347596ba-5fe3-4f72-b2eb-216855a037c1</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS quarter, o.order_id, o.customer_id, i.order_item_id, i.price FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name = &#x27;informatica_acessorios&#x27;), agg AS (SELECT quarter, SUM(price) AS gmv, COUNT(DISTINCT order_id) AS orders_cnt, COUNT(*) AS items_cnt, COUNT(DISTINCT customer_id) AS customers_cnt, SUM(price) / COUNT(DISTINCT order_id) AS aov_per_order, SUM(price) / COUNT(*) AS avg_item_price, CAST(COUNT(*) AS DECIMAL) / COUNT(DISTINCT order_id) AS items_per_order, CAST(COUNT(DISTINCT order_id) AS DECIMAL) / COUNT(DISTINCT customer_id) AS orders_per_customer FROM base GROUP BY quarter), d AS (SELECT MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN gmv END) AS q1_gmv, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN gmv END) AS q2_gmv, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN orders_cnt END) AS q1_orders, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN orders_cnt END) AS q2_orders, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN items_cnt END) AS q1_items, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN items_cnt END) AS q2_items, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN customers_cnt END) AS q1_customers, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN customers_cnt END) AS q2_customers, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN aov_per_order END) AS q1_aov, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN aov_per_order END) AS q2_aov, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN avg_item_price END) AS q1_avg_item_price, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN avg_item_price END) AS q2_avg_item_price, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN items_per_order END) AS q1_items_per_order, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN items_per_order END) AS q2_items_per_order, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN orders_per_customer END) AS q1_orders_per_customer, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN orders_per_customer END) AS q2_orders_per_customer FROM agg) SELECT q1_gmv, q2_gmv, q2_gmv - q1_gmv AS gmv_change, ROUND((q2_gmv - q1_gmv) / q1_gmv * 100, 2) AS gmv_change_pct, q1_orders, q2_orders, q2_orders - q1_orders AS orders_change, ROUND(CAST((q2_orders - q1_orders) AS DECIMAL) / q1_orders * 100, 2) AS orders_change_pct, q1_items, q2_items, q2_items - q1_items AS items_change, ROUND(CAST((q2_items - q1_items) AS DECIMAL) / q1_items * 100, 2) AS items_change_pct, q1_customers, q2_customers, q2_customers - q1_customers AS customers_change, ROUND(CAST((q2_customers - q1_customers) AS DECIMAL) / q1_customers * 100, 2) AS customers_change_pct, ROUND(q1_aov, 2) AS q1_aov, ROUND(q2_aov, 2) AS q2_aov, ROUND(q2_aov - q1_aov, 2) AS aov_change, ROUND((q2_aov - q1_aov) / q1_aov * 100, 2) AS aov_change_pct, ROUND(q1_avg_item_price, 2) AS q1_avg_item_price, ROUND(q2_avg_item_price, 2) AS q2_avg_item_price, ROUND(q2_avg_item_price - q1_avg_item_price, 2) AS avg_item_price_change, ROUND((q2_avg_item_price - q1_avg_item_price) / q1_avg_item_price * 100, 2) AS avg_item_price_change_pct, ROUND(q1_items_per_order, 4) AS q1_items_per_order, ROUND(q2_items_per_order, 4) AS q2_items_per_order, ROUND(q2_items_per_order - q1_items_per_order, 4) AS items_per_order_change, ROUND(q1_orders_per_customer, 4) AS q1_orders_per_customer, ROUND(q2_orders_per_customer, 4) AS q2_orders_per_customer FROM d LIMIT 1000</pre>
+<table><thead><tr><th>q1_gmv</th><th>q2_gmv</th><th>gmv_change</th><th>gmv_change_pct</th><th>q1_orders</th><th>q2_orders</th><th>orders_change</th><th>orders_change_pct</th><th>q1_items</th><th>q2_items</th><th>items_change</th><th>items_change_pct</th><th>q1_customers</th><th>q2_customers</th><th>customers_change</th><th>customers_change_pct</th><th>q1_aov</th><th>q2_aov</th><th>aov_change</th><th>aov_change_pct</th><th>q1_avg_item_price</th><th>q2_avg_item_price</th><th>avg_item_price_change</th><th>avg_item_price_change_pct</th><th>q1_items_per_order</th><th>q2_items_per_order</th><th>items_per_order_change</th><th>q1_orders_per_customer</th><th>q2_orders_per_customer</th></tr></thead><tbody>
+<tr><td>267645.70</td><td>152935.98</td><td>-114709.72</td><td>-42.86</td><td>2018</td><td>1243</td><td>-775</td><td>-38.40</td><td>2432</td><td>1409</td><td>-1023</td><td>-42.06</td><td>2018</td><td>1243</td><td>-775</td><td>-38.40</td><td>132.63</td><td>123.04</td><td>-9.59</td><td>-7.23</td><td>110.05</td><td>108.54</td><td>-1.51</td><td>-1.37</td><td>1.2052</td><td>1.1335</td><td>-0.0716</td><td>1.0000</td><td>1.0000</td></tr>
+</tbody></table></section>
+<section id="result-5dc6fed8-2621-4f01-b83c-d69f82ef3f98"><h2>SQL 证据 5dc6fed8-2621-4f01-b83c-d69f82ef3f98</h2>
+<p>数据版本：b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a</p><pre>WITH base AS (SELECT CASE WHEN o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-04-01&#x27; THEN &#x27;Q1&#x27; WHEN o.order_purchase_timestamp &gt;= &#x27;2018-04-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; THEN &#x27;Q2&#x27; END AS quarter, o.order_id, i.order_item_id, i.price, i.product_id, i.seller_id FROM orders AS o JOIN order_items AS i USING (order_id) JOIN products AS p USING (product_id) WHERE NOT o.order_status IN (&#x27;canceled&#x27;, &#x27;unavailable&#x27;) AND o.order_purchase_timestamp &gt;= &#x27;2018-01-01&#x27; AND o.order_purchase_timestamp &lt; &#x27;2018-07-01&#x27; AND p.product_category_name = &#x27;informatica_acessorios&#x27;), agg AS (SELECT quarter, SUM(price) AS gmv, COUNT(DISTINCT order_id) AS orders_cnt, COUNT(*) AS items_cnt, COUNT(DISTINCT product_id) AS products_cnt, COUNT(DISTINCT seller_id) AS sellers_cnt, SUM(price) / COUNT(DISTINCT order_id) AS aov, SUM(price) / COUNT(*) AS avg_item_price, CAST(COUNT(*) AS DECIMAL) / COUNT(DISTINCT order_id) AS items_per_order FROM base GROUP BY quarter), d AS (SELECT MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN gmv END) AS q1_gmv, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN gmv END) AS q2_gmv, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN orders_cnt END) AS q1_orders, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN orders_cnt END) AS q2_orders, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN items_cnt END) AS q1_items, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN items_cnt END) AS q2_items, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN products_cnt END) AS q1_products, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN products_cnt END) AS q2_products, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN sellers_cnt END) AS q1_sellers, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN sellers_cnt END) AS q2_sellers, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN aov END) AS q1_aov, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN aov END) AS q2_aov, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN avg_item_price END) AS q1_avg_item_price, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN avg_item_price END) AS q2_avg_item_price, MAX(CASE WHEN quarter = &#x27;Q1&#x27; THEN items_per_order END) AS q1_ipo, MAX(CASE WHEN quarter = &#x27;Q2&#x27; THEN items_per_order END) AS q2_ipo FROM agg) SELECT ROUND((q2_orders - q1_orders) * q1_aov, 2) AS orders_volume_effect, ROUND(q2_orders * (q2_aov - q1_aov), 2) AS aov_effect, ROUND((q2_orders - q1_orders) * q1_ipo * q1_avg_item_price, 2) AS items_volume_effect, ROUND(q2_orders * q2_ipo * (q2_avg_item_price - q1_avg_item_price), 2) AS price_effect, ROUND(q2_orders * (q2_ipo - q1_ipo) * q1_avg_item_price, 2) AS basket_size_effect, q1_products, q2_products, q2_products - q1_products AS products_change, q1_sellers, q2_sellers, q2_sellers - q1_sellers AS sellers_change FROM d LIMIT 1000</pre>
+<table><thead><tr><th>orders_volume_effect</th><th>aov_effect</th><th>items_volume_effect</th><th>price_effect</th><th>basket_size_effect</th><th>q1_products</th><th>q2_products</th><th>products_change</th><th>q1_sellers</th><th>q2_sellers</th><th>sellers_change</th></tr></thead><tbody>
+<tr><td>-102787.62</td><td>-11922.10</td><td>-102787.62</td><td>-2126.85</td><td>-9795.25</td><td>564</td><td>422</td><td>-142</td><td>124</td><td>127</td><td>3</td></tr>
+</tbody></table></section>
+<h2>独立核查与评分记录</h2><pre>{
+  &quot;evidence_check&quot;: {
+    &quot;claims&quot;: [
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      },
+      {
+        &quot;supported&quot;: true,
+        &quot;reason&quot;: null
+      }
+    ],
+    &quot;claim_count&quot;: 7,
+    &quot;unsupported_claims&quot;: 0,
+    &quot;unsupported_claim_ratio&quot;: 0.0,
+    &quot;report_number_count&quot;: 88,
+    &quot;unsupported_numbers&quot;: 0,
+    &quot;unsupported_number_ratio&quot;: 0.0
+  },
+  &quot;model_grade&quot;: {
+    &quot;score&quot;: 5,
+    &quot;rationale&quot;: &quot;报告准确回答了问题：30 个下降品类、informatica_acessorios 下降 114709.72，与金标准一致；明确说明比较范围（两季度均有成交的非空品类、排除取消及不可用订单）。报告量化了 GMV、订单量、客单价、件单价、购物篮件数、商品数和卖家数变化，并给出订单量效应与客单价效应的归因分解。原因部分明确标注为描述性归因、不认定因果，并列出需求、流量、促销、缺货、数据口径等未验证驱动及数据限制，未凭空归咎营销或竞争。证据核对显示全部声明有支撑、无未支撑数字。唯一可提升处是未对替代解释做交叉核对或给出可验证的后续行动，但整体已满足 4 分要求且归因谨慎、量化完整，故给 5 分。&quot;
+  },
+  &quot;human_verdict&quot;: null
+}</pre></html>
