@@ -7,11 +7,11 @@ from time import perf_counter
 from contracts import FinalAnswer
 
 FINAL_TOOL = {"type":"function", "function":{"name":"final_answer",
-    "description":"Submit the final answer with claims citing real result_id values. All business numbers must be computed by SQL, including ratios and differences.",
+    "description":'Submit the final answer with claims citing real result_id values. All business numbers must be computed by SQL, including counts, ratios and differences. For claims spanning multiple rows, value MUST be an array of row objects: each key is a SQL column name and each object comes from ONE result row. Format-only example: [{"customer_state":"SP","gmv":123.45},{"customer_state":"RJ","gmv":67.89}]. Never turn cell values into object keys or count returned rows yourself.',
     "parameters":{"type":"object", "properties":{
         "answer":{"description":"A number for numeric questions, an array for lists, or a report string."},
         "claims":{"type":"array", "items":{"type":"object", "properties":{
-            "text":{"type":"string"}, "value":{"description":"Exact signed SQL value or an object binding SQL column names to values."},
+            "text":{"type":"string"}, "value":{"description":"Exact signed SQL value, one row object keyed by SQL column names, or an array of such row objects. Each object must match a single SQL result row."},
             "evidence":{"type":"array", "items":{"type":"string"}}},
             "required":["text","value","evidence"], "additionalProperties":False}}},
         "required":["answer","claims"], "additionalProperties":False}}}
