@@ -155,3 +155,21 @@
 **权衡与执行**：采用条件是两次 D 各至少 6/8、两个边界组各至少 8/10；本轮未达标，因此 `BOUNDARY_GUARDS=false` 恢复 Step 9 分析提示及旧门禁路径。缩短上下文仍未恢复多步任务表现，不能用原边界组的表现掩盖 D 或新边界组失败。增强作为可选开关保留；`DIMENSION_PRECHECK=true` 独立默认开启，任务取消/超时/额度、领取上限与迁移均不撤销。LIKE 模糊路径仍可能绕过等值预检，强制澄清也可能吞掉合法空结果，数字核查通过仍可能错误声称分页可取回截断后的全量数据。上述问题只记录，不继续修改。
 
 **冻结边界**：无追加模型调用、无回退后的补测、无 holdout 重跑或重新计分。冻结成绩属于原 Step 9 运行，不能把恢复行为路径称为本次重新测得相同成绩。全部原始运行、核查器哈希和候选源码已归档；停止调参并交审。
+
+## 项目收尾：当前默认配置唯一一次 C/D/E dev 验证
+
+**执行范围**：按用户最后一次授权，在未改动的源码上合并执行一轮 C/D/E dev，每题一次、独立用户；不补跑、不调整提示、核查器、题库或 gold。实际配置为 Step 9 分析路径（single + 数字门禁 + RAG inject + vector + Memory + none），`DIMENSION_PRECHECK=true`、`BOUNDARY_GUARDS=false`。[运行前协议](../evidence/project_closeout_protocol.json)固定本次范围与条件分支。
+
+**直接来源**：[本次运行](../evidence/eval_project-closeout-cde_20261017T130832Z_0977f967.summary.json)，日志 `eval_project-closeout-cde_20261017T130832Z_0977f967.jsonl`；[Step 9 原始 dev 最终配置](../evidence/eval_step9-dev-final_20261017T102853Z_45a71d7d.summary.json)，日志 `eval_step9-dev-final_20261017T102853Z_45a71d7d.jsonl`。[收尾对比收据](../evidence/project_closeout_comparison_20261017T131319Z_184c44ee.summary.json)，日志 `project_closeout_comparison_20261017T131319Z_184c44ee.jsonl`，保存逐类指标、失败题、模型/向量模型及 revision、源码和冻结证据核验。
+
+| 类别 | Step 9 原始结果 | 旧回答的既有同核查器复核 | 本次默认配置 |
+| --- | --- | --- | --- |
+| C | 17/17 | 17/17 | 17/17 |
+| D | 6/8 | 7/8 | 6/8 |
+| E | 6/6 | 6/6 | 6/6 |
+
+**比较限制**：Step 9 原版核查器与当前日期/工具格式识别不同；中列引用已经存在的 [离线复核](../evidence/eval_step11-baseline-final-checker_20261017T114658Z_ea62cd07.summary.json)（日志 `eval_step11-baseline-final-checker_20261017T114658Z_ea62cd07.jsonl`），没有再次调用模型或修改旧成绩。本次整题通过数与原始成绩相同，但按同一当前核查器比较，D 由旧回答的 7/8 到本次 6/8，不能宣称无退化或稳定恢复。预先约定的关闭条件仍是本次 D 低于 6/8。
+
+D 事实命中由原始 22/25 到本次 24/25；本次失败题为 D02、D07。D02 命中 2/3 个事实且有 1 个未匹配数字，D07 命中 3/3 个事实但有 1 个未匹配数字；完整审计保持原样，不放宽判定。只做单次观测，不把差异归因于维度预检，也不将工程参数恢复视为新的 holdout 成绩。
+
+**最终决定**：本次 D 为 6/8，达到用户门槛，因此不触发默认关闭维度预检的条件。保留 `DIMENSION_PRECHECK=true`、`BOUNDARY_GUARDS=false`，没有任何代码或配置修改。评测前后的源码哈希一致，原 holdout 收据、协议、源码归档和题库均未改；holdout 不重跑、不重新计分。RESULTS 仅由本次 `eval/run.py` 自动追加真实记录，费用未配置仍留空。项目在本次证据归档后收尾，不再开发、调参或追加模型评测。
