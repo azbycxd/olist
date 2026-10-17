@@ -1,4 +1,4 @@
-"""Shared environment configuration; no model or agent mechanisms in Step 0."""
+"""Shared environment configuration and explicit evaluation switches."""
 
 import os
 from pathlib import Path
@@ -9,6 +9,12 @@ ROOT = Path(__file__).resolve().parent
 load_dotenv(ROOT / ".env", override=False)
 DATA_DIR = ROOT / "data" / "raw"
 LOG_DIR = ROOT / "logs"
+EVAL_ADAPTER = os.getenv("EVAL_ADAPTER", "zero")
+EVAL_JUDGE = os.getenv("EVAL_JUDGE", "off")
+MODEL_TEMPERATURE = 0
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL") or None
+OPENAI_MODEL = os.getenv("OPENAI_MODEL") or None
+EVAL_JUDGE_MODEL = os.getenv("EVAL_JUDGE_MODEL") or OPENAI_MODEL
 
 
 def db_kwargs(database: str = "olist", role: str = "admin") -> dict:

@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -14,7 +15,7 @@ import psycopg
 from psycopg import sql
 from psycopg.types.json import Jsonb
 
-from config import DATA_DIR, ROOT, db_kwargs
+from config import DATA_DIR, db_kwargs
 from scripts.common import record, start_log
 
 TABLES = {
@@ -99,7 +100,8 @@ def main():
     try:
         from scripts.migrate import migrate
         from scripts.evidence import publish_log
-        migrate()
+        if os.getenv("OLIST_MIGRATIONS_READY") != "1":
+            migrate()
         load(args.data_dir, args.replace, logger)
         if args.profile:
             from scripts.profile_data import generate

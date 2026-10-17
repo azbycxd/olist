@@ -1,6 +1,6 @@
 # Olist 经营分析 Agent
 
-面向中文经营分析的手写 Agent：规划、多步查数与证据审核，每条结论都能追溯到 SQL 和完整查询结果。当前实现范围为 Step 0（环境与数据入库），完整计划见 [docs/Plan.md](docs/Plan.md)。
+面向中文经营分析的手写 Agent：规划、多步查数与证据审核，每条结论都能追溯到 SQL 和完整查询结果。当前已实现 Step 0（环境与数据入库）和 Step 1（题库与独立评测），完整计划见 [docs/Plan.md](docs/Plan.md)。真实 Agent 循环尚待 Step 2。
 
 ## Step 0：启动
 
@@ -71,6 +71,27 @@ docker compose run --rm -e RUN_DB_TESTS=1 init-data python -m pytest -q
 
 - [数据画像](docs/data_profile.md)：业务数据统计，包含来源 SQL、数据版本和画像日志文件名。
 - [设计决策](docs/DECISIONS.md)：问题、候选方案、选择原因和验证依据。
-- [评测结果](docs/RESULTS.md)：仅由后续 `eval/run.py` 的真实运行追加，未运行指标留空。环境测试和数据画像不计为 Agent 评测成绩。
+- [评测结果](docs/RESULTS.md)：仅由 `eval/run.py` 的真实运行追加，未运行指标留空。环境测试和数据画像不计为 Agent 评测成绩。
 
-按 Step 顺序推进；Step 1、Step 2、Step 6 完成后等待用户确认再继续。当前尚未实现 Agent 循环与评测器。
+## Step 1：题库与独立评测
+
+已生成 67 道题（A/B/C/D/E 为 10/10/25/12/10），固定划分 dev 45 题、holdout 22 题。C 的陷阱来自实际数据画像；E 的用户偏好跨两个任务测试。gold SQL 与评分规则不传给被测适配器。详见 [评测协议](eval/README.md) 和 [人工核对清单](eval/HUMAN_REVIEW.md)。
+
+```powershell
+docker compose build init-data
+docker compose run --rm init-data python eval/validate_gold.py
+docker compose run --rm init-data python eval/run.py --tag zero-smoke --categories C,D --split dev
+$stamp = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ')
+docker compose run --rm -e RUN_DB_TESTS=1 init-data python -m pytest -q --junitxml="evidence/step1_review_$stamp.xml"
+```
+
+实际验收：
+
+- 全部标准 SQL 可执行并符合答案形状：67 / 67，见 [gold SQL 验证摘要](evidence/validate_gold_20261017T063309Z_cf8ed5f7.summary.json)。
+- 最终镜像内 `43 passed`，覆盖虚假／跨任务／过期证据、分组值错配、报告额外数字、正确率边界和真实证据表读取，见 [pytest XML](evidence/step1_final_pytest_20261017T063305Z.xml)。
+- 固定回答零的夹具已在 C、D 的 dev 题实跑：1 / 25 正确；其中一道标准答案本身为零。该结果仅证明评分链路工作，不是 Agent 能力基线。见 [真实运行汇总](evidence/eval_zero-smoke-final_20261017T063318Z_b7b7e550.summary.json)，对应日志名保存在汇总与 RESULTS 中。
+- 模型归因评分、真实 Agent 基线、人工模板核对及人工评分校准尚未完成；未运行的评分留空，不能视作已校准。
+
+`evidence/` 中保留每次运行的独立摘要和 XML；新测试应使用新的文件名，避免覆盖已提交证据。`--judge model` 才会调用配置的模型，默认 `--judge off` 不调用；费用只能根据响应 usage 和显式配置的单价计算。
+
+Step 1 工程验收完成后停下等待用户确认，不进入 Step 2。之后仍在 Step 2、Step 6 完成时暂停确认。
