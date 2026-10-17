@@ -1,0 +1,435 @@
+{
+  "scenario": "mcp_midway",
+  "configuration": {
+    "AGENT_MODE": "single",
+    "NUMBER_GATE": "true",
+    "RAG_MODE": "inject",
+    "RETRIEVAL_METHOD": "vector",
+    "USE_MEMORY": "true",
+    "CONTEXT_STRATEGY": "none",
+    "CONTEXT_LIMIT": "16000",
+    "CONTEXT_SUMMARY_THRESHOLD": "6000",
+    "TOKEN_BUDGET": "100000"
+  },
+  "task": {
+    "task_id": "e87f079e-f67b-4003-8070-9a63624dff87",
+    "status": "failed",
+    "claim_count": 1,
+    "error": "RuntimeError",
+    "lease_token": null,
+    "lease_expires_at": null,
+    "result": null,
+    "events": [
+      {
+        "seq": 1,
+        "type": "worker_claimed",
+        "payload": {
+          "phase": "execute",
+          "recovered": false,
+          "worker_id": "3be3c7a8c114:1",
+          "claim_count": 1
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:22.620272+00:00"
+      },
+      {
+        "seq": 2,
+        "type": "memory_read",
+        "payload": {
+          "count": 0,
+          "enabled": true
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:22.639309+00:00"
+      },
+      {
+        "seq": 3,
+        "type": "tool_call",
+        "payload": {
+          "name": "search_knowledge",
+          "phase": "bootstrap",
+          "call_id": "knowledge-inject",
+          "input_summary": {
+            "query": "工程故障测试：请分别查询订单总数和客户总数。"
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:23.821877+00:00"
+      },
+      {
+        "seq": 4,
+        "type": "mcp_call",
+        "payload": {
+          "name": "search_knowledge",
+          "call_id": "32ff8a3d-47ee-4397-9be6-f6bac9783c08",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [
+              "query"
+            ],
+            "sha256": "1a662c6443c56a6583c950777d63df1c989ff8577f6b55c9f41f01f1b0b6f08b",
+            "characters": 35
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:23.831001+00:00"
+      },
+      {
+        "seq": 5,
+        "type": "mcp_result",
+        "payload": {
+          "name": "search_knowledge",
+          "error": null,
+          "call_id": "32ff8a3d-47ee-4397-9be6-f6bac9783c08",
+          "result_id": null,
+          "output_summary": {
+            "keys": [
+              "chunks",
+              "embedding_model",
+              "embedding_revision",
+              "method"
+            ],
+            "sha256": "8ec13d0abed5a1de01cdbeb4466ac5f0d731fb3e2e25645531bc99db28a7e30e",
+            "characters": 1152
+          }
+        },
+        "latency_ms": 970.3011689998675,
+        "at": "2026-10-17 11:12:24.792108+00:00"
+      },
+      {
+        "seq": 6,
+        "type": "tool_result",
+        "payload": {
+          "name": "search_knowledge",
+          "error": null,
+          "phase": "bootstrap",
+          "call_id": "knowledge-inject",
+          "result_id": null,
+          "output_summary": "{\"method\": \"vector\", \"embedding_model\": \"BAAI/bge-m3\", \"embedding_revision\": \"5617a9f61b028005a4858fdac845db406aefb181\", \"chunks\": [{\"chunk_id\": \"buyers\", \"source\": \"kb/metrics.md\", \"content\": \"buyers 客户数／真实客户／买家规模\\n统计观察窗口内有订单的 customer_unique_id 去重数，默认保留所有订单状态。customer_id 是订单关联标识，同人跨订单可能不同。\\n```sql\\nSELECT count(DISTINCT c.customer_unique_id) AS buyers FROM orders o JOIN customers c USING(customer_id);\\n```\", \"content_sha256\": \"45f0df38c0e457ebaea454427b7c55d4ba70da1cea802890a04cc53ae6bc94d5\"}, {\"chunk_id\": \"reviewed_orders\", \"source\": \"kb/metrics.md\", \"content\": \"reviewed_orders 已评价订单／多少单获得评价\\n按订单计算是否存在评价，不能用评价行数代替订单数。一个订单可能有多条评价。\\n```sql\\nSELECT count(*) AS reviewed_orders FROM orders o WHERE EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id);\\n```\", \"content_sha256\": \"eefe3ba0f4afd1e775438ff89b1a326781eaa6f4b2ae4285f171e55a871fdbc2\"}, {\"chunk_id\": \"orders_count\", \"source\": \"kb/metrics.md\", \"content\": \"orders_count 订单数／订单量\\n默认订单表全部状态的行数。状态偏好如 delivered 应明确过滤，订单明细的行数是件次而不是订单数。\\n```sql\\nSELECT count(*) AS orders FROM orders;\\n```\", \"content_sha256\": \"f70f18bcfa10662b07e91f182d1ebfde21c26eceacb4bb728136910e1c7cf979\"}]}"
+        },
+        "latency_ms": 970.4293750000943,
+        "at": "2026-10-17 11:12:24.800603+00:00"
+      },
+      {
+        "seq": 7,
+        "type": "tool_call",
+        "payload": {
+          "name": "list_tables",
+          "phase": "bootstrap",
+          "call_id": "bootstrap-tables",
+          "input_summary": {}
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:24.809675+00:00"
+      },
+      {
+        "seq": 8,
+        "type": "mcp_call",
+        "payload": {
+          "name": "list_tables",
+          "call_id": "78e58146-2ac5-497d-bfbc-c9eec5a1b612",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [],
+            "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "characters": 2
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:24.819527+00:00"
+      },
+      {
+        "seq": 9,
+        "type": "mcp_result",
+        "payload": {
+          "name": "list_tables",
+          "error": null,
+          "call_id": "78e58146-2ac5-497d-bfbc-c9eec5a1b612",
+          "result_id": null,
+          "output_summary": {
+            "keys": [
+              "tables"
+            ],
+            "sha256": "61c362311ed28c4e573808e0a569b39c09f60b17d1358fad3ecab8fdb60b8979",
+            "characters": 541
+          }
+        },
+        "latency_ms": 2.947662000224227,
+        "at": "2026-10-17 11:12:24.829128+00:00"
+      },
+      {
+        "seq": 10,
+        "type": "tool_result",
+        "payload": {
+          "name": "list_tables",
+          "error": null,
+          "phase": "bootstrap",
+          "call_id": "bootstrap-tables",
+          "result_id": null,
+          "output_summary": "{\"tables\": [{\"name\": \"orders\", \"description\": \"订单、状态和各阶段时间。\"}, {\"name\": \"customers\", \"description\": \"订单关联的客户记录、客户标识与地区。\"}, {\"name\": \"order_items\", \"description\": \"订单商品明细、卖家、商品价格与运费。\"}, {\"name\": \"order_payments\", \"description\": \"订单的各笔支付记录。\"}, {\"name\": \"order_reviews\", \"description\": \"订单评价、分数与原始评价文字。\"}, {\"name\": \"products\", \"description\": \"商品属性和原始品类名称。\"}, {\"name\": \"sellers\", \"description\": \"卖家与所在地区。\"}, {\"name\": \"geolocation\", \"description\": \"邮编前缀、坐标和地区记录。\"}, {\"name\": \"product_category_name_translation\", \"description\": \"葡文品类名与英文品类名对照。\"}]}"
+        },
+        "latency_ms": 3.0140650014800485,
+        "at": "2026-10-17 11:12:24.838492+00:00"
+      },
+      {
+        "seq": 11,
+        "type": "model_call",
+        "payload": {
+          "role": "agent",
+          "step": 1,
+          "usage": {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          },
+          "attempt": 0,
+          "extra_body": {},
+          "temperature": 0,
+          "input_summary": {
+            "messages": 2,
+            "characters": 2682
+          },
+          "output_summary": {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "fixture-1",
+                "type": "function",
+                "function": {
+                  "name": "run_sql",
+                  "arguments": "{\"sql\": \"SELECT COUNT(*) AS orders FROM orders\"}"
+                }
+              }
+            ]
+          },
+          "response_model": "step10-http-fixture",
+          "requested_model": "step10-http-fixture",
+          "system_fingerprint": null
+        },
+        "latency_ms": 267.2907190026308,
+        "at": "2026-10-17 11:12:25.062537+00:00"
+      },
+      {
+        "seq": 12,
+        "type": "context_usage",
+        "payload": {
+          "role": "agent",
+          "step": 1,
+          "limit": 16000,
+          "peak_tokens": 0,
+          "prompt_tokens": 0
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.100731+00:00"
+      },
+      {
+        "seq": 13,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "phase": "agent",
+          "call_id": "fixture-1",
+          "input_summary": "{\"sql\": \"SELECT COUNT(*) AS orders FROM orders\"}"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.111255+00:00"
+      },
+      {
+        "seq": 14,
+        "type": "mcp_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "6e8277da-ff29-4cc4-beb5-87a53f3e8c97",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [
+              "sql"
+            ],
+            "sha256": "012faf1d1d6e333dd2934ee5d9445995fc35424e0847a50f1884783ebbcd2432",
+            "characters": 48
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.122563+00:00"
+      },
+      {
+        "seq": 15,
+        "type": "mcp_result",
+        "payload": {
+          "name": "run_sql",
+          "error": null,
+          "call_id": "6e8277da-ff29-4cc4-beb5-87a53f3e8c97",
+          "result_id": "97d7045a-6aa2-41e7-a7a8-0d670c0ab470",
+          "output_summary": {
+            "keys": [
+              "columns",
+              "data_version",
+              "notice",
+              "preview",
+              "result_id",
+              "row_count",
+              "row_limit",
+              "sql",
+              "statistics"
+            ],
+            "sha256": "8b3c49e698b3a52ceccef5a12e6b1bee64e8ceb1f72c9ea02d95e15a5bedebaf",
+            "characters": 469
+          }
+        },
+        "latency_ms": 40.531217000534525,
+        "at": "2026-10-17 11:12:25.131807+00:00"
+      },
+      {
+        "seq": 16,
+        "type": "tool_result",
+        "payload": {
+          "name": "run_sql",
+          "error": null,
+          "phase": "agent",
+          "call_id": "fixture-1",
+          "result_id": "97d7045a-6aa2-41e7-a7a8-0d670c0ab470",
+          "output_summary": "{\"result_id\": \"97d7045a-6aa2-41e7-a7a8-0d670c0ab470\", \"sql\": \"SELECT COUNT(*) AS orders FROM orders LIMIT 1000\", \"data_version\": \"b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a\", \"row_count\": 1, \"row_limit\": 1000, \"columns\": [\"orders\"], \"preview\": [{\"orders\": 99441}], \"statistics\": {\"orders\": {\"min\": \"99441\", \"max\": \"99441\", \"mean\": \"99441\"}}, \"notice\": \"row_count and statistics describe the executed, capped query. Compute report numbers in SQL.\"}"
+        },
+        "latency_ms": 40.630621999298455,
+        "at": "2026-10-17 11:12:25.142211+00:00"
+      },
+      {
+        "seq": 17,
+        "type": "model_call",
+        "payload": {
+          "role": "agent",
+          "step": 2,
+          "usage": {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          },
+          "attempt": 0,
+          "extra_body": {},
+          "temperature": 0,
+          "input_summary": {
+            "messages": 4,
+            "characters": 3503
+          },
+          "output_summary": {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "fixture-2",
+                "type": "function",
+                "function": {
+                  "name": "run_sql",
+                  "arguments": "{\"sql\": \"SELECT COUNT(*) AS customers FROM customers\"}"
+                }
+              }
+            ]
+          },
+          "response_model": "step10-http-fixture",
+          "requested_model": "step10-http-fixture",
+          "system_fingerprint": null
+        },
+        "latency_ms": 11.506530001497595,
+        "at": "2026-10-17 11:12:25.150914+00:00"
+      },
+      {
+        "seq": 18,
+        "type": "context_usage",
+        "payload": {
+          "role": "agent",
+          "step": 2,
+          "limit": 16000,
+          "peak_tokens": 0,
+          "prompt_tokens": 0
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.159563+00:00"
+      },
+      {
+        "seq": 19,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "phase": "agent",
+          "call_id": "fixture-2",
+          "input_summary": "{\"sql\": \"SELECT COUNT(*) AS customers FROM customers\"}"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.168757+00:00"
+      },
+      {
+        "seq": 20,
+        "type": "mcp_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "83eee1e5-da9e-4eee-abe3-608050f59f37",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [
+              "sql"
+            ],
+            "sha256": "80dd2fecad7908bd0d2569ec469c3f91b142446a90dbd3c0afca105ed34d449a",
+            "characters": 54
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.177809+00:00"
+      },
+      {
+        "seq": 21,
+        "type": "runtime_error",
+        "payload": {
+          "error": "ExceptionGroup"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.187084+00:00"
+      },
+      {
+        "seq": 22,
+        "type": "task_status",
+        "payload": {
+          "error": "RuntimeError",
+          "status": "failed"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:25.312400+00:00"
+      }
+    ]
+  },
+  "checks": {
+    "terminal": true,
+    "lease_cleared": true,
+    "not_reclaimed": true,
+    "one_claim": true,
+    "real_mcp_killed": true,
+    "first_sql_persisted": true,
+    "failed_closed": true
+  },
+  "passed": true,
+  "wall_ms": 3533.3766500007187,
+  "http_attempts": [
+    {
+      "elapsed_s": 2.4460814820013184,
+      "status": 200,
+      "role": "agent"
+    },
+    {
+      "elapsed_s": 2.4948555500013754,
+      "status": 200,
+      "role": "agent"
+    }
+  ],
+  "model_kind": "controlled HTTP fixture (synthetic zero usage; not model quality or cost evidence)",
+  "transport": "production worker, subprocess runtime, SDK and real MCP/DB; private real MCP process killed mid-task",
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+  "source_log": "step10_fault_mcp_midway_20261017T111225Z_c4ed7fa1.jsonl",
+  "source_log_sha256": "af3ef624442db90eb21dec7064df504a127e48414a1e014982e5399c9d763b2c"
+}

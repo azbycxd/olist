@@ -290,6 +290,7 @@ def recheck(path, tag):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--boundary',action='store_true',help='Separate one-shot Step 10 behavioral suite; never appends holdout metrics')
     parser.add_argument('--final-suite',choices=['dev','holdout'])
     parser.add_argument('--final-report',type=Path)
     parser.add_argument("--review-report",type=Path)
@@ -320,7 +321,10 @@ def main():
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.final_suite:
+    if args.boundary:
+        from eval.boundary import execute as boundary
+        boundary()
+    elif args.final_suite:
         from eval.final_suite import execute_suite
         execute_suite(args,execute)
     elif args.final_report:

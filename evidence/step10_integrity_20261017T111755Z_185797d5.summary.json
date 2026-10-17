@@ -1,0 +1,110 @@
+{
+  "baseline_commit": "f5899a7f38d8524aeba0d0823e592e8c5595a5fc",
+  "checks": {
+    "frozen_runtime_and_results_unchanged": true,
+    "old_evidence_unchanged": true,
+    "holdout_runs_unchanged": true,
+    "one_boundary_run": true,
+    "boundary_protocol_hash_matches": true,
+    "business_rows_unchanged": true,
+    "parameter_quantiles_recomputed": true,
+    "new_model_calls_for_parameter_analysis": 0
+  },
+  "protected_paths": [
+    "agent",
+    "mcp_olist",
+    "kb",
+    "sql/migrations",
+    "config.py",
+    "contracts.py",
+    "scripts/runtime.py",
+    "scripts/preferences.py",
+    "scripts/findings.py",
+    "eval/questions.jsonl",
+    "eval/checker.py",
+    "eval/scoring.py",
+    "eval/dataset.py",
+    "docs/RESULTS.md",
+    "docs/FINAL_RESULTS.md",
+    "docs/RESUME.md"
+  ],
+  "receipts": [
+    {
+      "receipt": "eval_step10-boundary_20261017T110935Z_62bc557e.summary.json",
+      "source_log": "eval_step10-boundary_20261017T110935Z_62bc557e.jsonl",
+      "source_log_sha256": "cde513fcf6f59dc5f009f0c0bc85e31cdc79d522d1045aff85d8009af5f361a9"
+    },
+    {
+      "receipt": "step10_boundary_review.summary.json",
+      "source_log": "step10_boundary_review_20261017T111539Z_1da1d0a8.jsonl",
+      "source_log_sha256": "7c6ebe0d8c4c17818ecfce2d7c3ae0ecbbf5745f4e974d080fa07b0e557dd1dd"
+    },
+    {
+      "receipt": "step10_concurrency_20261017T111018Z_f9155c08.summary.json",
+      "source_log": "step10_concurrency_20261017T111018Z_f9155c08.jsonl",
+      "source_log_sha256": "0639148e76024e0fa4652eac220a3a8da687eadf46f9df48af5d87ba32a8b4ee"
+    },
+    {
+      "receipt": "step10_concurrency_20261017T111217Z_702ad536.summary.json",
+      "source_log": "step10_concurrency_20261017T111217Z_702ad536.jsonl",
+      "source_log_sha256": "e9c586562e53c8d7df9d98f484b43d7b6a33cd1167c3247a7c5d0204bb58cf2d"
+    },
+    {
+      "receipt": "step10_fault_429_exhausted_20261017T111258Z_14140ef0.summary.json",
+      "source_log": "step10_fault_429_exhausted_20261017T111258Z_14140ef0.jsonl",
+      "source_log_sha256": "6afc6423e9a73ca7070cb4f58da671bb0e407696809aadbcf9cad5f23bb12fee"
+    },
+    {
+      "receipt": "step10_fault_429_recovered_20261017T111238Z_1fdd5884.summary.json",
+      "source_log": "step10_fault_429_recovered_20261017T111238Z_1fdd5884.jsonl",
+      "source_log_sha256": "1190ed54fd2b1c86189753af3ffd9a17db70c7db1c1cc0c8785f36034ca354d0"
+    },
+    {
+      "receipt": "step10_fault_mcp_midway_20261017T111225Z_c4ed7fa1.summary.json",
+      "source_log": "step10_fault_mcp_midway_20261017T111225Z_c4ed7fa1.jsonl",
+      "source_log_sha256": "af3ef624442db90eb21dec7064df504a127e48414a1e014982e5399c9d763b2c"
+    },
+    {
+      "receipt": "step10_fault_vector_down_20261017T111323Z_24e12c63.summary.json",
+      "source_log": "step10_fault_vector_down_20261017T111323Z_24e12c63.jsonl",
+      "source_log_sha256": "f7f976446029e7cbd35c1a1ba711fc3da87c79c5cb85ecea28c391f9169ba7cc"
+    },
+    {
+      "receipt": "step10_parameters_20261017T110913Z_70fa6eac.summary.json",
+      "source_log": "step10_parameters_20261017T110913Z_70fa6eac.jsonl",
+      "source_log_sha256": "ad158b166b320a64cee63741bd4f3d16a44ab94432300b3fdda4ef0232df1957"
+    },
+    {
+      "receipt": "step10_vector_service_control.summary.json",
+      "source_log": "step10_vector_control.log",
+      "source_log_sha256": "e8a3ba1275d9087afd61fcb0c0ba5f04003101ad0d75a8c9cc9d560e532f9928"
+    }
+  ],
+  "tests": {
+    "step10_queue_tests.xml": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "step10_full_tests.xml": {
+      "tests": 185,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "step10_mcp_tests.xml": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "changed_production_behavior": [
+    "task_worker: three issued leases maximum; fourth pickup fails and records reason",
+    "task_worker: worker identity and claim count in event metadata"
+  ],
+  "scope": "Holdout used adapter/runtime, not background task_worker; historical scores unchanged, not remeasured.",
+  "source_log": "step10_integrity_20261017T111755Z_185797d5.jsonl",
+  "source_log_sha256": "03bd4c0e6bc840c3b4939a0665ade77887e898cf1418d1999aad04239ec4075c"
+}

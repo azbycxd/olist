@@ -1,6 +1,6 @@
 # 最终设计决策
 
-当前交付按 Step 9 固定配置。旧默认值、失败尝试和迭代过程完整保留在 [决策历史](DECISIONS_HISTORY.md)，不以最新成绩覆盖旧证据。性能与质量数字只引用真实运行；最终逐次来源见 [FINAL_RESULTS](FINAL_RESULTS.md)，所有原始实验行见 [RESULTS](RESULTS.md)。
+当前 Agent 配置仍按 Step 9 固定，Step 10 增加后台任务领取上限及独立健壮性证据。旧默认值、失败尝试和迭代过程完整保留在 [决策历史](DECISIONS_HISTORY.md)，不以最新成绩覆盖旧证据。性能与质量数字只引用真实运行；最终逐次来源见 [FINAL_RESULTS](FINAL_RESULTS.md)，所有原始业务实验行见 [RESULTS](RESULTS.md)。
 
 ## 最终默认值与多智能体取舍
 
@@ -50,7 +50,7 @@
 
 **选择**：正常窗口默认 none，mask 作为长任务开关。最终消融中的“−压缩”专指相同紧窗口下由 mask 切回 none；不能从默认 none 再关一次不存在的压缩。各策略用同一题集、预算、门禁和 Memory 设置，不与普通窗口混算。
 
-**数据**：历史压力测试在 6000 上限下，none 完成 5/8、事实 15/25，mask 与 summary 完成 7/8、事实 22/25；mask 与 summary 的实际总 token 分别 108080、148094（含评分）。来源为 [重复对比中的压力组](REVIEW_COMPARISON.md)，日志 `eval_review6-fixed-pressure-none_20261017T095656Z_8ff0973c.jsonl`、`eval_review6-fixed-pressure-mask_20261017T095817Z_0707467e.jsonl`、`eval_review6-fixed-pressure-summary_20261017T095925Z_5a49533f.jsonl`。最终门禁/Memory 均开启的压力对照另列于 [最终表](FINAL_RESULTS.md)，旧组不冒充完全匹配的消融。峰值为应用侧估计，包含被拦截请求，不能等同供应商接受窗口。
+**数据**：历史压力测试在 6000 上限下，none 完成 5/8、事实 15/25，mask 与 summary 完成 7/8、事实 22/25；mask 与 summary 的实际总 token 分别 108080、148094（含评分）。来源为 [重复对比中的压力组](REVIEW_COMPARISON.md)，日志 `eval_review6-fixed-pressure-none_20261017T095656Z_8ff0973c.jsonl`、`eval_review6-fixed-pressure-mask_20261017T095817Z_0707467e.jsonl`、`eval_review6-fixed-pressure-summary_20261017T095925Z_5a49533f.jsonl`。最终门禁/Memory 均开启的压力对照另列于 [最终表](FINAL_RESULTS.md)，旧组不冒充完全匹配的消融。峰值取模型返回的 prompt_tokens，应用在返回后检查阈值；超限调用也计入，不能等同于发送前的硬窗口拦截。
 
 ## 用户偏好与可审核的分析记忆
 
@@ -92,8 +92,32 @@
 
 **数据**：holdout 各轮 20/22、21/22、21/22，准确率均值 93.94%，范围 90.91%–95.45%；20/22 道三轮都通过。D 事实字段命中均值为 69.23%，不能只展示总准确率。逐题失败见 [FAILURES](FAILURES.md)；[统计收据](../evidence/eval_step9-final-statistics-metadata-fix_20261017T105044Z_8d18a341.summary.json) 对应日志 `eval_step9-final-statistics-metadata-fix_20261017T105044Z_8d18a341.jsonl`，全部原始来源见 [最终评测](FINAL_RESULTS.md)。没有改提示、模型运行时、gold 或评分器，也未重跑 holdout。
 
-汇总完成后发现 `configuration.judge` 使用了错误字段名，原始收据实际为 `judge_mode=model`。仅修正只读汇总器的一处映射，不改变任何得分或模型执行路径。[修正前统计](../evidence/eval_step9-final-statistics_20261017T104954Z_640a2765.summary.json)（日志 `eval_step9-final-statistics_20261017T104954Z_640a2765.jsonl`）与上述修正后统计均保留；[修复核验](../evidence/step9_metadata_repair.summary.json)，日志 `step9_metadata_repair.json`，确认 holdout、逐题、dev 的指标和原始证据哈希完全一致，新增模型调用为零。冻结源码仍保留修正前版本，当前只有汇总器该行与冻结清单不同。
+汇总完成后发现 `configuration.judge` 使用了错误字段名，原始收据实际为 `judge_mode=model`。仅修正只读汇总器的一处映射，不改变任何得分或模型执行路径。[修正前统计](../evidence/eval_step9-final-statistics_20261017T104954Z_640a2765.summary.json)（日志 `eval_step9-final-statistics_20261017T104954Z_640a2765.jsonl`）与上述修正后统计均保留；[修复核验](../evidence/step9_metadata_repair.summary.json)，日志 `step9_metadata_repair.json`，确认 holdout、逐题、dev 的指标和原始证据哈希完全一致，新增模型调用为零。冻结源码仍保留修正前版本；Step 9 验收时只有汇总器该行与冻结清单不同，Step 10 新增内容另列如下。
 
 最终 dev 单项消融中，C 开启/关闭 RAG 为 17/17 与 11/17，E 开启/关闭 Memory 为 6/6 与 4/6；D 开启/关闭门禁为 6/8 与 2/8，但事实命中分别为 22/25 与 23/25。multi+门禁同为 6/8、22/25，平均 Agent token 34725.75、耗时 21218.78 ms，高于 single+门禁的 22004.38 token、11461.79 ms。压力 mask 完成 6/8、事实 19/25，none 完成 5/8、事实 13/25。这些单次观测支持保留默认选择，但不是稳定优势证明；每个数字与原始日志一一列在 [最终消融表](FINAL_RESULTS.md)。
 
 [最终冻结与统计核验](../evidence/step9_release_integrity.summary.json)，日志 `step9_release_integrity.json`，独立复核源码归档、唯一一行汇总修正、原始题库/迁移、用户隔离及准确率/用量/耗时的汇总计算。[文档与日志核验](../evidence/evidence_integrity_20261017T105305Z_4bc116f8.summary.json)，日志 `evidence_integrity_20261017T105305Z_4bc116f8.jsonl`，已填 RESULTS 单元格和原始日志哈希一致，链接有效，候选提交文件未发现配置密钥。
+
+## Step 10 参数依据与边界验收
+
+**问题**：固定上限容易被误讲成调参最优；数值有证据仍不能证明数据范围、未知维度与因果解释正确。
+
+**选择**：只读旧日志统计分布，并按安全护栏、观测数据、预先固定标注参数来源，不产生模型调用。最终配置组与历史混合组分开，缺失 usage/行数留空，SQL 时间明确为工具调用端到端耗时。finding 实际检索只记录过阈值命中，异题检索分布没有证据，留空；已有 finding 向量的同题/异题余弦分布仅作为补充诊断，不能证明相似度阈值已校准。
+
+**数据**：[参数统计证据](../evidence/step10_parameters_20261017T110913Z_70fa6eac.summary.json)，日志 `step10_parameters_20261017T110913Z_70fa6eac.jsonl`，覆盖 59 次旧运行、820 次答题；最终配置组 97 次，步数 p95 为 4、token p95 为 20648、上下文峰值 p95 为 6763。参数表、逐题分布、样本数和统计限制见 [PARAMETERS](PARAMETERS.md)。这些是原值的事后负载依据，不声称参数由这些数据事前优化得到。
+
+**边界选择与结果**：先固定十道题与期望行为，最终配置各跑一次，单列 [边界运行证据](../evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json)，日志 `eval_step10-boundary_20261017T110935Z_62bc557e.jsonl`；[保存回答逐项复核](../evidence/step10_boundary_review.summary.json)通过 6/10，方法是 Codex 复核，不冒称独立人工评审。失败包括不存在的州/品类误当成零、缺时间范围未澄清、部分年度误称完整年度。预测、删除与必然因果请求没有诱导出所要求的确定结论；空结果与超过接口行数的明细也没有伪装完整交付。门禁对日期、字符串分桶和工具元数据的误替换原样保留。完整记录与复核日志名见 [BOUNDARY_RESULTS](BOUNDARY_RESULTS.md)。没有根据这轮边界题修改提示、知识库或门禁，也不重跑挑选答案。
+
+## Step 10 队列上限、连接数与故障
+
+**问题**：租约恢复可能无限重复毒任务；并发连接、服务断开和 429 重试需要运行证据。
+
+**选择**：最多发出三次任务租约，包含规划、执行及恢复；下一次尝试原子地置 failed 并记录 claim_limit_exceeded，禁止第四次实际执行。只复用已有 claim_count/error/events 字段，无表结构变更；未修改任何已执行迁移。领取事件增加 worker_id 和计数便于证明并发唯一性。此上限改变后台任务生命周期，但 Step 9 评测经 adapter/runtime 执行，没有进入该后台领取循环；已冻结的成绩和原始收据不受此修改影响，未重跑 holdout，也不将旧成绩解释成新后台策略的重新测量。
+
+**连接数据**：两个独立 worker 处理六个真实模型任务，全完成、每题仅领取一次且实际重叠；正式耗时 14.824 秒，50ms 采样连接峰值为 5（含采样与实验互斥锁连接），max_connections=100。[正式收据](../evidence/step10_concurrency_20261017T111217Z_702ad536.summary.json)，日志 `step10_concurrency_20261017T111217Z_702ad536.jsonl`。本规模未见连接风险，暂不加池；不外推更多 worker。首次与边界评测重叠的 [试运行](../evidence/step10_concurrency_20261017T111018Z_f9155c08.summary.json)保留，日志 `step10_concurrency_20261017T111018Z_f9155c08.jsonl`，随后给实验入口加互斥锁并独立重测，正式数字不混用。
+
+**故障数据**：真实向量容器宕机后任务失败且没有聊天调用；私有真实 MCP 进程在首条 SQL 保存后被杀，任务失败；429 连续失败后恢复和重试耗尽均有界结束。所有任务清除租约，失败任务不会自动再次被领取。429 和 MCP 时点控制采用明确标记的 HTTP 模型替身，不能当作真实模型质量/费用数据。向量容器在 finally 中恢复健康。逐场景收据、模型身份、墙钟时间及日志名见 [ROBUSTNESS](ROBUSTNESS.md)，未把这些工程样本混进业务分数。
+
+**验收范围**：[主测试](../evidence/step10_full_tests.xml)为 184 通过、1 项因未启用实连标志而跳过，日志 `step10_full_tests.log`；该项随后 [MCP 实连](../evidence/step10_mcp_tests.xml)通过，日志 `step10_mcp_tests.log`。毒任务、旧租约 fencing、真实传输失败和服务恢复均有证据；仍未测试数据库宕机、无限扩容或所有组合故障。Step 10 完成后停止。
+
+[冻结与证据核验](../evidence/step10_integrity_20261017T111755Z_185797d5.summary.json)，日志 `step10_integrity_20261017T111755Z_185797d5.jsonl`，确认旧模型运行代码、题库、迁移、成绩与原始证据未改，参数分位数复算一致；[运行服务恢复](../evidence/step10_deployment.summary.json)，日志 `step10_deployment.json`，确认常驻 worker 已运行新的领取上限代码，数据库、向量、MCP 与 API 健康。

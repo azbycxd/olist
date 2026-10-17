@@ -10,18 +10,28 @@ from api.tasks import event
 from scripts.runtime import run_runtime
 
 LEASE_SECONDS=int(os.getenv('WORKER_LEASE_SECONDS','30'))
+MAX_CLAIMS=3
 
 
 def claim(task_id=None):
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status FROM tasks WHERE background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1",(task_id,task_id)).fetchone()
-        if not row:return None
-        ident,question,confirmed,settings,previous=row;token=uuid4()
+        while True:
+            row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status,claim_count FROM tasks WHERE background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at,task_id FOR UPDATE SKIP LOCKED LIMIT 1",(task_id,task_id)).fetchone()
+            if not row:return None
+            ident,question,confirmed,settings,previous,count=row
+            if count < MAX_CLAIMS:break
+            # Reject the fourth pickup without granting another lease or running
+            # the model. Keep claim_count as the number of leases actually issued.
+            reason=f'claim_limit_exceeded: {count} leases already issued; maximum {MAX_CLAIMS}'
+            conn.execute("UPDATE tasks SET status='failed',error=%s,lease_token=NULL,lease_expires_at=NULL,updated_at=now() WHERE task_id=%s",(reason,ident))
+            event(conn,ident,'task_status',{'status':'failed','error':reason,'attempted_claim':count+1,'max_claims':MAX_CLAIMS})
+        token=uuid4()
         phase='execute' if confirmed or settings.get('AGENT_MODE')=='single' else 'plan'
         conn.execute("UPDATE tasks SET status=%s,lease_token=%s,lease_expires_at=now()+%s*interval '1 second',heartbeat_at=now(),claim_count=claim_count+1,updated_at=now() WHERE task_id=%s",
             ('running' if phase=='execute' else 'planning',token,LEASE_SECONDS,ident))
         recovered=previous in {'planning','running'}
-        event(conn,ident,'worker_claimed',{'phase':phase,'recovered':recovered})
+        event(conn,ident,'worker_claimed',{'phase':phase,'recovered':recovered,'claim_count':count+1,
+            'worker_id':os.getenv('WORKER_ID') or f'{os.getenv("HOSTNAME","local")}:{os.getpid()}'})
         state=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(ident,)).fetchone()
         budget=conn.execute("SELECT COALESCE(SUM(tokens),0) FROM events WHERE task_id=%s AND type='model_call'",(ident,)).fetchone()[0]
         board=dict(zip(['plan','subtasks','report'],state)) if state else None

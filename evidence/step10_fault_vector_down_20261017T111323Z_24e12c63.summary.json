@@ -1,0 +1,150 @@
+{
+  "scenario": "vector_down",
+  "configuration": {
+    "AGENT_MODE": "single",
+    "NUMBER_GATE": "true",
+    "RAG_MODE": "inject",
+    "RETRIEVAL_METHOD": "vector",
+    "USE_MEMORY": "true",
+    "CONTEXT_STRATEGY": "none",
+    "CONTEXT_LIMIT": "16000",
+    "CONTEXT_SUMMARY_THRESHOLD": "6000",
+    "TOKEN_BUDGET": "100000"
+  },
+  "task": {
+    "task_id": "919371b6-6a99-4358-8638-c6d4b1ec23f7",
+    "status": "failed",
+    "claim_count": 1,
+    "error": "RuntimeError",
+    "lease_token": null,
+    "lease_expires_at": null,
+    "result": null,
+    "events": [
+      {
+        "seq": 1,
+        "type": "worker_claimed",
+        "payload": {
+          "phase": "execute",
+          "recovered": false,
+          "worker_id": "aaecfe002c8f:1",
+          "claim_count": 1
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:13:17.706929+00:00"
+      },
+      {
+        "seq": 2,
+        "type": "memory_read",
+        "payload": {
+          "count": 0,
+          "enabled": true
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:13:17.726401+00:00"
+      },
+      {
+        "seq": 3,
+        "type": "tool_call",
+        "payload": {
+          "name": "search_knowledge",
+          "phase": "bootstrap",
+          "call_id": "knowledge-inject",
+          "input_summary": {
+            "query": "工程故障测试：请分别查询订单总数和客户总数。"
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:13:18.871693+00:00"
+      },
+      {
+        "seq": 4,
+        "type": "mcp_call",
+        "payload": {
+          "name": "search_knowledge",
+          "call_id": "05a37939-f003-41b9-8551-44f7abcae419",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [
+              "query"
+            ],
+            "sha256": "1a662c6443c56a6583c950777d63df1c989ff8577f6b55c9f41f01f1b0b6f08b",
+            "characters": 35
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:13:18.880629+00:00"
+      },
+      {
+        "seq": 5,
+        "type": "mcp_result",
+        "payload": {
+          "name": "search_knowledge",
+          "error": "mcp_tool_error",
+          "call_id": "05a37939-f003-41b9-8551-44f7abcae419",
+          "result_id": null,
+          "output_summary": {
+            "keys": [
+              "detail",
+              "error"
+            ],
+            "sha256": "5a106fe7d422eeb0e901a28481e7ce5edaddea56da6db1c577d2ee60d7b749c7",
+            "characters": 97
+          }
+        },
+        "latency_ms": 4492.141596001602,
+        "at": "2026-10-17 11:13:23.366018+00:00"
+      },
+      {
+        "seq": 6,
+        "type": "tool_result",
+        "payload": {
+          "name": "search_knowledge",
+          "error": "mcp_tool_error",
+          "phase": "bootstrap",
+          "call_id": "knowledge-inject",
+          "result_id": null,
+          "output_summary": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool search_knowledge: Connection error.\"}"
+        },
+        "latency_ms": 4492.283804000181,
+        "at": "2026-10-17 11:13:23.378250+00:00"
+      },
+      {
+        "seq": 7,
+        "type": "runtime_error",
+        "payload": {
+          "error": "ExceptionGroup"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:13:23.387246+00:00"
+      },
+      {
+        "seq": 8,
+        "type": "task_status",
+        "payload": {
+          "error": "RuntimeError",
+          "status": "failed"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:13:23.525839+00:00"
+      }
+    ]
+  },
+  "checks": {
+    "terminal": true,
+    "lease_cleared": true,
+    "not_reclaimed": true,
+    "one_claim": true,
+    "failed_closed": true,
+    "no_chat_calls": true
+  },
+  "passed": true,
+  "wall_ms": 6927.482105998934,
+  "http_attempts": [],
+  "model_kind": "no chat model called",
+  "transport": "production worker, subprocess runtime, SDK and real MCP/DB",
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+  "source_log": "step10_fault_vector_down_20261017T111323Z_24e12c63.jsonl",
+  "source_log_sha256": "f7f976446029e7cbd35c1a1ba711fc3da87c79c5cb85ecea28c391f9169ba7cc"
+}

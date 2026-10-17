@@ -1,0 +1,36 @@
+{
+  "worker_source_sha256": "f6f499037963e15c5dfdb348334c28d3f7b010e6bb5bbb5d487c234355287680",
+  "running_worker_sha256": "f6f499037963e15c5dfdb348334c28d3f7b010e6bb5bbb5d487c234355287680",
+  "services": {
+    "api": {
+      "state": "running",
+      "health": "healthy",
+      "image": "sha256:020d699071c6d4dcb7cbcca65aaf97f7eb4fefbb1bd388f569add4a0048bba33"
+    },
+    "db": {
+      "state": "running",
+      "health": "healthy",
+      "image": "pgvector/pgvector:pg16"
+    },
+    "embeddings": {
+      "state": "running",
+      "health": "healthy",
+      "image": "olist-embeddings:local"
+    },
+    "mcp-olist": {
+      "state": "running",
+      "health": "healthy",
+      "image": "sha256:020d699071c6d4dcb7cbcca65aaf97f7eb4fefbb1bd388f569add4a0048bba33"
+    },
+    "worker": {
+      "state": "running",
+      "health": "",
+      "image": "olist-agent:local"
+    }
+  },
+  "source_log": "step10_deployment.json",
+  "restore_log": "step10_worker_restore.log",
+  "service_log": "step10_services.log",
+  "checks": "worker code matches workspace; all regular services restored",
+  "source_log_sha256": "cd42020925d30e7a6cfd871aa921ea151354cd84c25077e62f969aaa025eecf9"
+}

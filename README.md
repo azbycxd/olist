@@ -108,7 +108,7 @@ docker compose run --rm --no-deps -e CONTEXT_STRATEGY=mask agent "分析季度�
 docker compose up -d --no-deps worker
 ```
 
-单 Agent 中断后重跑当前任务；多智能体按已持久化子问题恢复。恢复任务可能缺失被中断请求的 usage，页面只显示已记录用量，完整总量留空。SSE 用 `Last-Event-ID` 续传，已完成任务重开也可查看历史事件。
+单 Agent 中断后重跑当前任务；多智能体按已持久化子问题恢复。每个后台任务最多实际领取三次，第四次尝试直接标记失败并记录原因，防止崩溃任务无限重试。恢复任务可能缺失被中断请求的 usage，页面只显示已记录用量，完整总量留空。SSE 用 `Last-Event-ID` 续传，已完成任务重开也可查看历史事件。
 
 ## 评测与证据
 
@@ -125,4 +125,8 @@ holdout 启动标记已经随证据提交，协议拒绝再次启动。只读汇
 
 关键证据在 `evidence/` 提交；完整日志留在本机 `logs/`，每份收据记录对应日志文件名及哈希。数据库密码、模型密钥、原始 CSV 不提交。测试 XML 为 [发布验证](evidence/step9_release_tests.xml)，日志 `step9_release_tests.log`。全新数据库与空缓存的 [隔离启动验收](evidence/fresh_compose_20261017T101027Z_450b90f6.summary.json)复用本机镜像与 CSV，不宣称在另一台物理机器验收。
 
-设计依据与局限见 [最终决策](docs/DECISIONS.md)；早期实验、失败与修复完整保留在 [决策历史](docs/DECISIONS_HISTORY.md)、[重复对比](docs/REVIEW_COMPARISON.md)和 [finding 复用](docs/FINDING_REUSE.md)。Step 9 完成后停止，后续修改需另行授权。
+Step 10 补充 [参数依据](docs/PARAMETERS.md)、[独立边界评测](docs/BOUNDARY_RESULTS.md)与[并发/故障验证](docs/ROBUSTNESS.md)。边界题逐项复核通过 6/10，仍存在未知维度当作零、时间范围未澄清和不完整年度误称完整的问题；它们不并入 holdout。两 worker 六任务无重复领取，正式采样连接峰值为 5，全部任务耗时 14.824 秒；来源与采样局限见工程报告。新增毒任务上限，未为边界题调整 Agent 提示，也未重跑 holdout。
+
+对应证据：[边界真实运行](evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json)、[逐项复核](evidence/step10_boundary_review.summary.json)、[正式并发](evidence/step10_concurrency_20261017T111217Z_702ad536.summary.json)。原始日志分别为 `eval_step10-boundary_20261017T110935Z_62bc557e.jsonl` 与 `step10_concurrency_20261017T111217Z_702ad536.jsonl`；复核日志名保存在复核收据中。
+
+设计依据与局限见 [最终决策](docs/DECISIONS.md)；早期实验、失败与修复完整保留在 [决策历史](docs/DECISIONS_HISTORY.md)、[重复对比](docs/REVIEW_COMPARISON.md)和 [finding 复用](docs/FINDING_REUSE.md)。Step 10 完成后停止，后续工作等待确认。

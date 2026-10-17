@@ -1,0 +1,433 @@
+{
+  "scenario": "429_recovered",
+  "configuration": {
+    "AGENT_MODE": "single",
+    "NUMBER_GATE": "true",
+    "RAG_MODE": "inject",
+    "RETRIEVAL_METHOD": "vector",
+    "USE_MEMORY": "true",
+    "CONTEXT_STRATEGY": "none",
+    "CONTEXT_LIMIT": "16000",
+    "CONTEXT_SUMMARY_THRESHOLD": "6000",
+    "TOKEN_BUDGET": "100000"
+  },
+  "task": {
+    "task_id": "22b8d6ff-2782-42e4-9945-3ebe22821116",
+    "status": "completed",
+    "claim_count": 1,
+    "error": null,
+    "lease_token": null,
+    "lease_expires_at": null,
+    "result": {
+      "answer": "受控重试已经恢复。",
+      "claims": []
+    },
+    "events": [
+      {
+        "seq": 1,
+        "type": "worker_claimed",
+        "payload": {
+          "phase": "execute",
+          "recovered": false,
+          "worker_id": "a2b3bb3b4ddf:1",
+          "claim_count": 1
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:33.397115+00:00"
+      },
+      {
+        "seq": 2,
+        "type": "memory_read",
+        "payload": {
+          "count": 0,
+          "enabled": true
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:33.415643+00:00"
+      },
+      {
+        "seq": 3,
+        "type": "tool_call",
+        "payload": {
+          "name": "search_knowledge",
+          "phase": "bootstrap",
+          "call_id": "knowledge-inject",
+          "input_summary": {
+            "query": "工程故障测试：请分别查询订单总数和客户总数。"
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:34.611536+00:00"
+      },
+      {
+        "seq": 4,
+        "type": "mcp_call",
+        "payload": {
+          "name": "search_knowledge",
+          "call_id": "53c93a88-3077-4f13-a456-9f742e316581",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [
+              "query"
+            ],
+            "sha256": "1a662c6443c56a6583c950777d63df1c989ff8577f6b55c9f41f01f1b0b6f08b",
+            "characters": 35
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:34.620555+00:00"
+      },
+      {
+        "seq": 5,
+        "type": "mcp_result",
+        "payload": {
+          "name": "search_knowledge",
+          "error": null,
+          "call_id": "53c93a88-3077-4f13-a456-9f742e316581",
+          "result_id": null,
+          "output_summary": {
+            "keys": [
+              "chunks",
+              "embedding_model",
+              "embedding_revision",
+              "method"
+            ],
+            "sha256": "8ec13d0abed5a1de01cdbeb4466ac5f0d731fb3e2e25645531bc99db28a7e30e",
+            "characters": 1152
+          }
+        },
+        "latency_ms": 111.12307800067356,
+        "at": "2026-10-17 11:12:34.722975+00:00"
+      },
+      {
+        "seq": 6,
+        "type": "tool_result",
+        "payload": {
+          "name": "search_knowledge",
+          "error": null,
+          "phase": "bootstrap",
+          "call_id": "knowledge-inject",
+          "result_id": null,
+          "output_summary": "{\"method\": \"vector\", \"embedding_model\": \"BAAI/bge-m3\", \"embedding_revision\": \"5617a9f61b028005a4858fdac845db406aefb181\", \"chunks\": [{\"chunk_id\": \"buyers\", \"source\": \"kb/metrics.md\", \"content\": \"buyers 客户数／真实客户／买家规模\\n统计观察窗口内有订单的 customer_unique_id 去重数，默认保留所有订单状态。customer_id 是订单关联标识，同人跨订单可能不同。\\n```sql\\nSELECT count(DISTINCT c.customer_unique_id) AS buyers FROM orders o JOIN customers c USING(customer_id);\\n```\", \"content_sha256\": \"45f0df38c0e457ebaea454427b7c55d4ba70da1cea802890a04cc53ae6bc94d5\"}, {\"chunk_id\": \"reviewed_orders\", \"source\": \"kb/metrics.md\", \"content\": \"reviewed_orders 已评价订单／多少单获得评价\\n按订单计算是否存在评价，不能用评价行数代替订单数。一个订单可能有多条评价。\\n```sql\\nSELECT count(*) AS reviewed_orders FROM orders o WHERE EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id);\\n```\", \"content_sha256\": \"eefe3ba0f4afd1e775438ff89b1a326781eaa6f4b2ae4285f171e55a871fdbc2\"}, {\"chunk_id\": \"orders_count\", \"source\": \"kb/metrics.md\", \"content\": \"orders_count 订单数／订单量\\n默认订单表全部状态的行数。状态偏好如 delivered 应明确过滤，订单明细的行数是件次而不是订单数。\\n```sql\\nSELECT count(*) AS orders FROM orders;\\n```\", \"content_sha256\": \"f70f18bcfa10662b07e91f182d1ebfde21c26eceacb4bb728136910e1c7cf979\"}]}"
+        },
+        "latency_ms": 111.28608700164477,
+        "at": "2026-10-17 11:12:34.731902+00:00"
+      },
+      {
+        "seq": 7,
+        "type": "tool_call",
+        "payload": {
+          "name": "list_tables",
+          "phase": "bootstrap",
+          "call_id": "bootstrap-tables",
+          "input_summary": {}
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:34.741473+00:00"
+      },
+      {
+        "seq": 8,
+        "type": "mcp_call",
+        "payload": {
+          "name": "list_tables",
+          "call_id": "31fe2d5b-b45e-40dc-bad6-e37c21c88d4c",
+          "state_role": null,
+          "subtask_id": null,
+          "input_summary": {
+            "keys": [],
+            "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "characters": 2
+          }
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:34.750783+00:00"
+      },
+      {
+        "seq": 9,
+        "type": "mcp_result",
+        "payload": {
+          "name": "list_tables",
+          "error": null,
+          "call_id": "31fe2d5b-b45e-40dc-bad6-e37c21c88d4c",
+          "result_id": null,
+          "output_summary": {
+            "keys": [
+              "tables"
+            ],
+            "sha256": "61c362311ed28c4e573808e0a569b39c09f60b17d1358fad3ecab8fdb60b8979",
+            "characters": 541
+          }
+        },
+        "latency_ms": 3.8038079983380158,
+        "at": "2026-10-17 11:12:34.760157+00:00"
+      },
+      {
+        "seq": 10,
+        "type": "tool_result",
+        "payload": {
+          "name": "list_tables",
+          "error": null,
+          "phase": "bootstrap",
+          "call_id": "bootstrap-tables",
+          "result_id": null,
+          "output_summary": "{\"tables\": [{\"name\": \"orders\", \"description\": \"订单、状态和各阶段时间。\"}, {\"name\": \"customers\", \"description\": \"订单关联的客户记录、客户标识与地区。\"}, {\"name\": \"order_items\", \"description\": \"订单商品明细、卖家、商品价格与运费。\"}, {\"name\": \"order_payments\", \"description\": \"订单的各笔支付记录。\"}, {\"name\": \"order_reviews\", \"description\": \"订单评价、分数与原始评价文字。\"}, {\"name\": \"products\", \"description\": \"商品属性和原始品类名称。\"}, {\"name\": \"sellers\", \"description\": \"卖家与所在地区。\"}, {\"name\": \"geolocation\", \"description\": \"邮编前缀、坐标和地区记录。\"}, {\"name\": \"product_category_name_translation\", \"description\": \"葡文品类名与英文品类名对照。\"}]}"
+        },
+        "latency_ms": 3.8783119998697657,
+        "at": "2026-10-17 11:12:34.769007+00:00"
+      },
+      {
+        "seq": 11,
+        "type": "model_call",
+        "payload": {
+          "role": "agent",
+          "step": 1,
+          "error": "RateLimitError",
+          "usage": null,
+          "attempt": 0,
+          "extra_body": {},
+          "temperature": 0,
+          "error_detail": "Error code: 429 - {'error': {'message': 'Controlled rate limit fixture', 'type': 'rate_limit_error', 'code': 'rate_limit'}}",
+          "input_summary": {
+            "messages": 2,
+            "characters": 2682
+          },
+          "requested_model": "step10-http-fixture"
+        },
+        "latency_ms": 343.57349300262285,
+        "at": "2026-10-17 11:12:35.071170+00:00"
+      },
+      {
+        "seq": 12,
+        "type": "model_call",
+        "payload": {
+          "role": "agent",
+          "step": 1,
+          "error": "RateLimitError",
+          "usage": null,
+          "attempt": 1,
+          "extra_body": {},
+          "temperature": 0,
+          "error_detail": "Error code: 429 - {'error': {'message': 'Controlled rate limit fixture', 'type': 'rate_limit_error', 'code': 'rate_limit'}}",
+          "input_summary": {
+            "messages": 2,
+            "characters": 2682
+          },
+          "requested_model": "step10-http-fixture"
+        },
+        "latency_ms": 4.795963002834469,
+        "at": "2026-10-17 11:12:36.076317+00:00"
+      },
+      {
+        "seq": 13,
+        "type": "model_call",
+        "payload": {
+          "role": "agent",
+          "step": 1,
+          "usage": {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          },
+          "attempt": 2,
+          "extra_body": {},
+          "temperature": 0,
+          "input_summary": {
+            "messages": 2,
+            "characters": 2682
+          },
+          "output_summary": {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "fixture-final",
+                "type": "function",
+                "function": {
+                  "name": "final_answer",
+                  "arguments": "{\"answer\": \"受控重试已经恢复。\", \"claims\": []}"
+                }
+              }
+            ]
+          },
+          "response_model": "step10-http-fixture",
+          "requested_model": "step10-http-fixture",
+          "system_fingerprint": null
+        },
+        "latency_ms": 10.281863000273006,
+        "at": "2026-10-17 11:12:38.090935+00:00"
+      },
+      {
+        "seq": 14,
+        "type": "context_usage",
+        "payload": {
+          "role": "agent",
+          "step": 1,
+          "limit": 16000,
+          "peak_tokens": 0,
+          "prompt_tokens": 0
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.103877+00:00"
+      },
+      {
+        "seq": 15,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "phase": "agent",
+          "call_id": "fixture-final",
+          "input_summary": "{\"answer\": \"受控重试已经恢复。\", \"claims\": []}"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.117069+00:00"
+      },
+      {
+        "seq": 16,
+        "type": "tool_result",
+        "payload": {
+          "name": "final_answer",
+          "error": null,
+          "phase": "agent",
+          "call_id": "fixture-final",
+          "result_id": null,
+          "output_summary": "{\"accepted\": true}"
+        },
+        "latency_ms": 0.0908050024008844,
+        "at": "2026-10-17 11:12:38.130418+00:00"
+      },
+      {
+        "seq": 17,
+        "type": "termination",
+        "payload": {
+          "steps": 1,
+          "reason": "final_answer",
+          "total_tokens": 0
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.140512+00:00"
+      },
+      {
+        "seq": 18,
+        "type": "number_gate",
+        "payload": {
+          "before": [],
+          "replaced": [],
+          "rewrites": 0,
+          "after_rewrite": []
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.149798+00:00"
+      },
+      {
+        "seq": 19,
+        "type": "model_call",
+        "payload": {
+          "role": "preference_extractor",
+          "step": 0,
+          "usage": {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          },
+          "attempt": 0,
+          "extra_body": {},
+          "temperature": 0,
+          "input_summary": {
+            "messages": 2,
+            "characters": 886
+          },
+          "output_summary": {
+            "role": "assistant",
+            "content": "{\"preferences\":[]}"
+          },
+          "response_model": "step10-http-fixture",
+          "requested_model": "step10-http-fixture",
+          "system_fingerprint": null
+        },
+        "latency_ms": 4.1831290000118315,
+        "at": "2026-10-17 11:12:38.158337+00:00"
+      },
+      {
+        "seq": 20,
+        "type": "memory_written",
+        "payload": {
+          "memory_ids": []
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.179421+00:00"
+      },
+      {
+        "seq": 21,
+        "type": "memory_candidates",
+        "payload": {
+          "preferences": []
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.188386+00:00"
+      },
+      {
+        "seq": 22,
+        "type": "termination",
+        "payload": {
+          "scope": "task",
+          "steps": 1,
+          "reason": "final_answer",
+          "total_tokens": 0
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.197727+00:00"
+      },
+      {
+        "seq": 23,
+        "type": "task_status",
+        "payload": {
+          "status": "completed"
+        },
+        "latency_ms": 0.0,
+        "at": "2026-10-17 11:12:38.311089+00:00"
+      }
+    ]
+  },
+  "checks": {
+    "terminal": true,
+    "lease_cleared": true,
+    "not_reclaimed": true,
+    "one_claim": true,
+    "recovered": true,
+    "two_429_before_success": true
+  },
+  "passed": true,
+  "wall_ms": 4946.441022999352,
+  "http_attempts": [
+    {
+      "elapsed_s": 1.6803739679999126,
+      "status": 429,
+      "role": "agent"
+    },
+    {
+      "elapsed_s": 2.6865069039995433,
+      "status": 429,
+      "role": "agent"
+    },
+    {
+      "elapsed_s": 4.691584281998075,
+      "status": 200,
+      "role": "agent"
+    },
+    {
+      "elapsed_s": 4.706018271997891,
+      "status": 200,
+      "role": "preference_extractor"
+    }
+  ],
+  "model_kind": "controlled HTTP fixture (synthetic zero usage; not model quality or cost evidence)",
+  "transport": "production worker, subprocess runtime, SDK and real MCP/DB",
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+  "source_log": "step10_fault_429_recovered_20261017T111238Z_1fdd5884.jsonl",
+  "source_log_sha256": "1190ed54fd2b1c86189753af3ffd9a17db70c7db1c1cc0c8785f36034ca354d0"
+}
