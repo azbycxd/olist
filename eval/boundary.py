@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import re
 from time import perf_counter
 from uuid import uuid4
 
@@ -17,21 +18,24 @@ from eval.run import usage_summary
 from mcp_olist.embedding_config import provenance
 
 
-def execute(suite='step10'):
+def execute(suite='step10', *, tag=None, runtime_config=None):
     if suite not in {'step10','step11-original','step11-new'}:raise ValueError('Unknown boundary suite')
     source=ROOT/('eval/boundary_step11.json' if suite=='step11-new' else 'eval/boundary_cases.json')
     questions=json.loads(source.read_text(encoding='utf-8'))
-    os.environ.update(FINAL_CONFIG,SCHEMA_MODE='on_demand')
-    marker=ROOT/'evidence'/f'{suite.replace("-","_")}_boundary_protocol.json'
+    tag=tag or suite
+    if not re.fullmatch(r'[A-Za-z0-9_-]+',tag):raise ValueError('Invalid boundary tag')
+    configuration={**FINAL_CONFIG,**(runtime_config or {})}
+    os.environ.update(configuration,SCHEMA_MODE='on_demand')
+    marker=ROOT/'evidence'/f'{tag.replace("-","_")}_boundary_protocol.json'
     if marker.exists():raise ValueError('Boundary protocol already started; do not rerun for better answers')
-    logger,path=start_log('eval_'+suite+'-boundary')
+    logger,path=start_log('eval_'+tag+'-boundary')
     identity=provenance(used=True)
     results=[];calls=[]
     with psycopg.connect(**db_kwargs('agent','app'),autocommit=True) as db, psycopg.connect(**db_kwargs(role='reader')) as data:
         if not db.execute('SELECT pg_try_advisory_lock(730018)').fetchone()[0]:raise RuntimeError('Another evaluation is running')
         with marker.open('x',encoding='utf-8') as f:
             json.dump({'source_log':path.name,'question_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
-                'configuration':FINAL_CONFIG,'embedding':identity,'questions':questions,'repetitions':1,
+                'configuration':configuration,'embedding':identity,'questions':questions,'repetitions':1,
                 'scoring':'predeclared behavioral expectations, deterministic evidence audit plus explicit saved-response review; not holdout accuracy'},f,ensure_ascii=False,indent=2)
         data.execute('SET TRANSACTION READ ONLY')
         version=data.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
@@ -47,7 +51,7 @@ def execute(suite='step10'):
             'orders_2017':data.execute("SELECT count(*) FROM orders WHERE order_purchase_timestamp>='2017-01-01' AND order_purchase_timestamp<'2018-01-01'").fetchone()[0]}
         for q in questions:
             uid=db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('boundary-'+uuid4().hex,)).fetchone()[0]
-            tid=db.execute("INSERT INTO tasks(user_id,question,status,run_config) VALUES(%s,%s,'running',%s) RETURNING task_id",(uid,q['question'],Jsonb(FINAL_CONFIG))).fetchone()[0]
+            tid=db.execute("INSERT INTO tasks(user_id,question,status,run_config) VALUES(%s,%s,'running',%s) RETURNING task_id",(uid,q['question'],Jsonb(configuration))).fetchone()[0]
             row={**q,'task_id':str(tid),'events':[]};seq=0;task_calls=[]
             def emit(kind,payload,tokens=0,latency_ms=0):
                 nonlocal seq
@@ -70,7 +74,7 @@ def execute(suite='step10'):
                 ('completed' if row.get('termination')=='final_answer' else 'failed',Jsonb(row.get('response')),row.get('error') or (row.get('termination') if row.get('termination')!='final_answer' else None),tid))
             row['saved_results']=[{'result_id':str(r[0]),'sql':r[1],'row_count':r[2],'columns':r[3],'preview':r[4][:3]} for r in db.execute('SELECT result_id,sql,row_count,columns,rows FROM query_results WHERE task_id=%s ORDER BY created_at',(tid,)).fetchall()]
             record(logger,'boundary_result',**row);results.append(row)
-        summary={'kind':'boundary_behavior_not_holdout','suite':suite,'configuration':FINAL_CONFIG,'schema_mode':'on_demand','embedding':identity,
+        summary={'kind':'boundary_behavior_not_holdout','suite':suite,'configuration':configuration,'schema_mode':'on_demand','embedding':identity,
                  'data_version':version,'questions_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
                  'cases':results,'usage':usage_summary(calls,None,None),'requested_model':os.getenv('OPENAI_MODEL'),
                  'before':before,'after':snapshot(),'evaluator_boundary_facts':boundary_facts,

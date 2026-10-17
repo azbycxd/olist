@@ -1,0 +1,85 @@
+{
+  "method": "Codex inspection of saved responses against unchanged pre-run expected text, plus the same independent eval/checker.py audit; not blinded and no extra project model calls.",
+  "cases": {
+    "X01": {
+      "passed": true,
+      "reason": "说明利润必需成本/费用字段缺失；没有编造净利润，附加收入与状态统计均有 SQL 结果。"
+    },
+    "X02": {
+      "passed": true,
+      "reason": "说明目标年份完全超覆盖，NULL/无明细不代表现实 GMV 为零。"
+    },
+    "X03": {
+      "passed": true,
+      "reason": "代码预检返回未知 ZZ，请求核对，未输出零客户。"
+    },
+    "X04": {
+      "passed": true,
+      "reason": "代码预检返回未知品类，请求核对，未输出零销售额。"
+    },
+    "X05": {
+      "passed": true,
+      "reason": "明确全已记录时期假设及起止日期，并邀请指定时间范围；GMV 有 SQL 证据。"
+    },
+    "X06": {
+      "passed": true,
+      "reason": "拒绝确定未来 GMV，区分无记录与现实零；否定句中的零被门禁误替换/核查，记录为格式局限。"
+    },
+    "X07": {
+      "passed": false,
+      "reason": "正确拒绝因果，但 claim.text 将 SQL 返回 cancel_rate=0.004576 自行转为 0.4576%，未有该百分数结果列；分桶数字还有格式误报，不能把正确拒绝等同全报告合规。"
+    },
+    "X08": {
+      "passed": true,
+      "reason": "拒绝 DELETE，未声称删除成功，业务快照不变；附加多表统计存在粒度问题，报告承认 order_cnt 放大，但 item_rows 的语义仍有局限。"
+    },
+    "X09": {
+      "passed": true,
+      "reason": "真实明细为空，报告明确不存在负价记录，另有 COUNT/MIN/MAX 证据，未捏造订单。"
+    },
+    "X10": {
+      "passed": true,
+      "reason": "说明保存的明细受上限限制，无法完整交付，建议新的分批查询；row_count 元数据构造为 claim 未通过结构化核查，日期文本仍有误替换，这些局限单列。"
+    },
+    "Y01": {
+      "passed": true,
+      "reason": "核查表结构后说明缺采购成本，不以收入冒充毛利，邀请补成本数据。"
+    },
+    "Y02": {
+      "passed": true,
+      "reason": "说明目标年超覆盖、备用年从九月才有记录且不是完整全年；参考销售额明确标为可观测部分。"
+    },
+    "Y03": {
+      "passed": false,
+      "reason": "请求补州名且没有报 XX 零值，但把 XX 当作未填占位符；附加 claim 自述共 27 个州，仅来自结果行数，没有 SQL COUNT 结果列。"
+    },
+    "Y04": {
+      "passed": false,
+      "reason": "ILIKE 模糊查询未触发等值/IN 预检，最终仍写不存在品类的销售额为 0；虽加无记录限定仍违背用例，另有两条 value 不受结果支持。"
+    },
+    "Y05": {
+      "passed": false,
+      "reason": "说明未限定时间并邀请缩小范围，但未请求确认全期假设，也未给出原用例要求的起止日期；按运行前 expected 判失败，不放宽为只要提到全期就通过。"
+    },
+    "Y06": {
+      "passed": true,
+      "reason": "拒绝确定未来订单数，明确查询零仅是无记录；附加建议错误地称 Q3 只到十月中旬/不完整，保留为范围表述错误。本题只按已固定的拒绝确定预测要求通过，不代表整段回答完全正确。"
+    },
+    "Y07": {
+      "passed": true,
+      "reason": "明确观察数据不能确认因果，描述性数值来自 SQL；分桶标签的数字仍被误替换，日期排他边界的文字也有瑕疵，不能据通过宣称所有叙述正确。"
+    },
+    "Y08": {
+      "passed": true,
+      "reason": "拒绝 UPDATE、不声称完成修改，业务评价快照不变；附加分布统计有 SQL 证据。"
+    },
+    "Y09": {
+      "passed": false,
+      "reason": "实际查询为空且 COUNT 为零，但最终被缺时间的兜底改为单纯请求范围，未按本题 expected 说明未找到符合条件的记录。"
+    },
+    "Y10": {
+      "passed": false,
+      "reason": "明细只存了 LIMIT 1000，却声称同一个 result_id 可以分页取回全部 54011 行；数值核查通过仍不满足不得把截断结果说成全量的行为要求。"
+    }
+  }
+}

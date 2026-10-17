@@ -8,7 +8,7 @@ import psycopg
 from psycopg import sql
 from psycopg.types.json import Jsonb
 
-from config import db_kwargs
+from config import db_kwargs,dimension_precheck_enabled
 from mcp_olist.catalog import TABLES
 from mcp_olist.sql_guard import MAX_ROWS, guard_sql
 
@@ -58,7 +58,7 @@ def run_query(statement, task_id, lease_token=None):
             conn.execute("SET LOCAL search_path = pg_catalog, public")
             version = conn.execute("SELECT data_version FROM public.data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
             from mcp_olist.boundaries import validate_filters
-            dimension_checks,missing=validate_filters(conn,executable)
+            _,missing=validate_filters(conn,executable) if dimension_precheck_enabled() else ([],[])
             if missing:
                 return {'error':'unknown_dimension','missing':missing,
                         'notice':'未找到该维度值，请核对名称或代码；尚未执行业务统计，不能将无记录解释为零。'}
@@ -77,7 +77,6 @@ def run_query(statement, task_id, lease_token=None):
             VALUES(%s,%s,%s,%s,%s,%s) RETURNING result_id""",
             (task_id, executable, Jsonb(columns), Jsonb(rows), len(rows), version)).fetchone()[0]
     return {"result_id":str(result_id), "sql":executable, "data_version":version, "row_count":len(rows),
-            "dimension_checks":dimension_checks,
             "row_limit":MAX_ROWS, "columns":columns, "preview":rows[:20], "statistics":stats,
             "notice":"row_count and statistics describe the executed, capped query. Compute report numbers in SQL."}
 

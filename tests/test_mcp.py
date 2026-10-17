@@ -27,6 +27,7 @@ def test_live_protocol_authentication_results_and_errors():
                     assert len((await client.call("list_tables",{}))["tables"]) == 9
                     profile=await client.call('data_context',{})
                     assert profile['coverage']['available'] and profile['coverage']['partial_edge_months']==['2016-09','2018-10']
+                    assert profile['dimension_precheck'] is True
                     assert (await client.call('check_dimension',{'column':'customer_state','value':'SP'}))['exists']
                     assert (await client.call('check_dimension',{'column':'customer_state','value':'XX'}))['error']=='unknown_dimension'
                     before=conn.execute('SELECT count(*) FROM query_results WHERE task_id=%s',(task,)).fetchone()[0]
@@ -38,6 +39,7 @@ def test_live_protocol_authentication_results_and_errors():
                     assert any(c["name"] == "order_id" and c["comment"] for c in description["columns"])
                     result = await client.call("run_sql",{"sql":"SELECT order_id FROM orders ORDER BY order_id"})
                     assert result["row_count"] == 1000 and len(result["preview"]) == 20
+                    assert 'dimension_checks' not in result  # valid SQL keeps Step 9 tool-result shape
                     stored = conn.execute("SELECT task_id,rows,row_count,data_version,sql FROM query_results WHERE result_id=%s",(result["result_id"],)).fetchone()
                     assert stored[0] == task and len(stored[1]) == stored[2] == 1000
                     assert stored[3] == result["data_version"] and stored[4].endswith("LIMIT 1000")

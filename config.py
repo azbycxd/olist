@@ -35,10 +35,20 @@ CONTEXT_KEEP_TURNS = int(os.getenv("CONTEXT_KEEP_TURNS", "2"))
 CONTEXT_SUMMARY_THRESHOLD = int(os.getenv("CONTEXT_SUMMARY_THRESHOLD", "6000"))
 CONTEXT_LIMIT = int(os.getenv("CONTEXT_LIMIT", "16000"))
 
+# Leave Step 9 behavior as default unless the fixed acceptance passes.
+# Dimension checks are independent and remain enabled in both profiles.
+def boundary_guards_enabled():
+    return os.getenv('BOUNDARY_GUARDS','false').lower()=='true'
+
+
+def dimension_precheck_enabled():
+    return os.getenv('DIMENSION_PRECHECK','true').lower()=='true'
+
 # Release defaults. Evaluations override each switch explicitly.
 FINAL_CONFIG = {"AGENT_MODE": "single", "NUMBER_GATE": "true", "RAG_MODE": "inject",
     "RETRIEVAL_METHOD": "vector", "USE_MEMORY": "true", "CONTEXT_STRATEGY": "none",
-    "CONTEXT_LIMIT": "16000", "CONTEXT_SUMMARY_THRESHOLD": "6000", "TOKEN_BUDGET": "100000"}
+    "CONTEXT_LIMIT": "16000", "CONTEXT_SUMMARY_THRESHOLD": "6000", "TOKEN_BUDGET": "100000",
+    "BOUNDARY_GUARDS": str(boundary_guards_enabled()).lower()}
 
 
 def db_kwargs(database: str = "olist", role: str = "admin") -> dict:

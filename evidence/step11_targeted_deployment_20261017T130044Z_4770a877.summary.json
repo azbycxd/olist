@@ -1,0 +1,183 @@
+{
+  "source_log": "step11_targeted_deployment_20261017T130044Z_4770a877.jsonl",
+  "model_calls": 0,
+  "protocol": "step11_targeted_protocol.json",
+  "source_files_unchanged": 111,
+  "frozen_files_unchanged": 15,
+  "states": [
+    {
+      "Service": "api",
+      "ID": "a7cd6fa72adb",
+      "Image": "olist-agent:local",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "db",
+      "ID": "b64c472c0788",
+      "Image": "pgvector/pgvector:pg16",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "embeddings",
+      "ID": "6cdc59508fc0",
+      "Image": "olist-embeddings:local",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "mcp-olist",
+      "ID": "6b4eb62dc8af",
+      "Image": "olist-agent:local",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "worker",
+      "ID": "b84e48a32d64",
+      "Image": "olist-agent:local",
+      "State": "running",
+      "Health": ""
+    }
+  ],
+  "services": {
+    "api": {
+      "boundary_guards": false,
+      "dimension_precheck": true,
+      "final_config": {
+        "AGENT_MODE": "single",
+        "NUMBER_GATE": "true",
+        "RAG_MODE": "inject",
+        "RETRIEVAL_METHOD": "vector",
+        "USE_MEMORY": "true",
+        "CONTEXT_STRATEGY": "none",
+        "CONTEXT_LIMIT": "16000",
+        "CONTEXT_SUMMARY_THRESHOLD": "6000",
+        "TOKEN_BUDGET": "100000",
+        "BOUNDARY_GUARDS": "false"
+      },
+      "environment": {
+        "AGENT_MODE": null,
+        "NUMBER_GATE": null,
+        "RAG_MODE": null,
+        "RETRIEVAL_METHOD": null,
+        "USE_MEMORY": null,
+        "CONTEXT_STRATEGY": null,
+        "CONTEXT_LIMIT": null,
+        "CONTEXT_SUMMARY_THRESHOLD": null,
+        "TOKEN_BUDGET": "100000",
+        "BOUNDARY_GUARDS": "false"
+      },
+      "source_sha256": {
+        "config.py": "b4125ce845de344bd8675e3adea30572695c508fbf583e91d96e50b73ddaff1a",
+        "agent/boundaries.py": "5ef7d6f5e7f12958ab1c45e3436f0539d36652790e7eec14cd39889be68d15f4",
+        "agent/loop.py": "2a72b4a61e9535adf9f61fca86ed91b6f687b738d8c179b7591f7ef0a2b2961f",
+        "agent/tools.py": "7acdd2462280b7ac2452e1cdaeac787f622d8a28331678b6ab5b546284c13167",
+        "agent/retrieval.py": "90b47abaa6dd2b1c3c185bface9de57ab596910665a6ddd5e5b58b77545a5a70",
+        "agent/number_gate.py": "f582371f1f28b26232346a943234fd27df8d1bb923df06b71e3eb183c323818f",
+        "agent/worker.py": "eb0f4642f2fd811fbda3c389d159de83fe754be4f281d26470105a4e9e985137",
+        "agent/writer.py": "6173a6359426aea575c521dccb7719e82e178a72c7946bc06a3f64b6645200f0",
+        "agent/multi.py": "8d111e8d3a9a85d7cba6b0527b6228e8c481ba496db63e420cda2c69e4eec421",
+        "scripts/runtime.py": "41f760f2c3f402302e73ab0f1726b518add94aaa31338ef81cdd3ad2fb84245e",
+        "mcp_olist/service.py": "103821b8bb884182e76745446776ae7a68ec3e40919a8e85765df60dccdfd97c",
+        "mcp_olist/boundaries.py": "5120bff5302bbaaa9cc27ec7d2c3d60417767e75b44ef725b2ed37b8483dcb14",
+        "eval/checker.py": "247779ca63720683d5853c50d76b989482af035e230207fd0d6d48e0a885ada5",
+        "eval/scoring.py": "0accbfeea22f6ac3ec577e218d97f211ec775a30298e08e6869d5168a65ee040"
+      },
+      "container_image_id": "sha256:fac10086e2d712c8d3cb45767bbad9960691197892cff937f8f0d172bbff9cbe"
+    },
+    "worker": {
+      "boundary_guards": false,
+      "dimension_precheck": true,
+      "final_config": {
+        "AGENT_MODE": "single",
+        "NUMBER_GATE": "true",
+        "RAG_MODE": "inject",
+        "RETRIEVAL_METHOD": "vector",
+        "USE_MEMORY": "true",
+        "CONTEXT_STRATEGY": "none",
+        "CONTEXT_LIMIT": "16000",
+        "CONTEXT_SUMMARY_THRESHOLD": "6000",
+        "TOKEN_BUDGET": "100000",
+        "BOUNDARY_GUARDS": "false"
+      },
+      "environment": {
+        "AGENT_MODE": "single",
+        "NUMBER_GATE": "true",
+        "RAG_MODE": "inject",
+        "RETRIEVAL_METHOD": "vector",
+        "USE_MEMORY": "true",
+        "CONTEXT_STRATEGY": "none",
+        "CONTEXT_LIMIT": "16000",
+        "CONTEXT_SUMMARY_THRESHOLD": "6000",
+        "TOKEN_BUDGET": "100000",
+        "BOUNDARY_GUARDS": "false"
+      },
+      "source_sha256": {
+        "config.py": "b4125ce845de344bd8675e3adea30572695c508fbf583e91d96e50b73ddaff1a",
+        "agent/boundaries.py": "5ef7d6f5e7f12958ab1c45e3436f0539d36652790e7eec14cd39889be68d15f4",
+        "agent/loop.py": "2a72b4a61e9535adf9f61fca86ed91b6f687b738d8c179b7591f7ef0a2b2961f",
+        "agent/tools.py": "7acdd2462280b7ac2452e1cdaeac787f622d8a28331678b6ab5b546284c13167",
+        "agent/retrieval.py": "90b47abaa6dd2b1c3c185bface9de57ab596910665a6ddd5e5b58b77545a5a70",
+        "agent/number_gate.py": "f582371f1f28b26232346a943234fd27df8d1bb923df06b71e3eb183c323818f",
+        "agent/worker.py": "eb0f4642f2fd811fbda3c389d159de83fe754be4f281d26470105a4e9e985137",
+        "agent/writer.py": "6173a6359426aea575c521dccb7719e82e178a72c7946bc06a3f64b6645200f0",
+        "agent/multi.py": "8d111e8d3a9a85d7cba6b0527b6228e8c481ba496db63e420cda2c69e4eec421",
+        "scripts/runtime.py": "41f760f2c3f402302e73ab0f1726b518add94aaa31338ef81cdd3ad2fb84245e",
+        "mcp_olist/service.py": "103821b8bb884182e76745446776ae7a68ec3e40919a8e85765df60dccdfd97c",
+        "mcp_olist/boundaries.py": "5120bff5302bbaaa9cc27ec7d2c3d60417767e75b44ef725b2ed37b8483dcb14",
+        "eval/checker.py": "247779ca63720683d5853c50d76b989482af035e230207fd0d6d48e0a885ada5",
+        "eval/scoring.py": "0accbfeea22f6ac3ec577e218d97f211ec775a30298e08e6869d5168a65ee040"
+      },
+      "container_image_id": "sha256:fac10086e2d712c8d3cb45767bbad9960691197892cff937f8f0d172bbff9cbe"
+    },
+    "mcp-olist": {
+      "boundary_guards": false,
+      "dimension_precheck": true,
+      "final_config": {
+        "AGENT_MODE": "single",
+        "NUMBER_GATE": "true",
+        "RAG_MODE": "inject",
+        "RETRIEVAL_METHOD": "vector",
+        "USE_MEMORY": "true",
+        "CONTEXT_STRATEGY": "none",
+        "CONTEXT_LIMIT": "16000",
+        "CONTEXT_SUMMARY_THRESHOLD": "6000",
+        "TOKEN_BUDGET": "100000",
+        "BOUNDARY_GUARDS": "false"
+      },
+      "environment": {
+        "AGENT_MODE": null,
+        "NUMBER_GATE": null,
+        "RAG_MODE": null,
+        "RETRIEVAL_METHOD": "vector",
+        "USE_MEMORY": null,
+        "CONTEXT_STRATEGY": null,
+        "CONTEXT_LIMIT": null,
+        "CONTEXT_SUMMARY_THRESHOLD": null,
+        "TOKEN_BUDGET": null,
+        "BOUNDARY_GUARDS": null
+      },
+      "source_sha256": {
+        "config.py": "b4125ce845de344bd8675e3adea30572695c508fbf583e91d96e50b73ddaff1a",
+        "agent/boundaries.py": "5ef7d6f5e7f12958ab1c45e3436f0539d36652790e7eec14cd39889be68d15f4",
+        "agent/loop.py": "2a72b4a61e9535adf9f61fca86ed91b6f687b738d8c179b7591f7ef0a2b2961f",
+        "agent/tools.py": "7acdd2462280b7ac2452e1cdaeac787f622d8a28331678b6ab5b546284c13167",
+        "agent/retrieval.py": "90b47abaa6dd2b1c3c185bface9de57ab596910665a6ddd5e5b58b77545a5a70",
+        "agent/number_gate.py": "f582371f1f28b26232346a943234fd27df8d1bb923df06b71e3eb183c323818f",
+        "agent/worker.py": "eb0f4642f2fd811fbda3c389d159de83fe754be4f281d26470105a4e9e985137",
+        "agent/writer.py": "6173a6359426aea575c521dccb7719e82e178a72c7946bc06a3f64b6645200f0",
+        "agent/multi.py": "8d111e8d3a9a85d7cba6b0527b6228e8c481ba496db63e420cda2c69e4eec421",
+        "scripts/runtime.py": "41f760f2c3f402302e73ab0f1726b518add94aaa31338ef81cdd3ad2fb84245e",
+        "mcp_olist/service.py": "103821b8bb884182e76745446776ae7a68ec3e40919a8e85765df60dccdfd97c",
+        "mcp_olist/boundaries.py": "5120bff5302bbaaa9cc27ec7d2c3d60417767e75b44ef725b2ed37b8483dcb14",
+        "eval/checker.py": "247779ca63720683d5853c50d76b989482af035e230207fd0d6d48e0a885ada5",
+        "eval/scoring.py": "0accbfeea22f6ac3ec577e218d97f211ec775a30298e08e6869d5168a65ee040"
+      },
+      "container_image_id": "sha256:fac10086e2d712c8d3cb45767bbad9960691197892cff937f8f0d172bbff9cbe"
+    }
+  },
+  "all_checks_passed": true,
+  "source_log_sha256": "65aef83585b3b63487ad1c49c3a8206a238f578c88990936a90201ff658c5e76"
+}

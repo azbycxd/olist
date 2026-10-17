@@ -7,7 +7,7 @@ from psycopg import sql
 import sqlglot
 from sqlglot import exp
 
-from config import db_kwargs
+from config import db_kwargs,dimension_precheck_enabled
 
 DIMENSIONS = {
     'customer_state':'customers','customer_city':'customers',
@@ -38,7 +38,7 @@ def data_context():
         version=conn.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
         dates=conn.execute('SELECT min(order_purchase_timestamp),max(order_purchase_timestamp) FROM orders').fetchone()
         states=[r[0] for r in conn.execute('SELECT DISTINCT customer_state FROM customers ORDER BY customer_state').fetchall()]
-    return {'data_version':version,'coverage':coverage(*dates),'customer_states':states,
+    return {'data_version':version,'coverage':coverage(*dates),'customer_states':states,'dimension_precheck':dimension_precheck_enabled(),
             'dimensions':list(DIMENSIONS),'tool_limits':{'max_result_rows':1000,'preview_rows':20}}
 
 

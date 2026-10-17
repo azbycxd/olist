@@ -223,6 +223,7 @@ def execute(args):
                 "rag_mode":args.rag_mode,
                 "use_memory":args.use_memory,
                 "agent_mode":args.agent_mode,"number_gate":args.number_gate,"token_budget":args.token_budget,
+                "boundary_guards":os.getenv('BOUNDARY_GUARDS','false'),
                 "embedding":embedding,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
@@ -290,6 +291,7 @@ def recheck(path, tag):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--step11-targeted',action='store_true',help='One fixed D dev twice + both boundary groups once; no further tuning')
     parser.add_argument('--boundary',action='store_true',help='Separate one-shot Step 10 behavioral suite; never appends holdout metrics')
     parser.add_argument('--step11-suite',action='store_true',help='One-shot original/new boundaries plus final CDE dev; never holdout')
     parser.add_argument('--step11-repair-dev',action='store_true',help='One retained correction pass after observed Step 11 regressions; dev only')
@@ -323,7 +325,10 @@ def main():
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.step11_repair_dev:
+    if args.step11_targeted:
+        from eval.step11_targeted import execute_suite
+        execute_suite(execute)
+    elif args.step11_repair_dev:
         from eval.step11_suite import repair_dev
         repair_dev(execute,recheck)
     elif args.step11_suite:

@@ -5,7 +5,8 @@ from agent.tools import Registry,untrusted
 class ToolView:
     def __init__(self,remote,hidden=()):
         self.remote=remote
-        hidden=set(hidden)|{'state_read','state_write'}
+        # Boundary checks are harness operations, not extra model tool prompts.
+        hidden=set(hidden)|{'state_read','state_write','data_context','check_dimension'}
         self.tools=[t for t in remote.tools if t['function']['name'] not in hidden]
     async def call(self,name,arguments):
         if name not in {t['function']['name'] for t in self.tools}: raise ValueError("Tool disabled")

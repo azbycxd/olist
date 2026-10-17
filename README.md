@@ -6,7 +6,7 @@
 
 ## 最终结果
 
-下表是 Step 9 冻结的 holdout 成绩，对应 Step 11 边界修复前的代码；本次未重跑或重新计分 holdout。当前默认开关相同，但系统上下文、门禁格式识别与后台任务控制已经更新。
+下表是 Step 9 冻结的 holdout 成绩，对应 Step 11 边界修复前的代码；本次未重跑或重新计分 holdout。定向修复未达到采用门槛，默认分析提示及数字门禁已回退到 Step 9 行为，独立维度预检与后台任务控制仍保留；这不等于对当前部署重新测量 holdout。
 
 最终表由真实运行收据生成，见 [最终评测与消融](docs/FINAL_RESULTS.md)。全部逐次原始指标保留在 [RESULTS](docs/RESULTS.md)，失误分析见 [FAILURES](docs/FAILURES.md)，项目描述见 [RESUME](docs/RESUME.md)。
 
@@ -95,6 +95,8 @@ USE_MEMORY=true
 CONTEXT_STRATEGY=none
 CONTEXT_LIMIT=16000
 TOKEN_BUDGET=100000
+BOUNDARY_GUARDS=false
+DIMENSION_PRECHECK=true
 ```
 
 bge-m3 使用固定 revision `5617a9f61b028005a4858fdac845db406aefb181`，通过 `HF_ENDPOINT=https://hf-mirror.com` 下载，缓存于 Docker 数据卷；首次启动会等待下载与加载。每次评测保存模型名、revision，使用检索时还核对运行服务与权重哈希。聊天模型可替换；本次具体模型 ID 与供应商返回信息保存在运行收据里，不宣称云端权重已固定。
@@ -136,8 +138,10 @@ Step 10 补充 [参数依据](docs/PARAMETERS.md)、[独立边界评测](docs/BO
 
 ## Step 11：边界与任务控制
 
-维度不存在时先请求核对；实际时间覆盖及不完整月份进入系统上下文，时间缺失时澄清或说明假设；数字门禁区分日期、工具常量与业务值。修复前后验证及仍未通过的题目见 [完整对照](docs/STEP11_RESULTS.md)，不并入上面的冻结 holdout 表。
+维度预检在代码层默认开启，未知值先请求核对，有效查询不增加提示或返回字段。边界增强现为可选开关 `BOUNDARY_GUARDS=true`：只保留一句澄清规则，代码判断日期越界时才补一行覆盖说明，并启用日期/工具常量识别。默认关闭这一增强，恢复 Step 9 的分析提示和门禁行为。唯一一次定向修复的采用条件、完整结果与回退边界见 [定向验收](docs/STEP11_TARGETED.md)。
 
-本轮“无退化”验收未通过：C 17/17、E 6/6，但 D 为 3/8，低于同核查器旧基线的 7/8。原、新边界题按保存回答复核均为 9/10；它们是格式/契约补丁前各一次真实运行，补丁后仅做离线格式回放。完整来源及额外 dev 运行已在 [对照证据](evidence/step11_verification_20261017T115123Z_ee268211.summary.json) 保留，汇总日志 `step11_verification_20261017T115123Z_ee268211.jsonl`。
+此前 Step 11“无退化”验收未通过：C 17/17、E 6/6，但 D 为 3/8，低于同核查器旧基线的 7/8。原、新边界题按保存回答复核均为 9/10；它们是格式/契约补丁前各一次真实运行，补丁后仅做离线格式回放。历史来源及额外 dev 运行已在 [对照证据](evidence/step11_verification_20261017T115123Z_ee268211.summary.json) 保留，汇总日志 `step11_verification_20261017T115123Z_ee268211.jsonl`。
+
+可选边界增强：在 `.env` 设置 `BOUNDARY_GUARDS=true` 后重新创建 `api`、`worker`；CLI 可用 `docker compose run --rm --no-deps -e BOUNDARY_GUARDS=true agent "问题" --username demo`。`DIMENSION_PRECHECK` 属于 MCP 服务，默认开启且不依赖该增强开关。
 
 后台任务新增 `POST /tasks/{id}/cancel` 和 `GET /quota`。默认总时长 300 秒（含排队/确认）、每用户并发 2、UTC 日 token 额度 1000000，均可在 .env 中配置。预留额度与已确认用量分开；中断后未知用量不当作零。配置、限制与真实测试证据见 [任务控制](docs/TASK_CONTROLS.md)。GitHub Actions 在 push/pull_request 时运行离线单元测试，模型评测不自动触发。

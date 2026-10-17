@@ -41,6 +41,7 @@ services:
       EMBEDDING_REVISION: ${EMBEDDING_REVISION:-5617a9f61b028005a4858fdac845db406aefb181}
       EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-local}
       NUMBER_GATE: ${NUMBER_GATE:-true}
+      BOUNDARY_GUARDS: ${BOUNDARY_GUARDS:-false}
       AGENT_MODE: ${AGENT_MODE:-single}
       RAG_MODE: ${RAG_MODE:-inject}
       USE_MEMORY: ${USE_MEMORY:-true}
@@ -75,6 +76,7 @@ services:
     image: olist-agent:local
     entrypoint: ["python", "-m", "mcp_olist.server"]
     environment:
+      DIMENSION_PRECHECK: ${DIMENSION_PRECHECK:-true}
       PGHOST: db
       PGPORT: "5432"
       EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://embeddings:8002/v1}
@@ -138,6 +140,7 @@ services:
     entrypoint: ["python", "-m", "scripts.ask"]
     command: ["--help"]
     environment: &runtime-environment
+      BOUNDARY_GUARDS: ${BOUNDARY_GUARDS:-false}
       PGHOST: db
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
@@ -177,6 +180,7 @@ services:
     image: olist-agent:local
     entrypoint: ["uvicorn", "api.tasks:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
+      BOUNDARY_GUARDS: ${BOUNDARY_GUARDS:-false}
       PGHOST: db
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}

@@ -11,6 +11,7 @@ from agent.retrieval import prepare
 from agent.review import review
 from agent.writer import write
 from agent.tools import untrusted
+from config import boundary_guards_enabled
 
 
 async def control(remote,name,args):
@@ -137,7 +138,7 @@ async def run_multi(question,remote,client,model,emit,*,mode,rag_mode,schema_mod
     if not claims:
         report=FinalAnswer(answer='未能验证任何子问题。',claims=[])
     else:
-        try:answer=await write(question,claims,missing,client,model,event,preferences)
+        try:answer=await write(question,claims,missing,client,model,event,preferences if boundary_guards_enabled() else '')
         except Exception:return failed('writer_error')
         reused=[c for c in claims if c in reused_claims or any(c.model_dump()==h['claim'] for h in reusable.values())]
         if reused:

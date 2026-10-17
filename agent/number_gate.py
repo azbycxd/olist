@@ -6,6 +6,7 @@ from decimal import Decimal
 from agent.model import request
 from agent.review import decimal, value_in_rows
 from agent.tools import untrusted
+from config import boundary_guards_enabled
 
 UUID_PATTERN = r'\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b'
 NUMBER = re.compile(r'(?<![A-Za-z0-9_])([+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?)(?![A-Za-z0-9_])(?:\s*(万|亿|千))?')
@@ -14,6 +15,11 @@ TIME = r'(?<!\d)(?:[01]?\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2
 
 
 def nonbusiness_view(text):
+    if not boundary_guards_enabled():
+        # Exact Step 9 masking rules; the independent evaluator stays unchanged.
+        for pattern in [UUID_PATTERN, r'\b\d{4}\s*[-年]?\s*Q[1-4]\b|\b\d{4}-\d{2}(?:-\d{2})?\b|\d{4}\s*年|\bQ[1-4]\b', r'(?m)^\s*\d+[.)、](?!\d)\s*']:
+            text=re.sub(pattern,lambda m:' '*len(m[0]),text)
+        return text
     patterns=[UUID_PATTERN,
         r'(?:19|20)\d{2}-\d{1,2}-\d{1,2}\s*(?:至|到)\s*\d{1,2}-\d{1,2}',DATE,TIME,
         r'(?:19|20)\d{2}\s*[–—~至-]\s*(?:19|20)\d{2}\s*年',

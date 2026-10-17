@@ -1,22 +1,26 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime,date
 from decimal import Decimal
 from types import SimpleNamespace
 import pytest
 from contracts import FinalAnswer,Claim
-from agent.boundaries import context,make_assumption_explicit
+from agent.boundaries import context,make_assumption_explicit,date_ranges,prepare_context,CLARIFY
 from agent.number_gate import scan
 from eval.checker import report_numbers
 from mcp_olist.boundaries import coverage,dimension_filters
+
+
+@pytest.fixture(autouse=True)
+def optional_profile(monkeypatch):monkeypatch.setenv('BOUNDARY_GUARDS','true')
 
 
 def test_coverage_uses_observed_edges_without_claiming_complete_ingestion():
     c=coverage(datetime(2016,9,4,21,15,19),datetime(2018,10,17,17,30,18))
     assert c['partial_edge_months']==['2016-09','2018-10']
     assert c['calendar_years_fully_inside_observed_range']==[2017]
-    assert '2018-10-17' in context({'coverage':c})
+    assert '2018-10-17' in context('2018全年',{'coverage':c})
     assert not coverage(None,None)['available']
-    with pytest.raises(RuntimeError):context({'error':'unavailable'})
+    with pytest.raises(RuntimeError):context('2025年',{'error':'unavailable'})
 
 
 @pytest.mark.parametrize('sql,expected',[
