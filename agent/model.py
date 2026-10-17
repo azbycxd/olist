@@ -6,6 +6,8 @@ import os
 from contextvars import ContextVar
 from dataclasses import dataclass
 from time import perf_counter
+from uuid import uuid4
+from agent.task_control import CONTROL,reservation_size
 
 from config import MODEL_EXTRA_BODY, MODEL_MAX_OUTPUT_TOKENS, MODEL_TEMPERATURE
 
@@ -30,13 +32,20 @@ async def request(client, model, messages, emit, *, role="agent", step=0, tools=
         payload = {"role":role,"step":step,"attempt":attempt,"requested_model":model,
             "temperature":MODEL_TEMPERATURE,"extra_body":MODEL_EXTRA_BODY,"usage":None,
             "input_summary":{"messages":len(messages),"characters":sum(len(json.dumps(m,ensure_ascii=False)) for m in messages)}}
+        output_limit=min(MODEL_MAX_OUTPUT_TOKENS,max(1,remaining))
+        control=CONTROL.get()
+        if control:
+            call_id=str(uuid4())
+            await control({'call_id':call_id,'role':role,'step':step,
+                           'reserved_tokens':reservation_size(messages,tools,output_limit)})
+            payload['control_call_id']=call_id
         start = perf_counter()
         completion = None
         try:
             kwargs = {"tools":tools,"tool_choice":"auto"} if tools else {}
             if json_mode: kwargs["response_format"] = {"type":"json_object"}
             completion = await client.chat.completions.create(model=model,temperature=MODEL_TEMPERATURE,
-                messages=messages,max_tokens=min(MODEL_MAX_OUTPUT_TOKENS,max(1,remaining)),
+                messages=messages,max_tokens=output_limit,
                 **kwargs,**({"extra_body":MODEL_EXTRA_BODY} if MODEL_EXTRA_BODY else {}))
             payload.update(response_model=completion.model,
                 system_fingerprint=getattr(completion,"system_fingerprint",None),

@@ -9,6 +9,39 @@ from agent.tools import untrusted
 
 UUID_PATTERN = r'\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b'
 NUMBER = re.compile(r'(?<![A-Za-z0-9_])([+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?)(?![A-Za-z0-9_])(?:\s*(万|亿|千))?')
+DATE = r'(?<!\d)(?:19|20)\d{2}[-/](?:0?[1-9]|1[0-2])(?:[-/](?:0?[1-9]|[12]\d|3[01]))?(?:[T ](?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-](?:[01]\d|2[0-3]):?[0-5]\d)?)?(?!\d)'
+TIME = r'(?<!\d)(?:[01]?\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):?[0-5]\d)?(?!\d)'
+
+
+def nonbusiness_view(text):
+    patterns=[UUID_PATTERN,
+        r'(?:19|20)\d{2}-\d{1,2}-\d{1,2}\s*(?:至|到)\s*\d{1,2}-\d{1,2}',DATE,TIME,
+        r'(?:19|20)\d{2}\s*[–—~至-]\s*(?:19|20)\d{2}\s*年',
+        r'(?:19|20)\d{2}\s*(?:全年|年度|自然年|日历年|年)(?:\s*\d{1,2}\s*月(?:\s*\d{1,2}\s*[日号])?)?',
+        r'(?:19|20)\d{2}(?=\s*(?:为|是)\s*唯一完整日历年)',
+        r'(?:0?[1-9]|1[0-2])\s*[–—~至-]\s*(?:0?[1-9]|1[0-2])\s*月',
+        r'(?:0?[1-9]|1[0-2])\s*月(?:\s*(?:0?[1-9]|[12]\d|3[01])\s*[日号])?',
+        r'第?[1-4]\s*季度',
+        r'(?:时间|时刻)[：:\s]*(?:[01]?\d|2[0-3]):[0-5]\d(?!\d)',
+        r'(?:19|20)\d{2}\s*[-年]?\s*Q[1-4]\b|\bQ[1-4]\b',r'(?m)^\s*(?:#{1,6}\s+)?\d+[.)、](?!\d)\s*']
+    # Tool constants are exempt only in a matching operational phrase, never
+    # merely because a business amount happens to be 1000 or 20.
+    metadata=[(r'(?:单次|每次)(?:查询|请求|工具|接口|结果|返回|最多|至多|只能|仅|可|的|有|上限|不超过|为|是|\s|[:：]){0,20}(?P<n>\d[\d,]*)\s*行',1000),
+        (r'(?:工具|接口|查询)(?:的|单次|结果|行数|返回|上限|最多|为|是|限制|\s|[:：]){0,20}(?P<n>\d[\d,]*)\s*行',1000),
+        (r'(?:仅|只)返回前\s*(?P<n>\d[\d,]*)\s*行',1000),
+        (r'预览(?:只有|仅|显示|包含|返回|前|\s){0,8}(?P<n>\d[\d,]*)\s*行',20),
+        (r'\bLIMIT\s+(?P<n>\d[\d,]*)\b',1000),
+        (r'\b(?:max_result_rows|row_limit)\s*[:=]\s*(?P<n>\d[\d,]*)\b',1000),
+        (r'\bpreview_rows\s*[:=]\s*(?P<n>\d[\d,]*)\b',20),
+        (r'前\s*(?P<n>\d[\d,]*)\s*行',1000),
+        (r'(?:每片|每批|每段|前提是行数)(?:控制在|最多|至多|不超过|≤|<=|\s){0,8}(?P<n>\d[\d,]*)\s*行?',1000)]
+    view=text
+    for pattern,expected in metadata:
+        for m in re.finditer(pattern,text,re.I):
+            if int(m['n'].replace(',',''))==expected:
+                a,b=m.span('n');view=view[:a]+' '*(b-a)+view[b:]
+    for pattern in patterns:view=re.sub(pattern,lambda m:' '*len(m[0]),view)
+    return view
 
 
 def leaves(value):
@@ -20,9 +53,7 @@ def leaves(value):
 
 def unsupported_spans(text, claims):
     supported = [n for c in claims for n in leaves(c.value)]
-    view = text
-    for pattern in [UUID_PATTERN, r'\b\d{4}\s*[-年]?\s*Q[1-4]\b|\b\d{4}-\d{2}(?:-\d{2})?\b|\d{4}\s*年|\bQ[1-4]\b', r'(?m)^\s*\d+[.)、](?!\d)\s*']:
-        view = re.sub(pattern, lambda m: ' ' * len(m[0]), view)
+    view = nonbusiness_view(text)
     spans = []
     for match in NUMBER.finditer(view):
         n = abs(Decimal(match[1].replace(',', ''))) * {None: 1, '千': 1000, '万': 10000, '亿': 100000000}[match[2]]

@@ -19,7 +19,7 @@ def runtime_environment():
             "OLIST_LOAD_DOTENV":"0", "PYTHONUNBUFFERED":"1", "PYTHONIOENCODING":"utf-8"}
 
 
-def run_runtime(question, task_id, emit, *, preference_only=False, user_text=None, phase='execute', resume_board=None, lease_token=None, budget_used=0, on_process=None):
+def run_runtime(question, task_id, emit, *, preference_only=False, user_text=None, phase='execute', resume_board=None, lease_token=None, budget_used=0, on_process=None, control_check=None):
     user_text=question if user_text is None else user_text
     use_memory=os.getenv('USE_MEMORY','false').lower()=='true'
     from scripts.preferences import for_task,save
@@ -36,12 +36,18 @@ def run_runtime(question, task_id, emit, *, preference_only=False, user_text=Non
         try:
             if on_process:on_process(process)
             process.stdin.write(json.dumps({"question":question, "task_id":str(task_id),'user_text':user_text,
-                'preference_only':preference_only,'preferences':preferences,'history':history,'phase':phase,'resume_board':resume_board,'lease_token':lease_token,'budget_used':budget_used}, ensure_ascii=False)+"\n")
-            process.stdin.close()
+                'preference_only':preference_only,'preferences':preferences,'history':history,'phase':phase,'resume_board':resume_board,'lease_token':lease_token,'budget_used':budget_used,'controlled':control_check is not None}, ensure_ascii=False)+"\n")
+            process.stdin.flush()
+            if control_check is None:process.stdin.close()
             result = None
             for line in process.stdout:
                 frame = json.loads(line)
-                if "event" in frame:
+                if 'control' in frame:
+                    if control_check is None:raise RuntimeError('Unexpected control request')
+                    control_check(frame['control'])
+                    process.stdin.write(json.dumps({'call_id':frame['control']['call_id'],'allowed':True})+'\n')
+                    process.stdin.flush()
+                elif "event" in frame:
                     if frame['event']=='memory_candidates' and use_memory:
                         try:
                             ids=save(task_id,frame['payload']['preferences'],user_text,lease_token=lease_token)

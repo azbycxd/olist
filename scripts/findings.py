@@ -21,6 +21,12 @@ def save_reviewed(task_id,lease_token=None):
         row=conn.execute('SELECT t.user_id,t.question,s.plan,s.subtasks,s.report FROM tasks t JOIN task_state s USING(task_id) WHERE t.task_id=%s',(UUID(str(task_id)),)).fetchone()
         if not row or not row[4]:return []
         owner,question=row[:2];board=Board(plan=row[2],subtasks=row[3],report=row[4])
+        # Never hold the owner admission/cancellation lock across HTTP inference.
+        vectors={}
+        for part in board.subtasks.values():
+            for i,claim in enumerate(part.claims):
+                if any(d.claim_index==i and d.approved for d in part.review) and claim in board.report.claims and claim.evidence:
+                    vectors[claim.text]=embed([question+'\n'+claim.text])[0]
         conn.execute('SELECT user_id FROM users WHERE user_id=%s FOR UPDATE',(owner,))
         ids=[]
         for part in board.subtasks.values():
@@ -34,7 +40,7 @@ def save_reviewed(task_id,lease_token=None):
                 key=hashlib.sha256(json.dumps([version,value],sort_keys=True,ensure_ascii=False).encode()).hexdigest()
                 existing=conn.execute("SELECT memory_id FROM memories WHERE user_id=%s AND type='finding' AND key=%s AND superseded_at IS NULL",(owner,key)).fetchone()
                 if existing:ids.append(str(existing[0]));continue
-                vector=embed([question+'\n'+claim.text])[0]
+                vector=vectors[claim.text]
                 if lease_token:
                     from mcp_olist.leases import validate
                     validate(conn,task_id,lease_token,lock=True)

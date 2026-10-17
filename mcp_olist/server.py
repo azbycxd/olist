@@ -12,11 +12,24 @@ from starlette.responses import JSONResponse
 from config import MCP_BEARER_TOKEN
 from mcp_olist.catalog import TABLES
 from mcp_olist.service import describe, run_query, get_saved_result
+from mcp_olist.boundaries import data_context as get_data_context, check_dimension as lookup_dimension
 
 mcp = FastMCP("olist-readonly", stateless_http=True, json_response=True,
               transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=True,
                   allowed_hosts=["localhost:*", "127.0.0.1:*", "mcp-olist:*"],
                   allowed_origins=["http://localhost:*", "http://127.0.0.1:*"]))
+
+
+@mcp.tool()
+async def data_context() -> dict:
+    """Actual purchase-date coverage, partial edge months, known states and tool limits. Not business-result evidence."""
+    return await asyncio.to_thread(get_data_context)
+
+
+@mcp.tool()
+async def check_dimension(column: str, value: str) -> dict:
+    """Check an exact state, city, category, order status or payment type BEFORE business aggregation. Missing means ask the user to verify, not zero."""
+    return await asyncio.to_thread(lookup_dimension,column,value)
 
 
 @mcp.tool()

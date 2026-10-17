@@ -49,3 +49,6 @@ def test_exhausted_pending_task_is_failed_without_execution():
     assert claim(ident) is None
     with psycopg.connect(**db_kwargs('agent','app')) as db:
         assert db.execute('SELECT status,claim_count FROM tasks WHERE task_id=%s',(ident,)).fetchone()==('failed',3)
+
+# Explicitly excluded by the service-free CI job.
+pytestmark = [pytestmark, pytest.mark.integration]

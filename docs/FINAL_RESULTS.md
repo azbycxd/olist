@@ -1,5 +1,7 @@
 # 最终评测与单项消融
 
+版本说明：本文 holdout 数字属于 Step 9 冻结源码，早于 Step 11 边界和任务控制修复；本次未重跑或重新计分 holdout。
+
 统计由 `eval/run.py --final-report` 读取真实收据生成。汇总日志 `eval_step9-final-statistics-metadata-fix_20261017T105044Z_8d18a341.jsonl`；[eval_step9-final-statistics-metadata-fix_20261017T105044Z_8d18a341.summary.json](../evidence/eval_step9-final-statistics-metadata-fix_20261017T105044Z_8d18a341.summary.json)。
 
 最终配置：single + 数字门禁 + RAG inject + vector + Memory + none；长任务可切换 mask，多智能体为可选。

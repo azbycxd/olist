@@ -125,6 +125,11 @@ async def run_loop(question, remote, client, model, emit, *, schema_mode="on_dem
         if any(count >= 3 for count in streaks.values()):
             return finish("repeated_tool_calls")
         results = await asyncio.gather(*(registry.call(c.function.name, c.function.arguments, c.id) for c in calls))
+        unknown=next((r.content for r in results if r.content.get('error')=='unknown_dimension'),None)
+        if unknown:
+            from agent.boundaries import unknown_dimension_response
+            emit('boundary_stop',unknown)
+            return finish('final_answer',unknown_dimension_response(unknown))
         final_answers = [r.final for r in results if r.final is not None]
         if len(final_answers) == 1:
             return finish("final_answer", final_answers[0])

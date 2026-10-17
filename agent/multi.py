@@ -137,7 +137,7 @@ async def run_multi(question,remote,client,model,emit,*,mode,rag_mode,schema_mod
     if not claims:
         report=FinalAnswer(answer='未能验证任何子问题。',claims=[])
     else:
-        try:answer=await write(question,claims,missing,client,model,event)
+        try:answer=await write(question,claims,missing,client,model,event,preferences)
         except Exception:return failed('writer_error')
         reused=[c for c in claims if c in reused_claims or any(c.model_dump()==h['claim'] for h in reusable.values())]
         if reused:

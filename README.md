@@ -6,6 +6,8 @@
 
 ## 最终结果
 
+下表是 Step 9 冻结的 holdout 成绩，对应 Step 11 边界修复前的代码；本次未重跑或重新计分 holdout。当前默认开关相同，但系统上下文、门禁格式识别与后台任务控制已经更新。
+
 最终表由真实运行收据生成，见 [最终评测与消融](docs/FINAL_RESULTS.md)。全部逐次原始指标保留在 [RESULTS](docs/RESULTS.md)，失误分析见 [FAILURES](docs/FAILURES.md)，项目描述见 [RESUME](docs/RESUME.md)。
 
 | 题集 | 各轮正确 / 总题数 | 准确率均值 | 范围 |
@@ -129,4 +131,13 @@ Step 10 补充 [参数依据](docs/PARAMETERS.md)、[独立边界评测](docs/BO
 
 对应证据：[边界真实运行](evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json)、[逐项复核](evidence/step10_boundary_review.summary.json)、[正式并发](evidence/step10_concurrency_20261017T111217Z_702ad536.summary.json)。原始日志分别为 `eval_step10-boundary_20261017T110935Z_62bc557e.jsonl` 与 `step10_concurrency_20261017T111217Z_702ad536.jsonl`；复核日志名保存在复核收据中。
 
-设计依据与局限见 [最终决策](docs/DECISIONS.md)；早期实验、失败与修复完整保留在 [决策历史](docs/DECISIONS_HISTORY.md)、[重复对比](docs/REVIEW_COMPARISON.md)和 [finding 复用](docs/FINDING_REUSE.md)。Step 10 完成后停止，后续工作等待确认。
+设计依据与局限见 [最终决策](docs/DECISIONS.md)；早期实验、失败与修复完整保留在 [决策历史](docs/DECISIONS_HISTORY.md)、[重复对比](docs/REVIEW_COMPARISON.md)和 [finding 复用](docs/FINDING_REUSE.md)。本次仅执行 Step 11，完成后停止等待审查。
+
+
+## Step 11：边界与任务控制
+
+维度不存在时先请求核对；实际时间覆盖及不完整月份进入系统上下文，时间缺失时澄清或说明假设；数字门禁区分日期、工具常量与业务值。修复前后验证及仍未通过的题目见 [完整对照](docs/STEP11_RESULTS.md)，不并入上面的冻结 holdout 表。
+
+本轮“无退化”验收未通过：C 17/17、E 6/6，但 D 为 3/8，低于同核查器旧基线的 7/8。原、新边界题按保存回答复核均为 9/10；它们是格式/契约补丁前各一次真实运行，补丁后仅做离线格式回放。完整来源及额外 dev 运行已在 [对照证据](evidence/step11_verification_20261017T115123Z_ee268211.summary.json) 保留，汇总日志 `step11_verification_20261017T115123Z_ee268211.jsonl`。
+
+后台任务新增 `POST /tasks/{id}/cancel` 和 `GET /quota`。默认总时长 300 秒（含排队/确认）、每用户并发 2、UTC 日 token 额度 1000000，均可在 .env 中配置。预留额度与已确认用量分开；中断后未知用量不当作零。配置、限制与真实测试证据见 [任务控制](docs/TASK_CONTROLS.md)。GitHub Actions 在 push/pull_request 时运行离线单元测试，模型评测不自动触发。

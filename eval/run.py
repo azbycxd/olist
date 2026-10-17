@@ -291,6 +291,8 @@ def recheck(path, tag):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--boundary',action='store_true',help='Separate one-shot Step 10 behavioral suite; never appends holdout metrics')
+    parser.add_argument('--step11-suite',action='store_true',help='One-shot original/new boundaries plus final CDE dev; never holdout')
+    parser.add_argument('--step11-repair-dev',action='store_true',help='One retained correction pass after observed Step 11 regressions; dev only')
     parser.add_argument('--final-suite',choices=['dev','holdout'])
     parser.add_argument('--final-report',type=Path)
     parser.add_argument("--review-report",type=Path)
@@ -321,7 +323,13 @@ def main():
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.boundary:
+    if args.step11_repair_dev:
+        from eval.step11_suite import repair_dev
+        repair_dev(execute,recheck)
+    elif args.step11_suite:
+        from eval.step11_suite import execute_suite
+        execute_suite(execute,recheck)
+    elif args.boundary:
         from eval.boundary import execute as boundary
         boundary()
     elif args.final_suite:

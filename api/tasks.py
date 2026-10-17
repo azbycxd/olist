@@ -45,9 +45,9 @@ def verify_password(password,stored):
 
 
 def owned(conn,task_id,owner,lock=False):
-    row=conn.execute('SELECT task_id,question,status,created_at,updated_at,result,error,claim_count FROM tasks WHERE task_id=%s AND user_id=%s'+(' FOR UPDATE' if lock else ''),(task_id,owner)).fetchone()
+    row=conn.execute('SELECT task_id,question,status,created_at,updated_at,result,error,claim_count,cancel_requested_at,deadline_at FROM tasks WHERE task_id=%s AND user_id=%s'+(' FOR UPDATE' if lock else ''),(task_id,owner)).fetchone()
     if not row:raise HTTPException(404,'Task not found')
-    return dict(zip(['task_id','question','status','created_at','updated_at','result','error','claim_count'],row))
+    return dict(zip(['task_id','question','status','created_at','updated_at','result','error','claim_count','cancel_requested_at','deadline_at'],row))
 
 
 def event(conn,task_id,kind,payload,tokens=0,latency_ms=0):
@@ -82,12 +82,35 @@ def login(body:Credentials):
 
 @app.post('/tasks',status_code=202)
 def create_task(body:NewTask,owner:UUID=Depends(user)):
+    from scripts import task_limits as limits
     settings={**FINAL_CONFIG,'AGENT_MODE':body.agent_mode,'CONTEXT_STRATEGY':body.context_strategy,
-        'TOKEN_BUDGET':os.getenv('TOKEN_BUDGET','100000')}
+        'TOKEN_BUDGET':os.getenv('TOKEN_BUDGET','100000'),**limits.settings()}
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        ident=conn.execute('INSERT INTO tasks(user_id,question,background,run_config) VALUES(%s,%s,true,%s) RETURNING task_id',
-            (owner,body.question,Jsonb(settings))).fetchone()[0]
+        limits.owner_lock(conn,owner)
+        if not limits.quota(conn,owner)['available_tokens']:raise HTTPException(429,'UTC daily token quota exhausted')
+        ident=conn.execute("INSERT INTO tasks(user_id,question,background,run_config,deadline_at) VALUES(%s,%s,true,%s,now()+%s*interval '1 second') RETURNING task_id",
+            (owner,body.question,Jsonb(settings),settings['TASK_MAX_SECONDS'])).fetchone()[0]
     return {'task_id':str(ident),'status':'pending'}
+
+
+@app.get('/quota')
+def get_quota(owner:UUID=Depends(user)):
+    from scripts import task_limits as limits
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        return {**limits.quota(conn,owner),**limits.settings()}
+
+
+@app.post('/tasks/{task_id}/cancel')
+def cancel(task_id:UUID,owner:UUID=Depends(user)):
+    from scripts import task_limits as limits
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        limits.owner_lock(conn,owner)
+        task=owned(conn,task_id,owner,True)
+        if task['status']=='canceled':return {'task_id':str(task_id),'status':'canceled'}
+        if task['status'] in limits.TERMINAL:raise HTTPException(409,'Task already finished')
+        conn.execute('UPDATE tasks SET cancel_requested_at=clock_timestamp() WHERE task_id=%s',(task_id,))
+        limits.stop_task(conn,task_id,'canceled')
+    return {'task_id':str(task_id),'status':'canceled'}
 
 
 @app.get('/tasks')
@@ -109,17 +132,24 @@ def get_task(task_id:UUID,owner:UUID=Depends(user)):
         result['subtasks']=state[1] if state else {}
         calls=conn.execute("SELECT payload,latency_ms FROM events WHERE task_id=%s AND type='model_call' ORDER BY seq",(task_id,)).fetchall()
         recovered=conn.execute("SELECT 1 FROM events WHERE task_id=%s AND type='worker_claimed' AND payload->>'recovered'='true' LIMIT 1",(task_id,)).fetchone()
-        complete=all(c[0].get('usage') for c in calls) and not recovered
+        uncertain=conn.execute("SELECT COALESCE(SUM(reserved_tokens),0) FROM model_reservations WHERE task_id=%s AND status!='settled'",(task_id,)).fetchone()[0]
+        complete=all(c[0].get('usage') for c in calls) and not recovered and not uncertain
         known=sum((c[0].get('usage') or {}).get('total_tokens',0) for c in calls)
         result['usage']={'known_tokens':known,'total_tokens':known if complete else None,'usage_complete':bool(complete),
             'model_latency_ms':sum(c[1] for c in calls),'elapsed_ms':(result['updated_at']-result['created_at']).total_seconds()*1000,
-            'notice':'恢复任务可能丢失被中断请求的用量，完整总量留空。' if recovered else None}
+            'held_tokens':uncertain,'notice':'恢复或中断请求的用量不完整，完整总量留空；预留值不是实测 token。' if recovered or uncertain else None}
         return result
 
 
 @app.post('/tasks/{task_id}/confirm')
 def confirm(task_id:UUID,plan:Plan,owner:UUID=Depends(user)):
+    from scripts import task_limits as limits
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        limits.owner_lock(conn,owner)
+        limits.reap_owner(conn,owner)
+    # Commit deadline expiration even when the confirmation subsequently gets 409.
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        limits.owner_lock(conn,owner)
         task=owned(conn,task_id,owner,True)
         if task['status']!='awaiting_confirmation':raise HTTPException(409,'Task is not awaiting confirmation')
         stored=conn.execute('SELECT plan FROM task_state WHERE task_id=%s',(task_id,)).fetchone()

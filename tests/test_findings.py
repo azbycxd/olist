@@ -39,3 +39,6 @@ def test_only_approved_findings_cross_sessions_and_old_version_is_clue(monkeypat
         assert set(stale[0])=={'memory_id','similarity','source_task_id','data_version','status','question','notice'}
         assert stale[0]['question']=='same question'
         assert 'reviewed finding' not in stale[0]['notice']
+
+# Explicitly excluded by the service-free CI job.
+pytestmark = [pytestmark, pytest.mark.integration]

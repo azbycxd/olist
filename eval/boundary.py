@@ -17,25 +17,28 @@ from eval.run import usage_summary
 from mcp_olist.embedding_config import provenance
 
 
-def execute():
-    source=ROOT/'eval/boundary_cases.json'
+def execute(suite='step10'):
+    if suite not in {'step10','step11-original','step11-new'}:raise ValueError('Unknown boundary suite')
+    source=ROOT/('eval/boundary_step11.json' if suite=='step11-new' else 'eval/boundary_cases.json')
     questions=json.loads(source.read_text(encoding='utf-8'))
     os.environ.update(FINAL_CONFIG,SCHEMA_MODE='on_demand')
-    marker=ROOT/'evidence/step10_boundary_protocol.json'
+    marker=ROOT/'evidence'/f'{suite.replace("-","_")}_boundary_protocol.json'
     if marker.exists():raise ValueError('Boundary protocol already started; do not rerun for better answers')
-    logger,path=start_log('eval_step10-boundary')
+    logger,path=start_log('eval_'+suite+'-boundary')
     identity=provenance(used=True)
-    write_evidence(marker.name,{'source_log':path.name,'question_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
-                   'configuration':FINAL_CONFIG,'embedding':identity,'questions':questions,'repetitions':1,
-                   'scoring':'predeclared behavioral expectations, deterministic evidence audit plus explicit saved-response review; not holdout accuracy'})
     results=[];calls=[]
     with psycopg.connect(**db_kwargs('agent','app'),autocommit=True) as db, psycopg.connect(**db_kwargs(role='reader')) as data:
         if not db.execute('SELECT pg_try_advisory_lock(730018)').fetchone()[0]:raise RuntimeError('Another evaluation is running')
+        with marker.open('x',encoding='utf-8') as f:
+            json.dump({'source_log':path.name,'question_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
+                'configuration':FINAL_CONFIG,'embedding':identity,'questions':questions,'repetitions':1,
+                'scoring':'predeclared behavioral expectations, deterministic evidence audit plus explicit saved-response review; not holdout accuracy'},f,ensure_ascii=False,indent=2)
         data.execute('SET TRANSACTION READ ONLY')
         version=data.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
         def snapshot():
             return {'orders':data.execute('SELECT count(*) FROM orders').fetchone()[0],
-                    'canceled_orders':data.execute("SELECT count(*) FROM orders WHERE order_status='canceled'").fetchone()[0]}
+                    'canceled_orders':data.execute("SELECT count(*) FROM orders WHERE order_status='canceled'").fetchone()[0],
+                    'review_scores':data.execute('SELECT review_score,count(*) FROM order_reviews GROUP BY review_score ORDER BY review_score').fetchall()}
         before=snapshot()
         # Evaluator-only checks; neither these SQLs nor their results enter Agent input.
         boundary_facts={'min_purchase':str(data.execute('SELECT min(order_purchase_timestamp) FROM orders').fetchone()[0]),
@@ -52,7 +55,7 @@ def execute():
                 record(logger,kind,question_id=q['id'],task_id=str(tid),payload=payload,tokens=tokens,latency_ms=latency_ms)
                 db.execute('INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)',(tid,seq,kind,Jsonb(payload),tokens,latency_ms))
                 if kind=='model_call':calls.append(payload);task_calls.append(payload)
-                if kind in {'termination','tool_call','tool_result','number_gate','runtime_error'}:row['events'].append({'type':kind,'payload':payload})
+                if kind in {'termination','tool_call','tool_result','number_gate','runtime_error','data_boundary_context','boundary_stop'}:row['events'].append({'type':kind,'payload':payload})
                 if kind=='termination' and payload.get('scope')=='task':row['termination']=payload['reason']
                 if kind=='context_usage':row['peak_context_tokens']=max(row.get('peak_context_tokens',0),payload['prompt_tokens'])
             started=perf_counter()
@@ -67,7 +70,7 @@ def execute():
                 ('completed' if row.get('termination')=='final_answer' else 'failed',Jsonb(row.get('response')),row.get('error') or (row.get('termination') if row.get('termination')!='final_answer' else None),tid))
             row['saved_results']=[{'result_id':str(r[0]),'sql':r[1],'row_count':r[2],'columns':r[3],'preview':r[4][:3]} for r in db.execute('SELECT result_id,sql,row_count,columns,rows FROM query_results WHERE task_id=%s ORDER BY created_at',(tid,)).fetchall()]
             record(logger,'boundary_result',**row);results.append(row)
-        summary={'kind':'boundary_behavior_not_holdout','configuration':FINAL_CONFIG,'schema_mode':'on_demand','embedding':identity,
+        summary={'kind':'boundary_behavior_not_holdout','suite':suite,'configuration':FINAL_CONFIG,'schema_mode':'on_demand','embedding':identity,
                  'data_version':version,'questions_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
                  'cases':results,'usage':usage_summary(calls,None,None),'requested_model':os.getenv('OPENAI_MODEL'),
                  'before':before,'after':snapshot(),'evaluator_boundary_facts':boundary_facts,

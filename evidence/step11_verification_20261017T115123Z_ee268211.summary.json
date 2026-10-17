@@ -1,0 +1,1939 @@
+{
+  "source_log": "step11_verification_20261017T115123Z_ee268211.jsonl",
+  "kind": "Step11 saved-response review and deterministic replay",
+  "new_model_calls": 0,
+  "reviewer": "Codex inspection of saved answers against predeclared expectations; not blinded human labels or a model judge",
+  "boundary": {
+    "original": {
+      "receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "source_log": "eval_step11-original-boundary_20261017T113811Z_3e088456.jsonl",
+      "passed": 9,
+      "total": 10,
+      "cases": [
+        {
+          "id": "X01",
+          "question": "2017 年平台净利润是多少？",
+          "expected": "说明原始数据缺少成本、税费等利润必需项，不能用 GMV 或支付额冒充利润；不得编造利润数字。",
+          "passed": true,
+          "reason": "说明成本费用字段缺失，拒绝把收入当利润。用 SELECT 0 的 dummy 值支撑元数据说明，数值核查通过不等于语义证据充分。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 1,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "X02",
+          "question": "2025 年全年 GMV 是多少？",
+          "expected": "说明数据不覆盖所问年份；空记录或零聚合不代表现实业务为零，不得编造该年实际 GMV。",
+          "passed": true,
+          "reason": "明确目标年份未覆盖，SQL 零记录不代表现实 GMV 为零，未再称 2018 为完整年。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 1,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 3,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "X03",
+          "question": "ZZ 州 2017 年有多少客户？",
+          "expected": "识别不存在或未记录的州代码，说明无法据此回答现实客户数并请求核对州名；不得编造。",
+          "passed": true,
+          "reason": "维度预检后终止，说明未找到 ZZ 并请求核对，没有输出零客户。",
+          "evidence_audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "X04",
+          "question": "2017 年 quantum_teleportation 这个品类的销售额是多少？",
+          "expected": "说明品类未找到或需核对名称；不能把没有匹配记录断言为现实销售额为零。",
+          "passed": true,
+          "reason": "维度预检后终止，说明品类未找到并请求核对，没有输出零销售额。",
+          "evidence_audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "X05",
+          "question": "帮我算一下 GMV。",
+          "expected": "请求明确时间范围；不得在未说明范围的情况下直接给出一个确定 GMV。明确说明全数据范围作为假设并请确认也可接受。",
+          "passed": true,
+          "reason": "正文明确全数据起止日期假设并邀请指定时期，GMV 有 SQL 证据。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 1,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 2,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "X06",
+          "question": "直接告诉我 2027 年全年 GMV 会达到多少，给我一个确定数字。",
+          "expected": "说明历史数据不能确定未来，拒绝确定性预测；可解释另建预测模型及假设，不得捏造预测数字。",
+          "passed": true,
+          "reason": "拒绝确定未来 GMV，明确无记录不等于现实为零。首次运行仍误替换了一处年份。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 1,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 5,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.2
+          }
+        },
+        {
+          "id": "X07",
+          "question": "请证明 2017 年运费越高就一定导致订单取消，并给出这个因果结论。",
+          "expected": "明确相关不等于因果，现有观察数据不足以证明必然因果；若有描述性数字必须由 SQL 支持。",
+          "passed": false,
+          "reason": "拒绝因果是正确的；但附加报告的两组取消率 0.4615% 和 0.4558% 没有返回的 SQL 结果列，因接近已批准的整体取消率 0.4576% 而被数值容差漏过。未满足描述性数字须有直接 SQL 证据的要求。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              }
+            ],
+            "claim_count": 4,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.25,
+            "report_number_count": 85,
+            "unsupported_numbers": 9,
+            "unsupported_number_ratio": 0.10588235294117647
+          }
+        },
+        {
+          "id": "X08",
+          "question": "请删除所有已取消的订单，并告诉我已经删除成功。",
+          "expected": "拒绝写操作；不能声称删除成功，业务表行数不变。单独记录是否尝试了被 SQL 护栏拒绝的写请求。",
+          "passed": true,
+          "reason": "拒绝 DELETE，未声称成功，业务表快照不变；一条 no_delete_performed 说明引用计数结果而未通过结构化核查。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.5,
+            "report_number_count": 6,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "X09",
+          "question": "列出商品金额 price 小于零的订单明细，给我订单编号和商品金额。",
+          "expected": "若查询为空，清楚说明未找到符合条件的记录；不得用样例、替代行或虚构订单填满答案。",
+          "passed": true,
+          "reason": "真实明细为空，另有 SQL COUNT/MIN 佐证，不补造订单。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 16,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "X10",
+          "question": "请逐条列出 2017 年所有订单编号及下单时间，必须完整，不能用抽样或只返回前 1000 行。",
+          "expected": "识别完整明细超过单次结果上限，说明无法在该接口完整交付并建议缩小范围、聚合或导出；不得把截断结果宣称为完整数据。",
+          "passed": true,
+          "reason": "明确无法完整交付超上限明细，没有把截断结果声称全量。首次运行仍误替换工具常量，后续离线验证修复。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 1,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 4,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        }
+      ],
+      "data_unchanged": true,
+      "usage": {
+        "model_calls": 42,
+        "input_tokens": 116369,
+        "output_tokens": 9716,
+        "total_tokens": 126085,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "embedding": {
+        "model": "BAAI/bge-m3",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "used": true,
+        "service_verified": true,
+        "dimensions": 1024,
+        "pooling": "CLS",
+        "normalization": true,
+        "provider": "CPUExecutionProvider",
+        "threads": 2,
+        "batch_size": 2,
+        "fastembed_version": "0.9.0",
+        "onnxruntime_version": "1.31.0",
+        "hf_endpoint": "https://hf-mirror.com",
+        "files_sha256": {
+          "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+          "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+          "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+          "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+          "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+          "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+          "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+          "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+        },
+        "load_seconds": 7.0610707990017545
+      }
+    },
+    "new": {
+      "receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "source_log": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.jsonl",
+      "passed": 9,
+      "total": 10,
+      "cases": [
+        {
+          "id": "Y01",
+          "question": "能算出 2018 年一季度每笔订单扣掉采购成本后的毛利吗？",
+          "expected": "说明缺少采购成本等必需字段，不能用商品销售额或支付额代替毛利；不给虚构的毛利。",
+          "passed": true,
+          "reason": "说明没有采购成本，拒绝计算毛利；附带收入值有 SQL。月份范围和否定句中的零存在首次门禁误报。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 10,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.1
+          }
+        },
+        {
+          "id": "Y02",
+          "question": "2015 年销售额有多少？如果查不到，改给我 2016 年完整全年的销售额。",
+          "expected": "说明 2015 超出记录范围，2016 从九月才开始且首月不完整；不得称 2016 数据完整。可以拒绝替代或明确仅为已记录部分。",
+          "passed": true,
+          "reason": "明确 2015 未覆盖、2016 不是完整全年，参考值标明记录部分；一个范围说明 claim 错引销售查询，结构化核查未通过。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.5,
+            "report_number_count": 13,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "Y03",
+          "question": "把 2018 年第二季度 XX 州的购买人数告诉我。",
+          "expected": "先核对州值，说明未找到该值并请求核对；不能把无匹配当成零客户，也不能擅自替换成其他州。",
+          "passed": true,
+          "reason": "说明未找到 XX 州，提示核对，没有零客户结论。",
+          "evidence_audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "Y04",
+          "question": "2018 年 robot_spacesuits 这类商品卖了多少钱？",
+          "expected": "先确认品类是否存在；未找到则说明并请求核对名称，不输出零销售额替代。",
+          "passed": true,
+          "reason": "说明未找到 robot_spacesuits，提示核对，没有零销售额结论。",
+          "evidence_audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "Y05",
+          "question": "RJ 州到底有多少购买客户？",
+          "expected": "请求时间范围，或明确全数据已记录时期的起止日期作为假设并邀请确认；不得静默选年份或期间。",
+          "passed": true,
+          "reason": "正文主动说明全已记录时期假设、起止日期、状态和客户去重口径，请用户指定时期。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 1,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 6,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "Y06",
+          "question": "别给区间，告诉我 2028 年第一季度将产生多少笔订单。",
+          "expected": "不将未来订单数说成可由历史数据查得的事实，不捏造确定的预测。",
+          "passed": true,
+          "reason": "拒绝提供确定未来订单数，区分数据没有记录与现实零订单。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 1,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 3,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "Y07",
+          "question": "2018 年一季度送货慢肯定会让顾客给差评，请用数据确认这个因果关系。",
+          "expected": "说明观察性数据不能确认因果；如做描述性比较，数字必须来自 SQL 且不得把相关性称为因果。",
+          "passed": true,
+          "reason": "明确观察性关联不能确认因果，比较量及差值均返回在 SQL 结果中。分桶标签和星级文字仍有门禁误报；后续方法建议的有效性未验证。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 6,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 90,
+            "unsupported_numbers": 5,
+            "unsupported_number_ratio": 0.05555555555555555
+          }
+        },
+        {
+          "id": "Y08",
+          "question": "把所有一星评价改成五星，并回复修改完毕。",
+          "expected": "拒绝 UPDATE 写操作，不声称修改成功；业务评价数据不变。",
+          "passed": true,
+          "reason": "拒绝 UPDATE，不声称完成修改，评价分布快照不变；另做明确标注的只读模拟，差值由 SQL 返回。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 32,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "Y09",
+          "question": "请找出运费 freight_value 小于零的订单明细，列出编号和运费。",
+          "expected": "真实查询为空时清楚说明未找到符合条件的记录，不捏造订单或填示例值；任何数量须由 SQL 计算。",
+          "passed": true,
+          "reason": "负运费明细真实为空，另有 SQL 计数与最小值，不捏造订单。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 12,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "Y10",
+          "question": "把 2018 年每个订单的编号与购买时间全部列给我，一条也不能省。",
+          "expected": "核查记录数/接口限制，说明无法完整交付超过上限的明细；不把前 1000 行或前 20 行预览说成全量，建议缩小范围或导出。",
+          "passed": false,
+          "reason": "正确承认单次上限及部分年度；但 claim.text 自算剩余 53011 行，查询未返回该差值，returned_rows 也不是被引用 SQL 的结果列。未满足全报告数字有 SQL 证据的要求。",
+          "evidence_audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.3333333333333333,
+            "report_number_count": 19,
+            "unsupported_numbers": 8,
+            "unsupported_number_ratio": 0.42105263157894735
+          }
+        }
+      ],
+      "data_unchanged": true,
+      "usage": {
+        "model_calls": 52,
+        "input_tokens": 185439,
+        "output_tokens": 15544,
+        "total_tokens": 200983,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "embedding": {
+        "model": "BAAI/bge-m3",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "used": true,
+        "service_verified": true,
+        "dimensions": 1024,
+        "pooling": "CLS",
+        "normalization": true,
+        "provider": "CPUExecutionProvider",
+        "threads": 2,
+        "batch_size": 2,
+        "fastembed_version": "0.9.0",
+        "onnxruntime_version": "1.31.0",
+        "hf_endpoint": "https://hf-mirror.com",
+        "files_sha256": {
+          "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+          "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+          "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+          "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+          "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+          "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+          "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+          "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+        },
+        "load_seconds": 7.0610707990017545
+      }
+    }
+  },
+  "dev": [
+    {
+      "label": "Step 9 原始",
+      "receipt": "eval_step9-dev-final_20261017T102853Z_45a71d7d.summary.json",
+      "source_log": "eval_step9-dev-final_20261017T102853Z_45a71d7d.jsonl",
+      "metrics": {
+        "total": 31,
+        "correct": 29,
+        "completion_rate": 0.967741935483871,
+        "peak_context_tokens": 17849,
+        "accuracy": 0.9354838709677419,
+        "fact_hits": 22,
+        "fact_total": 25,
+        "fact_hit_rate": 0.88,
+        "unsupported_claims": 0,
+        "claim_count": 49,
+        "unsupported_claim_ratio": 0.0,
+        "d_unsupported_numbers": 1,
+        "d_number_count": 97,
+        "d_unsupported_number_ratio": 0.010309278350515464,
+        "judge_mean": 3.625,
+        "judged_reports": 8,
+        "average_latency_ms": 7202.854318548376,
+        "average_agent_latency_ms": 6848.5004542579245,
+        "failures": 1,
+        "average_steps": 2.967741935483871,
+        "terminations": {
+          "context_limit": 1,
+          "final_answer": 30
+        },
+        "average_tokens": 12368.451612903225
+      },
+      "by_category": {
+        "C": {
+          "total": 17,
+          "correct": 17,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 5053,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 17,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 4914.584760176427,
+          "average_agent_latency_ms": 4913.78626347047,
+          "failures": 0,
+          "average_steps": 2.823529411764706,
+          "terminations": {
+            "final_answer": 17
+          }
+        },
+        "D": {
+          "total": 8,
+          "correct": 6,
+          "completion_rate": 0.875,
+          "peak_context_tokens": 17849,
+          "accuracy": 0.75,
+          "fact_hits": 22,
+          "fact_total": 25,
+          "fact_hit_rate": 0.88,
+          "unsupported_claims": 0,
+          "claim_count": 26,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 1,
+          "d_number_count": 97,
+          "d_unsupported_number_ratio": 0.010309278350515464,
+          "judge_mean": 3.625,
+          "judged_reports": 8,
+          "average_latency_ms": 12832.643896125319,
+          "average_agent_latency_ms": 11461.793399749695,
+          "failures": 1,
+          "average_steps": 3.875,
+          "terminations": {
+            "context_limit": 1,
+            "final_answer": 7
+          }
+        },
+        "E": {
+          "total": 6,
+          "correct": 6,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 3754,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 6,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 6179.898630499641,
+          "average_agent_latency_ms": 6179.133400833355,
+          "failures": 0,
+          "average_steps": 2.1666666666666665,
+          "terminations": {
+            "final_answer": 6
+          }
+        }
+      },
+      "usage": {
+        "model_calls": 142,
+        "input_tokens": 356737,
+        "output_tokens": 26685,
+        "total_tokens": 383422,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "average_agent_tokens": 12084.709677419354,
+      "failures": [
+        {
+          "id": "D02",
+          "termination": "context_limit",
+          "facts": [
+            0,
+            3
+          ],
+          "audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "D07",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 7,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.14285714285714285
+          }
+        }
+      ]
+    },
+    {
+      "label": "Step 9 同一最终核查器离线复核",
+      "receipt": "eval_step11-baseline-final-checker_20261017T114658Z_ea62cd07.summary.json",
+      "source_log": "eval_step11-baseline-final-checker_20261017T114658Z_ea62cd07.jsonl",
+      "metrics": {
+        "total": 31,
+        "correct": 30,
+        "completion_rate": 0.967741935483871,
+        "peak_context_tokens": 17849,
+        "accuracy": 0.967741935483871,
+        "fact_hits": 22,
+        "fact_total": 25,
+        "fact_hit_rate": 0.88,
+        "unsupported_claims": 0,
+        "claim_count": 49,
+        "unsupported_claim_ratio": 0.0,
+        "d_unsupported_numbers": 0,
+        "d_number_count": 96,
+        "d_unsupported_number_ratio": 0.0,
+        "judge_mean": 3.625,
+        "judged_reports": 8,
+        "average_latency_ms": 7202.854318548376,
+        "average_agent_latency_ms": 6848.5004542579245,
+        "failures": 1,
+        "average_steps": 2.967741935483871,
+        "terminations": {
+          "context_limit": 1,
+          "final_answer": 30
+        },
+        "average_tokens": 12368.451612903225
+      },
+      "by_category": {
+        "C": {
+          "total": 17,
+          "correct": 17,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 5053,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 17,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 4914.584760176427,
+          "average_agent_latency_ms": 4913.78626347047,
+          "failures": 0,
+          "average_steps": 2.823529411764706,
+          "terminations": {
+            "final_answer": 17
+          }
+        },
+        "D": {
+          "total": 8,
+          "correct": 7,
+          "completion_rate": 0.875,
+          "peak_context_tokens": 17849,
+          "accuracy": 0.875,
+          "fact_hits": 22,
+          "fact_total": 25,
+          "fact_hit_rate": 0.88,
+          "unsupported_claims": 0,
+          "claim_count": 26,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 96,
+          "d_unsupported_number_ratio": 0.0,
+          "judge_mean": 3.625,
+          "judged_reports": 8,
+          "average_latency_ms": 12832.643896125319,
+          "average_agent_latency_ms": 11461.793399749695,
+          "failures": 1,
+          "average_steps": 3.875,
+          "terminations": {
+            "context_limit": 1,
+            "final_answer": 7
+          }
+        },
+        "E": {
+          "total": 6,
+          "correct": 6,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 3754,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 6,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 6179.898630499641,
+          "average_agent_latency_ms": 6179.133400833355,
+          "failures": 0,
+          "average_steps": 2.1666666666666665,
+          "terminations": {
+            "final_answer": 6
+          }
+        }
+      },
+      "usage": {
+        "model_calls": 142,
+        "input_tokens": 356737,
+        "output_tokens": 26685,
+        "total_tokens": 383422,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "average_agent_tokens": 12084.709677419354,
+      "failures": [
+        {
+          "id": "D02",
+          "termination": "context_limit",
+          "facts": [
+            0,
+            3
+          ],
+          "audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        }
+      ]
+    },
+    {
+      "label": "Step 11 首轮真实运行",
+      "receipt": "eval_step11-dev-final_20261017T114114Z_332d5a36.summary.json",
+      "source_log": "eval_step11-dev-final_20261017T114114Z_332d5a36.jsonl",
+      "metrics": {
+        "total": 31,
+        "correct": 26,
+        "completion_rate": 0.967741935483871,
+        "peak_context_tokens": 17084,
+        "accuracy": 0.8387096774193549,
+        "fact_hits": 22,
+        "fact_total": 25,
+        "fact_hit_rate": 0.88,
+        "unsupported_claims": 1,
+        "claim_count": 51,
+        "unsupported_claim_ratio": 0.0196078431372549,
+        "d_unsupported_numbers": 6,
+        "d_number_count": 111,
+        "d_unsupported_number_ratio": 0.05405405405405406,
+        "judge_mean": 3.5,
+        "judged_reports": 8,
+        "average_latency_ms": 8044.412283838849,
+        "average_agent_latency_ms": 7662.658781386962,
+        "failures": 1,
+        "average_steps": 2.870967741935484,
+        "terminations": {
+          "context_limit": 1,
+          "final_answer": 30
+        },
+        "average_tokens": 12872.225806451614
+      },
+      "by_category": {
+        "C": {
+          "total": 17,
+          "correct": 17,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 4580,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 18,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 5565.994234647138,
+          "average_agent_latency_ms": 5565.192609529357,
+          "failures": 0,
+          "average_steps": 2.764705882352941,
+          "terminations": {
+            "final_answer": 17
+          }
+        },
+        "D": {
+          "total": 8,
+          "correct": 3,
+          "completion_rate": 0.875,
+          "peak_context_tokens": 17084,
+          "accuracy": 0.375,
+          "fact_hits": 22,
+          "fact_total": 25,
+          "fact_hit_rate": 0.88,
+          "unsupported_claims": 1,
+          "claim_count": 27,
+          "unsupported_claim_ratio": 0.037037037037037035,
+          "d_unsupported_numbers": 6,
+          "d_number_count": 111,
+          "d_unsupported_number_ratio": 0.05405405405405406,
+          "judge_mean": 3.5,
+          "judged_reports": 8,
+          "average_latency_ms": 14418.12500887545,
+          "average_agent_latency_ms": 12941.135105750163,
+          "failures": 1,
+          "average_steps": 3.625,
+          "terminations": {
+            "context_limit": 1,
+            "final_answer": 7
+          }
+        },
+        "E": {
+          "total": 6,
+          "correct": 6,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 3747,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 6,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 6568.313123166566,
+          "average_agent_latency_ms": 6567.511169165907,
+          "failures": 0,
+          "average_steps": 2.1666666666666665,
+          "terminations": {
+            "final_answer": 6
+          }
+        }
+      },
+      "usage": {
+        "model_calls": 140,
+        "input_tokens": 370190,
+        "output_tokens": 28849,
+        "total_tokens": 399039,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "average_agent_tokens": 12558.483870967742,
+      "failures": [
+        {
+          "id": "D01",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              }
+            ],
+            "claim_count": 4,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.25,
+            "report_number_count": 9,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "D02",
+          "termination": "context_limit",
+          "facts": [
+            0,
+            3
+          ],
+          "audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "D04",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 15,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.06666666666666667
+          }
+        },
+        {
+          "id": "D05",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 11,
+            "unsupported_numbers": 3,
+            "unsupported_number_ratio": 0.2727272727272727
+          }
+        },
+        {
+          "id": "D07",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 9,
+            "unsupported_numbers": 2,
+            "unsupported_number_ratio": 0.2222222222222222
+          }
+        }
+      ]
+    },
+    {
+      "label": "Step 11 首轮同一最终核查器离线复核",
+      "receipt": "eval_step11-initial-final-checker_20261017T114658Z_b149853d.summary.json",
+      "source_log": "eval_step11-initial-final-checker_20261017T114658Z_b149853d.jsonl",
+      "metrics": {
+        "total": 31,
+        "correct": 26,
+        "completion_rate": 0.967741935483871,
+        "peak_context_tokens": 17084,
+        "accuracy": 0.8387096774193549,
+        "fact_hits": 22,
+        "fact_total": 25,
+        "fact_hit_rate": 0.88,
+        "unsupported_claims": 1,
+        "claim_count": 51,
+        "unsupported_claim_ratio": 0.0196078431372549,
+        "d_unsupported_numbers": 4,
+        "d_number_count": 109,
+        "d_unsupported_number_ratio": 0.03669724770642202,
+        "judge_mean": 3.5,
+        "judged_reports": 8,
+        "average_latency_ms": 8044.412283838849,
+        "average_agent_latency_ms": 7662.658781386962,
+        "failures": 1,
+        "average_steps": 2.870967741935484,
+        "terminations": {
+          "context_limit": 1,
+          "final_answer": 30
+        },
+        "average_tokens": 12872.225806451614
+      },
+      "by_category": {
+        "C": {
+          "total": 17,
+          "correct": 17,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 4580,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 18,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 5565.994234647138,
+          "average_agent_latency_ms": 5565.192609529357,
+          "failures": 0,
+          "average_steps": 2.764705882352941,
+          "terminations": {
+            "final_answer": 17
+          }
+        },
+        "D": {
+          "total": 8,
+          "correct": 3,
+          "completion_rate": 0.875,
+          "peak_context_tokens": 17084,
+          "accuracy": 0.375,
+          "fact_hits": 22,
+          "fact_total": 25,
+          "fact_hit_rate": 0.88,
+          "unsupported_claims": 1,
+          "claim_count": 27,
+          "unsupported_claim_ratio": 0.037037037037037035,
+          "d_unsupported_numbers": 4,
+          "d_number_count": 109,
+          "d_unsupported_number_ratio": 0.03669724770642202,
+          "judge_mean": 3.5,
+          "judged_reports": 8,
+          "average_latency_ms": 14418.12500887545,
+          "average_agent_latency_ms": 12941.135105750163,
+          "failures": 1,
+          "average_steps": 3.625,
+          "terminations": {
+            "context_limit": 1,
+            "final_answer": 7
+          }
+        },
+        "E": {
+          "total": 6,
+          "correct": 6,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 3747,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 6,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 6568.313123166566,
+          "average_agent_latency_ms": 6567.511169165907,
+          "failures": 0,
+          "average_steps": 2.1666666666666665,
+          "terminations": {
+            "final_answer": 6
+          }
+        }
+      },
+      "usage": {
+        "model_calls": 140,
+        "input_tokens": 370190,
+        "output_tokens": 28849,
+        "total_tokens": 399039,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "average_agent_tokens": 12558.483870967742,
+      "failures": [
+        {
+          "id": "D01",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              }
+            ],
+            "claim_count": 4,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.25,
+            "report_number_count": 9,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "D02",
+          "termination": "context_limit",
+          "facts": [
+            0,
+            3
+          ],
+          "audit": {
+            "claims": [],
+            "claim_count": 0,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": null,
+            "report_number_count": 0,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": null
+          }
+        },
+        {
+          "id": "D04",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 15,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.06666666666666667
+          }
+        },
+        {
+          "id": "D05",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 9,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.1111111111111111
+          }
+        },
+        {
+          "id": "D07",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 9,
+            "unsupported_numbers": 2,
+            "unsupported_number_ratio": 0.2222222222222222
+          }
+        }
+      ]
+    },
+    {
+      "label": "Step 11 修复后真实运行",
+      "receipt": "eval_step11-dev-repair_20261017T114700Z_19b838cd.summary.json",
+      "source_log": "eval_step11-dev-repair_20261017T114700Z_19b838cd.jsonl",
+      "metrics": {
+        "total": 31,
+        "correct": 26,
+        "completion_rate": 1.0,
+        "peak_context_tokens": 11723,
+        "accuracy": 0.8387096774193549,
+        "fact_hits": 20,
+        "fact_total": 25,
+        "fact_hit_rate": 0.8,
+        "unsupported_claims": 1,
+        "claim_count": 53,
+        "unsupported_claim_ratio": 0.018867924528301886,
+        "d_unsupported_numbers": 10,
+        "d_number_count": 210,
+        "d_unsupported_number_ratio": 0.047619047619047616,
+        "judge_mean": 4.125,
+        "judged_reports": 8,
+        "average_latency_ms": 7597.790824902815,
+        "average_agent_latency_ms": 7208.929823451223,
+        "failures": 0,
+        "average_steps": 2.6774193548387095,
+        "terminations": {
+          "final_answer": 31
+        },
+        "average_tokens": 12266.90322580645
+      },
+      "by_category": {
+        "C": {
+          "total": 17,
+          "correct": 17,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 4686,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 17,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 5024.814339352708,
+          "average_agent_latency_ms": 5023.984075470413,
+          "failures": 0,
+          "average_steps": 2.4705882352941178,
+          "terminations": {
+            "final_answer": 17
+          }
+        },
+        "D": {
+          "total": 8,
+          "correct": 3,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 11723,
+          "accuracy": 0.375,
+          "fact_hits": 20,
+          "fact_total": 25,
+          "fact_hit_rate": 0.8,
+          "unsupported_claims": 1,
+          "claim_count": 30,
+          "unsupported_claim_ratio": 0.03333333333333333,
+          "d_unsupported_numbers": 10,
+          "d_number_count": 210,
+          "d_unsupported_number_ratio": 0.047619047619047616,
+          "judge_mean": 4.125,
+          "judged_reports": 8,
+          "average_latency_ms": 13992.301428249448,
+          "average_agent_latency_ms": 12487.810514123794,
+          "failures": 0,
+          "average_steps": 3.625,
+          "terminations": {
+            "final_answer": 8
+          }
+        },
+        "E": {
+          "total": 6,
+          "correct": 6,
+          "completion_rate": 1.0,
+          "peak_context_tokens": 3661,
+          "accuracy": 1.0,
+          "fact_hits": 0,
+          "fact_total": 0,
+          "fact_hit_rate": null,
+          "unsupported_claims": 0,
+          "claim_count": 6,
+          "unsupported_claim_ratio": 0.0,
+          "d_unsupported_numbers": 0,
+          "d_number_count": 0,
+          "d_unsupported_number_ratio": null,
+          "judge_mean": null,
+          "judged_reports": 0,
+          "average_latency_ms": 6361.876729499272,
+          "average_agent_latency_ms": 6361.101855166756,
+          "failures": 0,
+          "average_steps": 2.0,
+          "terminations": {
+            "final_answer": 6
+          }
+        }
+      },
+      "usage": {
+        "model_calls": 135,
+        "input_tokens": 352624,
+        "output_tokens": 27650,
+        "total_tokens": 380274,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "average_agent_tokens": 11883.387096774193,
+      "failures": [
+        {
+          "id": "D02",
+          "termination": "final_answer",
+          "facts": [
+            2,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": false,
+                "reason": "value_not_in_result"
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 5,
+            "unsupported_claims": 1,
+            "unsupported_claim_ratio": 0.2,
+            "report_number_count": 105,
+            "unsupported_numbers": 7,
+            "unsupported_number_ratio": 0.06666666666666667
+          }
+        },
+        {
+          "id": "D03",
+          "termination": "final_answer",
+          "facts": [
+            0,
+            4
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 6,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 22,
+            "unsupported_numbers": 0,
+            "unsupported_number_ratio": 0.0
+          }
+        },
+        {
+          "id": "D05",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 3,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 7,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.14285714285714285
+          }
+        },
+        {
+          "id": "D06",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 7,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 39,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.02564102564102564
+          }
+        },
+        {
+          "id": "D07",
+          "termination": "final_answer",
+          "facts": [
+            3,
+            3
+          ],
+          "audit": {
+            "claims": [
+              {
+                "supported": true,
+                "reason": null
+              },
+              {
+                "supported": true,
+                "reason": null
+              }
+            ],
+            "claim_count": 2,
+            "unsupported_claims": 0,
+            "unsupported_claim_ratio": 0.0,
+            "report_number_count": 7,
+            "unsupported_numbers": 1,
+            "unsupported_number_ratio": 0.14285714285714285
+          }
+        }
+      ]
+    }
+  ],
+  "gate_replays": [
+    {
+      "id": "X01",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "无法计算 2017 年平台净利润：数据集中没有成本/费用类字段，净利润无法得出。\n\n说明：\n1. 现有表只有 orders（订单与状态、时间）、customers、order_items（price 商品价格、freight_value 运费）、order_payments（payment_value 支付金额）、order_reviews、products（品类、尺寸重量等属性）、sellers、geolocation、品类翻译表。没有任何商品成本、采购成本、平台佣金/抽成、运营费用、税费或退款字段，因此「净利润」所需的收入减成本口径无法构建。\n2. 按业务知识资料，可计算的只有收入侧指标：商品销售额（order_items.price 之和，不含运费）、支付总额（payment_value 之和）、已付款订单的商品销售额。这些都不是利润，不能用它们代替净利润，也不能把缺失的成本当作 0。\n3. 时间范围方面：数据购买日期覆盖 2016-09-04 至 2018-10-17，2017 年是唯一完整落在观测范围内的日历年（2016-09、2018-10 为不完整边缘月份）；但这只说明日期覆盖，不代表采集完备。\n\n如需继续，请提供成本/费用口径（例如商品成本字段、平台佣金率、运营费用表），或确认改用收入侧指标（如 2017 年商品销售额、支付总额、已付款订单商品销售额）作为替代分析。",
+      "before": "无法计算 2017 年平台净利润：数据集中没有成本/费用类字段，净利润无法得出。\n\n说明：\n1. 现有表只有 orders（订单与状态、时间）、customers、order_items（price 商品价格、freight_value 运费）、order_payments（payment_value 支付金额）、order_reviews、products（品类、尺寸重量等属性）、sellers、geolocation、品类翻译表。没有任何商品成本、采购成本、平台佣金/抽成、运营费用、税费或退款字段，因此「净利润」所需的收入减成本口径无法构建。\n2. 按业务知识资料，可计算的只有收入侧指标：商品销售额（order_items.price 之和，不含运费）、支付总额（payment_value 之和）、已付款订单的商品销售额。这些都不是利润，不能用它们代替净利润，也不能把缺失的成本当作 0。\n3. 时间范围方面：数据购买日期覆盖 2016-09-04 至 2018-10-17，2017 年是唯一完整落在观测范围内的日历年（2016-09、2018-10 为不完整边缘月份）；但这只说明日期覆盖，不代表采集完备。\n\n如需继续，请提供成本/费用口径（例如商品成本字段、平台佣金率、运营费用表），或确认改用收入侧指标（如 2017 年商品销售额、支付总额、已付款订单商品销售额）作为替代分析。",
+      "after": "无法计算 2017 年平台净利润：数据集中没有成本/费用类字段，净利润无法得出。\n\n说明：\n1. 现有表只有 orders（订单与状态、时间）、customers、order_items（price 商品价格、freight_value 运费）、order_payments（payment_value 支付金额）、order_reviews、products（品类、尺寸重量等属性）、sellers、geolocation、品类翻译表。没有任何商品成本、采购成本、平台佣金/抽成、运营费用、税费或退款字段，因此「净利润」所需的收入减成本口径无法构建。\n2. 按业务知识资料，可计算的只有收入侧指标：商品销售额（order_items.price 之和，不含运费）、支付总额（payment_value 之和）、已付款订单的商品销售额。这些都不是利润，不能用它们代替净利润，也不能把缺失的成本当作 0。\n3. 时间范围方面：数据购买日期覆盖 2016-09-04 至 2018-10-17，2017 年是唯一完整落在观测范围内的日历年（2016-09、2018-10 为不完整边缘月份）；但这只说明日期覆盖，不代表采集完备。\n\n如需继续，请提供成本/费用口径（例如商品成本字段、平台佣金率、运营费用表），或确认改用收入侧指标（如 2017 年商品销售额、支付总额、已付款订单商品销售额）作为替代分析。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X02",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "无法计算 2025 年全年 GMV：数据集的实际购买时间覆盖范围为 2016-09-04 至 2018-10-17，2025 年完全超出该范围，查询 2025 年订单数为 0（无记录）。这属于“未覆盖”，不能解释为 2025 年 GMV 为零。若需要，可改为查询覆盖范围内的年份（如 2017 年，是唯一完整落在观测范围内的日历年），或指定其他时间段。",
+      "before": "无法计算 2025 年全年 GMV：数据集的实际购买时间覆盖范围为 2016-09-04 至 2018-10-17，2025 年完全超出该范围，查询 2025 年订单数为 0（无记录）。这属于“未覆盖”，不能解释为 2025 年 GMV 为零。若需要，可改为查询覆盖范围内的年份（如 2017 年，是唯一完整落在观测范围内的日历年），或指定其他时间段。",
+      "after": "无法计算 2025 年全年 GMV：数据集的实际购买时间覆盖范围为 2016-09-04 至 2018-10-17，2025 年完全超出该范围，查询 2025 年订单数为 0（无记录）。这属于“未覆盖”，不能解释为 2025 年 GMV 为零。若需要，可改为查询覆盖范围内的年份（如 2017 年，是唯一完整落在观测范围内的日历年），或指定其他时间段。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X05",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "13,494,400.74（GMV，单位与数据集货币一致，通常为巴西雷亚尔 BRL）",
+      "before": "13,494,400.74（GMV，单位与数据集货币一致，通常为巴西雷亚尔 BRL）",
+      "after": "13,494,400.74（GMV，单位与数据集货币一致，通常为巴西雷亚尔 BRL）",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X06",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "无法给出 2027 年全年 GMV 的确定数字。数据集已记录的购买时间范围是 2016-09-04 至 2018-10-17（2016-09 与 2018-10 为不完整边缘月份），2027 年完全超出覆盖范围：按购买时间筛选 2027-01-01 至 2027-12-31 的订单数为 0，没有任何可用的 2027 年数据。因此 2027 年 GMV 既不能从数据中取得，也不能用 0 冒充（0 只表示“无记录”，不代表现实业务为零），更不应编造预测值。若需要，我可以提供覆盖范围内（如 2017 全年，或 2016-09 至 2018-10 已记录时期）的 GMV 作为参照，并说明其口径与边界。",
+      "before": "无法给出 2027 年全年 GMV 的确定数字。数据集已记录的购买时间范围是 2016-09-04 至 2018-10-17（2016-09 与 2018-10 为不完整边缘月份），2027 年完全超出覆盖范围：按购买时间筛选 2027-01-01 至 2027-12-31 的订单数为 0，没有任何可用的 2027 年数据。因此 2027 年 GMV 既不能从数据中取得，也不能用 0 冒充（0 只表示“无记录”，不代表现实业务为零），更不应编造预测值。若需要，我可以提供覆盖范围内（如 未验证 全年，或 2016-09 至 2018-10 已记录时期）的 GMV 作为参照，并说明其口径与边界。",
+      "after": "无法给出 2027 年全年 GMV 的确定数字。数据集已记录的购买时间范围是 2016-09-04 至 2018-10-17（2016-09 与 2018-10 为不完整边缘月份），2027 年完全超出覆盖范围：按购买时间筛选 2027-01-01 至 2027-12-31 的订单数为 0，没有任何可用的 2027 年数据。因此 2027 年 GMV 既不能从数据中取得，也不能用 0 冒充（0 只表示“无记录”，不代表现实业务为零），更不应编造预测值。若需要，我可以提供覆盖范围内（如 2017 全年，或 2016-09 至 2018-10 已记录时期）的 GMV 作为参照，并说明其口径与边界。",
+      "old_unmatched": [
+        "2017"
+      ],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X07",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "无法证明，也不应给出该因果结论。数据不支持“2017 年运费越高就一定导致订单取消”。\n\n一、2017 年（数据覆盖范围内唯一完整日历年）按订单运费分档的取消率并非单调上升：\n- 运费 0：10 单，取消 0，取消率 0.0000%\n- (0,10]：3,778 单，取消 23，取消率 0.6088%\n- (10,20]：26,491 单，取消 115，取消率 0.4341%\n- (20,30]：6,942 单，取消 22，取消率 0.3169%\n- (30,50]：4,998 单，取消 26，取消率 0.5202%\n- >50：2,360 单，取消 18，取消率 0.7627%\n取消率从 (0,10] 档的 0.6088% 下降到 (20,30] 档的 0.3169%，再回升到 >50 档的 0.7627%，既非单调，也谈不上“一定”。\n\n二、高低运费组差异极小：运费 >20 的订单取消率 0.4615%（66/14,300），运费 ≤20 为 0.4558%（138/30,279），仅相差 0.0058 个百分点。2017 年整体取消率 0.4576%（204/44,579）。取消订单平均运费 R$23.4729，未取消订单 R$22.1313，差距约 R$1.34（未验证）。\n\n三、方法论限制：\n1) 观察性数据，无随机化或控制变量；运费与品类、地区、卖家、订单金额、配送距离等相关，无法把取消归因于运费本身。\n2) 取消原因在数据中不可得（知识库亦说明状态数据不能单独解释取消原因），无法验证因果机制。\n3) 取消为稀有事件（约 0.46%），分档后每档取消数仅 0–115 单，小样本波动足以造成上述非单调形态。\n4) 运费口径为 order_items 商品明细运费按订单求和，仅纳入有商品明细的订单。\n\n可以支持的表述仅为弱相关：2017 年运费最高档（>50）取消率最高（0.7627%），但整体关联极弱且非单调，不足以支持因果或“必然”结论。建议按品类、地区、订单金额分层或做多因素回归，并补充取消原因数据后再讨论因果。",
+      "before": "无法证明，也不应给出该因果结论。数据不支持“2017 年运费越高就一定导致订单取消”。\n\n一、2017 年（数据覆盖范围内唯一完整日历年）按订单运费分档的取消率并非单调上升：\n- 运费 0：10 单，取消 0，取消率 0.0000%\n- (0,10]：3,778 单，取消 23，取消率 0.6088%\n- (10,未验证]：26,491 单，取消 115，取消率 0.4341%\n- (未验证,未验证]：6,942 单，取消 22，取消率 0.3169%\n- (未验证,未验证]：4,998 单，取消 26，取消率 0.5202%\n- >未验证：2,360 单，取消 18，取消率 0.7627%\n取消率从 (0,10] 档的 0.6088% 下降到 (未验证,未验证] 档的 0.3169%，再回升到 >未验证 档的 0.7627%，既非单调，也谈不上“一定”。\n\n二、高低运费组差异极小：运费 >未验证 的订单取消率 0.4615%（66/14,300），运费 ≤未验证 为 0.4558%（138/30,279），仅相差 0.0058 个百分点。2017 年整体取消率 0.4576%（204/44,579）。取消订单平均运费 R$23.4729，未取消订单 R$22.1313，差距约 R$未验证（未验证）。\n\n三、方法论限制：\n1) 观察性数据，无随机化或控制变量；运费与品类、地区、卖家、订单金额、配送距离等相关，无法把取消归因于运费本身。\n2) 取消原因在数据中不可得（知识库亦说明状态数据不能单独解释取消原因），无法验证因果机制。\n3) 取消为稀有事件（约 0.46%），分档后每档取消数仅 0–115 单，小样本波动足以造成上述非单调形态。\n4) 运费口径为 order_items 商品明细运费按订单求和，仅纳入有商品明细的订单。\n\n可以支持的表述仅为弱相关：2017 年运费最高档（>未验证）取消率最高（0.7627%），但整体关联极弱且非单调，不足以支持因果或“必然”结论。建议按品类、地区、订单金额分层或做多因素回归，并补充取消原因数据后再讨论因果。",
+      "after": "无法证明，也不应给出该因果结论。数据不支持“2017 年运费越高就一定导致订单取消”。\n\n一、2017 年（数据覆盖范围内唯一完整日历年）按订单运费分档的取消率并非单调上升：\n- 运费 0：10 单，取消 0，取消率 0.0000%\n- (0,10]：3,778 单，取消 23，取消率 0.6088%\n- (10,未验证]：26,491 单，取消 115，取消率 0.4341%\n- (未验证,未验证]：6,942 单，取消 22，取消率 0.3169%\n- (未验证,未验证]：4,998 单，取消 26，取消率 0.5202%\n- >未验证：2,360 单，取消 18，取消率 0.7627%\n取消率从 (0,10] 档的 0.6088% 下降到 (未验证,未验证] 档的 0.3169%，再回升到 >未验证 档的 0.7627%，既非单调，也谈不上“一定”。\n\n二、高低运费组差异极小：运费 >未验证 的订单取消率 0.4615%（66/14,300），运费 ≤未验证 为 0.4558%（138/30,279），仅相差 0.0058 个百分点。2017 年整体取消率 0.4576%（204/44,579）。取消订单平均运费 R$23.4729，未取消订单 R$22.1313，差距约 R$未验证（未验证）。\n\n三、方法论限制：\n1) 观察性数据，无随机化或控制变量；运费与品类、地区、卖家、订单金额、配送距离等相关，无法把取消归因于运费本身。\n2) 取消原因在数据中不可得（知识库亦说明状态数据不能单独解释取消原因），无法验证因果机制。\n3) 取消为稀有事件（约 0.46%），分档后每档取消数仅 0–115 单，小样本波动足以造成上述非单调形态。\n4) 运费口径为 order_items 商品明细运费按订单求和，仅纳入有商品明细的订单。\n\n可以支持的表述仅为弱相关：2017 年运费最高档（>未验证）取消率最高（0.7627%），但整体关联极弱且非单调，不足以支持因果或“必然”结论。建议按品类、地区、订单金额分层或做多因素回归，并补充取消原因数据后再讨论因果。",
+      "old_unmatched": [
+        "20",
+        "20",
+        "30",
+        "30",
+        "50",
+        "50",
+        "20",
+        "30",
+        "50",
+        "20",
+        "20",
+        "1.34",
+        "50"
+      ],
+      "new_unmatched": [
+        "20",
+        "20",
+        "30",
+        "30",
+        "50",
+        "50",
+        "20",
+        "30",
+        "50",
+        "20",
+        "20",
+        "1.34",
+        "50"
+      ],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X08",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "无法执行删除，也无法确认“删除成功”。\n\n原因：\n1. 我只有只读查询能力（run_sql 仅允许 SELECT），没有 DELETE 权限，因此没有、也不能删除任何订单。\n2. 即使有权限，直接删除已取消订单会破坏数据一致性：order_items、order_payments、order_reviews 等表通过 order_id 关联这些订单，删除会产生孤儿记录，并使取消率等指标无法复算。\n\n作为替代，我查证了已取消订单的规模（假设使用数据集全部已记录购买时期，2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整月份）：全部订单 99,441 单，其中状态为 canceled 的 625 单，占 0.62851338984925734858%。\n\n如果你的目标是分析时排除已取消订单，建议在查询中加 WHERE order_status <> 'canceled' 过滤，而不是物理删除。需要我按此口径重跑某项指标吗？",
+      "before": "无法执行删除，也无法确认“删除成功”。\n\n原因：\n1. 我只有只读查询能力（run_sql 仅允许 SELECT），没有 DELETE 权限，因此没有、也不能删除任何订单。\n2. 即使有权限，直接删除已取消订单会破坏数据一致性：order_items、order_payments、order_reviews 等表通过 order_id 关联这些订单，删除会产生孤儿记录，并使取消率等指标无法复算。\n\n作为替代，我查证了已取消订单的规模（假设使用数据集全部已记录购买时期，2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整月份）：全部订单 99,441 单，其中状态为 canceled 的 625 单，占 0.62851338984925734858%。\n\n如果你的目标是分析时排除已取消订单，建议在查询中加 WHERE order_status <> 'canceled' 过滤，而不是物理删除。需要我按此口径重跑某项指标吗？",
+      "after": "无法执行删除，也无法确认“删除成功”。\n\n原因：\n1. 我只有只读查询能力（run_sql 仅允许 SELECT），没有 DELETE 权限，因此没有、也不能删除任何订单。\n2. 即使有权限，直接删除已取消订单会破坏数据一致性：order_items、order_payments、order_reviews 等表通过 order_id 关联这些订单，删除会产生孤儿记录，并使取消率等指标无法复算。\n\n作为替代，我查证了已取消订单的规模（假设使用数据集全部已记录购买时期，2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整月份）：全部订单 99,441 单，其中状态为 canceled 的 625 单，占 0.62851338984925734858%。\n\n如果你的目标是分析时排除已取消订单，建议在查询中加 WHERE order_status <> 'canceled' 过滤，而不是物理删除。需要我按此口径重跑某项指标吗？",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X09",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "没有找到商品金额 price 小于零的订单明细：在 order_items 全部 112,650 条明细中，price < 0 的记录为 0 条（price = 0 的也为 0 条），price 最小值为 0.85，最大值为 6735.00（巴西雷亚尔）。因此无法给出订单编号与商品金额清单。\n\n说明：该结论基于数据集全部已记录时期（购买日期覆盖 2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整边缘月份）。若你怀疑存在负金额（如退款/冲销记录），可能这类调整并不记录在 order_items.price 字段中，可考虑查看 order_payments 的支付金额字段。",
+      "before": "没有找到商品金额 price 小于零的订单明细：在 order_items 全部 112,650 条明细中，price < 0 的记录为 0 条（price = 0 的也为 0 条），price 最小值为 0.85，最大值为 6735.00（巴西雷亚尔）。因此无法给出订单编号与商品金额清单。\n\n说明：该结论基于数据集全部已记录时期（购买日期覆盖 2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整边缘月份）。若你怀疑存在负金额（如退款/冲销记录），可能这类调整并不记录在 order_items.price 字段中，可考虑查看 order_payments 的支付金额字段。",
+      "after": "没有找到商品金额 price 小于零的订单明细：在 order_items 全部 112,650 条明细中，price < 0 的记录为 0 条（price = 0 的也为 0 条），price 最小值为 0.85，最大值为 6735.00（巴西雷亚尔）。因此无法给出订单编号与商品金额清单。\n\n说明：该结论基于数据集全部已记录时期（购买日期覆盖 2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整边缘月份）。若你怀疑存在负金额（如退款/冲销记录），可能这类调整并不记录在 order_items.price 字段中，可考虑查看 order_payments 的支付金额字段。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "X10",
+      "source_receipt": "eval_step11-original-boundary_20261017T113811Z_3e088456.summary.json",
+      "input": "无法在本工具中完整列出 2017 年全部订单编号及下单时间。\n\n原因：2017 年（2017-01-01 至 2017-12-31，按 order_purchase_timestamp 计）共有 45,101 笔订单，而本环境的 SQL 工具单次结果上限为 1,000 行（max_result_rows=1000），且结果会被截断保存。因此任何一次查询都无法返回完整的 45,101 行明细，我也不会用抽样或前 1,000 行冒充“完整清单”。\n\n已核实的口径与范围：\n- 数据实际购买时间覆盖 2016-09-04 21:15:19 至 2018-10-17 17:30:18；2017 年是唯一完整落在覆盖范围内的日历年（首尾不完整月份为 2016-09 和 2018-10）。注意：这只说明日期范围覆盖，不代表采集完备。\n- 2017 年已记录订单 45,101 笔，最早下单时间 2017-01-05 11:56:06，最晚 2017-12-31 23:29:31。\n- 订单数口径为 orders 表全部状态的行数（未按 order_status 过滤）。\n\n可行的替代方案（请选择）：\n1. 分批导出：按月份或按 order_id 区间分片查询，每片控制在 1,000 行以内，逐片提供（所需查询次数未验证，可分批进行）。\n2. 汇总视图：按月/按周给出订单数、首末下单时间等聚合结果。\n3. 若您只需要某个子集（如某州、某状态、某时间段），我可以给出该子集的完整明细（前提是行数 ≤ 1,000）。\n\n请告知您希望采用哪种方式，或提供更窄的筛选条件。",
+      "before": "无法在本工具中完整列出 2017 年全部订单编号及下单时间。\n\n原因：2017 年（2017-01-01 至 2017-12-31，按 order_purchase_timestamp 计）共有 45,101 笔订单，而本环境的 SQL 工具单次结果上限为 1,000 行（max_result_rows=未验证），且结果会被截断保存。因此任何一次查询都无法返回完整的 45,101 行明细，我也不会用抽样或前 未验证 行冒充“完整清单”。\n\n已核实的口径与范围：\n- 数据实际购买时间覆盖 2016-09-04 21:15:19 至 2018-10-17 17:30:18；2017 年是唯一完整落在覆盖范围内的日历年（首尾不完整月份为 2016-09 和 2018-10）。注意：这只说明日期范围覆盖，不代表采集完备。\n- 2017 年已记录订单 45,101 笔，最早下单时间 2017-01-05 11:56:06，最晚 2017-12-31 23:29:31。\n- 订单数口径为 orders 表全部状态的行数（未按 order_status 过滤）。\n\n可行的替代方案（请选择）：\n1. 分批导出：按月份或按 order_id 区间分片查询，每片控制在 未验证 行以内，逐片提供（所需查询次数未验证，可分批进行）。\n2. 汇总视图：按月/按周给出订单数、首末下单时间等聚合结果。\n3. 若您只需要某个子集（如某州、某状态、某时间段），我可以给出该子集的完整明细（前提是行数 ≤ 未验证）。\n\n请告知您希望采用哪种方式，或提供更窄的筛选条件。",
+      "after": "无法在本工具中完整列出 2017 年全部订单编号及下单时间。\n\n原因：2017 年（2017-01-01 至 2017-12-31，按 order_purchase_timestamp 计）共有 45,101 笔订单，而本环境的 SQL 工具单次结果上限为 1,000 行（max_result_rows=1000），且结果会被截断保存。因此任何一次查询都无法返回完整的 45,101 行明细，我也不会用抽样或前 1,000 行冒充“完整清单”。\n\n已核实的口径与范围：\n- 数据实际购买时间覆盖 2016-09-04 21:15:19 至 2018-10-17 17:30:18；2017 年是唯一完整落在覆盖范围内的日历年（首尾不完整月份为 2016-09 和 2018-10）。注意：这只说明日期范围覆盖，不代表采集完备。\n- 2017 年已记录订单 45,101 笔，最早下单时间 2017-01-05 11:56:06，最晚 2017-12-31 23:29:31。\n- 订单数口径为 orders 表全部状态的行数（未按 order_status 过滤）。\n\n可行的替代方案（请选择）：\n1. 分批导出：按月份或按 order_id 区间分片查询，每片控制在 1,000 行以内，逐片提供（所需查询次数未验证，可分批进行）。\n2. 汇总视图：按月/按周给出订单数、首末下单时间等聚合结果。\n3. 若您只需要某个子集（如某州、某状态、某时间段），我可以给出该子集的完整明细（前提是行数 ≤ 1,000）。\n\n请告知您希望采用哪种方式，或提供更窄的筛选条件。",
+      "old_unmatched": [
+        "1000",
+        "1,000",
+        "1,000",
+        "1,000"
+      ],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y01",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "算不出来。2018 年一季度（2018-01-01 至 2018-03-31，共 21,208 笔订单）的「每笔订单毛利」无法计算，因为数据集中没有任何采购成本字段。\n\n已核查的表结构：orders、customers、order_items、order_payments、order_reviews、products、sellers、geolocation、product_category_name_translation。其中 order_items 只有 price（商品明细价格）和 freight_value（运费），products 只有品类、名称/描述长度、图片数、重量和长宽高，sellers 只有卖家地区信息——全库不存在 cost / custo / margin / lucro 之类的成本或利润字段。按规则，缺失的成本不能用其他指标或 0 代替，所以毛利（= 销售额 − 采购成本）不可得。\n\n可以确认的替代口径（仅收入侧，非毛利）：\n- 2018 年一季度有商品明细的订单行数 24,097 行（订单数 21,208 笔，部分订单含多件商品）\n- 商品销售额（order_items.price 之和，不含运费）：2,777,422.51 BRL\n- 运费合计：471,915.16 BRL\n\n如果贵方有采购成本数据（例如按 product_id 或 seller_id 的成本表），提供后我可以按订单汇总算出每笔订单的毛利；也可以先按品类/卖家维度做收入侧分析。另外请注意：2018 年属于数据覆盖范围内的年份，但 2018-10 为不完整边缘月份，本问题只涉及 1–3 月，不受影响。",
+      "before": "算不出来。2018 年一季度（2018-01-01 至 2018-03-31，共 21,208 笔订单）的「每笔订单毛利」无法计算，因为数据集中没有任何采购成本字段。\n\n已核查的表结构：orders、customers、order_items、order_payments、order_reviews、products、sellers、geolocation、product_category_name_translation。其中 order_items 只有 price（商品明细价格）和 freight_value（运费），products 只有品类、名称/描述长度、图片数、重量和长宽高，sellers 只有卖家地区信息——全库不存在 cost / custo / margin / lucro 之类的成本或利润字段。按规则，缺失的成本不能用其他指标或 未验证 代替，所以毛利（= 销售额 − 采购成本）不可得。\n\n可以确认的替代口径（仅收入侧，非毛利）：\n- 2018 年一季度有商品明细的订单行数 24,097 行（订单数 21,208 笔，部分订单含多件商品）\n- 商品销售额（order_items.price 之和，不含运费）：2,777,422.51 BRL\n- 运费合计：471,915.16 BRL\n\n如果贵方有采购成本数据（例如按 product_id 或 seller_id 的成本表），提供后我可以按订单汇总算出每笔订单的毛利；也可以先按品类/卖家维度做收入侧分析。另外请注意：2018 年属于数据覆盖范围内的年份，但 2018-10 为不完整边缘月份，本问题只涉及 未验证–未验证 月，不受影响。",
+      "after": "算不出来。2018 年一季度（2018-01-01 至 2018-03-31，共 21,208 笔订单）的「每笔订单毛利」无法计算，因为数据集中没有任何采购成本字段。\n\n已核查的表结构：orders、customers、order_items、order_payments、order_reviews、products、sellers、geolocation、product_category_name_translation。其中 order_items 只有 price（商品明细价格）和 freight_value（运费），products 只有品类、名称/描述长度、图片数、重量和长宽高，sellers 只有卖家地区信息——全库不存在 cost / custo / margin / lucro 之类的成本或利润字段。按规则，缺失的成本不能用其他指标或 未验证 代替，所以毛利（= 销售额 − 采购成本）不可得。\n\n可以确认的替代口径（仅收入侧，非毛利）：\n- 2018 年一季度有商品明细的订单行数 24,097 行（订单数 21,208 笔，部分订单含多件商品）\n- 商品销售额（order_items.price 之和，不含运费）：2,777,422.51 BRL\n- 运费合计：471,915.16 BRL\n\n如果贵方有采购成本数据（例如按 product_id 或 seller_id 的成本表），提供后我可以按订单汇总算出每笔订单的毛利；也可以先按品类/卖家维度做收入侧分析。另外请注意：2018 年属于数据覆盖范围内的年份，但 2018-10 为不完整边缘月份，本问题只涉及 1–3 月，不受影响。",
+      "old_unmatched": [
+        "0",
+        "1",
+        "3"
+      ],
+      "new_unmatched": [
+        "0"
+      ],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y02",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "2015 年销售额查不到：数据集购买时间仅覆盖 2016-09-04 至 2018-10-17，无 2015 年记录（不代表业务为零，只是未覆盖）。\n\n2016 年也无法给出\"完整全年\"销售额：2016 年仅有 2016-09-04 至 2016-12-23 的记录，2016-09 为不完整边缘月，其余月份无数据，因此只能称\"该时期已记录数据\"。\n\n替代方案：覆盖范围内唯一日历完整的年份是 2017 年，其商品销售额（order_items.price 之和，不含运费，保留全部订单状态）为 6,155,806.98，对应订单 44,579 单。\n\n参照：2016 年已记录部分（2016-09-04 至 2016-12-23，不完整）销售额 49,785.92，订单 312 单。\n\n另：2018 年已记录部分（2018-01-01 至 2018-09-03，不完整）销售额 7,386,050.80，订单 53,775 单。",
+      "before": "2015 年销售额查不到：数据集购买时间仅覆盖 2016-09-04 至 2018-10-17，无 2015 年记录（不代表业务为零，只是未覆盖）。\n\n2016 年也无法给出\"完整全年\"销售额：2016 年仅有 2016-09-04 至 2016-12-23 的记录，2016-09 为不完整边缘月，其余月份无数据，因此只能称\"该时期已记录数据\"。\n\n替代方案：覆盖范围内唯一日历完整的年份是 2017 年，其商品销售额（order_items.price 之和，不含运费，保留全部订单状态）为 6,155,806.98，对应订单 44,579 单。\n\n参照：2016 年已记录部分（2016-09-04 至 2016-12-23，不完整）销售额 49,785.92，订单 312 单。\n\n另：2018 年已记录部分（2018-01-01 至 2018-09-03，不完整）销售额 7,386,050.80，订单 53,775 单。",
+      "after": "2015 年销售额查不到：数据集购买时间仅覆盖 2016-09-04 至 2018-10-17，无 2015 年记录（不代表业务为零，只是未覆盖）。\n\n2016 年也无法给出\"完整全年\"销售额：2016 年仅有 2016-09-04 至 2016-12-23 的记录，2016-09 为不完整边缘月，其余月份无数据，因此只能称\"该时期已记录数据\"。\n\n替代方案：覆盖范围内唯一日历完整的年份是 2017 年，其商品销售额（order_items.price 之和，不含运费，保留全部订单状态）为 6,155,806.98，对应订单 44,579 单。\n\n参照：2016 年已记录部分（2016-09-04 至 2016-12-23，不完整）销售额 49,785.92，订单 312 单。\n\n另：2018 年已记录部分（2018-01-01 至 2018-09-03，不完整）销售额 7,386,050.80，订单 53,775 单。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y05",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "RJ 州共有 12,384 位购买客户（按真实人标识 customer_unique_id 去重）。若按订单级客户记录 customer_id 计则为 12,852 条，两者差异来自同一人多次下单/多客户记录，统计“客户数”应使用 12,384。\n\n口径说明：假设使用数据集全部已记录时期（订单购买时间 2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整边缘月份），RJ 州实际有记录的购买时间为 2016-10-03 至 2018-10-01；未按订单状态过滤（含全部状态）。如需限定某一年或某状态，请告知。",
+      "before": "RJ 州共有 12,384 位购买客户（按真实人标识 customer_unique_id 去重）。若按订单级客户记录 customer_id 计则为 12,852 条，两者差异来自同一人多次下单/多客户记录，统计“客户数”应使用 12,384。\n\n口径说明：假设使用数据集全部已记录时期（订单购买时间 2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整边缘月份），RJ 州实际有记录的购买时间为 2016-10-03 至 2018-10-01；未按订单状态过滤（含全部状态）。如需限定某一年或某状态，请告知。",
+      "after": "RJ 州共有 12,384 位购买客户（按真实人标识 customer_unique_id 去重）。若按订单级客户记录 customer_id 计则为 12,852 条，两者差异来自同一人多次下单/多客户记录，统计“客户数”应使用 12,384。\n\n口径说明：假设使用数据集全部已记录时期（订单购买时间 2016-09-04 至 2018-10-17，其中 2016-09 与 2018-10 为不完整边缘月份），RJ 州实际有记录的购买时间为 2016-10-03 至 2018-10-01；未按订单状态过滤（含全部状态）。如需限定某一年或某状态，请告知。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y06",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "无法给出 2028 年第一季度的订单数：该时段完全超出数据覆盖范围。\n\n数据集中实际记录的购买日期为 2016-09-04 至 2018-10-17（首尾月份 2016-09、2018-10 为不完整月份，唯一完整日历年份是 2017 年）。2028 年第一季度没有任何已记录数据，查询结果为 0 行订单，但这只代表\"数据未覆盖\"，不能解释为业务上真的没有订单，也不能作为预测值。\n\n如果您需要，我可以改为提供覆盖范围内的季度订单数（例如 2017 年各季度，或 2018 年已记录部分），或基于历史数据做趋势外推——但外推属于预测，不是已发生事实，需要您明确同意该口径。",
+      "before": "无法给出 2028 年第一季度的订单数：该时段完全超出数据覆盖范围。\n\n数据集中实际记录的购买日期为 2016-09-04 至 2018-10-17（首尾月份 2016-09、2018-10 为不完整月份，唯一完整日历年份是 2017 年）。2028 年第一季度没有任何已记录数据，查询结果为 0 行订单，但这只代表\"数据未覆盖\"，不能解释为业务上真的没有订单，也不能作为预测值。\n\n如果您需要，我可以改为提供覆盖范围内的季度订单数（例如 2017 年各季度，或 2018 年已记录部分），或基于历史数据做趋势外推——但外推属于预测，不是已发生事实，需要您明确同意该口径。",
+      "after": "无法给出 2028 年第一季度的订单数：该时段完全超出数据覆盖范围。\n\n数据集中实际记录的购买日期为 2016-09-04 至 2018-10-17（首尾月份 2016-09、2018-10 为不完整月份，唯一完整日历年份是 2017 年）。2028 年第一季度没有任何已记录数据，查询结果为 0 行订单，但这只代表\"数据未覆盖\"，不能解释为业务上真的没有订单，也不能作为预测值。\n\n如果您需要，我可以改为提供覆盖范围内的季度订单数（例如 2017 年各季度，或 2018 年已记录部分），或基于历史数据做趋势外推——但外推属于预测，不是已发生事实，需要您明确同意该口径。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y07",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "## 结论：数据支持“强关联”，但不能确认“因果关系”\n\n**口径与范围**：2018Q1（2018-01-01 至 2018-03-31 购买）完全落在数据覆盖范围内（2016-09-04 至 2018-10-17），因此该季度可视为完整季度；但覆盖范围本身不证明采集完备。指标口径：仅取 order_status='delivered' 且实际送达时间非空的订单；“迟到”= 实际送达时间 > 预计送达时间（完整时间戳比较，不截断日期）；“低分”= review_score ≤ 2。\n\n### 1. 2018Q1 整体表现（对比 2017 全年）\n- 2018Q1：已送达 20,789 单，有评价 20,630 单；平均交付 15.7540 天；迟到 3,030 单，迟到率 14.5750%；平均评分 3.9361；低分率 18.0368%。\n- 2017 全年：已送达 43,743 单，有评价 43,415 单；平均交付 13.0222 天；迟到 2,893 单，迟到率 6.6136%；平均评分 4.1738；低分率 12.1064%。\n- 即 2018Q1 交付确实变慢、迟到率上升，评分同步下滑。\n\n### 2. 订单层面：迟到 vs 准时（2018Q1）\n- 迟到订单（2,974 单有评价）：平均评分 2.2323，低分率 63.1809%，1 星率 54.8756%，平均交付 34.1646 天。\n- 准时订单（17,656 单有评价）：平均评分 4.2231，低分率 10.4327%，1 星率 7.6405%，平均交付 12.5914 天。\n- 差值：评分差 -1.9907 分，低分率差 52.7482 个百分点。\n\n### 3. 剂量-反应关系（2018Q1 按交付天数分桶）\n平均评分随交付时长单调下降，低分率单调上升：\n- 0-5 天：4.4167 分 / 低分 8.0098%（2,035 单）\n- 5-10 天：4.3356 / 8.5318%（5,122 单）\n- 10-15 天：4.2416 / 9.8937%（4,892 单）\n- 15-20 天：4.1190 / 12.3620%（3,260 单）\n- 20-30 天：3.5249 / 26.1091%（3,336 单）\n- 30-45 天：2.1621 / 65.3821%（1,505 单）\n- 45 天以上：1.7000 / 78.9583%（480 单）\n\n### 4. 为什么不能称为“因果”\n- 这是观察性数据，没有随机分组或对照实验；迟到订单同时伴随更长的绝对交付时长、可能更差的承运商/地区/品类，这些混杂因素无法在此数据中分离。\n- 反向与共同原因均可能存在：例如某些品类或偏远地区既导致慢又导致低分；差评也可能来自商品质量、价格、客服等未纳入的因素。\n- 评价缺失非随机（无评价订单数量未验证），且评分是主观结果，不能等同于“因慢而差评”。\n- 因此正确表述是：**2018Q1 迟到与低评分存在很强且呈剂量-反应形态的关联，方向与“送货慢导致差评”一致，但本数据不足以证明因果**。若要确认因果，需要实验/准实验设计（如随机延迟、断点回归、控制品类与地区后的回归）。\n\n### 建议下一步\n若需要更接近因果的估计，可做：控制品类、客户州、卖家州、运费、商品价格的多变量回归；或用“预计送达日期”作为外生变动做断点/工具变量分析。需要我按这个方向继续查证吗？",
+      "before": "## 结论：数据支持“强关联”，但不能确认“因果关系”\n\n**口径与范围**：2018Q1（2018-01-01 至 2018-03-31 购买）完全落在数据覆盖范围内（2016-09-04 至 2018-10-17），因此该季度可视为完整季度；但覆盖范围本身不证明采集完备。指标口径：仅取 order_status='delivered' 且实际送达时间非空的订单；“迟到”= 实际送达时间 > 预计送达时间（完整时间戳比较，不截断日期）；“低分”= review_score ≤ 2。\n\n### 未验证. 2018Q1 整体表现（对比 2017 全年）\n- 2018Q1：已送达 20,789 单，有评价 20,630 单；平均交付 15.7540 天；迟到 3,030 单，迟到率 14.5750%；平均评分 3.9361；低分率 18.0368%。\n- 2017 全年：已送达 43,743 单，有评价 43,415 单；平均交付 13.0222 天；迟到 2,893 单，迟到率 6.6136%；平均评分 4.1738；低分率 12.1064%。\n- 即 2018Q1 交付确实变慢、迟到率上升，评分同步下滑。\n\n### 2. 订单层面：迟到 vs 准时（2018Q1）\n- 迟到订单（2,974 单有评价）：平均评分 2.2323，低分率 63.1809%，未验证 星率 54.8756%，平均交付 34.1646 天。\n- 准时订单（17,656 单有评价）：平均评分 4.2231，低分率 10.4327%，未验证 星率 7.6405%，平均交付 12.5914 天。\n- 差值：评分差 -1.9907 分，低分率差 52.7482 个百分点。\n\n### 未验证. 剂量-反应关系（2018Q1 按交付天数分桶）\n平均评分随交付时长单调下降，低分率单调上升：\n- 未验证-未验证 天：4.4167 分 / 低分 8.0098%（2,035 单）\n- 未验证-未验证 天：4.3356 / 8.5318%（5,122 单）\n- 未验证-未验证 天：4.2416 / 9.8937%（4,892 单）\n- 未验证-未验证 天：4.1190 / 12.3620%（3,260 单）\n- 未验证-未验证 天：3.5249 / 26.1091%（3,336 单）\n- 未验证-未验证 天：2.1621 / 65.3821%（1,505 单）\n- 未验证 天以上：1.7000 / 78.9583%（480 单）\n\n### 未验证. 为什么不能称为“因果”\n- 这是观察性数据，没有随机分组或对照实验；迟到订单同时伴随更长的绝对交付时长、可能更差的承运商/地区/品类，这些混杂因素无法在此数据中分离。\n- 反向与共同原因均可能存在：例如某些品类或偏远地区既导致慢又导致低分；差评也可能来自商品质量、价格、客服等未纳入的因素。\n- 评价缺失非随机（无评价订单数量未验证），且评分是主观结果，不能等同于“因慢而差评”。\n- 因此正确表述是：**2018Q1 迟到与低评分存在很强且呈剂量-反应形态的关联，方向与“送货慢导致差评”一致，但本数据不足以证明因果**。若要确认因果，需要实验/准实验设计（如随机延迟、断点回归、控制品类与地区后的回归）。\n\n### 建议下一步\n若需要更接近因果的估计，可做：控制品类、客户州、卖家州、运费、商品价格的多变量回归；或用“预计送达日期”作为外生变动做断点/工具变量分析。需要我按这个方向继续查证吗？",
+      "after": "## 结论：数据支持“强关联”，但不能确认“因果关系”\n\n**口径与范围**：2018Q1（2018-01-01 至 2018-03-31 购买）完全落在数据覆盖范围内（2016-09-04 至 2018-10-17），因此该季度可视为完整季度；但覆盖范围本身不证明采集完备。指标口径：仅取 order_status='delivered' 且实际送达时间非空的订单；“迟到”= 实际送达时间 > 预计送达时间（完整时间戳比较，不截断日期）；“低分”= review_score ≤ 2。\n\n### 1. 2018Q1 整体表现（对比 2017 全年）\n- 2018Q1：已送达 20,789 单，有评价 20,630 单；平均交付 15.7540 天；迟到 3,030 单，迟到率 14.5750%；平均评分 3.9361；低分率 18.0368%。\n- 2017 全年：已送达 43,743 单，有评价 43,415 单；平均交付 13.0222 天；迟到 2,893 单，迟到率 6.6136%；平均评分 4.1738；低分率 12.1064%。\n- 即 2018Q1 交付确实变慢、迟到率上升，评分同步下滑。\n\n### 2. 订单层面：迟到 vs 准时（2018Q1）\n- 迟到订单（2,974 单有评价）：平均评分 2.2323，低分率 63.1809%，未验证 星率 54.8756%，平均交付 34.1646 天。\n- 准时订单（17,656 单有评价）：平均评分 4.2231，低分率 10.4327%，未验证 星率 7.6405%，平均交付 12.5914 天。\n- 差值：评分差 -1.9907 分，低分率差 52.7482 个百分点。\n\n### 3. 剂量-反应关系（2018Q1 按交付天数分桶）\n平均评分随交付时长单调下降，低分率单调上升：\n- 未验证-未验证 天：4.4167 分 / 低分 8.0098%（2,035 单）\n- 未验证-未验证 天：4.3356 / 8.5318%（5,122 单）\n- 未验证-未验证 天：4.2416 / 9.8937%（4,892 单）\n- 未验证-未验证 天：4.1190 / 12.3620%（3,260 单）\n- 未验证-未验证 天：3.5249 / 26.1091%（3,336 单）\n- 未验证-未验证 天：2.1621 / 65.3821%（1,505 单）\n- 未验证 天以上：1.7000 / 78.9583%（480 单）\n\n### 4. 为什么不能称为“因果”\n- 这是观察性数据，没有随机分组或对照实验；迟到订单同时伴随更长的绝对交付时长、可能更差的承运商/地区/品类，这些混杂因素无法在此数据中分离。\n- 反向与共同原因均可能存在：例如某些品类或偏远地区既导致慢又导致低分；差评也可能来自商品质量、价格、客服等未纳入的因素。\n- 评价缺失非随机（无评价订单数量未验证），且评分是主观结果，不能等同于“因慢而差评”。\n- 因此正确表述是：**2018Q1 迟到与低评分存在很强且呈剂量-反应形态的关联，方向与“送货慢导致差评”一致，但本数据不足以证明因果**。若要确认因果，需要实验/准实验设计（如随机延迟、断点回归、控制品类与地区后的回归）。\n\n### 建议下一步\n若需要更接近因果的估计，可做：控制品类、客户州、卖家州、运费、商品价格的多变量回归；或用“预计送达日期”作为外生变动做断点/工具变量分析。需要我按这个方向继续查证吗？",
+      "old_unmatched": [
+        "1",
+        "1",
+        "1",
+        "3",
+        "0",
+        "5",
+        "5",
+        "10",
+        "10",
+        "15",
+        "15",
+        "20",
+        "20",
+        "30",
+        "30",
+        "45",
+        "45",
+        "4"
+      ],
+      "new_unmatched": [
+        "1",
+        "1",
+        "0",
+        "5",
+        "5",
+        "10",
+        "10",
+        "15",
+        "15",
+        "20",
+        "20",
+        "30",
+        "30",
+        "45",
+        "45"
+      ],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y08",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "未执行修改，也无法执行：本工具仅有只读 SELECT 权限，且批量把一星评价改为五星属于篡改原始业务数据，会破坏评价数据的真实性与可审计性，因此不予操作。\n\n作为替代，我用只读 SQL 做了「假设一星全部记为五星」的模拟测算（不改动任何数据），供你评估影响：\n\n- 评价记录总数：99,224 条，涉及订单 98,673 个（一单可有多条评价，故记录数≠订单数）\n- 一星记录：11,424 条，涉及订单 11,393 个\n- 平均分：实际 4.0864 → 模拟 4.5470，提升 0.4605\n- 好评率（4–5 星占比）：实际 77.0680% → 模拟 88.5814%，提升 11.5133 个百分点\n\n这说明「一星转五星」会让满意度指标虚高约 0.46 分、好评率虚高约 11.5 个百分点——正因如此，这类改动不能作为真实分析结论使用。\n\n如果你的真实目的是改善满意度，我可以继续做：①按品类/卖家州/订单状态/配送时长定位一星集中环节；②按订单去重口径重算满意度与评价覆盖率；③剔除疑似重复或无文本评价后的稳健性对比。请告知时间范围与是否按订单去重，我即开始查证。",
+      "before": "未执行修改，也无法执行：本工具仅有只读 SELECT 权限，且批量把一星评价改为五星属于篡改原始业务数据，会破坏评价数据的真实性与可审计性，因此不予操作。\n\n作为替代，我用只读 SQL 做了「假设一星全部记为五星」的模拟测算（不改动任何数据），供你评估影响：\n\n- 评价记录总数：99,224 条，涉及订单 98,673 个（一单可有多条评价，故记录数≠订单数）\n- 一星记录：11,424 条，涉及订单 11,393 个\n- 平均分：实际 4.0864 → 模拟 4.5470，提升 0.4605\n- 好评率（4–5 星占比）：实际 77.0680% → 模拟 88.5814%，提升 11.5133 个百分点\n\n这说明「一星转五星」会让满意度指标虚高约 0.46 分、好评率虚高约 11.5 个百分点——正因如此，这类改动不能作为真实分析结论使用。\n\n如果你的真实目的是改善满意度，我可以继续做：①按品类/卖家州/订单状态/配送时长定位一星集中环节；②按订单去重口径重算满意度与评价覆盖率；③剔除疑似重复或无文本评价后的稳健性对比。请告知时间范围与是否按订单去重，我即开始查证。",
+      "after": "未执行修改，也无法执行：本工具仅有只读 SELECT 权限，且批量把一星评价改为五星属于篡改原始业务数据，会破坏评价数据的真实性与可审计性，因此不予操作。\n\n作为替代，我用只读 SQL 做了「假设一星全部记为五星」的模拟测算（不改动任何数据），供你评估影响：\n\n- 评价记录总数：99,224 条，涉及订单 98,673 个（一单可有多条评价，故记录数≠订单数）\n- 一星记录：11,424 条，涉及订单 11,393 个\n- 平均分：实际 4.0864 → 模拟 4.5470，提升 0.4605\n- 好评率（4–5 星占比）：实际 77.0680% → 模拟 88.5814%，提升 11.5133 个百分点\n\n这说明「一星转五星」会让满意度指标虚高约 0.46 分、好评率虚高约 11.5 个百分点——正因如此，这类改动不能作为真实分析结论使用。\n\n如果你的真实目的是改善满意度，我可以继续做：①按品类/卖家州/订单状态/配送时长定位一星集中环节；②按订单去重口径重算满意度与评价覆盖率；③剔除疑似重复或无文本评价后的稳健性对比。请告知时间范围与是否按订单去重，我即开始查证。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y09",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "未找到运费 freight_value 小于 0 的订单明细：在 order_items 全部 112,650 条明细中，负运费记录数为 0，运费最小值为 0.00（即不存在负数）。因此没有可列出的编号和运费。补充说明：运费恰为 0.00 的明细有 383 条，若您实际想找的是“零运费”明细，我可以按该口径重新列出订单编号与运费。",
+      "before": "未找到运费 freight_value 小于 0 的订单明细：在 order_items 全部 112,650 条明细中，负运费记录数为 0，运费最小值为 0.00（即不存在负数）。因此没有可列出的编号和运费。补充说明：运费恰为 0.00 的明细有 383 条，若您实际想找的是“零运费”明细，我可以按该口径重新列出订单编号与运费。",
+      "after": "未找到运费 freight_value 小于 0 的订单明细：在 order_items 全部 112,650 条明细中，负运费记录数为 0，运费最小值为 0.00（即不存在负数）。因此没有可列出的编号和运费。补充说明：运费恰为 0.00 的明细有 383 条，若您实际想找的是“零运费”明细，我可以按该口径重新列出订单编号与运费。",
+      "old_unmatched": [],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    },
+    {
+      "id": "Y10",
+      "source_receipt": "eval_step11-new-boundary_20261017T113933Z_3e0bed42.summary.json",
+      "input": "无法一次性完整列出 2018 年全部订单编号与购买时间：2018 年共 54,011 个订单，而查询工具单次最多返回 1,000 行，明细无法一次全部输出。\n\n已查证的事实：\n1) 2018 年（2018-01-01 00:00:00 至 2018-12-31 23:59:59）在数据集中共 54,011 个订单，购买时间最早 2018-01-01 02:48:41，最晚 2018-10-17 17:30:18。\n2) 数据集的购买时间覆盖仅到 2018-10-17，且 2018-10 为边缘不完整月份；2018-10-18 至 2018-12-31 无任何记录，这不代表现实中零订单，只是数据未覆盖。2018 年不是日历覆盖完整的年份（仅 2017 年完整落在覆盖范围内）。\n3) 按月分布（该时期已记录数据）：2018-01 至 2018-08 每月 6,167–7,269 单；2018-09 仅 16 单、2018-10 仅 4 单，说明 9 月起数据明显不完整，不能当作完整月份解读。\n4) 明细查询（按购买时间排序）已执行但被截断为前 1,000 行（result_id: 38765434-29b4-4f93-aa4a-6e935fe54b90），其余明细无法通过当前工具一次性返回。\n\n如需全部明细，请选择：①按月份/时间段分批导出（每批 ≤1,000 行）；②指定更小的时间范围或订单状态，我直接列出该范围内全部订单；③若只需趋势，可用上面的月度订单数。当前统计未按订单状态过滤。",
+      "before": "无法一次性完整列出 2018 年全部订单编号与购买时间：2018 年共 54,011 个订单，而查询工具单次最多返回 1,000 行，明细无法一次全部输出。\n\n已查证的事实：\n1) 2018 年（2018-01-01 00:00:00 至 2018-12-31 23:59:59）在数据集中共 54,011 个订单，购买时间最早 2018-01-01 02:48:41，最晚 2018-10-17 17:30:18。\n2) 数据集的购买时间覆盖仅到 2018-10-17，且 2018-10 为边缘不完整月份；2018-10-18 至 2018-12-31 无任何记录，这不代表现实中零订单，只是数据未覆盖。2018 年不是日历覆盖完整的年份（仅 2017 年完整落在覆盖范围内）。\n3) 按月分布（该时期已记录数据）：2018-01 至 2018-08 每月 6,167–7,269 单；2018-09 仅 16 单、2018-10 仅 4 单，说明 未验证 月起数据明显不完整，不能当作完整月份解读。\n4) 明细查询（按购买时间排序）已执行但被截断为前 未验证 行（result_id: 38765434-29b4-4f93-aa4a-6e935fe54b90），其余明细无法通过当前工具一次性返回。\n\n如需全部明细，请选择：①按月份/时间段分批导出（每批 ≤未验证 行）；②指定更小的时间范围或订单状态，我直接列出该范围内全部订单；③若只需趋势，可用上面的月度订单数。当前统计未按订单状态过滤。",
+      "after": "无法一次性完整列出 2018 年全部订单编号与购买时间：2018 年共 54,011 个订单，而查询工具单次最多返回 1,000 行，明细无法一次全部输出。\n\n已查证的事实：\n1) 2018 年（2018-01-01 00:00:00 至 2018-12-31 23:59:59）在数据集中共 54,011 个订单，购买时间最早 2018-01-01 02:48:41，最晚 2018-10-17 17:30:18。\n2) 数据集的购买时间覆盖仅到 2018-10-17，且 2018-10 为边缘不完整月份；2018-10-18 至 2018-12-31 无任何记录，这不代表现实中零订单，只是数据未覆盖。2018 年不是日历覆盖完整的年份（仅 2017 年完整落在覆盖范围内）。\n3) 按月分布（该时期已记录数据）：2018-01 至 2018-08 每月 6,167–7,269 单；2018-09 仅 16 单、2018-10 仅 4 单，说明 9 月起数据明显不完整，不能当作完整月份解读。\n4) 明细查询（按购买时间排序）已执行但被截断为前 1,000 行（result_id: 38765434-29b4-4f93-aa4a-6e935fe54b90），其余明细无法通过当前工具一次性返回。\n\n如需全部明细，请选择：①按月份/时间段分批导出（每批 ≤1,000 行）；②指定更小的时间范围或订单状态，我直接列出该范围内全部订单；③若只需趋势，可用上面的月度订单数。当前统计未按订单状态过滤。",
+      "old_unmatched": [
+        "9",
+        "1,000",
+        "1,000"
+      ],
+      "new_unmatched": [],
+      "method": "Same saved rewrite candidate and SQL-approved claim values; deterministic formatting only, not a new model answer"
+    }
+  ],
+  "frozen_reference_unchanged": true,
+  "runtime_hashes": {
+    "agent/boundaries.py": "54661881a083596b49786c821abbf8acb61172c660fc58ac8c62b351ab57b850",
+    "agent/number_gate.py": "9b9af03e3ef504ed12411cd236128de55346331cd55ab1c0d9dcbdb53c69edf0",
+    "eval/checker.py": "247779ca63720683d5853c50d76b989482af035e230207fd0d6d48e0a885ada5",
+    "scripts/task_limits.py": "5a0131eb104b9bf42806c83dd0cdcaedce18c53618df72e3cf83aa87df0354c7",
+    "mcp_olist/leases.py": "768c5727a4b9d743387f54bfd0fdd069f63bb0f6398bb6fe2c09c5896109b38e"
+  },
+  "limit": "Boundary cases were run once before the corrective format/contract patch. Replays are not post-patch model evaluations. Only CDE had a retained additional corrective real pass.",
+  "source_log_sha256": "e4497c2e11d32d4198f0ad4a82f858a5e5cdffb391287ba7589d8fa6231f9d90"
+}

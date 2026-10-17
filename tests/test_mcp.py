@@ -25,6 +25,14 @@ def test_live_protocol_authentication_results_and_errors():
                 async with MCPClient(MCP_URL,MCP_BEARER_TOKEN,str(task)) as client:
                     assert {t["function"]["name"] for t in client.tools} >= {"list_tables","describe_table","run_sql","get_result"}
                     assert len((await client.call("list_tables",{}))["tables"]) == 9
+                    profile=await client.call('data_context',{})
+                    assert profile['coverage']['available'] and profile['coverage']['partial_edge_months']==['2016-09','2018-10']
+                    assert (await client.call('check_dimension',{'column':'customer_state','value':'SP'}))['exists']
+                    assert (await client.call('check_dimension',{'column':'customer_state','value':'XX'}))['error']=='unknown_dimension'
+                    before=conn.execute('SELECT count(*) FROM query_results WHERE task_id=%s',(task,)).fetchone()[0]
+                    missing=await client.call('run_sql',{'sql':"SELECT count(*) AS n FROM customers WHERE customer_state='XX'"})
+                    assert missing['error']=='unknown_dimension' and 'result_id' not in missing
+                    assert conn.execute('SELECT count(*) FROM query_results WHERE task_id=%s',(task,)).fetchone()[0]==before
                     description = await client.call("describe_table",{"name":"orders"})
                     assert len(description["samples"]) == 3
                     assert any(c["name"] == "order_id" and c["comment"] for c in description["columns"])

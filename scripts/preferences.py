@@ -28,11 +28,11 @@ def save(task_id,candidates,user_text,lease_token=None):
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
         owner=conn.execute("SELECT user_id FROM tasks WHERE task_id=%s",(UUID(str(task_id)),)).fetchone()
         if not owner: raise ValueError("Unknown task")
+        user_id=owner[0]
+        conn.execute("SELECT user_id FROM users WHERE user_id=%s FOR UPDATE",(user_id,))
         if lease_token:
             from mcp_olist.leases import validate
             validate(conn,task_id,lease_token,lock=True)
-        user_id=owner[0]
-        conn.execute("SELECT user_id FROM users WHERE user_id=%s FOR UPDATE",(user_id,))
         ids=[]
         for item in validated:
             old=conn.execute("SELECT memory_id,value FROM memories WHERE user_id=%s AND type='preference' AND key=%s AND superseded_at IS NULL",(user_id,item['key'])).fetchone()

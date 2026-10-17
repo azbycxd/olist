@@ -16,6 +16,7 @@ def test_password_hash_has_per_user_salt():
     assert not verify_password('wrong password',a) and not verify_password('x',None)
 
 
+@pytest.mark.integration
 @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='database integration opt-in')
 def test_default_single_task_runs_directly_and_keeps_memory_extraction(monkeypatch):
     from scripts import task_worker
@@ -47,6 +48,7 @@ def test_default_single_task_runs_directly_and_keeps_memory_extraction(monkeypat
             conn.execute("UPDATE tasks SET status='canceled',lease_token=NULL WHERE task_id=%s",(ident,))
 
 
+@pytest.mark.integration
 @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='database integration opt-in')
 def test_enqueue_auth_confirmation_sse_and_lease_fencing(monkeypatch):
     monkeypatch.setenv('MEMORY_API_SECRET','test-only-'+uuid4().hex)
