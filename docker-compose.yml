@@ -1,0 +1,41 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: olist_admin
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_admin_change_me}
+      AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
+      AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U olist_admin -d agent"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  init-data:
+    build: .
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: olist_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_admin_change_me}
+      AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
+      AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
+    volumes:
+      - ./data/raw:/app/data/raw:ro
+      - ./docs:/app/docs
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  postgres_data:
