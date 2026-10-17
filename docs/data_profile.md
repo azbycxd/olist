@@ -1,13 +1,13 @@
 # Olist 数据画像
 
 本文件由 `scripts/profile_data.py` 连接业务库、执行只读 SQL 生成；不是评测结果。
-生成时间（UTC）：2026-10-17T06:10:24.312192+00:00
+生成时间（UTC）：2026-10-17T06:21:11.117184+00:00
 
 数据版本（源文件清单的 SHA-256）：`b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a`
 
-画像运行日志：[`profile_data_20261017T061022Z_8f7105c7.jsonl`](../logs/profile_data_20261017T061022Z_8f7105c7.jsonl)
+画像来源证据：[profile_data_20261017T062110Z_0ed39854.summary.json](../evidence/profile_data_20261017T062110Z_0ed39854.summary.json)；原始运行日志：`profile_data_20261017T062110Z_0ed39854.jsonl`
 
-导入运行日志：[`load_olist_20261017T061005Z_cb15c045.jsonl`](../logs/load_olist_20261017T061005Z_cb15c045.jsonl)
+导入来源证据：[load_olist_20261017T062107Z_88a9c380.summary.json](../evidence/load_olist_20261017T062107Z_88a9c380.summary.json)；原始运行日志：`load_olist_20261017T062107Z_88a9c380.jsonl`
 
 ## 原始文件与入库行数
 

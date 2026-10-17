@@ -58,7 +58,6 @@ def load(directory: Path, replace: bool, logger):
     record(logger, "sources_validated", data_version=version, manifest=manifest)
     with psycopg.connect(**db_kwargs()) as conn:
         conn.execute("SELECT pg_advisory_xact_lock(730016)")
-        conn.execute((ROOT / "sql" / "olist.sql").read_text(encoding="utf-8"))
         previous = conn.execute("SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()
         counts = {table: conn.execute(sql.SQL("SELECT count(*) FROM {}").format(sql.Identifier(table))).fetchone()[0]
                   for table in TABLES}
@@ -98,12 +97,18 @@ def main():
     args = parser.parse_args()
     logger, path = start_log("load_olist")
     try:
+        from scripts.migrate import migrate
+        from scripts.evidence import publish_log
+        migrate()
         load(args.data_dir, args.replace, logger)
         if args.profile:
             from scripts.profile_data import generate
             generate(import_log=path.name)
+        publish_log(path)
     except Exception as exc:
         record(logger, "failed", error=str(exc))
+        from scripts.evidence import publish_log
+        publish_log(path)
         return 1
     return 0
 

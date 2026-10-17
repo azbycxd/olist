@@ -13,6 +13,7 @@ from psycopg.rows import dict_row
 
 from config import ROOT, db_kwargs
 from scripts.common import record, start_log
+from scripts.evidence import publish_log
 
 QUERIES = {
     "订单时间范围": """SELECT count(*) AS orders,
@@ -110,13 +111,15 @@ def generate(output: Path | None = None, import_log: str | None = None):
                 rows = conn.execute(query).fetchall()
                 observations[name] = rows
                 record(logger, "query_result", name=name, sql=query, rows=rows)
+        receipt_name = log_path.stem + ".summary.json"
         text = ["# Olist 数据画像", "",
                 "本文件由 `scripts/profile_data.py` 连接业务库、执行只读 SQL 生成；不是评测结果。",
                 f"生成时间（UTC）：{datetime.now(timezone.utc).isoformat()}", "",
                 f"数据版本（源文件清单的 SHA-256）：`{source['data_version']}`", "",
-                f"画像运行日志：[`{log_path.name}`](../logs/{log_path.name})", ""]
+                f"画像来源证据：[{receipt_name}](../evidence/{receipt_name})；原始运行日志：`{log_path.name}`", ""]
         if import_log:
-            text += [f"导入运行日志：[`{import_log}`](../logs/{import_log})", ""]
+            receipt_name = Path(import_log).stem + ".summary.json"
+            text += [f"导入来源证据：[{receipt_name}](../evidence/{receipt_name})；原始运行日志：`{import_log}`", ""]
         text += ["## 原始文件与入库行数", "",
                  markdown_table([{"table": t, **values} for t, values in source["manifest"].items()])]
         for name, rows in observations.items():
@@ -137,6 +140,7 @@ def generate(output: Path | None = None, import_log: str | None = None):
         temporary.write_text("\n".join(text), encoding="utf-8")
         temporary.replace(output)
         record(logger, "profile_written", output=str(output))
+        publish_log(log_path)
         return output
     except Exception as exc:
         record(logger, "failed", error=str(exc))
