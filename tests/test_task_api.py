@@ -17,6 +17,37 @@ def test_password_hash_has_per_user_salt():
 
 
 @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='database integration opt-in')
+def test_default_single_task_runs_directly_and_keeps_memory_extraction(monkeypatch):
+    from scripts import task_worker
+    from contracts import FinalAnswer
+    monkeypatch.setenv('MEMORY_API_SECRET','test-only-'+uuid4().hex)
+    client=TestClient(app)
+    auth=client.post('/register',json={'username':'single-'+uuid4().hex,'password':'independent-test-password'}).json()
+    headers={'Authorization':'Bearer '+auth['access_token']}
+    assert client.post('/tasks',headers=headers,json={'question':'test','agent_mode':'invalid'}).status_code==422
+    ident=client.post('/tasks',headers=headers,json={'question':'Test only: single route'}).json()['task_id']
+    try:
+        config=client.get('/tasks/'+ident,headers=headers).json()['run_config']
+        assert config['AGENT_MODE']=='single' and config['NUMBER_GATE']==config['USE_MEMORY']=='true'
+        assert config['RAG_MODE']=='inject' and config['CONTEXT_STRATEGY']=='none'
+        job=claim(ident)
+        assert job['phase']=='execute' and client.get('/tasks/'+ident,headers=headers).json()['status']=='running'
+        def runtime(question,task_id,emit,**kwargs):
+            assert kwargs['phase']=='execute' and os.environ['USE_MEMORY']=='true'
+            emit('termination',{'scope':'task','reason':'final_answer'})
+            return FinalAnswer(answer='test fixture',claims=[])
+        monkeypatch.setattr(task_worker,'run_runtime',runtime)
+        for k,v in job['settings'].items():monkeypatch.setenv(k,str(v))
+        task_worker.process(job)
+        result=client.get('/tasks/'+ident,headers=headers).json()
+        assert result['status']=='completed' and result['plan'] is None
+        assert result['result']['answer']=='test fixture'
+    finally:
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            conn.execute("UPDATE tasks SET status='canceled',lease_token=NULL WHERE task_id=%s",(ident,))
+
+
+@pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='database integration opt-in')
 def test_enqueue_auth_confirmation_sse_and_lease_fencing(monkeypatch):
     monkeypatch.setenv('MEMORY_API_SECRET','test-only-'+uuid4().hex)
     client=TestClient(app)
@@ -30,7 +61,7 @@ def test_enqueue_auth_confirmation_sse_and_lease_fencing(monkeypatch):
     assert client.post('/login',json=body).status_code==200
     other=client.post('/register',json={'username':'other-'+uuid4().hex,'password':'independent-test-password'}).json()
     foreign={'Authorization':'Bearer '+other['access_token']}
-    created=client.post('/tasks',headers=headers,json={'question':'Test only: do not execute'})
+    created=client.post('/tasks',headers=headers,json={'question':'Test only: do not execute','agent_mode':'multi'})
     assert created.status_code==202
     ident=created.json()['task_id']
     try:

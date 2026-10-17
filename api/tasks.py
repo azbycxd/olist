@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 from uuid import UUID
+from typing import Literal
 
 import psycopg
 from psycopg.types.json import Jsonb
@@ -14,7 +15,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 from api.memories import app, user, issue
 from agent.state import Plan, Board, Subtask
-from config import db_kwargs
+from config import FINAL_CONFIG, db_kwargs
 
 
 class Credentials(BaseModel):
@@ -26,6 +27,8 @@ class Credentials(BaseModel):
 class NewTask(BaseModel):
     model_config=ConfigDict(extra='forbid')
     question:str=Field(min_length=2,max_length=6000)
+    agent_mode:Literal['single','multi']='single'
+    context_strategy:Literal['none','mask']='none'
 
 
 def password_hash(password,salt=None):
@@ -79,8 +82,8 @@ def login(body:Credentials):
 
 @app.post('/tasks',status_code=202)
 def create_task(body:NewTask,owner:UUID=Depends(user)):
-    settings={'AGENT_MODE':'multi','RAG_MODE':'inject','USE_MEMORY':'true','NUMBER_GATE':'true',
-        'CONTEXT_STRATEGY':'none','CONTEXT_LIMIT':'16000','TOKEN_BUDGET':os.getenv('TOKEN_BUDGET','100000')}
+    settings={**FINAL_CONFIG,'AGENT_MODE':body.agent_mode,'CONTEXT_STRATEGY':body.context_strategy,
+        'TOKEN_BUDGET':os.getenv('TOKEN_BUDGET','100000')}
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         ident=conn.execute('INSERT INTO tasks(user_id,question,background,run_config) VALUES(%s,%s,true,%s) RETURNING task_id',
             (owner,body.question,Jsonb(settings))).fetchone()[0]
@@ -98,6 +101,7 @@ def list_tasks(owner:UUID=Depends(user)):
 def get_task(task_id:UUID,owner:UUID=Depends(user)):
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         result=owned(conn,task_id,owner)
+        result['run_config']=conn.execute('SELECT run_config FROM tasks WHERE task_id=%s',(task_id,)).fetchone()[0]
         state=conn.execute('SELECT plan,subtasks FROM task_state WHERE task_id=%s',(task_id,)).fetchone()
         from mcp_olist.embedding_config import MODEL,REVISION
         result['embedding']={'model':MODEL,'revision':REVISION}

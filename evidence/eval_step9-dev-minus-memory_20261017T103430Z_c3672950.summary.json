@@ -1,0 +1,1191 @@
+{
+  "run_id": "047aee1d-ebbf-4b4d-ac02-dbffc1e52a63",
+  "tag": "step9-dev-minus-memory",
+  "categories": [
+    "E"
+  ],
+  "split": "dev",
+  "adapter": "single",
+  "adapter_version": "single-v1",
+  "judge_mode": "model",
+  "schema_mode": "on_demand",
+  "context_strategy": "none",
+  "context_limit": 16000,
+  "context_summary_threshold": 6000,
+  "retrieval_method": "vector",
+  "rag_mode": "inject",
+  "use_memory": "false",
+  "agent_mode": "single",
+  "number_gate": "true",
+  "token_budget": 100000,
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "used": true,
+    "service_verified": true,
+    "dimensions": 1024,
+    "pooling": "CLS",
+    "normalization": true,
+    "provider": "CPUExecutionProvider",
+    "threads": 2,
+    "batch_size": 2,
+    "fastembed_version": "0.9.0",
+    "onnxruntime_version": "1.31.0",
+    "hf_endpoint": "https://hf-mirror.com",
+    "files_sha256": {
+      "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+      "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+      "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+      "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+      "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+      "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+      "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+    },
+    "load_seconds": 8.61684298199907
+  },
+  "temperature": 0,
+  "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a",
+  "question_file_sha256": "78bf8cba03b97e06e44dcae3990f9ef44454131bf2ae2eb749a7b594fb61e80a",
+  "runtime": {
+    "python": "3.11.17",
+    "psycopg": "3.3.6",
+    "pydantic": "2.14.1",
+    "openai": "2.54.0",
+    "mcp": "1.30.0",
+    "sqlglot": "30.23.0"
+  },
+  "code_sha256": {
+    "contracts.py": "888f3ad42629e89dd56b3addfdde993b61adc2820672451ccd4aef9af1ee1ff8",
+    "config.py": "a2077f709afa22ea1ecc1f750ad9274b65f6baca46546f41d49b8ad86bf0c26d",
+    "scripts/runtime.py": "77bb2379e068d296c39f521d9de94b0c7cae253ebb797c4542d176b70d4ace04",
+    "eval/__init__.py": "856cec866041f1dad838ecc3971a60bfdf0f1d3c5aecb737f85879f3b5d5ac55",
+    "eval/adapters.py": "43c0366d37e39b391b2a401d9cad604c09f1cd8ac8138432a8861be4f7108121",
+    "eval/checker.py": "2c2e57ed14f1474f34827e713d8253dcf53dcafd302159f53cef9cf8d2241474",
+    "eval/cross_check.py": "62446762475225883a5f21cbd93722e66219669dd462e99978fb04f0be94a81c",
+    "eval/dataset.py": "02836f502d94109c0d77ce9bd7edb0724b7200382a6433ec4f81a1f3343c3170",
+    "eval/embedding_benchmark.py": "50c3fa1f53aaf2617cd8764a8ece4428844c2b87f121cb8ce4f36d1df653e427",
+    "eval/final_suite.py": "765e58385d702f4df5ba321de59d44d422730d084fe66f8b8de3495b4544436d",
+    "eval/finding_reuse.py": "2ae9ce373620805778f2fdfc3afc069c80f16df1c906561993024e496b3823da",
+    "eval/generate_questions.py": "f815deb8e34dcf29cde5dfebe2de366ca68014eaa15090cd5ce4454452105843",
+    "eval/handwritten.py": "5999a14119d0f98c5bb82b8ddb4419342bbf32fb9eeafd3dbb5a18e5f810e5c6",
+    "eval/injection.py": "7a4a57623921bf73a504894e129aff2cf6f33d9ecc359348a228ea72130cc13e",
+    "eval/judge.py": "b01659118fde0fdc308f77a05432a4c5dc05a877ffad7d68e3b186591c2dfca1",
+    "eval/memory_audit.py": "37d31e57b953377d72826bbd34485a2d70f63130195eec268446a1ec7890dc27",
+    "eval/retrieval.py": "2973094553aff11f02f145eef8f098ccb1b76653f55c7872b4f015889d396f9d",
+    "eval/review_report.py": "094b11dbe0a419b1b86deb4fc46bd03dff5ace34827b15340fc4c5789e4c6158",
+    "eval/review_suite.py": "294bb9e828d877310bee6388bfad09eaefea729ac4c931fa9fe09df4dad2ddcb",
+    "eval/run.py": "12bb4add2375f2c475d9aecb44d7e1d228af96d81efcc02e268fc241707d9ec1",
+    "eval/scoring.py": "0accbfeea22f6ac3ec577e218d97f211ec775a30298e08e6869d5168a65ee040",
+    "eval/templates.py": "3b8f07a59592807b66c1d4648cdde0fe1820f48a34d0a3a85d75d45c108940ba",
+    "eval/validate_gold.py": "64ca1fa1ce1163b0c27b7808db235ba3dd86f75be72d5f43d8862c2814394729",
+    "agent/__init__.py": "c8f9201ccae83266a2cbdcc02abcdbcaed1a5988fbf00ab2529118e334d258c2",
+    "agent/context.py": "8b410bd34527fc1598b1246677fcc2a45b9763d80a3b5bd85fe41be4a5f29996",
+    "agent/loop.py": "d8b7e75025f317ad4564dbd91f1ce2bdceb399468a9782bf86f2194325829588",
+    "agent/mcp_client.py": "5a681743760f1f4ab48685d855d035445ffaf5f8bff9aa60ff6480e96429aed1",
+    "agent/model.py": "899045857f8ecdd4298853aff4c39cdc806c6f4861060d622bf103a4e2bae316",
+    "agent/multi.py": "4feeb6dd7258f86f5d482d41c31dc27984943980b40c6d9ebb80de46470dcf20",
+    "agent/number_gate.py": "4eb5fb94cf3af16610eab49b53f0eb6863f0a4a068fa486e68f7fb76f96760ca",
+    "agent/preferences.py": "593d3832651cc1c7ffe853a6d9ee749a9f18ba7527b71bb5a706216930a276cf",
+    "agent/retrieval.py": "83f2d7ed11a612cffe6cf01c34730256a818647d49a1045dc58a64df11b675a1",
+    "agent/review.py": "acf39366a43107e02d7ff034435c09c6bb14df4850807361d607d3a65885e56f",
+    "agent/state.py": "f0f7c29c377183a508e541d996526b3f21f624562e16e5b3c3e35b70017241bf",
+    "agent/tools.py": "7acdd2462280b7ac2452e1cdaeac787f622d8a28331678b6ab5b546284c13167",
+    "agent/worker.py": "d90d648f858a809847cff800bdd6989349f521e2a8a07a21bc811449e7549911",
+    "agent/writer.py": "6455a3a62a7f0417147485356f140f81fd71a76f582bb64168e421a4aa9d78c2",
+    "mcp_olist/__init__.py": "411039eb1aea25c03d989f48f2d32d539a02ccb53f52002f9576561ed2176796",
+    "mcp_olist/blackboard.py": "51e74a9b4842b0f4c076d8a40da119f6e08d2c38e80f68962f744c9665e3ad27",
+    "mcp_olist/catalog.py": "328c46ac39bef11bdb7744e73a890abb56e5e12f157c5220569811eab31e3e0e",
+    "mcp_olist/embedding_config.py": "90a442bf82bd9afcd6c37cd6b74f698c8e7637dd965cff7f9ec1601f1ee80d86",
+    "mcp_olist/knowledge.py": "6c21faf1141869c5d83fe40425277c720f21e310b0af00f8e423afaf36417391",
+    "mcp_olist/leases.py": "7b0f9c81c56f7cb8e65e8aa149d0f51053c91bc234ad9b7697b633fe23656532",
+    "mcp_olist/server.py": "7c0fd6d34fd8ec8417217b39e16d9125c3437333a826cc8d706a105626db7df8",
+    "mcp_olist/service.py": "b043d1da8eacd75a972ecc56d65d1741adbab25efdccaa2da6b609b7f423ccfa",
+    "mcp_olist/sql_guard.py": "81609a5d4621d9b85b89f71e11d95867e0070c35c68e3f87a033f452c8a24423"
+  },
+  "metrics": {
+    "total": 6,
+    "correct": 4,
+    "completion_rate": 1.0,
+    "peak_context_tokens": 3865,
+    "accuracy": 0.6666666666666666,
+    "fact_hits": 0,
+    "fact_total": 0,
+    "fact_hit_rate": null,
+    "unsupported_claims": 0,
+    "claim_count": 6,
+    "unsupported_claim_ratio": 0.0,
+    "d_unsupported_numbers": 0,
+    "d_number_count": 0,
+    "d_unsupported_number_ratio": null,
+    "judge_mean": null,
+    "judged_reports": 0,
+    "average_latency_ms": 4823.257418499149,
+    "average_agent_latency_ms": 4822.424329166097,
+    "failures": 0,
+    "average_steps": 2.1666666666666665,
+    "terminations": {
+      "final_answer": 6
+    },
+    "average_tokens": 5600.0
+  },
+  "by_category": {
+    "E": {
+      "total": 6,
+      "correct": 4,
+      "completion_rate": 1.0,
+      "peak_context_tokens": 3865,
+      "accuracy": 0.6666666666666666,
+      "fact_hits": 0,
+      "fact_total": 0,
+      "fact_hit_rate": null,
+      "unsupported_claims": 0,
+      "claim_count": 6,
+      "unsupported_claim_ratio": 0.0,
+      "d_unsupported_numbers": 0,
+      "d_number_count": 0,
+      "d_unsupported_number_ratio": null,
+      "judge_mean": null,
+      "judged_reports": 0,
+      "average_latency_ms": 4823.257418499149,
+      "average_agent_latency_ms": 4822.424329166097,
+      "failures": 0,
+      "average_steps": 2.1666666666666665,
+      "terminations": {
+        "final_answer": 6
+      }
+    }
+  },
+  "usage": {
+    "model_calls": 13,
+    "input_tokens": 31951,
+    "output_tokens": 1649,
+    "total_tokens": 33600,
+    "cost_usd": null,
+    "usage_complete": true
+  },
+  "pricing": {
+    "input_per_million": null,
+    "output_per_million": null
+  },
+  "agent_usage": {
+    "model_calls": 13,
+    "input_tokens": 31951,
+    "output_tokens": 1649,
+    "total_tokens": 33600,
+    "cost_usd": null,
+    "usage_complete": true
+  },
+  "model_calls": [
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 75,
+        "prompt_tokens": 1941,
+        "total_tokens": 2016,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 640
+        },
+        "prompt_cache_hit_tokens": 640,
+        "prompt_cache_miss_tokens": 1301
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2721
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后计算销售额。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_LvCdTVZEbFljceP0qU1d1105",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_o4XyAtQuTaCB8nI0kgZU8189",
+            "function": {
+              "arguments": "{\"name\": \"order_items\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 102,
+        "prompt_tokens": 3452,
+        "total_tokens": 3554,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1920
+        },
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 1532
+      },
+      "input_summary": {
+        "messages": 5,
+        "characters": 7417
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_LmBKxgzzjIK6Qx7UXdNE3250",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT sum(i.price) AS sales, count(DISTINCT o.order_id) AS orders FROM orders o JOIN order_items i ON i.order_id = o.order_id WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01';\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 171,
+        "prompt_tokens": 3865,
+        "total_tokens": 4036,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3456
+        },
+        "prompt_cache_hit_tokens": 3456,
+        "prompt_cache_miss_tokens": 409
+      },
+      "input_summary": {
+        "messages": 7,
+        "characters": 8804
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_pC568DNjWciaWkpj89C29349",
+            "function": {
+              "arguments": "{\"answer\": 1299036.97, \"claims\": [{\"text\": \"2017-04-01 至 2017-07-01（不含）下单的订单商品销售额（order_items.price 之和，不含运费，保留全部订单状态）为 1299036.97 巴西雷亚尔，涉及 9268 个订单。\", \"value\": {\"sales\": 1299036.97, \"orders\": 9268}, \"evidence\": [\"bfd3182f-721e-4131-a13a-8d6e06aed28f\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 93,
+        "prompt_tokens": 1990,
+        "total_tokens": 2083,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 640
+        },
+        "prompt_cache_hit_tokens": 640,
+        "prompt_cache_miss_tokens": 1350
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2892
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_0GWIHoAVvdQicXOcyHAz6632",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT count(DISTINCT c.customer_unique_id) AS buyers FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01'\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 134,
+        "prompt_tokens": 2341,
+        "total_tokens": 2475,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 2048
+        },
+        "prompt_cache_hit_tokens": 2048,
+        "prompt_cache_miss_tokens": 293
+      },
+      "input_summary": {
+        "messages": 4,
+        "characters": 4106
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_ajizDsH70xx3k9Fqwl6u5724",
+            "function": {
+              "arguments": "{\"answer\": 9139, \"claims\": [{\"text\": \"2017-04-01 至 2017-07-01（不含）期间有订单的去重客户数（customer_unique_id）为 9139。\", \"value\": {\"buyers\": 9139}, \"evidence\": [\"aad17217-ad00-4aed-a9d6-2bbeb57c0a89\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 74,
+        "prompt_tokens": 1921,
+        "total_tokens": 1995,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 640
+        },
+        "prompt_cache_hit_tokens": 640,
+        "prompt_cache_miss_tokens": 1281
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2704
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_BV3siLmVhfE0ojLrvh5m7000",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT count(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01'\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 127,
+        "prompt_tokens": 2230,
+        "total_tokens": 2357,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1920
+        },
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 310
+      },
+      "input_summary": {
+        "messages": 4,
+        "characters": 3771
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_jPia6dl4Z5pvhdHSGeFo9626",
+            "function": {
+              "arguments": "{\"answer\": 9349, \"claims\": [{\"text\": \"2017-04-01（含）至2017-07-01（不含）期间下单的订单数为 9349。\", \"value\": {\"orders\": 9349}, \"evidence\": [\"a784aed6-0058-48f0-a90f-6dcb3d49372a\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 74,
+        "prompt_tokens": 1923,
+        "total_tokens": 1997,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1664
+        },
+        "prompt_cache_hit_tokens": 1664,
+        "prompt_cache_miss_tokens": 259
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2706
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_uYKwquNGTIjrIm6WFmUa1305",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT count(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01'\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 126,
+        "prompt_tokens": 2232,
+        "total_tokens": 2358,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1920
+        },
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 312
+      },
+      "input_summary": {
+        "messages": 4,
+        "characters": 3773
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_wGFJQWLZbPlK55dV0Wqb5333",
+            "function": {
+              "arguments": "{\"answer\": 9349, \"claims\": [{\"text\": \"2017-04-01 至 2017-07-01（不含）期间下单的订单数为 9349。\", \"value\": {\"orders\": 9349}, \"evidence\": [\"5a719478-f6e4-49d0-b4f6-067ffcd6ed4a\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 126,
+        "prompt_tokens": 2048,
+        "total_tokens": 2174,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 768
+        },
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1280
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 3106
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_iKIw8Yq77bqaEZFg7KbX0835",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT avg(extract(epoch FROM (order_delivered_customer_date - order_purchase_timestamp))/86400.0) AS delivery_days, count(*) AS delivered_orders FROM orders WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01'\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 172,
+        "prompt_tokens": 2546,
+        "total_tokens": 2718,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1920
+        },
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 626
+      },
+      "input_summary": {
+        "messages": 4,
+        "characters": 4800
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_UrD6QHv6AfSMUdpeaaxQ2819",
+            "function": {
+              "arguments": "{\"answer\": 12.48469438543380294495, \"claims\": [{\"text\": \"2017-04-01 至 2017-07-01（不含）下单且已送达订单的平均交付天数为 12.48469438543380294495 天（共 8983 单）。\", \"value\": {\"delivery_days\": \"12.48469438543380294495\", \"delivered_orders\": 8983}, \"evidence\": [\"67b3f9d1-f39b-4574-88ea-fa310db47f07\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 171,
+        "prompt_tokens": 2054,
+        "total_tokens": 2225,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 768
+        },
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1286
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 3114
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后按知识库中的 delivery_days 定义计算。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_r3sfSHtJjxNYKMGx4S9u6203",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_FdZzPcsLLFwKOWmMpIJm0709",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT avg(extract(epoch FROM (order_delivered_customer_date - order_purchase_timestamp))/86400.0) AS delivery_days, count(*) AS delivered_orders FROM orders WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01';\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 204,
+        "prompt_tokens": 3408,
+        "total_tokens": 3612,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 2176
+        },
+        "prompt_cache_hit_tokens": 2176,
+        "prompt_cache_miss_tokens": 1232
+      },
+      "input_summary": {
+        "messages": 5,
+        "characters": 7467
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_H1Cby7hra5CyG1gqExXA4601",
+            "function": {
+              "arguments": "{\"answer\": 10.77030644457265900003, \"claims\": [{\"text\": \"按知识库 delivery_days 口径（仅 delivered 且实际送达时间非空，用完整时间戳差值秒数/86400 求平均），购买时间在 [2018-04-01, 2018-07-01) 的订单平均交付天数为 10.77030644457265900003 天，样本 19643 单。\", \"value\": {\"delivery_days\": \"10.77030644457265900003\", \"delivered_orders\": 19643}, \"evidence\": [\"35031b04-bffa-435f-8a22-4c0c91eb315c\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "question_id": "E01",
+      "category": "E",
+      "task_id": "64d7efe5-75ee-46bc-a6b2-1d9705bdf88a",
+      "setup_task_id": "5495dc8d-2efb-4160-aa8a-2d202f30cf93",
+      "user_id": "8d83d569-e510-44d5-9ff3-f6d18aea41fb",
+      "judge": null,
+      "judge_status": "not_applicable",
+      "termination": "final_answer",
+      "steps": 3,
+      "peak_context_tokens": 3865,
+      "sql_calls": 1,
+      "number_gate_events": [
+        {
+          "before": [],
+          "after_rewrite": [],
+          "replaced": [],
+          "rewrites": 0
+        }
+      ],
+      "agent_latency_ms": 5543.061624000984,
+      "correct": true,
+      "fact_hits": null,
+      "fact_total": null,
+      "fact_hit_rate": null,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 3,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "response": {
+        "answer": 1299036.97,
+        "claims": [
+          {
+            "text": "2017-04-01 至 2017-07-01（不含）下单的订单商品销售额（order_items.price 之和，不含运费，保留全部订单状态）为 1299036.97 巴西雷亚尔，涉及 9268 个订单。",
+            "value": {
+              "sales": 1299036.97,
+              "orders": 9268
+            },
+            "evidence": [
+              "bfd3182f-721e-4131-a13a-8d6e06aed28f"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 3,
+        "input_tokens": 9258,
+        "output_tokens": 348,
+        "total_tokens": 9606,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 5544.176791998325
+    },
+    {
+      "question_id": "E03",
+      "category": "E",
+      "task_id": "dde965c4-69a6-49a6-9d64-439b7d3eb4ba",
+      "setup_task_id": "e0346b26-ca56-497e-8080-478c7f39e8e6",
+      "user_id": "87754285-99e7-47e3-a93e-b692fcafd9a2",
+      "judge": null,
+      "judge_status": "not_applicable",
+      "termination": "final_answer",
+      "steps": 2,
+      "peak_context_tokens": 2341,
+      "sql_calls": 1,
+      "number_gate_events": [
+        {
+          "before": [],
+          "after_rewrite": [],
+          "replaced": [],
+          "rewrites": 0
+        }
+      ],
+      "agent_latency_ms": 4447.955268999067,
+      "correct": true,
+      "fact_hits": null,
+      "fact_total": null,
+      "fact_hit_rate": null,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 2,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "response": {
+        "answer": 9139,
+        "claims": [
+          {
+            "text": "2017-04-01 至 2017-07-01（不含）期间有订单的去重客户数（customer_unique_id）为 9139。",
+            "value": {
+              "buyers": 9139
+            },
+            "evidence": [
+              "aad17217-ad00-4aed-a9d6-2bbeb57c0a89"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 2,
+        "input_tokens": 4331,
+        "output_tokens": 227,
+        "total_tokens": 4558,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 4448.665857002197
+    },
+    {
+      "question_id": "E05",
+      "category": "E",
+      "task_id": "679d56ef-d0df-4852-ad33-994ce6c48234",
+      "setup_task_id": "19b5d44e-9162-46e0-a69b-d4ad2bba64e4",
+      "user_id": "502f5cde-a1dc-4f98-b30b-4a8634da206f",
+      "judge": null,
+      "judge_status": "not_applicable",
+      "termination": "final_answer",
+      "steps": 2,
+      "peak_context_tokens": 2230,
+      "sql_calls": 1,
+      "number_gate_events": [
+        {
+          "before": [],
+          "after_rewrite": [],
+          "replaced": [],
+          "rewrites": 0
+        }
+      ],
+      "agent_latency_ms": 3773.011126999336,
+      "correct": false,
+      "fact_hits": null,
+      "fact_total": null,
+      "fact_hit_rate": null,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 5,
+        "unsupported_numbers": 3,
+        "unsupported_number_ratio": 0.6
+      },
+      "response": {
+        "answer": 9349,
+        "claims": [
+          {
+            "text": "2017-04-01（含）至2017-07-01（不含）期间下单的订单数为 9349。",
+            "value": {
+              "orders": 9349
+            },
+            "evidence": [
+              "a784aed6-0058-48f0-a90f-6dcb3d49372a"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 2,
+        "input_tokens": 4151,
+        "output_tokens": 201,
+        "total_tokens": 4352,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 3773.744614998577
+    },
+    {
+      "question_id": "E07",
+      "category": "E",
+      "task_id": "68347ee9-2dc3-4d68-a195-0f606992c3f9",
+      "setup_task_id": "93a39d14-6479-424c-bb2a-c66f003582b9",
+      "user_id": "c2b92c25-9b99-4407-be96-4595c4409c89",
+      "judge": null,
+      "judge_status": "not_applicable",
+      "termination": "final_answer",
+      "steps": 2,
+      "peak_context_tokens": 2232,
+      "sql_calls": 1,
+      "number_gate_events": [
+        {
+          "before": [],
+          "after_rewrite": [],
+          "replaced": [],
+          "rewrites": 0
+        }
+      ],
+      "agent_latency_ms": 4038.990429999103,
+      "correct": false,
+      "fact_hits": null,
+      "fact_total": null,
+      "fact_hit_rate": null,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 2,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "response": {
+        "answer": 9349,
+        "claims": [
+          {
+            "text": "2017-04-01 至 2017-07-01（不含）期间下单的订单数为 9349。",
+            "value": {
+              "orders": 9349
+            },
+            "evidence": [
+              "5a719478-f6e4-49d0-b4f6-067ffcd6ed4a"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 2,
+        "input_tokens": 4155,
+        "output_tokens": 200,
+        "total_tokens": 4355,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 4039.841230998718
+    },
+    {
+      "question_id": "E09",
+      "category": "E",
+      "task_id": "56300d80-e4cc-44af-a42e-414c611fe4ab",
+      "setup_task_id": "a950a646-eaa5-4e78-a6b3-daa1c60c282a",
+      "user_id": "f67e8164-2989-4b8a-a550-dae5d8f2c4e1",
+      "judge": null,
+      "judge_status": "not_applicable",
+      "termination": "final_answer",
+      "steps": 2,
+      "peak_context_tokens": 2546,
+      "sql_calls": 1,
+      "number_gate_events": [
+        {
+          "before": [],
+          "after_rewrite": [],
+          "replaced": [],
+          "rewrites": 0
+        }
+      ],
+      "agent_latency_ms": 5053.921545997582,
+      "correct": true,
+      "fact_hits": null,
+      "fact_total": null,
+      "fact_hit_rate": null,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 3,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "response": {
+        "answer": 12.484694385433803,
+        "claims": [
+          {
+            "text": "2017-04-01 至 2017-07-01（不含）下单且已送达订单的平均交付天数为 12.48469438543380294495 天（共 8983 单）。",
+            "value": {
+              "delivery_days": "12.48469438543380294495",
+              "delivered_orders": 8983
+            },
+            "evidence": [
+              "67b3f9d1-f39b-4574-88ea-fa310db47f07"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 2,
+        "input_tokens": 4594,
+        "output_tokens": 298,
+        "total_tokens": 4892,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 5054.582846998528
+    },
+    {
+      "question_id": "E10",
+      "category": "E",
+      "task_id": "411cc614-f45d-4a2a-ad10-cca849b0f814",
+      "setup_task_id": "6541ae82-b296-4000-9446-1e87cb109887",
+      "user_id": "6dc637f0-378c-4b5d-a6e1-78c65c63ed86",
+      "judge": null,
+      "judge_status": "not_applicable",
+      "termination": "final_answer",
+      "steps": 2,
+      "peak_context_tokens": 3408,
+      "sql_calls": 1,
+      "number_gate_events": [
+        {
+          "before": [],
+          "after_rewrite": [],
+          "replaced": [],
+          "rewrites": 0
+        }
+      ],
+      "agent_latency_ms": 6077.605979000509,
+      "correct": true,
+      "fact_hits": null,
+      "fact_total": null,
+      "fact_hit_rate": null,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      },
+      "response": {
+        "answer": 10.77030644457266,
+        "claims": [
+          {
+            "text": "按知识库 delivery_days 口径（仅 delivered 且实际送达时间非空，用完整时间戳差值秒数/86400 求平均），购买时间在 [2018-04-01, 2018-07-01) 的订单平均交付天数为 10.77030644457265900003 天，样本 19643 单。",
+            "value": {
+              "delivery_days": "10.77030644457265900003",
+              "delivered_orders": 19643
+            },
+            "evidence": [
+              "35031b04-bffa-435f-8a22-4c0c91eb315c"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 2,
+        "input_tokens": 5462,
+        "output_tokens": 375,
+        "total_tokens": 5837,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 6078.533168998547
+    }
+  ],
+  "oracle_values": {
+    "E01": "1299036.97",
+    "E03": 9139,
+    "E05": 8984,
+    "E07": 3664,
+    "E09": "12.48469438543380294495",
+    "E10": "10.77030644457265900003"
+  },
+  "source_log": "eval_step9-dev-minus-memory_20261017T103430Z_c3672950.jsonl",
+  "human_calibration": "pending",
+  "source_log_sha256": "4188f6f3a732d7e324d63e458ee9f214fab1fc934954a17360721420c63df31d"
+}

@@ -17,9 +17,9 @@ def claim(task_id=None):
         row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status FROM tasks WHERE background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1",(task_id,task_id)).fetchone()
         if not row:return None
         ident,question,confirmed,settings,previous=row;token=uuid4()
-        phase='execute' if confirmed else 'plan'
+        phase='execute' if confirmed or settings.get('AGENT_MODE')=='single' else 'plan'
         conn.execute("UPDATE tasks SET status=%s,lease_token=%s,lease_expires_at=now()+%s*interval '1 second',heartbeat_at=now(),claim_count=claim_count+1,updated_at=now() WHERE task_id=%s",
-            ('running' if confirmed else 'planning',token,LEASE_SECONDS,ident))
+            ('running' if phase=='execute' else 'planning',token,LEASE_SECONDS,ident))
         recovered=previous in {'planning','running'}
         event(conn,ident,'worker_claimed',{'phase':phase,'recovered':recovered})
         state=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(ident,)).fetchone()

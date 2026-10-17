@@ -40,7 +40,7 @@ def main():
                 if cells[slot]:assert cells[slot]==value,(name,slot,cells[slot],value)
         count+=1
     links=0
-    for doc in [ROOT/'README.md',ROOT/'docs/DECISIONS.md',ROOT/'docs/RESULTS.md',ROOT/'docs/REVIEW_COMPARISON.md',ROOT/'docs/FINDING_REUSE.md']:
+    for doc in [ROOT/'README.md',*sorted((ROOT/'docs').glob('*.md'))]:
         for target in re.findall(r'\]\(([^)]+)\)',doc.read_text(encoding='utf-8')):
             if target.startswith(('https:','http:','#')):continue
             target=target.split('#')[0]

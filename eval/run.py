@@ -290,6 +290,8 @@ def recheck(path, tag):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--final-suite',choices=['dev','holdout'])
+    parser.add_argument('--final-report',type=Path)
     parser.add_argument("--review-report",type=Path)
     parser.add_argument("--finding-reuse",action="store_true")
     parser.add_argument("--question-ids")
@@ -318,7 +320,13 @@ def main():
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.review_report:
+    if args.final_suite:
+        from eval.final_suite import execute_suite
+        execute_suite(args,execute)
+    elif args.final_report:
+        from eval.final_suite import render
+        render(args)
+    elif args.review_report:
         from eval.review_report import execute as render
         render(args)
     elif args.finding_reuse:

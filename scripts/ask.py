@@ -8,13 +8,14 @@ from uuid import uuid4
 import psycopg
 from psycopg.types.json import Jsonb
 
-from config import SCHEMA_MODE, db_kwargs
+from config import FINAL_CONFIG, SCHEMA_MODE, db_kwargs
 from scripts.common import record, start_log
 from scripts.evidence import publish_log
 from scripts.runtime import run_runtime
 
 
 def main():
+    for key,value in FINAL_CONFIG.items():os.environ.setdefault(key,value)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("question")
     parser.add_argument("--schema-mode", choices=["full","on_demand"], default=SCHEMA_MODE)

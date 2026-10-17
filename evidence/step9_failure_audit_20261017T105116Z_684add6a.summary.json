@@ -1,0 +1,1013 @@
+{
+  "source_log": "step9_failure_audit_20261017T105116Z_684add6a.jsonl",
+  "model_calls": 0,
+  "purpose": "Read-only failure diagnosis. No rescoring, new business SQL or model calls; original outcomes preserved.",
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "used": true,
+    "service_verified": true,
+    "dimensions": 1024,
+    "pooling": "CLS",
+    "normalization": true,
+    "provider": "CPUExecutionProvider",
+    "threads": 2,
+    "batch_size": 2,
+    "fastembed_version": "0.9.0",
+    "onnxruntime_version": "1.31.0",
+    "hf_endpoint": "https://hf-mirror.com",
+    "files_sha256": {
+      "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+      "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+      "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+      "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+      "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+      "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+      "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+    },
+    "load_seconds": 8.61684298199907
+  },
+  "records": [
+    {
+      "source_evidence": "eval_step9-holdout-r1_20261017T104235Z_7648ab8d.summary.json",
+      "source_evidence_sha256": "b458cefd2381e5838d83ed1bac5086d130962362977a322086dd7b5bb5266d23",
+      "source_log": "eval_step9-holdout-r1_20261017T104235Z_7648ab8d.jsonl",
+      "question": "2018 年 Q2 的全部商品明细里，英文品类缺失的明细行数、对应商品金额及明细总行数是多少？说明内连接翻译表的损失。",
+      "required_facts": [
+        "untranslated_items",
+        "untranslated_price",
+        "all_items"
+      ],
+      "case": {
+        "question_id": "D09",
+        "category": "D",
+        "task_id": "d39da631-20cf-4f9a-a8f6-317001455d72",
+        "setup_task_id": null,
+        "user_id": "7ce7cb84-b139-4843-8337-6475b508ce00",
+        "judge": {
+          "score": 4,
+          "rationale": "报告与金标准事实完全一致（144 行、15,722.73 BRL、22,978 行），并量化了内连接造成的损失（22,834 行、2,842,567.01 BRL），还拆分了缺失构成（142 行原始品类为空、2 行无翻译）。但内连接损失这一条 claim 的证据校验未通过（value_not_in_result），且报告未交叉核对替代解释（如按订单/日期口径差异），也未给出可验证的后续行动，因此未达 5 分。"
+        },
+        "judge_status": "scored",
+        "peak_context_tokens": 6778,
+        "sql_calls": 3,
+        "termination": "final_answer",
+        "steps": 4,
+        "number_gate_events": [
+          {
+            "before": [],
+            "after_rewrite": [],
+            "replaced": [],
+            "rewrites": 0
+          }
+        ],
+        "agent_latency_ms": 8830.081560998224,
+        "correct": false,
+        "fact_hits": 3,
+        "fact_total": 3,
+        "fact_hit_rate": 1.0,
+        "evidence": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": false,
+              "reason": "value_not_in_result"
+            }
+          ],
+          "claim_count": 7,
+          "unsupported_claims": 1,
+          "unsupported_claim_ratio": 0.14285714285714285,
+          "report_number_count": 15,
+          "unsupported_numbers": 0,
+          "unsupported_number_ratio": 0.0
+        },
+        "response": {
+          "answer": "2018 年 Q2（order_purchase_timestamp 在 2018-04-01 至 2018-06-30 之间，按购买时间口径）全部商品明细共 22,978 行，商品金额合计 2,858,289.74 BRL。其中英文品类缺失（LEFT JOIN 翻译表后 product_category_name_english IS NULL）的明细为 144 行，对应商品金额 15,722.73 BRL，分别占明细行数的 0.6267% 和商品金额的 0.5501%。这 144 行中，142 行是原始 product_category_name 为空，2 行是原始品类非空但翻译表无对应英文映射。\n\n内连接损失说明：若用 INNER JOIN product_category_name_translation（或 NOT IN 写法），结果只剩 22,834 行、金额 2,842,567.01 BRL，即静默丢失 144 行明细和 15,722.73 BRL 商品金额（与缺失行完全一致），且丢失的正是\"未知品类\"这一类，会让英文品类报表的合计与占比失真。因此英文品类报表应使用 LEFT JOIN 并保留 unknown 桶，而不是内连接。",
+          "claims": [
+            {
+              "text": "2018 Q2 全部商品明细行数（LEFT JOIN 翻译表口径）",
+              "value": {
+                "all_items": 22978
+              },
+              "evidence": [
+                "066be0d7-b108-4d2c-b468-8417cbe2a3b7"
+              ]
+            },
+            {
+              "text": "英文品类缺失的明细行数",
+              "value": {
+                "untranslated_items": 144
+              },
+              "evidence": [
+                "066be0d7-b108-4d2c-b468-8417cbe2a3b7"
+              ]
+            },
+            {
+              "text": "英文品类缺失明细对应的商品金额（BRL）",
+              "value": {
+                "untranslated_price": "15722.73"
+              },
+              "evidence": [
+                "066be0d7-b108-4d2c-b468-8417cbe2a3b7"
+              ]
+            },
+            {
+              "text": "2018 Q2 全部商品金额合计（BRL）",
+              "value": {
+                "all_price": "2858289.74"
+              },
+              "evidence": [
+                "066be0d7-b108-4d2c-b468-8417cbe2a3b7"
+              ]
+            },
+            {
+              "text": "缺失明细的行数占比与金额占比（%）",
+              "value": [
+                {
+                  "untranslated_item_share_pct": "0.6267",
+                  "untranslated_price_share_pct": "0.5501"
+                }
+              ],
+              "evidence": [
+                "066be0d7-b108-4d2c-b468-8417cbe2a3b7"
+              ]
+            },
+            {
+              "text": "缺失明细的构成：原始品类为空 142 行，原始品类非空但无英文翻译 2 行",
+              "value": [
+                {
+                  "null_category_items": 142,
+                  "nonnull_untranslated_items": 2
+                }
+              ],
+              "evidence": [
+                "f9b39ffc-2327-4903-bb86-44683f31ca54"
+              ]
+            },
+            {
+              "text": "内连接翻译表后的行数与金额，以及相对全量的损失",
+              "value": [
+                {
+                  "inner_join_items": 22834,
+                  "inner_join_price": "2842567.01",
+                  "items_lost_by_inner_join": 144,
+                  "price_lost_by_inner_join": "15722.73"
+                }
+              ],
+              "evidence": [
+                "eddfb851-3af9-491e-a592-077fbb71542d",
+                "066be0d7-b108-4d2c-b468-8417cbe2a3b7"
+              ]
+            }
+          ]
+        },
+        "agent_usage": {
+          "model_calls": 5,
+          "input_tokens": 18951,
+          "output_tokens": 1639,
+          "total_tokens": 20590,
+          "cost_usd": null,
+          "usage_complete": true
+        },
+        "latency_ms": 10148.481504998927
+      },
+      "oracle_value_from_original_run": {
+        "untranslated_items": 144,
+        "untranslated_price": "15722.73",
+        "all_items": 22978
+      },
+      "stored_queries": [
+        {
+          "result_id": "066be0d7-b108-4d2c-b468-8417cbe2a3b7",
+          "sql": "WITH base AS (SELECT i.price, t.product_category_name_english AS eng FROM order_items AS i JOIN orders AS o USING (order_id) JOIN products AS p USING (product_id) LEFT JOIN product_category_name_translation AS t USING (product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') SELECT COUNT(*) AS all_items, COUNT(*) FILTER(WHERE eng IS NULL) AS untranslated_items, SUM(price) FILTER(WHERE eng IS NULL) AS untranslated_price, SUM(price) AS all_price, COUNT(*) FILTER(WHERE eng IS NOT NULL) AS translated_items, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE eng IS NULL) / COUNT(*) AS DECIMAL), 4) AS untranslated_item_share_pct, ROUND(100.0 * SUM(price) FILTER(WHERE eng IS NULL) / SUM(price), 4) AS untranslated_price_share_pct, COUNT(*) - COUNT(*) FILTER(WHERE eng IS NOT NULL) AS items_lost_by_inner_join, SUM(price) - SUM(price) FILTER(WHERE eng IS NOT NULL) AS price_lost_by_inner_join FROM base LIMIT 1000",
+          "columns": [
+            "all_items",
+            "untranslated_items",
+            "untranslated_price",
+            "all_price",
+            "translated_items",
+            "untranslated_item_share_pct",
+            "untranslated_price_share_pct",
+            "items_lost_by_inner_join",
+            "price_lost_by_inner_join"
+          ],
+          "rows": [
+            {
+              "all_items": 22978,
+              "all_price": "2858289.74",
+              "translated_items": 22834,
+              "untranslated_items": 144,
+              "untranslated_price": "15722.73",
+              "items_lost_by_inner_join": 144,
+              "price_lost_by_inner_join": "15722.73",
+              "untranslated_item_share_pct": "0.6267",
+              "untranslated_price_share_pct": "0.5501"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        },
+        {
+          "result_id": "eddfb851-3af9-491e-a592-077fbb71542d",
+          "sql": "SELECT COUNT(*) AS inner_join_items, SUM(i.price) AS inner_join_price FROM order_items AS i JOIN orders AS o USING (order_id) JOIN products AS p USING (product_id) JOIN product_category_name_translation AS t USING (product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "columns": [
+            "inner_join_items",
+            "inner_join_price"
+          ],
+          "rows": [
+            {
+              "inner_join_items": 22834,
+              "inner_join_price": "2842567.01"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        },
+        {
+          "result_id": "f9b39ffc-2327-4903-bb86-44683f31ca54",
+          "sql": "SELECT COUNT(*) AS all_items, COUNT(*) FILTER(WHERE t.product_category_name_english IS NULL) AS untranslated_items, SUM(i.price) FILTER(WHERE t.product_category_name_english IS NULL) AS untranslated_price, SUM(i.price) AS all_price, COUNT(*) FILTER(WHERE p.product_category_name IS NULL) AS null_category_items, COUNT(*) FILTER(WHERE p.product_category_name IS NOT NULL AND t.product_category_name_english IS NULL) AS nonnull_untranslated_items FROM order_items AS i JOIN orders AS o USING (order_id) JOIN products AS p USING (product_id) LEFT JOIN product_category_name_translation AS t USING (product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "columns": [
+            "all_items",
+            "untranslated_items",
+            "untranslated_price",
+            "all_price",
+            "null_category_items",
+            "nonnull_untranslated_items"
+          ],
+          "rows": [
+            {
+              "all_items": 22978,
+              "all_price": "2858289.74",
+              "untranslated_items": 144,
+              "untranslated_price": "15722.73",
+              "null_category_items": 142,
+              "nonnull_untranslated_items": 2
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        }
+      ],
+      "unsupported_number_locations": []
+    },
+    {
+      "source_evidence": "eval_step9-holdout-r1_20261017T104235Z_7648ab8d.summary.json",
+      "source_evidence_sha256": "b458cefd2381e5838d83ed1bac5086d130962362977a322086dd7b5bb5266d23",
+      "source_log": "eval_step9-holdout-r1_20261017T104235Z_7648ab8d.jsonl",
+      "question": "2018 年 Q1、Q2 的取消订单数和取消率（百分数）各是多少？按购买日期分期，分母为全部订单；解释是否能据此断言取消原因。",
+      "required_facts": [
+        "q1_canceled",
+        "q2_canceled",
+        "q1_cancel_pct",
+        "q2_cancel_pct"
+      ],
+      "case": {
+        "question_id": "D11",
+        "category": "D",
+        "task_id": "20bb9f47-2b0f-4f0d-9b79-304153c1cd7d",
+        "setup_task_id": null,
+        "user_id": "1df8d10f-59ff-496a-bfc5-157bdeb4df74",
+        "judge": {
+          "score": 4,
+          "rationale": "报告给出的 Q1/Q2 取消订单数（133/57）和取消率（0.6271%/0.2853%）与金标准事实一致，并明确说明分母为全部订单、按购买日期分期、分子仅计 canceled 状态，口径清晰。报告正确指出订单状态字段不能推断取消原因，并说明需要额外字段或文本数据，符合 focus 要求。但报告未对 Q1 与 Q2 取消率差异做量化比较或交叉核对替代解释，也未给出可验证的后续行动，因此未达到 5 分标准。"
+        },
+        "judge_status": "scored",
+        "peak_context_tokens": 3671,
+        "sql_calls": 1,
+        "termination": "final_answer",
+        "steps": 2,
+        "number_gate_events": [
+          {
+            "before": [],
+            "after_rewrite": [],
+            "replaced": [],
+            "rewrites": 0
+          }
+        ],
+        "agent_latency_ms": 6244.512721998035,
+        "correct": false,
+        "fact_hits": 0,
+        "fact_total": 4,
+        "fact_hit_rate": 0.0,
+        "evidence": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 2,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 6,
+          "unsupported_numbers": 0,
+          "unsupported_number_ratio": 0.0
+        },
+        "response": {
+          "answer": "2018 年 Q1（按购买时间 2018-01-01 至 2018-03-31）取消订单 133 单，取消率 0.6271%（分母为该季度全部 21,208 单）；2018 年 Q2（2018-04-01 至 2018-06-30）取消订单 57 单，取消率 0.2853%（分母为该季度全部 19,979 单）。口径说明：分子为 order_status='canceled'，分母为同窗口全部订单，按 order_purchase_timestamp 分期；unavailable 等其他状态不计入 canceled。关于能否据此断言取消原因：不能。订单状态字段只记录最终状态，不包含取消原因、取消发起方或取消时间点；unavailable 也不自动等同于 canceled，且取消/不可用订单仍可能留有商品明细，不能据此推断业务原因。要解释取消原因，需要额外的取消原因字段、客服工单或评价文本等数据，并结合物流时效、支付失败等维度做进一步分析。",
+          "claims": [
+            {
+              "text": "2018Q1 取消订单数与取消率（分母为全部订单）",
+              "value": [
+                {
+                  "quarter": "2018Q1",
+                  "total_orders": 21208,
+                  "canceled": 133,
+                  "cancel_pct": "0.6271"
+                }
+              ],
+              "evidence": [
+                "a0de1e1a-7180-448b-933d-a29f557cbf6a"
+              ]
+            },
+            {
+              "text": "2018Q2 取消订单数与取消率（分母为全部订单）",
+              "value": [
+                {
+                  "quarter": "2018Q2",
+                  "total_orders": 19979,
+                  "canceled": 57,
+                  "cancel_pct": "0.2853"
+                }
+              ],
+              "evidence": [
+                "a0de1e1a-7180-448b-933d-a29f557cbf6a"
+              ]
+            }
+          ]
+        },
+        "agent_usage": {
+          "model_calls": 3,
+          "input_tokens": 6112,
+          "output_tokens": 721,
+          "total_tokens": 6833,
+          "cost_usd": null,
+          "usage_complete": true
+        },
+        "latency_ms": 7398.281694000616
+      },
+      "oracle_value_from_original_run": {
+        "q1_canceled": 133,
+        "q2_canceled": 57,
+        "q1_cancel_pct": "0.62712184081478687288",
+        "q2_cancel_pct": "0.28529956454276990840"
+      },
+      "stored_queries": [
+        {
+          "result_id": "a0de1e1a-7180-448b-933d-a29f557cbf6a",
+          "sql": "SELECT CASE WHEN order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' THEN '2018Q1' WHEN order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' THEN '2018Q2' END AS quarter, COUNT(*) AS total_orders, COUNT(*) FILTER(WHERE order_status = 'canceled') AS canceled, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0) AS DECIMAL), 4) AS cancel_pct FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01' GROUP BY 1 ORDER BY 1 LIMIT 1000",
+          "columns": [
+            "quarter",
+            "total_orders",
+            "canceled",
+            "cancel_pct"
+          ],
+          "rows": [
+            {
+              "quarter": "2018Q1",
+              "canceled": 133,
+              "cancel_pct": "0.6271",
+              "total_orders": 21208
+            },
+            {
+              "quarter": "2018Q2",
+              "canceled": 57,
+              "cancel_pct": "0.2853",
+              "total_orders": 19979
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        }
+      ],
+      "unsupported_number_locations": []
+    },
+    {
+      "source_evidence": "eval_step9-holdout-r2_20261017T104451Z_7e1a9d1a.summary.json",
+      "source_evidence_sha256": "45f764fb7249f4bee8f64a37bf3d3148a64ad4a538ea122babcc73a346247101",
+      "source_log": "eval_step9-holdout-r2_20261017T104451Z_7e1a9d1a.jsonl",
+      "question": "2018 年 Q1、Q2 的取消订单数和取消率（百分数）各是多少？按购买日期分期，分母为全部订单；解释是否能据此断言取消原因。",
+      "required_facts": [
+        "q1_canceled",
+        "q2_canceled",
+        "q1_cancel_pct",
+        "q2_cancel_pct"
+      ],
+      "case": {
+        "question_id": "D11",
+        "category": "D",
+        "task_id": "df8f9f3d-50f6-4144-ba43-d5e0ad9fe88f",
+        "setup_task_id": null,
+        "user_id": "8dc12c42-0a39-4855-b3b2-1fa9c9549347",
+        "judge": {
+          "score": 4,
+          "rationale": "报告给出的 Q1/Q2 取消订单数与取消率均与 gold_facts 一致，分母口径明确为全部订单，事实正确。报告明确说明不能据此断言取消原因，并指出 orders 表缺少取消原因字段、unavailable 不自动计入 canceled，还提示 Q2 数据可能不完整，限制说明较充分。但报告未进一步交叉核对替代解释（如季节性、支付或物流因素），也未给出可验证的后续行动，因此未达到 5 分标准。"
+        },
+        "judge_status": "scored",
+        "peak_context_tokens": 2816,
+        "sql_calls": 1,
+        "termination": "final_answer",
+        "steps": 2,
+        "number_gate_events": [
+          {
+            "before": [
+              "1",
+              "1",
+              "3",
+              "31",
+              "4",
+              "1",
+              "6",
+              "30",
+              "8"
+            ],
+            "after_rewrite": [],
+            "replaced": [],
+            "rewrites": 1
+          }
+        ],
+        "agent_latency_ms": 7455.641316002584,
+        "correct": false,
+        "fact_hits": 0,
+        "fact_total": 4,
+        "fact_hit_rate": 0.0,
+        "evidence": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 3,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 6,
+          "unsupported_numbers": 0,
+          "unsupported_number_ratio": 0.0
+        },
+        "response": {
+          "answer": "按购买时间（order_purchase_timestamp）分期，分母为该季度全部订单：2018 年 Q1 取消订单 133 单，取消率 0.6271%；Q2 取消订单 57 单，取消率 0.2853%。Q1 取消率高于 Q2，但需注意 Q2 数据可能不完整（若数据截止时间早于 Q2 结束，Q2 末段订单状态可能尚未最终确定），且取消率变化本身不能说明原因。\n\n关于能否断言取消原因：不能。orders 表只记录订单状态（canceled）与各阶段时间戳，没有取消原因字段；unavailable 状态按口径不自动计入 canceled，状态数据也无法单独解释取消原因。要归因需结合支付、评价、物流时效等外部/关联信息并做进一步分析，本结论仅描述取消规模与比例。",
+          "claims": [
+            {
+              "text": "2018 年 Q1 取消订单数（分母为全部订单）",
+              "value": {
+                "quarter": "Q1",
+                "canceled": 133,
+                "cancel_pct": "0.62712184081478687288",
+                "total_orders": 21208
+              },
+              "evidence": [
+                "b7922f69-b2ca-4db8-b33a-c3057ab30e97"
+              ]
+            },
+            {
+              "text": "2018 年 Q2 取消订单数（分母为全部订单）",
+              "value": {
+                "quarter": "Q2",
+                "canceled": 57,
+                "cancel_pct": "0.28529956454276990840",
+                "total_orders": 19979
+              },
+              "evidence": [
+                "b7922f69-b2ca-4db8-b33a-c3057ab30e97"
+              ]
+            },
+            {
+              "text": "两季度取消数与取消率汇总（Q1 取消率 0.6271%，Q2 取消率 0.2853%）",
+              "value": [
+                {
+                  "quarter": "Q1",
+                  "canceled": 133,
+                  "cancel_pct": "0.62712184081478687288",
+                  "total_orders": 21208
+                },
+                {
+                  "quarter": "Q2",
+                  "canceled": 57,
+                  "cancel_pct": "0.28529956454276990840",
+                  "total_orders": 19979
+                }
+              ],
+              "evidence": [
+                "b7922f69-b2ca-4db8-b33a-c3057ab30e97"
+              ]
+            }
+          ]
+        },
+        "agent_usage": {
+          "model_calls": 4,
+          "input_tokens": 5967,
+          "output_tokens": 1001,
+          "total_tokens": 6968,
+          "cost_usd": null,
+          "usage_complete": true
+        },
+        "latency_ms": 8562.16694899922
+      },
+      "oracle_value_from_original_run": {
+        "q1_canceled": 133,
+        "q2_canceled": 57,
+        "q1_cancel_pct": "0.62712184081478687288",
+        "q2_cancel_pct": "0.28529956454276990840"
+      },
+      "stored_queries": [
+        {
+          "result_id": "b7922f69-b2ca-4db8-b33a-c3057ab30e97",
+          "sql": "SELECT 'Q1' AS quarter, COUNT(*) FILTER(WHERE order_status = 'canceled') AS canceled, 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0) AS cancel_pct, COUNT(*) AS total_orders FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' UNION ALL SELECT 'Q2', COUNT(*) FILTER(WHERE order_status = 'canceled'), 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0), COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "columns": [
+            "quarter",
+            "canceled",
+            "cancel_pct",
+            "total_orders"
+          ],
+          "rows": [
+            {
+              "quarter": "Q2",
+              "canceled": 57,
+              "cancel_pct": "0.28529956454276990840",
+              "total_orders": 19979
+            },
+            {
+              "quarter": "Q1",
+              "canceled": 133,
+              "cancel_pct": "0.62712184081478687288",
+              "total_orders": 21208
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        }
+      ],
+      "unsupported_number_locations": []
+    },
+    {
+      "source_evidence": "eval_step9-holdout-r3_20261017T104707Z_e9d273ef.summary.json",
+      "source_evidence_sha256": "f1867d49d7daa68b391e6354be2a28a251e743d332b0b71921ef6414d08f59c8",
+      "source_log": "eval_step9-holdout-r3_20261017T104707Z_e9d273ef.jsonl",
+      "question": "2018 年 Q1、Q2 的取消订单数和取消率（百分数）各是多少？按购买日期分期，分母为全部订单；解释是否能据此断言取消原因。",
+      "required_facts": [
+        "q1_canceled",
+        "q2_canceled",
+        "q1_cancel_pct",
+        "q2_cancel_pct"
+      ],
+      "case": {
+        "question_id": "D11",
+        "category": "D",
+        "task_id": "e1214547-4730-429c-8d93-ba2a3a79f378",
+        "setup_task_id": null,
+        "user_id": "0d299fe7-e088-4365-90e5-4960b14e504f",
+        "judge": {
+          "score": 4,
+          "rationale": "Q1/Q2 取消数与取消率均与金标准完全一致，分母口径明确（当期全部订单），并正确指出状态数据不能解释取消原因、unavailable 不计入 canceled、需结合其他表做相关性归因而非因果。量化了关键差异并说明口径限制。但未交叉核对替代解释（如季节性、促销、卖家结构变化等），也未给出可验证的后续行动，故未达 5 分。"
+        },
+        "judge_status": "scored",
+        "peak_context_tokens": 3234,
+        "sql_calls": 2,
+        "termination": "final_answer",
+        "steps": 2,
+        "number_gate_events": [
+          {
+            "before": [
+              "2.2"
+            ],
+            "after_rewrite": [],
+            "replaced": [],
+            "rewrites": 1
+          }
+        ],
+        "agent_latency_ms": 8273.229238002386,
+        "correct": false,
+        "fact_hits": 0,
+        "fact_total": 4,
+        "fact_hit_rate": 0.0,
+        "evidence": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 3,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 9,
+          "unsupported_numbers": 1,
+          "unsupported_number_ratio": 0.1111111111111111
+        },
+        "response": {
+          "answer": "2018 年 Q1（购买日期 2018-01-01 至 2018-03-31）取消订单 133 单，取消率 0.6271%（分母为当期全部 21,208 单）；Q2（2018-04-01 至 2018-06-30）取消订单 57 单，取消率 0.2853%（分母为当期全部 19,979 单）。Q1 取消率高于 Q2，取消单量也更高；两者相差的倍数未验证。\n\n关于能否据此断言取消原因：不能。orders 表只提供订单状态与各阶段时间戳，没有取消原因字段；状态数据本身无法解释取消原因（知识库明确说明“状态数据不能单独解释取消原因”）。此外，unavailable（Q1+Q2 共 120 单）按口径不自动计入 canceled，若把不可用订单视为“类取消”，会改变结论口径；且取消/不可用订单仍可能留有商品明细，不能据此推断金额或责任归属。要判断原因需结合卖家、物流时效、支付、评价等表做进一步归因分析，且仍属相关性而非因果。",
+          "claims": [
+            {
+              "text": "2018 Q1 取消订单数与取消率（分母为当期全部订单）",
+              "value": [
+                {
+                  "quarter": "Q1",
+                  "canceled": 133,
+                  "cancel_pct": "0.62712184081478687288",
+                  "total_orders": 21208
+                }
+              ],
+              "evidence": [
+                "fc8fc390-c0eb-4bd2-814a-6e478116b409"
+              ]
+            },
+            {
+              "text": "2018 Q2 取消订单数与取消率（分母为当期全部订单）",
+              "value": [
+                {
+                  "quarter": "Q2",
+                  "canceled": 57,
+                  "cancel_pct": "0.28529956454276990840",
+                  "total_orders": 19979
+                }
+              ],
+              "evidence": [
+                "fc8fc390-c0eb-4bd2-814a-6e478116b409"
+              ]
+            },
+            {
+              "text": "2018 上半年各订单状态分布，可见 unavailable 120 单不计入 canceled，且表中无取消原因字段",
+              "value": [
+                {
+                  "order_status": "delivered",
+                  "cnt": 40273
+                },
+                {
+                  "order_status": "shipped",
+                  "cnt": 460
+                },
+                {
+                  "order_status": "canceled",
+                  "cnt": 190
+                },
+                {
+                  "order_status": "unavailable",
+                  "cnt": 120
+                },
+                {
+                  "order_status": "invoiced",
+                  "cnt": 85
+                },
+                {
+                  "order_status": "processing",
+                  "cnt": 58
+                },
+                {
+                  "order_status": "created",
+                  "cnt": 1
+                }
+              ],
+              "evidence": [
+                "32960ba6-3668-4a6d-9681-f36fb60d589f"
+              ]
+            }
+          ]
+        },
+        "agent_usage": {
+          "model_calls": 4,
+          "input_tokens": 6426,
+          "output_tokens": 1206,
+          "total_tokens": 7632,
+          "cost_usd": null,
+          "usage_complete": true
+        },
+        "latency_ms": 9348.21096900123
+      },
+      "oracle_value_from_original_run": {
+        "q1_canceled": 133,
+        "q2_canceled": 57,
+        "q1_cancel_pct": "0.62712184081478687288",
+        "q2_cancel_pct": "0.28529956454276990840"
+      },
+      "stored_queries": [
+        {
+          "result_id": "32960ba6-3668-4a6d-9681-f36fb60d589f",
+          "sql": "SELECT order_status, COUNT(*) AS cnt FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01' GROUP BY order_status ORDER BY cnt DESC LIMIT 1000",
+          "columns": [
+            "order_status",
+            "cnt"
+          ],
+          "rows": [
+            {
+              "cnt": 40273,
+              "order_status": "delivered"
+            },
+            {
+              "cnt": 460,
+              "order_status": "shipped"
+            },
+            {
+              "cnt": 190,
+              "order_status": "canceled"
+            },
+            {
+              "cnt": 120,
+              "order_status": "unavailable"
+            },
+            {
+              "cnt": 85,
+              "order_status": "invoiced"
+            },
+            {
+              "cnt": 58,
+              "order_status": "processing"
+            },
+            {
+              "cnt": 1,
+              "order_status": "created"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        },
+        {
+          "result_id": "fc8fc390-c0eb-4bd2-814a-6e478116b409",
+          "sql": "SELECT 'Q1' AS quarter, COUNT(*) FILTER(WHERE order_status = 'canceled') AS canceled, 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0) AS cancel_pct, COUNT(*) AS total_orders FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' UNION ALL SELECT 'Q2', COUNT(*) FILTER(WHERE order_status = 'canceled'), 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0), COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "columns": [
+            "quarter",
+            "canceled",
+            "cancel_pct",
+            "total_orders"
+          ],
+          "rows": [
+            {
+              "quarter": "Q2",
+              "canceled": 57,
+              "cancel_pct": "0.28529956454276990840",
+              "total_orders": 19979
+            },
+            {
+              "quarter": "Q1",
+              "canceled": 133,
+              "cancel_pct": "0.62712184081478687288",
+              "total_orders": 21208
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        }
+      ],
+      "unsupported_number_locations": [
+        {
+          "field": "claims[2].text",
+          "numbers": [
+            "2018"
+          ],
+          "text": "2018 上半年各订单状态分布，可见 unavailable 120 单不计入 canceled，且表中无取消原因字段"
+        }
+      ]
+    },
+    {
+      "source_evidence": "eval_step9-dev-final_20261017T102853Z_45a71d7d.summary.json",
+      "source_evidence_sha256": "23d736bc399ad07c9ae0bbad76881172237df4675fc57d80310cdeda111165a3",
+      "source_log": "eval_step9-dev-final_20261017T102853Z_45a71d7d.jsonl",
+      "question": "2018 年 Q2 相比 Q1，有多少个原始葡文品类 GMV 下降？给出降幅金额最大的品类及下降金额，分析可能原因。只比较两个季度都有商品成交的非空品类，排除取消及不可用订单。",
+      "required_facts": [
+        "declining_categories",
+        "largest_drop_category",
+        "largest_drop_amount"
+      ],
+      "case": {
+        "question_id": "D02",
+        "category": "D",
+        "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+        "setup_task_id": null,
+        "user_id": "81596eb9-1e08-461b-bfc8-880b8eb4b1a1",
+        "judge": {
+          "score": 1,
+          "rationale": "报告仅称“未能在执行限制内验证答案”，未给出任何分析、品类数量、最大降幅品类或金额，也未说明比较范围或原因，属于无有效分析，故评1分。"
+        },
+        "judge_status": "scored",
+        "peak_context_tokens": 17849,
+        "sql_calls": 8,
+        "termination": "context_limit",
+        "steps": 6,
+        "agent_latency_ms": 25475.340146000235,
+        "correct": false,
+        "fact_hits": 0,
+        "fact_total": 3,
+        "fact_hit_rate": 0.0,
+        "evidence": {
+          "claims": [],
+          "claim_count": 0,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": null,
+          "report_number_count": 0,
+          "unsupported_numbers": 0,
+          "unsupported_number_ratio": null
+        },
+        "response": {
+          "answer": "未能在执行限制内验证答案",
+          "claims": []
+        },
+        "error": "context_limit",
+        "agent_usage": {
+          "model_calls": 7,
+          "input_tokens": 56292,
+          "output_tokens": 6537,
+          "total_tokens": 62829,
+          "cost_usd": null,
+          "usage_complete": true
+        },
+        "latency_ms": 26653.14675300033
+      },
+      "oracle_value_from_original_run": {
+        "declining_categories": 30,
+        "largest_drop_category": "informatica_acessorios",
+        "largest_drop_amount": "114709.72"
+      },
+      "stored_queries": [],
+      "unsupported_number_locations": []
+    },
+    {
+      "source_evidence": "eval_step9-dev-final_20261017T102853Z_45a71d7d.summary.json",
+      "source_evidence_sha256": "23d736bc399ad07c9ae0bbad76881172237df4675fc57d80310cdeda111165a3",
+      "source_log": "eval_step9-dev-final_20261017T102853Z_45a71d7d.jsonl",
+      "question": "2017 年有过下单的真实客户数、年内至少下单两次的客户数及年内复购率（百分数）是多少？所有状态均保留，分析复购时说明观察窗口。",
+      "required_facts": [
+        "buyers",
+        "repeat_buyers",
+        "repeat_pct"
+      ],
+      "case": {
+        "question_id": "D07",
+        "category": "D",
+        "task_id": "7e6df32b-defd-4bae-acea-af894bf12886",
+        "setup_task_id": null,
+        "user_id": "556c7d1d-c20d-48e1-b14a-ab100a4d6a9a",
+        "judge": {
+          "score": 4,
+          "rationale": "报告给出的核心数字（43,713 名买家、1,256 名复购买家、2.8733% 复购率）与金标准事实一致，并正确使用 customer_unique_id 去重、保留全部订单状态，同时明确说明观察窗口为 2017 自然年，并提醒该复购率不等于终身复购率。主要不足是：正文中“至少 未验证 单”的表述不完整，未明确写出“两单”；未说明复购率的分母口径（复购客户数／同窗口全部下单客户数）在正文中虽由 claims 给出，但正文表述不够清晰；也未讨论窗口边界、订单状态保留对复购识别的影响等限制，或交叉核对替代解释。因此属于事实基本正确、量化关键差异且说明部分限制，但未达到 5 分要求的交叉核对与可验证后续行动。"
+        },
+        "judge_status": "scored",
+        "peak_context_tokens": 3961,
+        "sql_calls": 1,
+        "termination": "final_answer",
+        "steps": 3,
+        "number_gate_events": [
+          {
+            "before": [
+              "2",
+              "2017"
+            ],
+            "after_rewrite": [
+              "2",
+              "2017"
+            ],
+            "replaced": [
+              "2",
+              "2017"
+            ],
+            "rewrites": 1
+          }
+        ],
+        "agent_latency_ms": 6393.5490699986985,
+        "correct": false,
+        "fact_hits": 3,
+        "fact_total": 3,
+        "fact_hit_rate": 1.0,
+        "evidence": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 3,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 7,
+          "unsupported_numbers": 1,
+          "unsupported_number_ratio": 0.14285714285714285
+        },
+        "response": {
+          "answer": "2017 年（观察窗口：order_purchase_timestamp 在 2017-01-01 至 2017-12-31 之间，保留全部订单状态）有过下单的真实客户（按 customer_unique_id 去重）为 43,713 人；其中年内下单至少 未验证 单的复购客户为 1,256 人；年内复购率为 2.8733%。注意：该复购率仅反映 未验证 自然年窗口内的重复下单，不等于终身复购率。",
+          "claims": [
+            {
+              "text": "2017 自然年内（保留所有订单状态）有过下单的真实客户数（customer_unique_id 去重）为 43,713 人",
+              "value": {
+                "buyers": 43713,
+                "repeat_buyers": 1256,
+                "repeat_pct": "2.8733"
+              },
+              "evidence": [
+                "0f41a563-0a5a-4baf-bac5-70f0db2312ec"
+              ]
+            },
+            {
+              "text": "2017 年内下单至少两单的复购客户数为 1,256 人",
+              "value": {
+                "buyers": 43713,
+                "repeat_buyers": 1256,
+                "repeat_pct": "2.8733"
+              },
+              "evidence": [
+                "0f41a563-0a5a-4baf-bac5-70f0db2312ec"
+              ]
+            },
+            {
+              "text": "2017 年内复购率为 2.8733%（复购客户数／同窗口全部下单客户数）",
+              "value": {
+                "buyers": 43713,
+                "repeat_buyers": 1256,
+                "repeat_pct": "2.8733"
+              },
+              "evidence": [
+                "0f41a563-0a5a-4baf-bac5-70f0db2312ec"
+              ]
+            }
+          ]
+        },
+        "agent_usage": {
+          "model_calls": 5,
+          "input_tokens": 10248,
+          "output_tokens": 822,
+          "total_tokens": 11070,
+          "cost_usd": null,
+          "usage_complete": true
+        },
+        "latency_ms": 7843.2095179996395
+      },
+      "oracle_value_from_original_run": {
+        "buyers": 43713,
+        "repeat_buyers": 1256,
+        "repeat_pct": "2.8732871228238739"
+      },
+      "stored_queries": [
+        {
+          "result_id": "0f41a563-0a5a-4baf-bac5-70f0db2312ec",
+          "sql": "WITH c AS (SELECT cu.customer_unique_id, COUNT(*) AS n FROM orders AS o JOIN customers AS cu USING (customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY cu.customer_unique_id) SELECT COUNT(*) AS buyers, COUNT(*) FILTER(WHERE n >= 2) AS repeat_buyers, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE n >= 2) / NULLIF(COUNT(*), 0) AS DECIMAL), 4) AS repeat_pct FROM c LIMIT 1000",
+          "columns": [
+            "buyers",
+            "repeat_buyers",
+            "repeat_pct"
+          ],
+          "rows": [
+            {
+              "buyers": 43713,
+              "repeat_pct": "2.8733",
+              "repeat_buyers": 1256
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+        }
+      ],
+      "unsupported_number_locations": [
+        {
+          "field": "claims[0].text",
+          "numbers": [
+            "2017"
+          ],
+          "text": "2017 自然年内（保留所有订单状态）有过下单的真实客户数（customer_unique_id 去重）为 43,713 人"
+        }
+      ]
+    }
+  ],
+  "source_log_sha256": "08e3bd94ded1c28f781637435f414d2eb4e82f991873fded9ec22f3e3a278741"
+}

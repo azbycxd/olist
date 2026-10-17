@@ -35,6 +35,11 @@ CONTEXT_KEEP_TURNS = int(os.getenv("CONTEXT_KEEP_TURNS", "2"))
 CONTEXT_SUMMARY_THRESHOLD = int(os.getenv("CONTEXT_SUMMARY_THRESHOLD", "6000"))
 CONTEXT_LIMIT = int(os.getenv("CONTEXT_LIMIT", "16000"))
 
+# Release defaults. Evaluations override each switch explicitly.
+FINAL_CONFIG = {"AGENT_MODE": "single", "NUMBER_GATE": "true", "RAG_MODE": "inject",
+    "RETRIEVAL_METHOD": "vector", "USE_MEMORY": "true", "CONTEXT_STRATEGY": "none",
+    "CONTEXT_LIMIT": "16000", "CONTEXT_SUMMARY_THRESHOLD": "6000", "TOKEN_BUDGET": "100000"}
+
 
 def db_kwargs(database: str = "olist", role: str = "admin") -> dict:
     users = {"admin": os.getenv("PGUSER", "olist_admin"), "reader": "agent_ro", "app": "agent_app"}
