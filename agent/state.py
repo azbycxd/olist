@@ -12,6 +12,7 @@ class Part(Strict):
     id:str=Field(pattern=r'^[a-z][a-z0-9_]{0,63}$')
     question:str=Field(min_length=1,max_length=5000)
     depends_on:list[str]=Field(default_factory=list,max_length=4)
+    memory_ids:list[str]=Field(default_factory=list,max_length=3)
 
 
 class Plan(Strict):

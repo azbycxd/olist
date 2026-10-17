@@ -50,7 +50,7 @@ def report_numbers(text):
     # Dates, quarter labels and list numbering are context, not measured facts.
     text = re.sub(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b", "", text)
     text = re.sub(r"\b\d{4}\s*[-年]?\s*Q[1-4]\b|\b\d{4}-\d{2}(?:-\d{2})?\b|\d{4}\s*年|\bQ[1-4]\b", "", text)
-    text = re.sub(r"(?m)^\s*\d+[.)、]\s*", "", text)
+    text = re.sub(r"(?m)^\s*\d+[.)、](?!\d)\s*", "", text)
     pattern = r"(?<![A-Za-z0-9_])([+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?)(?![A-Za-z0-9_])\s*(万|亿|千)?"
     scale = {None: 1, "千": 1000, "万": 10000, "亿": 100000000}
     return [Decimal(m[1].replace(",", ""))*scale[m[2]] for m in re.finditer(pattern, text)]

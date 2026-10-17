@@ -106,14 +106,17 @@ def append_results(summary, receipt, path=ROOT / "docs" / "RESULTS.md"):
 
 
 def execute(args):
+    os.environ["NUMBER_GATE"] = args.number_gate
     os.environ["SCHEMA_MODE"] = args.schema_mode
     os.environ["CONTEXT_STRATEGY"] = args.context_strategy
+    os.environ["CONTEXT_SUMMARY_THRESHOLD"] = str(args.context_summary_threshold)
     os.environ["CONTEXT_LIMIT"] = str(args.context_limit)
     os.environ["RAG_MODE"] = args.rag_mode
     os.environ["USE_MEMORY"] = args.use_memory
     os.environ["AGENT_MODE"] = args.agent_mode
     os.environ["TOKEN_BUDGET"] = str(args.token_budget)
     selected = [q for q in load_questions() if q["category"] in args.categories and q["split"] == args.split]
+    if getattr(args,"question_ids",None): selected=[q for q in selected if q["id"] in args.question_ids.split(",")]
     if not selected:
         raise ValueError("No matching questions")
     adapter = make_adapter(args.adapter)
@@ -148,12 +151,14 @@ def execute(args):
                 # query_results or pass it across the adapter boundary.
                 record(logger, "oracle_result", question_id=q["id"], sql=q["gold_sql"], value=gold[q["id"]])
             for q in selected:
-                user_id = agent_db.execute("INSERT INTO users (username) VALUES (%s) RETURNING user_id", (f"eval-{run_id}-{q['id']}",)).fetchone()[0]
+                username=f"eval-{getattr(args,'user_group',None) or run_id}-{q['id']}"
+                user_id = agent_db.execute("INSERT INTO users (username) VALUES (%s) ON CONFLICT(username) DO UPDATE SET username=excluded.username RETURNING user_id", (username,)).fetchone()[0]
                 setup_task = None
                 if q.get("setup_turns"):
                     setup_task = agent_db.execute("INSERT INTO tasks (user_id,question,status) VALUES (%s,%s,'running') RETURNING task_id", (user_id, "\n".join(q["setup_turns"]))).fetchone()[0]
                 task_id = agent_db.execute("INSERT INTO tasks (user_id,question,status) VALUES (%s,%s,'running') RETURNING task_id", (user_id, q["question"])).fetchone()[0]
                 sequence = 0
+                call_start=len(calls)
 
                 def emit(kind, payload, tokens=0, latency_ms=0):
                     nonlocal sequence
@@ -161,6 +166,15 @@ def execute(args):
                     record(logger, kind, question_id=q["id"], task_id=str(task_id), payload=payload, tokens=tokens, latency_ms=latency_ms)
                     agent_db.execute("INSERT INTO events (task_id,seq,type,payload,tokens,latency_ms) VALUES (%s,%s,%s,%s,%s,%s)",
                         (task_id, sequence, kind, Jsonb(payload, dumps=lambda v: json.dumps(v, default=str)), tokens, latency_ms))
+                    if kind == "plan":
+                        row["plan"] = payload["plan"]
+                        row["complex_route"] = not payload["simple_route"]
+                    if kind == "tool_call" and payload.get("name")=="run_sql":
+                        row["sql_calls"] = row.get("sql_calls",0)+1
+                    if kind in {"finding_read","finding_reused","finding_written"}:
+                        row.setdefault("finding_events",[]).append({"event":kind,"payload":payload})
+                    if kind == "number_gate":
+                        row.setdefault("number_gate_events",[]).append(payload)
                     if kind == "model_call":
                         calls.append(payload)
                     if kind == "termination":
@@ -194,6 +208,7 @@ def execute(args):
                         "error": type(exc).__name__, "evidence": {"claims": [], "claim_count": 0,
                         "unsupported_claims": 0, "report_number_count": 0, "unsupported_numbers": 0,
                         "unsupported_claim_ratio": None, "unsupported_number_ratio": None}})
+                row["agent_usage"] = usage_summary([c for c in calls[call_start:] if c.get("role")!="eval_judge"],*prices)
                 row["latency_ms"] = (perf_counter()-started)*1000
                 emit("eval_result", row, latency_ms=row["latency_ms"])
                 for task in (task_id, setup_task):
@@ -203,10 +218,11 @@ def execute(args):
             summary = {"run_id": run_id, "tag": args.tag, "categories": args.categories, "split": args.split,
                 "adapter": adapter.name, "adapter_version": adapter.version, "judge_mode": args.judge,
                 "schema_mode":args.schema_mode,
-                "context_strategy":args.context_strategy,"context_limit":args.context_limit,
+                "context_strategy":args.context_strategy,"context_limit":args.context_limit,"context_summary_threshold":args.context_summary_threshold,
+                "retrieval_method":os.getenv("RETRIEVAL_METHOD","vector"),
                 "rag_mode":args.rag_mode,
                 "use_memory":args.use_memory,
-                "agent_mode":args.agent_mode,"token_budget":args.token_budget,
+                "agent_mode":args.agent_mode,"number_gate":args.number_gate,"token_budget":args.token_budget,
                 "embedding":embedding,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
@@ -274,6 +290,10 @@ def recheck(path, tag):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--review-report",type=Path)
+    parser.add_argument("--finding-reuse",action="store_true")
+    parser.add_argument("--question-ids")
+    parser.add_argument("--user-group")
     parser.add_argument("--tag", required=True)
     parser.add_argument("--categories", default="A,B,C,D,E")
     parser.add_argument("--split", choices=["dev", "holdout"], default="dev")
@@ -281,6 +301,8 @@ def main():
     parser.add_argument("--schema-mode", default=SCHEMA_MODE, choices=["full", "on_demand"])
     parser.add_argument("--judge", default=EVAL_JUDGE, choices=["off", "model"])
     parser.add_argument("--context-strategy",default="none",choices=["none","mask","summary"])
+    parser.add_argument("--review-suite",action="store_true")
+    parser.add_argument("--context-summary-threshold",type=int,default=6000)
     parser.add_argument("--context-limit",type=int,default=16000)
     parser.add_argument("--recheck-evidence",type=Path)
     parser.add_argument("--rag-mode",default="off",choices=["off","inject","tool"])
@@ -288,6 +310,7 @@ def main():
     parser.add_argument("--embedding-benchmark",action="store_true")
     parser.add_argument("--use-memory",default="false",choices=["true","false"])
     parser.add_argument("--agent-mode",default="single",choices=["single","multi_no_review","multi"])
+    parser.add_argument("--number-gate",default="false",choices=["true","false"])
     parser.add_argument("--token-budget",type=int,default=50000)
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.tag):
@@ -295,7 +318,17 @@ def main():
     args.categories = sorted(set(args.categories.split(",")))
     if not args.categories or not set(args.categories) <= set("ABCDE"):
         parser.error("categories must be a comma-separated subset of A,B,C,D,E")
-    if args.embedding_benchmark:
+    if args.review_report:
+        from eval.review_report import execute as render
+        render(args)
+    elif args.finding_reuse:
+        from eval.finding_reuse import execute_reuse
+        execute_reuse(args,execute)
+    elif args.review_suite:
+        if args.split!="dev": parser.error("Review protocol is dev-only")
+        from eval.review_suite import execute_suite
+        execute_suite(args,execute,summarize)
+    elif args.embedding_benchmark:
         from eval.embedding_benchmark import execute as benchmark
         benchmark(args)
     elif args.retrieval:

@@ -1,0 +1,68 @@
+{
+  "source_log": "ui_demo_20261017T100932Z_f92bcf6e.jsonl",
+  "recovery_evidence": "resume_demo_20261017T100621Z.summary.json",
+  "gif": "step8_worker_recovery.gif",
+  "gif_sha256": "566b2f6cf89c1335d732546d4ec53ad7018c4a70348cdf86098abc9077907ce8",
+  "encoded_frames": 6,
+  "playback_duration_ms": 30000,
+  "frames": [
+    {
+      "file": "01_plan.jpg",
+      "at": "2026-10-17T10:06:13.022Z",
+      "stage": "Edited sequential plan before confirmation",
+      "sha256": "166dfc0c640eb6e8da40f2ce777b3f2630565564bac5d02b5ab44937ca836b3a",
+      "duration_ms": 3500
+    },
+    {
+      "file": "02_running.jpg",
+      "at": "2026-10-17T10:06:38.871Z",
+      "stage": "Plan confirmed; worker running",
+      "sha256": "619656e91794ba96f9f6740790284998d27b87da76067cd65c5614247ce4bc88",
+      "duration_ms": 3500
+    },
+    {
+      "file": "03_analysis.jpg",
+      "at": "2026-10-17T10:06:49.305Z",
+      "stage": "Live SQL and review events",
+      "sha256": "4cf70959f83c4dd8c96f8bd6e130f28d044941c65e17bf507c6381585d5f7e87",
+      "duration_ms": 4000
+    },
+    {
+      "file": "04_killed.jpg",
+      "at": "2026-10-17T10:06:56.125Z",
+      "stage": "Worker SIGKILL confirmed in recorder; awaiting lease expiry",
+      "sha256": "4cf70959f83c4dd8c96f8bd6e130f28d044941c65e17bf507c6381585d5f7e87",
+      "duration_ms": 4500
+    },
+    {
+      "file": "05_recovered.jpg",
+      "at": "2026-10-17T10:08:15.682Z",
+      "stage": "Worker lease takeover; persisted SP subtask reused",
+      "sha256": "0a8cecc48c7523de1a63bca7ad0fd557e94b9ae032fa7a8896e205b763642739",
+      "duration_ms": 4500
+    },
+    {
+      "file": "06_completed.jpg",
+      "at": "2026-10-17T10:08:44.311Z",
+      "stage": "Same task completed; interrupted usage explicitly unknown",
+      "sha256": "80b9dc51302e59f00b23bc0299d3f035998024be248e9ca584eb6a0c3d359c6a",
+      "duration_ms": 5000
+    },
+    {
+      "file": "07_sql.jpg",
+      "at": "2026-10-17T10:08:49.575Z",
+      "stage": "Clicked actual GMV number to show persisted SQL and same-row results",
+      "sha256": "c1906a11117841b3bfc339fa652ff2aeee65bb5875b73af06c6d430e1f30f807",
+      "duration_ms": 5000
+    }
+  ],
+  "method": "Actual CUA browser screenshots sampled by stage; GIF encoding only, no fabricated UI or values. Time compressed; restart command failure preserved in recovery log.",
+  "browser_console_errors": [],
+  "checks": [
+    "Edited sequential plan in actual UI",
+    "Confirmed plan and observed real SSE",
+    "Same task completed after worker SIGKILL",
+    "Clicked GMV number and inspected SQL and result row"
+  ],
+  "source_log_sha256": "d3078e6376aab6cb29c27d2e4f473a97a746b56f27f0597d11340c464d5b04eb"
+}

@@ -52,3 +52,8 @@ def test_live_embedding_identity_cannot_be_silently_substituted(monkeypatch):
         request=httpx.Request('GET', 'http://test/model-info'), json={'model': MODEL, 'revision': '0'*40}))
     with pytest.raises(ValueError, match='identity'):
         provenance(used=True)
+
+
+def test_weighted_rrf_downweights_keyword_rank():
+    assert fuse(["a","b"],["b","a"],weights=[0.25,1])==["b","a"]
+    with pytest.raises(ValueError): fuse(["a"],weights=[-1])

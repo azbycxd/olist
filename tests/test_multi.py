@@ -107,7 +107,7 @@ def test_persistent_role_boundaries_and_writer_rejection():
         task=str(conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'test','running') RETURNING task_id",(user,)).fetchone()[0])
         plan={'subtasks':[{'id':'a','question':'q','depends_on':[]}]}
         write_state(task,'planner',plan)
-        assert read_state(task)['plan']==plan
+        assert read_state(task)['plan']==Plan.model_validate(plan).model_dump()
         with pytest.raises(ValueError):write_state(task,'analyst',{'id':'a','review':[]})
         claim={'text':'fact','value':42,'evidence':[str(uuid4())]}
         write_state(task,'analyst',{'id':'a','status':'completed','claims':[claim]})

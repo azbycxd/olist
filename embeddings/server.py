@@ -1,6 +1,8 @@
 """Pinned CPU embeddings behind the OpenAI embeddings wire format."""
 import hashlib
 import os
+import asyncio
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 from threading import Lock
@@ -13,7 +15,6 @@ from huggingface_hub import snapshot_download
 from pydantic import BaseModel
 from embedding_config import MODEL, REVISION, PROFILES
 
-app = FastAPI()
 lock = Lock()
 PROFILE = PROFILES[MODEL]
 FILES = [PROFILE['model_file'], *PROFILE['additional_files'], 'config.json',
@@ -38,6 +39,17 @@ def encoder():
         local_files_only=True, providers=['CPUExecutionProvider'], threads=2)
     load_seconds = perf_counter() - started
     return result
+
+
+@asynccontextmanager
+async def lifespan(app):
+    # Readiness must wait for the pinned snapshot and encoder, otherwise the
+    # first index request can time out while a fresh cache downloads weights.
+    await asyncio.to_thread(encoder)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class Input(BaseModel):

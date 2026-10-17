@@ -11,23 +11,26 @@ def for_task(task_id):
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
         row=conn.execute("SELECT user_id FROM tasks WHERE task_id=%s",(UUID(str(task_id)),)).fetchone()
         if not row: raise ValueError("Unknown task")
-        return list_active(row[0],conn)
+        return [m for m in list_active(row[0],conn) if m['type']=='preference']
 
 
 def list_active(user_id,conn=None):
     if conn is None:
         with psycopg.connect(**db_kwargs("agent","app")) as own: return list_active(user_id,own)
-    rows=conn.execute("SELECT memory_id,key,value,source_quote,created_at FROM memories WHERE user_id=%s AND type='preference' AND superseded_at IS NULL ORDER BY key",(UUID(str(user_id)),)).fetchall()
-    return [{'memory_id':str(r[0]),'key':r[1],'value':r[2],'source_quote':r[3],'created_at':r[4].isoformat()} for r in rows]
+    rows=conn.execute("SELECT memory_id,key,value,source_quote,created_at,type,evidence,data_version FROM memories WHERE user_id=%s AND superseded_at IS NULL ORDER BY type,key",(UUID(str(user_id)),)).fetchall()
+    return [{'memory_id':str(r[0]),'key':r[1],'value':r[2],'source_quote':r[3],'created_at':r[4].isoformat(),'type':r[5],'evidence':r[6],'data_version':r[7]} for r in rows]
 
 
-def save(task_id,candidates,user_text):
+def save(task_id,candidates,user_text,lease_token=None):
     # Validation duplicated at the trust boundary; the model process cannot write arbitrary values.
     from agent.preferences import grounded
     validated=grounded([{'key':p['key'],'source_quote':p['source_quote']} for p in candidates],user_text)
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
         owner=conn.execute("SELECT user_id FROM tasks WHERE task_id=%s",(UUID(str(task_id)),)).fetchone()
         if not owner: raise ValueError("Unknown task")
+        if lease_token:
+            from mcp_olist.leases import validate
+            validate(conn,task_id,lease_token,lock=True)
         user_id=owner[0]
         conn.execute("SELECT user_id FROM users WHERE user_id=%s FOR UPDATE",(user_id,))
         ids=[]
@@ -43,5 +46,5 @@ def save(task_id,candidates,user_text):
 
 def delete(user_id,memory_id):
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
-        return conn.execute("DELETE FROM memories WHERE user_id=%s AND memory_id=%s AND type='preference' RETURNING memory_id",
+        return conn.execute("DELETE FROM memories WHERE user_id=%s AND memory_id=%s RETURNING memory_id",
             (UUID(str(user_id)),UUID(str(memory_id)))).fetchone() is not None

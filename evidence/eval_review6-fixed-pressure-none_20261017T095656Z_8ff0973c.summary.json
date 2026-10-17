@@ -1,0 +1,2541 @@
+{
+  "run_id": "09aa8c3e-40c8-4718-9baf-f55e24f48d90",
+  "tag": "review6-fixed-pressure-none",
+  "categories": [
+    "D"
+  ],
+  "split": "dev",
+  "adapter": "single",
+  "adapter_version": "single-v1",
+  "judge_mode": "model",
+  "schema_mode": "on_demand",
+  "context_strategy": "none",
+  "context_limit": 6000,
+  "context_summary_threshold": 3600,
+  "retrieval_method": "vector",
+  "rag_mode": "inject",
+  "use_memory": "false",
+  "agent_mode": "single",
+  "number_gate": "false",
+  "token_budget": 100000,
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "used": true,
+    "service_verified": true,
+    "dimensions": 1024,
+    "pooling": "CLS",
+    "normalization": true,
+    "provider": "CPUExecutionProvider",
+    "threads": 2,
+    "batch_size": 2,
+    "fastembed_version": "0.9.0",
+    "onnxruntime_version": "1.31.0",
+    "hf_endpoint": "https://hf-mirror.com",
+    "files_sha256": {
+      "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+      "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+      "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+      "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+      "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+      "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+      "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+    },
+    "load_seconds": 2.189725891999842
+  },
+  "temperature": 0,
+  "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a",
+  "question_file_sha256": "78bf8cba03b97e06e44dcae3990f9ef44454131bf2ae2eb749a7b594fb61e80a",
+  "runtime": {
+    "python": "3.11.17",
+    "psycopg": "3.3.6",
+    "pydantic": "2.14.1",
+    "openai": "2.54.0",
+    "mcp": "1.30.0",
+    "sqlglot": "30.23.0"
+  },
+  "code_sha256": {
+    "contracts.py": "888f3ad42629e89dd56b3addfdde993b61adc2820672451ccd4aef9af1ee1ff8",
+    "config.py": "10b250f0ca91fb3c87b8808008756a2e9c285a5e8c69888e21a52ba27154c939",
+    "scripts/runtime.py": "3236c10c455e167eb83f65f05df942ce07055e6c199f6ccd5b16192aaf0d92a4",
+    "eval/__init__.py": "856cec866041f1dad838ecc3971a60bfdf0f1d3c5aecb737f85879f3b5d5ac55",
+    "eval/adapters.py": "43c0366d37e39b391b2a401d9cad604c09f1cd8ac8138432a8861be4f7108121",
+    "eval/checker.py": "c5cc811eaaed887f5f4d584945aa873759d60cdc235ec8c1909c880a40b3c3c7",
+    "eval/cross_check.py": "62446762475225883a5f21cbd93722e66219669dd462e99978fb04f0be94a81c",
+    "eval/dataset.py": "02836f502d94109c0d77ce9bd7edb0724b7200382a6433ec4f81a1f3343c3170",
+    "eval/embedding_benchmark.py": "50c3fa1f53aaf2617cd8764a8ece4428844c2b87f121cb8ce4f36d1df653e427",
+    "eval/finding_reuse.py": "783baa9bdcc18642f26cfb0908e2c05e8ca3cb51955efb3e51e7d6ef9049bc0b",
+    "eval/generate_questions.py": "f815deb8e34dcf29cde5dfebe2de366ca68014eaa15090cd5ce4454452105843",
+    "eval/handwritten.py": "5999a14119d0f98c5bb82b8ddb4419342bbf32fb9eeafd3dbb5a18e5f810e5c6",
+    "eval/injection.py": "7a4a57623921bf73a504894e129aff2cf6f33d9ecc359348a228ea72130cc13e",
+    "eval/judge.py": "b01659118fde0fdc308f77a05432a4c5dc05a877ffad7d68e3b186591c2dfca1",
+    "eval/memory_audit.py": "8e4e3a87c1b7fa4a88cf0474a69395338a6e1772796ffa3507f9ba9348f5b2f4",
+    "eval/retrieval.py": "ba2fb1aad70d0a03ecf4cbede10ab9b61ff548058f4645557a99026ffadc06f2",
+    "eval/review_suite.py": "294bb9e828d877310bee6388bfad09eaefea729ac4c931fa9fe09df4dad2ddcb",
+    "eval/run.py": "115f64414f0b52e7e496e163c12f1b9051d0cdf91df1fbdce8f6f7f53db63e4f",
+    "eval/scoring.py": "0accbfeea22f6ac3ec577e218d97f211ec775a30298e08e6869d5168a65ee040",
+    "eval/templates.py": "3b8f07a59592807b66c1d4648cdde0fe1820f48a34d0a3a85d75d45c108940ba",
+    "eval/validate_gold.py": "64ca1fa1ce1163b0c27b7808db235ba3dd86f75be72d5f43d8862c2814394729",
+    "agent/__init__.py": "c8f9201ccae83266a2cbdcc02abcdbcaed1a5988fbf00ab2529118e334d258c2",
+    "agent/context.py": "8b410bd34527fc1598b1246677fcc2a45b9763d80a3b5bd85fe41be4a5f29996",
+    "agent/loop.py": "d8b7e75025f317ad4564dbd91f1ce2bdceb399468a9782bf86f2194325829588",
+    "agent/mcp_client.py": "09107bda9b1abb823d6d2b8760537eff074693b481854a0ebca40bf904e420cb",
+    "agent/model.py": "899045857f8ecdd4298853aff4c39cdc806c6f4861060d622bf103a4e2bae316",
+    "agent/multi.py": "4c93468ae7571db4cb2a146ac47603139ce9461f00893b7a7194a0cd3fd41ec8",
+    "agent/number_gate.py": "df1657160f7f1e4b17f2c014b498de0a8ed180ca320e2a99fc3d97886ec8848a",
+    "agent/preferences.py": "593d3832651cc1c7ffe853a6d9ee749a9f18ba7527b71bb5a706216930a276cf",
+    "agent/retrieval.py": "83f2d7ed11a612cffe6cf01c34730256a818647d49a1045dc58a64df11b675a1",
+    "agent/review.py": "acf39366a43107e02d7ff034435c09c6bb14df4850807361d607d3a65885e56f",
+    "agent/state.py": "2d14fe257f5c242ff44eb2b99543a8e0277c32b4f9f3fb33d0ba63f5cb1d4402",
+    "agent/tools.py": "7acdd2462280b7ac2452e1cdaeac787f622d8a28331678b6ab5b546284c13167",
+    "agent/worker.py": "f6d93c5e319a582d676be3fa20f0b03b60062e88eac3e6888d0dbfdc8aa0f64a",
+    "agent/writer.py": "6aecb65db9372d1309b1afd858fdb2df59f11035830b9da944ed51e06d046a5f",
+    "mcp_olist/__init__.py": "411039eb1aea25c03d989f48f2d32d539a02ccb53f52002f9576561ed2176796",
+    "mcp_olist/blackboard.py": "2288e02a6f65502235399f65fc6b74d379f14cba580fbd37f881f3c5e5cf6db1",
+    "mcp_olist/catalog.py": "328c46ac39bef11bdb7744e73a890abb56e5e12f157c5220569811eab31e3e0e",
+    "mcp_olist/embedding_config.py": "90a442bf82bd9afcd6c37cd6b74f698c8e7637dd965cff7f9ec1601f1ee80d86",
+    "mcp_olist/knowledge.py": "7471e0cf61e5f320b611df126acd163d3bba8deaa335c147dfb7cf43539c98b1",
+    "mcp_olist/leases.py": "7b0f9c81c56f7cb8e65e8aa149d0f51053c91bc234ad9b7697b633fe23656532",
+    "mcp_olist/server.py": "577aa51a84d66869d9a5d40161ce21b17ae37cbf2f388dea57ac5b5ab295ac72",
+    "mcp_olist/service.py": "8d4fd48d4e66474497eea61d95939250c788ad35aed220deeef3f3cfe2bc75c2",
+    "mcp_olist/sql_guard.py": "81609a5d4621d9b85b89f71e11d95867e0070c35c68e3f87a033f452c8a24423"
+  },
+  "metrics": {
+    "total": 8,
+    "correct": 2,
+    "completion_rate": 0.625,
+    "peak_context_tokens": 8456,
+    "accuracy": 0.25,
+    "fact_hits": 15,
+    "fact_total": 25,
+    "fact_hit_rate": 0.6,
+    "unsupported_claims": 0,
+    "claim_count": 13,
+    "unsupported_claim_ratio": 0.0,
+    "d_unsupported_numbers": 20,
+    "d_number_count": 73,
+    "d_unsupported_number_ratio": 0.273972602739726,
+    "judge_mean": 3.0,
+    "judged_reports": 8,
+    "average_latency_ms": 9157.493713624717,
+    "average_agent_latency_ms": 7919.257627249635,
+    "failures": 3,
+    "average_steps": 3.75,
+    "terminations": {
+      "context_limit": 3,
+      "final_answer": 5
+    },
+    "average_tokens": 16895.625
+  },
+  "by_category": {
+    "D": {
+      "total": 8,
+      "correct": 2,
+      "completion_rate": 0.625,
+      "peak_context_tokens": 8456,
+      "accuracy": 0.25,
+      "fact_hits": 15,
+      "fact_total": 25,
+      "fact_hit_rate": 0.6,
+      "unsupported_claims": 0,
+      "claim_count": 13,
+      "unsupported_claim_ratio": 0.0,
+      "d_unsupported_numbers": 20,
+      "d_number_count": 73,
+      "d_unsupported_number_ratio": 0.273972602739726,
+      "judge_mean": 3.0,
+      "judged_reports": 8,
+      "average_latency_ms": 9157.493713624717,
+      "average_agent_latency_ms": 7919.257627249635,
+      "failures": 3,
+      "average_steps": 3.75,
+      "terminations": {
+        "context_limit": 3,
+        "final_answer": 5
+      }
+    }
+  },
+  "usage": {
+    "model_calls": 38,
+    "input_tokens": 123689,
+    "output_tokens": 11476,
+    "total_tokens": 135165,
+    "cost_usd": null,
+    "usage_complete": true
+  },
+  "pricing": {
+    "input_per_million": null,
+    "output_per_million": null
+  },
+  "agent_usage": {
+    "model_calls": 30,
+    "input_tokens": 118301,
+    "output_tokens": 10633,
+    "total_tokens": 128934,
+    "cost_usd": null,
+    "usage_complete": true
+  },
+  "model_calls": [
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 76,
+        "prompt_tokens": 2004,
+        "total_tokens": 2080,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1792
+        },
+        "prompt_cache_hit_tokens": 1792,
+        "prompt_cache_miss_tokens": 212
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2857
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后计算 GMV。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_CFsS9voVRWnJRrPwhK9Z3569",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_re0tuAy7njXcW2Sr1ph57386",
+            "function": {
+              "arguments": "{\"name\": \"order_items\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 295,
+        "prompt_tokens": 3516,
+        "total_tokens": 3811,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3328
+        },
+        "prompt_cache_hit_tokens": 3328,
+        "prompt_cache_miss_tokens": 188
+      },
+      "input_summary": {
+        "messages": 5,
+        "characters": 7554
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_4cyEQWOPTczfhYgcdN102259",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1'\\n              WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS quarter,\\n         i.price\\n  FROM orders o JOIN order_items i USING(order_id)\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n)\\nSELECT round(sum(price) FILTER (WHERE quarter='Q1'),2) AS q1_gmv,\\n       round(sum(price) FILTER (WHERE quarter='Q2'),2) AS q2_gmv,\\n       round(100.0*(sum(price) FILTER (WHERE quarter='Q2') - sum(price) FILTER (WHERE quarter='Q1'))\\n             / nullif(sum(price) FILTER (WHERE quarter='Q1'),0),2) AS change_pct\\nFROM q;\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 245,
+        "prompt_tokens": 4406,
+        "total_tokens": 4651,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3712
+        },
+        "prompt_cache_hit_tokens": 3712,
+        "prompt_cache_miss_tokens": 694
+      },
+      "input_summary": {
+        "messages": 7,
+        "characters": 10263
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_j9nIHeRBFCiIrSQuLB4c4788",
+            "function": {
+              "arguments": "{\"answer\": \"2018 年 Q2 GMV 为 2,849,730.26，较 Q1 的 2,764,402.78 增长 3.09%（口径：order_items.price 之和，不含运费，排除 canceled 与 unavailable 订单，按订单购买时间分期）。\", \"claims\": [{\"text\": \"2018 年 Q1 GMV（排除取消及不可用订单，price 之和，不含运费）为 2764402.78，Q2 为 2849730.26，Q2 相对 Q1 变化率为 +3.09%。\", \"value\": [{\"q1_gmv\": 2764402.78, \"q2_gmv\": 2849730.26, \"change_pct\": 3.09}], \"evidence\": [\"fed4f7fc-73b9-49d3-b1cb-d166edd53217\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 103,
+        "prompt_tokens": 574,
+        "total_tokens": 677,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 446
+      },
+      "input_summary": {
+        "question_id": "D01",
+        "claim_count": 1
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":4,\"rationale\":\"报告正确给出 Q1/Q2 GMV 与 +3.09% 变化率，口径明确（排除取消及不可用订单、price 之和、不含运费、按购买时间分期），与 gold facts 一致，且未把统计相关写成确定原因。但仅描述变化，未量化关键差异的构成、未讨论限制或交叉核对替代解释，也未给出可验证的后续行动，故未达 5 分。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 100,
+        "prompt_tokens": 1917,
+        "total_tokens": 2017,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1664
+        },
+        "prompt_cache_hit_tokens": 1664,
+        "prompt_cache_miss_tokens": 253
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2630
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看相关表的结构。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_ss0tFmPWfJor1zSSTmjt1948",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_q0noFQRntVYmfp0dT3lI6437",
+            "function": {
+              "arguments": "{\"name\": \"order_items\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          },
+          {
+            "id": "call_02_gDOZHKnSUARjiIsKFT1K6362",
+            "function": {
+              "arguments": "{\"name\": \"products\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 2
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 480,
+        "prompt_tokens": 4029,
+        "total_tokens": 4509,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3840
+        },
+        "prompt_cache_hit_tokens": 3840,
+        "prompt_cache_miss_tokens": 189
+      },
+      "input_summary": {
+        "messages": 6,
+        "characters": 9479
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_sCmT24zNDpVTKSXOUtQU6938",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT p.product_category_name AS cat,\\n    CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1'\\n         WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr,\\n    SUM(oi.price) AS gmv\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  JOIN products p ON p.product_id = oi.product_id\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND p.product_category_name IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  GROUP BY 1,2\\n), piv AS (\\n  SELECT cat,\\n    SUM(CASE WHEN qtr='Q1' THEN gmv END) AS q1_gmv,\\n    SUM(CASE WHEN qtr='Q2' THEN gmv END) AS q2_gmv\\n  FROM q GROUP BY cat\\n), both AS (\\n  SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff\\n  FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL\\n)\\nSELECT\\n  (SELECT COUNT(*) FROM both WHERE diff < 0) AS declining_categories,\\n  (SELECT COUNT(*) FROM both) AS compared_categories,\\n  (SELECT cat FROM both ORDER BY diff ASC LIMIT 1) AS largest_drop_category,\\n  (SELECT diff FROM both ORDER BY diff ASC LIMIT 1) AS largest_drop_amount,\\n  (SELECT q1_gmv FROM both ORDER BY diff ASC LIMIT 1) AS largest_drop_q1_gmv,\\n  (SELECT q2_gmv FROM both ORDER BY diff ASC LIMIT 1) AS largest_drop_q2_gmv\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 480,
+        "prompt_tokens": 4601,
+        "total_tokens": 5081,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 4352
+        },
+        "prompt_cache_hit_tokens": 4352,
+        "prompt_cache_miss_tokens": 249
+      },
+      "input_summary": {
+        "messages": 8,
+        "characters": 11479
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_wtB9h8sbBYjxE9dVEOjZ3273",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT p.product_category_name AS cat,\\n    CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1'\\n         WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr,\\n    SUM(oi.price) AS gmv\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  JOIN products p ON p.product_id = oi.product_id\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND p.product_category_name IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  GROUP BY 1,2\\n), piv AS (\\n  SELECT cat,\\n    SUM(CASE WHEN qtr='Q1' THEN gmv END) AS q1_gmv,\\n    SUM(CASE WHEN qtr='Q2' THEN gmv END) AS q2_gmv\\n  FROM q GROUP BY cat\\n), cmp AS (\\n  SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff\\n  FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL\\n)\\nSELECT\\n  (SELECT COUNT(*) FROM cmp WHERE diff < 0) AS declining_categories,\\n  (SELECT COUNT(*) FROM cmp) AS compared_categories,\\n  (SELECT cat FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_category,\\n  (SELECT diff FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_amount,\\n  (SELECT q1_gmv FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_q1_gmv,\\n  (SELECT q2_gmv FROM cmp ORDER BY diff ASC LIMIT 1) AS largest_drop_q2_gmv\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 4,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 613,
+        "prompt_tokens": 5952,
+        "total_tokens": 6565,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 4992
+        },
+        "prompt_cache_hit_tokens": 4992,
+        "prompt_cache_miss_tokens": 960
+      },
+      "input_summary": {
+        "messages": 10,
+        "characters": 15776
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "现在我来查看降幅最大的几个品类，并检查整体趋势，以便分析原因。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_BPVtC1pJ6ftiGpmGeOFR2872",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT p.product_category_name AS cat,\\n    CASE WHEN o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' ELSE 'Q2' END AS qtr,\\n    SUM(oi.price) AS gmv, COUNT(*) AS items, COUNT(DISTINCT oi.order_id) AS orders\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  JOIN products p ON p.product_id = oi.product_id\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND p.product_category_name IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  GROUP BY 1,2\\n), piv AS (\\n  SELECT cat,\\n    SUM(CASE WHEN qtr='Q1' THEN gmv END) AS q1_gmv,\\n    SUM(CASE WHEN qtr='Q2' THEN gmv END) AS q2_gmv,\\n    SUM(CASE WHEN qtr='Q1' THEN items END) AS q1_items,\\n    SUM(CASE WHEN qtr='Q2' THEN items END) AS q2_items\\n  FROM q GROUP BY cat\\n)\\nSELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff,\\n  ROUND((q2_gmv - q1_gmv)/q1_gmv*100, 2) AS pct_change,\\n  q1_items, q2_items\\nFROM piv\\nWHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL AND q2_gmv < q1_gmv\\nORDER BY diff ASC\\nLIMIT 10\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_YWNnAvHzrQci8qcD9fY19237",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT CASE WHEN o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' ELSE 'Q2' END AS qtr,\\n    SUM(oi.price) AS gmv, COUNT(*) AS items, COUNT(DISTINCT oi.order_id) AS orders\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  GROUP BY 1\\n)\\nSELECT qtr, gmv, items, orders FROM q ORDER BY qtr\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 5,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 736,
+        "prompt_tokens": 8456,
+        "total_tokens": 9192,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 6528
+        },
+        "prompt_cache_hit_tokens": 6528,
+        "prompt_cache_miss_tokens": 1928
+      },
+      "input_summary": {
+        "messages": 13,
+        "characters": 23085
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_SULz5Ocj3PBas3yl9wr62525",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT p.product_category_name AS cat,\\n    CASE WHEN o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' ELSE 'Q2' END AS qtr,\\n    SUM(oi.price) AS gmv, COUNT(*) AS items\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  JOIN products p ON p.product_id = oi.product_id\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND p.product_category_name IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  GROUP BY 1,2\\n), piv AS (\\n  SELECT cat,\\n    SUM(CASE WHEN qtr='Q1' THEN gmv END) AS q1_gmv,\\n    SUM(CASE WHEN qtr='Q2' THEN gmv END) AS q2_gmv,\\n    SUM(CASE WHEN qtr='Q1' THEN items END) AS q1_items,\\n    SUM(CASE WHEN qtr='Q2' THEN items END) AS q2_items\\n  FROM q GROUP BY cat\\n)\\nSELECT\\n  SUM(CASE WHEN q2_gmv < q1_gmv THEN 1 ELSE 0 END) AS declining_categories,\\n  SUM(CASE WHEN q2_gmv > q1_gmv THEN 1 ELSE 0 END) AS growing_categories,\\n  COUNT(*) AS compared_categories,\\n  SUM(CASE WHEN q2_gmv < q1_gmv THEN q2_gmv - q1_gmv ELSE 0 END) AS total_decline_amount,\\n  SUM(CASE WHEN q2_gmv < q1_gmv THEN q1_items - q2_items ELSE 0 END) AS declining_items_lost,\\n  ROUND(AVG(CASE WHEN q2_gmv < q1_gmv THEN (q2_gmv - q1_gmv)/q1_gmv*100 END), 2) AS avg_pct_change_declining\\nFROM piv\\nWHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_Oxq2wLA9fK7cmTPXTz4p5315",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (\\n  SELECT p.product_category_name AS cat,\\n    CASE WHEN o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' ELSE 'Q2' END AS qtr,\\n    SUM(oi.price) AS gmv, COUNT(*) AS items, COUNT(DISTINCT oi.seller_id) AS sellers\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  JOIN products p ON p.product_id = oi.product_id\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n    AND p.product_category_name = 'informatica_acessorios'\\n    AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  GROUP BY 1,2\\n)\\nSELECT qtr, gmv, items, sellers, ROUND(gmv/items, 2) AS avg_item_price FROM q ORDER BY qtr\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 66,
+        "prompt_tokens": 384,
+        "total_tokens": 450,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 256
+      },
+      "input_summary": {
+        "question_id": "D02",
+        "claim_count": 0
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":1,\"rationale\":\"报告仅称未能在执行限制内验证答案，未给出任何分析、比较范围、下降品类数量、最大拖累品类或原因，属于无有效分析；且未覆盖关键事实（30个品类下降、informatica_acessorios下降114709.72）。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 104,
+        "prompt_tokens": 1992,
+        "total_tokens": 2096,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1792
+        },
+        "prompt_cache_hit_tokens": 1792,
+        "prompt_cache_miss_tokens": 200
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2778
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后运行查询。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_gmhiMiIMYqw4acWqGj7D5576",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_TztONMAQl3FXbrxQsQOy2356",
+            "function": {
+              "arguments": "{\"name\": \"customers\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          },
+          {
+            "id": "call_02_j9wEofD0O4f9W7tT0aFA7411",
+            "function": {
+              "arguments": "{\"name\": \"order_items\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 2
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 247,
+        "prompt_tokens": 3970,
+        "total_tokens": 4217,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3836
+        },
+        "prompt_cache_hit_tokens": 3836,
+        "prompt_cache_miss_tokens": 134
+      },
+      "input_summary": {
+        "messages": 6,
+        "characters": 9062
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_fOqWfpx58ofhf3TPW0ct1022",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id, o.customer_id, c.customer_unique_id, c.customer_state\\n  FROM orders o JOIN customers c USING(customer_id)\\n  WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n    AND c.customer_state IN ('SP','RJ')\\n),\\nbuyers AS (\\n  SELECT customer_state, count(DISTINCT customer_unique_id) AS buyers\\n  FROM q2 GROUP BY customer_state\\n),\\ngmv AS (\\n  SELECT q.customer_state, sum(i.price) AS gmv\\n  FROM q2 q JOIN orders o USING(order_id) JOIN order_items i USING(order_id)\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n  GROUP BY q.customer_state\\n)\\nSELECT b.customer_state, b.buyers, g.gmv\\nFROM buyers b JOIN gmv g USING(customer_state)\\nORDER BY b.customer_state;\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 602,
+        "prompt_tokens": 4704,
+        "total_tokens": 5306,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 4096
+        },
+        "prompt_cache_hit_tokens": 4096,
+        "prompt_cache_miss_tokens": 608
+      },
+      "input_summary": {
+        "messages": 8,
+        "characters": 11613
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_lztaxspu5CSC4tgGSCEG2431",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id, o.customer_id, c.customer_unique_id, c.customer_state\\n  FROM orders o JOIN customers c USING(customer_id)\\n  WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n    AND c.customer_state IN ('SP','RJ')\\n),\\nbuyers AS (\\n  SELECT customer_state, count(DISTINCT customer_unique_id) AS buyers FROM q2 GROUP BY customer_state\\n),\\ngmv AS (\\n  SELECT q.customer_state, sum(i.price) AS gmv\\n  FROM q2 q JOIN orders o USING(order_id) JOIN order_items i USING(order_id)\\n  WHERE o.order_status NOT IN ('canceled','unavailable')\\n  GROUP BY q.customer_state\\n),\\nj AS (\\n  SELECT b.customer_state, b.buyers, g.gmv, g.gmv / b.buyers AS gmv_per_buyer\\n  FROM buyers b JOIN gmv g USING(customer_state)\\n)\\nSELECT\\n  max(CASE WHEN customer_state='SP' THEN buyers END) AS sp_buyers,\\n  max(CASE WHEN customer_state='RJ' THEN buyers END) AS rj_buyers,\\n  max(CASE WHEN customer_state='SP' THEN gmv END) AS sp_gmv,\\n  max(CASE WHEN customer_state='RJ' THEN gmv END) AS rj_gmv,\\n  max(CASE WHEN customer_state='SP' THEN gmv END) - max(CASE WHEN customer_state='RJ' THEN gmv END) AS gmv_diff,\\n  max(CASE WHEN customer_state='SP' THEN buyers END) - max(CASE WHEN customer_state='RJ' THEN buyers END) AS buyers_diff,\\n  round(max(CASE WHEN customer_state='SP' THEN buyers END)::numeric / max(CASE WHEN customer_state='RJ' THEN buyers END), 4) AS buyers_ratio,\\n  round(max(CASE WHEN customer_state='SP' THEN gmv END) / max(CASE WHEN customer_state='RJ' THEN gmv END), 4) AS gmv_ratio,\\n  max(CASE WHEN customer_state='SP' THEN gmv_per_buyer END) AS sp_gmv_per_buyer,\\n  max(CASE WHEN customer_state='RJ' THEN gmv_per_buyer END) AS rj_gmv_per_buyer,\\n  round(max(CASE WHEN customer_state='SP' THEN gmv_per_buyer END) / max(CASE WHEN customer_state='RJ' THEN gmv_per_buyer END), 4) AS gmv_per_buyer_ratio\\nFROM j;\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 4,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 953,
+        "prompt_tokens": 6629,
+        "total_tokens": 7582,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 5248
+        },
+        "prompt_cache_hit_tokens": 5248,
+        "prompt_cache_miss_tokens": 1381
+      },
+      "input_summary": {
+        "messages": 10,
+        "characters": 17611
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_b3ELxi1KOKflXQt52N7E2774",
+            "function": {
+              "arguments": "{\"answer\": \"2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，地区取客户所在州）SP 与 RJ 对比：\\n\\n1) 真实下单客户数（按 customer_unique_id 去重，保留所有订单状态）：SP 8,913 人，RJ 2,345 人；SP 比 RJ 多 6,568 人，为 RJ 的 3.8009 倍。\\n2) GMV（order_items.price 之和，不含运费，排除 canceled 与 unavailable）：SP 1,173,308.82，RJ 352,617.27；SP 比 RJ 高 820,691.55，为 RJ 的 3.3274 倍。\\n\\n规模与客单结构解读：SP 在客户规模上约为 RJ 的 3.8 倍，但 GMV 倍数（3.33 倍）低于客户倍数，说明 RJ 的客单结构更强。以 GMV/下单客户数衡量，SP 为 131.64，RJ 为 150.37，SP 仅为 RJ 的 0.8754（约低 12.5%）。即 SP 的领先主要来自客户基数（规模驱动），RJ 则以更高的人均成交金额部分抵消了规模劣势。注意该人均指标为 GMV 除以全状态客户数，口径混合（分母含取消/不可用订单客户），仅作结构参考；GMV 不等于支付流水金额。\", \"claims\": [{\"text\": \"2018 Q2 SP 真实下单客户数（customer_unique_id 去重，全状态）为 8,913 人\", \"value\": {\"sp_buyers\": 8913}, \"evidence\": [\"955d2eb4-0537-4189-90bf-d7c3492ec584\"]}, {\"text\": \"2018 Q2 RJ 真实下单客户数为 2,345 人\", \"value\": {\"rj_buyers\": 2345}, \"evidence\": [\"955d2eb4-0537-4189-90bf-d7c3492ec584\"]}, {\"text\": \"2018 Q2 SP GMV（price 之和，排除 canceled/unavailable）为 1,173,308.82\", \"value\": {\"sp_gmv\": \"1173308.82\"}, \"evidence\": [\"955d2eb4-0537-4189-90bf-d7c3492ec584\"]}, {\"text\": \"2018 Q2 RJ GMV 为 352,617.27\", \"value\": {\"rj_gmv\": \"352617.27\"}, \"evidence\": [\"955d2eb4-0537-4189-90bf-d7c3492ec584\"]}, {\"text\": \"规模与结构差异：SP 客户数比 RJ 多 6,568 人（3.8009 倍），GMV 高 820,691.55（3.3274 倍）；人均 GMV SP 131.64、RJ 150.37，SP/RJ 为 0.8754\", \"value\": [{\"gmv_diff\": \"820691.55\", \"buyers_diff\": 6568, \"buyers_ratio\": \"3.8009\", \"gmv_ratio\": \"3.3274\", \"sp_gmv_per_buyer\": \"131.6401682935038708\", \"rj_gmv_per_buyer\": \"150.3698379530916844\", \"gmv_per_buyer_ratio\": \"0.8754\"}], \"evidence\": [\"955d2eb4-0537-4189-90bf-d7c3492ec584\"]}, {\"text\": \"分州明细（客户数与 GMV 同表对照）\", \"value\": [{\"customer_state\": \"RJ\", \"buyers\": 2345, \"gmv\": \"352617.27\"}, {\"customer_state\": \"SP\", \"buyers\": 8913, \"gmv\": \"1173308.82\"}], \"evidence\": [\"e817d8b4-ca8f-4261-bf4c-effb76454e30\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 53,
+        "prompt_tokens": 389,
+        "total_tokens": 442,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 261
+      },
+      "input_summary": {
+        "question_id": "D03",
+        "claim_count": 0
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":1,\"rationale\":\"报告未提供任何分析或事实，仅称无法验证答案，四个关键事实（SP/RJ 客户数与 GMV）均未给出，也无规模与客单结构讨论，属于无有效分析。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 463,
+        "prompt_tokens": 2085,
+        "total_tokens": 2548,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1920
+        },
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 165
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 3111
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_C1PCF0bOMYVeQ6dg3wnG4226",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT 'Q1' AS period, avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) AS days, count(*) AS n FROM orders WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' UNION ALL SELECT 'Q2', avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0), count(*) FROM orders WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_jpnFqIiO002FZOztTxE09781",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q AS (SELECT CASE WHEN order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS period, extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 AS d FROM orders WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01') SELECT avg(d) FILTER (WHERE period='Q1') AS q1_days, avg(d) FILTER (WHERE period='Q2') AS q2_days, avg(d) FILTER (WHERE period='Q2') - avg(d) FILTER (WHERE period='Q1') AS change_days FROM q\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 634,
+        "prompt_tokens": 3660,
+        "total_tokens": 4294,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 2432
+        },
+        "prompt_cache_hit_tokens": 2432,
+        "prompt_cache_miss_tokens": 1228
+      },
+      "input_summary": {
+        "messages": 5,
+        "characters": 8099
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_KSwLmao0iXbcLSjI8bm75448",
+            "function": {
+              "arguments": "{\"answer\": \"2018 年 Q1（按购买日期 1/1–3/31）已送达且有实际送达时间的订单共 20,627 单，平均交付天数 15.7449 天；Q2（4/1–6/30）共 19,643 单，平均交付天数 10.7703 天。两期相差 -4.9746 天（Q2 比 Q1 缩短约 4.97 天，降幅约 31.6%）。口径：仅统计 order_status='delivered' 且 order_delivered_customer_date 非空的订单，用完整时间戳（含时分秒）计算购买到实际送达的秒数除以 86400 后取平均，按购买时间分期；未送达或缺失实际送达时间的订单不计入分母。结论：Q2 交付时效明显改善，平均交付天数由约 15.7 天降至约 10.8 天，缩短近 5 天，说明该季度物流/履约效率有显著提升；但两期订单量接近（Q2 略少约 4.8%），需注意 Q2 样本量略小及季节性因素影响。\", \"claims\": [{\"text\": \"2018 Q1 平均交付天数（delivered 且实际送达时间非空，按购买日期分期）\", \"value\": {\"q1_days\": 15.74488046389216578796}, \"evidence\": [\"e567663f-7f2c-4755-9838-9acd54cb085b\"]}, {\"text\": \"2018 Q2 平均交付天数\", \"value\": {\"q2_days\": 10.77030644457265900003}, \"evidence\": [\"e567663f-7f2c-4755-9838-9acd54cb085b\"]}, {\"text\": \"Q2 相对 Q1 的平均交付天数变化（Q2 减 Q1，负值表示缩短）\", \"value\": {\"change_days\": -4.97457401931950678793}, \"evidence\": [\"e567663f-7f2c-4755-9838-9acd54cb085b\"]}, {\"text\": \"两期纳入统计的订单量：Q1 与 Q2\", \"value\": [{\"period\": \"Q1\", \"days\": 15.74488046389216578796, \"n\": 20627}, {\"period\": \"Q2\", \"days\": 10.77030644457265900003, \"n\": 19643}], \"evidence\": [\"6dd30e67-eb6f-43b0-b755-584ff253ed27\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 135,
+        "prompt_tokens": 997,
+        "total_tokens": 1132,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 741
+      },
+      "input_summary": {
+        "question_id": "D04",
+        "claim_count": 4
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":4,\"rationale\":\"核心数值与金标准完全一致，口径说明清晰（delivered 且实际送达时间非空、按购买日期分期、含时分秒、小数天），并量化了差异（-4.97 天、约 31.6%）。但因果解释仅停留在“物流/履约效率显著提升”的假设层面，未交叉核对替代解释（如季节性、订单结构、承运商或地区构成变化），也未给出可验证的后续行动；同时报告中的订单量、降幅等部分数字缺乏证据支撑。因此达到 4 分但未达 5 分。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 49,
+        "prompt_tokens": 2093,
+        "total_tokens": 2142,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1920
+        },
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 173
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 3131
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看 orders 表的结构，然后计算该指标。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_oQkmuEdiFeZrXMMKiXE41057",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 161,
+        "prompt_tokens": 2957,
+        "total_tokens": 3118,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 2816
+        },
+        "prompt_cache_hit_tokens": 2816,
+        "prompt_cache_miss_tokens": 141
+      },
+      "input_summary": {
+        "messages": 4,
+        "characters": 5826
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_8vXPhMCe8EVG4CkDrEsw3130",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT count(*) AS measured_orders, count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders, 100.0 * count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) / nullif(count(*),0) AS late_pct FROM orders WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01';\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 550,
+        "prompt_tokens": 3555,
+        "total_tokens": 4105,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3072
+        },
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 483
+      },
+      "input_summary": {
+        "messages": 6,
+        "characters": 7851
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_464CFHmp3wpzQL9OCDgP7451",
+            "function": {
+              "arguments": "{\"answer\": \"2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30，含 6 月 30 日全天）的已送达订单中：\\n\\n- 实际交付晚于预计交付的订单数（late_orders）：1,000\\n- 实际交付时间完整的订单数（measured_orders，即分母）：19,643\\n- 迟到率（late_pct）：5.0908720663849717%\\n\\n口径说明：\\n1. 时间范围按 order_purchase_timestamp 落在 [2018-04-01, 2018-07-01) 界定，即按购买时间归属季度。\\n2. 分母 = order_status='delivered' 且 order_delivered_customer_date 非空的订单数（19,643）。未送达订单缺实际交付时间属正常，不计入；delivered 但缺实际交付时间的订单因无法判断是否迟到，也不计入分母。\\n3. 分子按完整原始时间戳比较 order_delivered_customer_date > order_estimated_delivery_date，不截断为日期（预计送达时间多为 00:00:00，若截断日期会系统性低估迟到）。\\n4. 迟到率 = 分子/分母×100，由 SQL 直接计算，未做四舍五入。\", \"claims\": [{\"text\": \"2018 Q2 已送达且实际交付时间完整的订单数为 19,643，作为迟到率分母\", \"value\": {\"measured_orders\": 19643}, \"evidence\": [\"04ad998b-3526-497c-9a57-f12d27bee272\"]}, {\"text\": \"其中实际交付时间晚于预计交付时间的订单数为 1,000（按完整原始时间戳比较，不截断日期）\", \"value\": {\"late_orders\": 1000}, \"evidence\": [\"04ad998b-3526-497c-9a57-f12d27bee272\"]}, {\"text\": \"迟到率为 5.0908720663849717%（100.0*late_orders/measured_orders，由 SQL 计算）\", \"value\": {\"late_pct\": \"5.0908720663849717\"}, \"evidence\": [\"04ad998b-3526-497c-9a57-f12d27bee272\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 212,
+        "prompt_tokens": 916,
+        "total_tokens": 1128,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 788
+      },
+      "input_summary": {
+        "question_id": "D05",
+        "claim_count": 3
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":4,\"rationale\":\"报告给出的三个关键数值与 gold_facts 完全一致（1000、19643、5.0908720663849717%），并明确解释了分母口径：仅统计 delivered 且实际交付时间非空的订单，空交付时间不计入分母，符合 focus 要求；同时说明按完整原始时间戳比较、不截断日期，并指出截断会系统性低估迟到，属于对口径限制的合理说明。证据检查显示三条 claim 均有证据支持。不足之处在于：未交叉核对替代解释（如按预计交付日期截断、按订单批准时间归属季度等口径差异对结果的影响），也未给出可验证的后续行动；此外报告中的部分数字（如日期边界、100.0 等）未被证据直接覆盖，但属于口径描述而非关键事实错误。整体达到“比较完整、量化关键差异且说明限制”的 4 分水平，未达到 5 分要求的交叉核对与可验证后续行动。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 106,
+        "prompt_tokens": 1966,
+        "total_tokens": 2072,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1792
+        },
+        "prompt_cache_hit_tokens": 1792,
+        "prompt_cache_miss_tokens": 174
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2804
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后计算这三个指标。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_8nIs18aqkUY6WBYSsZHu5668",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_k0x1B7wKH12Gr2qWPeno5858",
+            "function": {
+              "arguments": "{\"name\": \"order_items\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          },
+          {
+            "id": "call_02_QtJ1mshSDfv5LdozPZ997459",
+            "function": {
+              "arguments": "{\"name\": \"order_payments\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 2
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 552,
+        "prompt_tokens": 3881,
+        "total_tokens": 4433,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3712
+        },
+        "prompt_cache_hit_tokens": 3712,
+        "prompt_cache_miss_tokens": 169
+      },
+      "input_summary": {
+        "messages": 6,
+        "characters": 8932
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_tPte0s1YUtlmylJp3JL13253",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT order_id, order_status FROM orders\\n  WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\\n),\\nitems AS (\\n  SELECT sum(i.price) AS item_total, sum(i.freight_value) AS freight_total\\n  FROM q2 JOIN order_items i USING(order_id)\\n  WHERE q2.order_status NOT IN ('canceled','unavailable')\\n),\\npays AS (\\n  SELECT sum(p.payment_value) AS payment_total\\n  FROM q2 JOIN order_payments p USING(order_id)\\n  WHERE q2.order_status NOT IN ('canceled','unavailable')\\n)\\nSELECT (SELECT item_total FROM items) AS item_total,\\n       (SELECT freight_total FROM items) AS freight_total,\\n       (SELECT payment_total FROM pays) AS payment_total,\\n       (SELECT payment_total FROM pays) - (SELECT item_total FROM items) AS payment_minus_item,\\n       (SELECT payment_total FROM pays) - ((SELECT item_total FROM items) + (SELECT freight_total FROM items)) AS payment_minus_item_freight,\\n       (SELECT count(*) FROM q2) AS order_count\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_Ol67txPxzzxZUotZwOFw3237",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT order_id, order_status FROM orders\\n  WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\\n)\\nSELECT\\n  (SELECT count(*) FROM q2) AS all_orders,\\n  (SELECT count(*) FROM q2 WHERE order_status IN ('canceled','unavailable')) AS excluded_orders,\\n  (SELECT count(*) FROM q2 q WHERE NOT EXISTS (SELECT 1 FROM order_items i WHERE i.order_id=q.order_id)) AS orders_without_items,\\n  (SELECT count(*) FROM q2 q WHERE NOT EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=q.order_id)) AS orders_without_payments,\\n  (SELECT count(*) FROM order_payments p JOIN q2 USING(order_id)) AS payment_rows,\\n  (SELECT count(*) FROM order_items i JOIN q2 USING(order_id)) AS item_rows,\\n  (SELECT count(*) FROM (SELECT order_id FROM order_payments p JOIN q2 USING(order_id) GROUP BY order_id HAVING count(*)>1) t) AS multi_payment_orders\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 682,
+        "prompt_tokens": 5167,
+        "total_tokens": 5849,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 4352
+        },
+        "prompt_cache_hit_tokens": 4352,
+        "prompt_cache_miss_tokens": 815
+      },
+      "input_summary": {
+        "messages": 9,
+        "characters": 13741
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_xiDDGIJSdbkzWAuaFfo37636",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT order_id, order_status FROM orders\\n  WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\\n),\\nit AS (SELECT DISTINCT order_id FROM order_items),\\npa AS (SELECT DISTINCT order_id FROM order_payments)\\nSELECT\\n  (SELECT count(*) FROM q2) AS all_orders,\\n  (SELECT count(*) FROM q2 WHERE order_status IN ('canceled','unavailable')) AS excluded_orders,\\n  (SELECT count(*) FROM q2 LEFT JOIN it USING(order_id) WHERE it.order_id IS NULL) AS orders_without_items,\\n  (SELECT count(*) FROM q2 LEFT JOIN pa USING(order_id) WHERE pa.order_id IS NULL) AS orders_without_payments,\\n  (SELECT count(*) FROM order_payments p JOIN q2 USING(order_id)) AS payment_rows,\\n  (SELECT count(*) FROM order_items i JOIN q2 USING(order_id)) AS item_rows,\\n  (SELECT count(*) FROM (SELECT order_id FROM order_payments p JOIN q2 USING(order_id) GROUP BY order_id HAVING count(*)>1) t) AS multi_payment_orders,\\n  (SELECT count(*) FROM (SELECT order_id FROM order_items i JOIN q2 USING(order_id) GROUP BY order_id HAVING count(*)>1) t) AS multi_item_orders\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_ZB385zBqjOIIV1xqhDs92703",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT order_id, order_status FROM orders\\n  WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\\n),\\nit AS (\\n  SELECT i.order_id, sum(i.price) AS price, sum(i.freight_value) AS freight\\n  FROM order_items i JOIN q2 USING(order_id)\\n  WHERE q2.order_status NOT IN ('canceled','unavailable') GROUP BY i.order_id\\n),\\npa AS (\\n  SELECT p.order_id, sum(p.payment_value) AS pay\\n  FROM order_payments p JOIN q2 USING(order_id)\\n  WHERE q2.order_status NOT IN ('canceled','unavailable') GROUP BY p.order_id\\n)\\nSELECT count(*) AS matched_orders,\\n       sum(CASE WHEN pa.pay > it.price + it.freight THEN 1 ELSE 0 END) AS pay_gt_item_plus_freight,\\n       sum(CASE WHEN pa.pay < it.price + it.freight THEN 1 ELSE 0 END) AS pay_lt_item_plus_freight,\\n       sum(CASE WHEN pa.pay = it.price + it.freight THEN 1 ELSE 0 END) AS pay_eq_item_plus_freight,\\n       sum(pa.pay - it.price) AS sum_pay_minus_price,\\n       sum(pa.pay - (it.price + it.freight)) AS sum_pay_minus_price_freight\\nFROM it JOIN pa USING(order_id)\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 4,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 309,
+        "prompt_tokens": 7433,
+        "total_tokens": 7742,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 5760
+        },
+        "prompt_cache_hit_tokens": 5760,
+        "prompt_cache_miss_tokens": 1673
+      },
+      "input_summary": {
+        "messages": 12,
+        "characters": 21364
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_N96NikWyaB2QChmm2NQS2095",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT order_id, order_status FROM orders\\n  WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\\n),\\nit AS (\\n  SELECT i.order_id, sum(i.price) AS price, sum(i.freight_value) AS freight\\n  FROM order_items i JOIN q2 USING(order_id)\\n  WHERE q2.order_status NOT IN ('canceled','unavailable') GROUP BY i.order_id\\n),\\npa AS (\\n  SELECT p.order_id, sum(p.payment_value) AS pay\\n  FROM order_payments p JOIN q2 USING(order_id)\\n  WHERE q2.order_status NOT IN ('canceled','unavailable') GROUP BY p.order_id\\n)\\nSELECT round(100.0 * sum(pa.pay - it.price) / sum(it.price), 4) AS pay_over_item_pct,\\n       round(100.0 * sum(it.freight) / sum(it.price), 4) AS freight_over_item_pct,\\n       round(100.0 * sum(pa.pay - (it.price + it.freight)) / sum(it.price + it.freight), 4) AS pay_vs_item_freight_pct\\nFROM it JOIN pa USING(order_id)\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 59,
+        "prompt_tokens": 359,
+        "total_tokens": 418,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 231
+      },
+      "input_summary": {
+        "question_id": "D06",
+        "claim_count": 0
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":1,\"rationale\":\"报告仅称“未能在执行限制内验证答案”，未给出任何数值或分析，未涉及商品金额、运费、支付金额的汇总与对比，也未解释为何不能直接把支付金额当作商品 GMV，属于无有效分析。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 80,
+        "prompt_tokens": 2022,
+        "total_tokens": 2102,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1792
+        },
+        "prompt_cache_hit_tokens": 1792,
+        "prompt_cache_miss_tokens": 230
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2946
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后计算 2017 年的指标。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_oTsNUZDeUYyxcCI5sKGs8735",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_8M78EIhpfSsLr8wXkw3Z3816",
+            "function": {
+              "arguments": "{\"name\": \"customers\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 166,
+        "prompt_tokens": 3355,
+        "total_tokens": 3521,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3200
+        },
+        "prompt_cache_hit_tokens": 3200,
+        "prompt_cache_miss_tokens": 155
+      },
+      "input_summary": {
+        "messages": 5,
+        "characters": 7228
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_L6lJx7HiQBoyWKTMMsNN4709",
+            "function": {
+              "arguments": "{\"sql\": \"WITH c AS (\\n  SELECT cu.customer_unique_id, count(*) AS n\\n  FROM orders o\\n  JOIN customers cu USING(customer_id)\\n  WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01'\\n  GROUP BY cu.customer_unique_id\\n)\\nSELECT count(*) AS buyers,\\n       count(*) FILTER (WHERE n >= 2) AS repeat_buyers,\\n       100.0 * count(*) FILTER (WHERE n >= 2) / nullif(count(*),0) AS repeat_pct\\nFROM c;\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 394,
+        "prompt_tokens": 3958,
+        "total_tokens": 4352,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3456
+        },
+        "prompt_cache_hit_tokens": 3456,
+        "prompt_cache_miss_tokens": 502
+      },
+      "input_summary": {
+        "messages": 7,
+        "characters": 9183
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_RChcOKd0yTGIOhFD0oLl5483",
+            "function": {
+              "arguments": "{\"answer\": \"2017 年（观察窗口：order_purchase_timestamp 在 2017-01-01 至 2017-12-31 之间，保留全部订单状态）按 customer_unique_id 汇总订单数：有过下单的真实客户数（buyers）为 43,713 人；年内至少下单两次的客户数（repeat_buyers）为 1,256 人；年内复购率（repeat_pct）为 2.8732871228238739%。注意该复购率仅为 2017 自然年窗口内的复购，不等于终身复购率。\", \"claims\": [{\"text\": \"2017 自然年窗口内（全部订单状态，按 customer_unique_id 去重）有过下单的真实客户数为 43,713 人\", \"value\": {\"buyers\": 43713, \"repeat_buyers\": 1256, \"repeat_pct\": \"2.8732871228238739\"}, \"evidence\": [\"f5709d98-7815-43bd-8b61-216fa57f1466\"]}, {\"text\": \"同一 2017 年窗口内至少下单两次的客户数为 1,256 人，年内复购率为 2.8732871228238739%（窗口内复购，非终身复购）\", \"value\": {\"buyers\": 43713, \"repeat_buyers\": 1256, \"repeat_pct\": \"2.8732871228238739\"}, \"evidence\": [\"f5709d98-7815-43bd-8b61-216fa57f1466\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 108,
+        "prompt_tokens": 730,
+        "total_tokens": 838,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 256
+        },
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 474
+      },
+      "input_summary": {
+        "question_id": "D07",
+        "claim_count": 2
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":4,\"rationale\":\"报告正确给出三个关键数值，明确按 customer_unique_id 去重、保留全部订单状态，并说明 2017 自然年观察窗口，且强调该复购率不是终身复购率，符合核心要求。但报告仅复述结果，未量化或解释复购率低的原因，未讨论窗口截断、客户标识合并等限制，也未交叉核对替代解释或给出可验证的后续行动，因此未达到 5 分标准。\"}"
+    },
+    {
+      "role": "agent",
+      "step": 1,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 76,
+        "prompt_tokens": 1917,
+        "total_tokens": 1993,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 1664
+        },
+        "prompt_cache_hit_tokens": 1664,
+        "prompt_cache_miss_tokens": 253
+      },
+      "input_summary": {
+        "messages": 2,
+        "characters": 2667
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "我会先查看表结构，然后运行查询。",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_Oxr29k874pVY0BHT27Ss6624",
+            "function": {
+              "arguments": "{\"name\": \"orders\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 0
+          },
+          {
+            "id": "call_01_Y37Yb6CxVa8xs8p4nJpx8318",
+            "function": {
+              "arguments": "{\"name\": \"order_reviews\"}",
+              "name": "describe_table"
+            },
+            "type": "function",
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 2,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 206,
+        "prompt_tokens": 3387,
+        "total_tokens": 3593,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3200
+        },
+        "prompt_cache_hit_tokens": 3200,
+        "prompt_cache_miss_tokens": 187
+      },
+      "input_summary": {
+        "messages": 5,
+        "characters": 7384
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_QFzLNHLH1XoXgVkpQ8x76309",
+            "function": {
+              "arguments": "{\"sql\": \"SELECT\\n  (SELECT count(*) FROM orders o WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') AS orders,\\n  (SELECT count(*) FROM orders o WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n     AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id = o.order_id)) AS reviewed_orders,\\n  (SELECT count(*) FROM order_reviews r JOIN orders o ON o.order_id = r.order_id\\n     WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') AS review_rows\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 3,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 159,
+        "prompt_tokens": 3647,
+        "total_tokens": 3806,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3456
+        },
+        "prompt_cache_hit_tokens": 3456,
+        "prompt_cache_miss_tokens": 191
+      },
+      "input_summary": {
+        "messages": 7,
+        "characters": 8401
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_Xaqgl85r6RCcQeWLFIi80890",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id FROM orders o\\n  WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n)\\nSELECT\\n  (SELECT count(*) FROM q2) AS orders,\\n  (SELECT count(DISTINCT q.order_id) FROM q2 q JOIN order_reviews r ON r.order_id = q.order_id) AS reviewed_orders,\\n  (SELECT count(*) FROM q2 q JOIN order_reviews r ON r.order_id = q.order_id) AS review_rows\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 4,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 264,
+        "prompt_tokens": 4203,
+        "total_tokens": 4467,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 3712
+        },
+        "prompt_cache_hit_tokens": 3712,
+        "prompt_cache_miss_tokens": 491
+      },
+      "input_summary": {
+        "messages": 9,
+        "characters": 10287
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_WPZrtgyXo4HjlBdGYoZb1325",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id FROM orders o\\n  WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n), agg AS (\\n  SELECT\\n    (SELECT count(*) FROM q2) AS orders,\\n    (SELECT count(DISTINCT q.order_id) FROM q2 q JOIN order_reviews r ON r.order_id = q.order_id) AS reviewed_orders,\\n    (SELECT count(*) FROM q2 q JOIN order_reviews r ON r.order_id = q.order_id) AS review_rows\\n)\\nSELECT\\n  orders, reviewed_orders, review_rows,\\n  review_rows - reviewed_orders AS overcount_abs,\\n  round(100.0 * (review_rows - reviewed_orders) / reviewed_orders, 4) AS overcount_pct,\\n  round(100.0 * reviewed_orders / orders, 4) AS reviewed_rate_pct,\\n  round(100.0 * review_rows / orders, 4) AS naive_rate_pct\\nFROM agg\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 5,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 157,
+        "prompt_tokens": 5158,
+        "total_tokens": 5315,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 4352
+        },
+        "prompt_cache_hit_tokens": 4352,
+        "prompt_cache_miss_tokens": 806
+      },
+      "input_summary": {
+        "messages": 11,
+        "characters": 13392
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_sano039Lrlk5q2RSPvAN3710",
+            "function": {
+              "arguments": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id FROM orders o\\n  WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n)\\nSELECT count(*) AS multi_review_orders, sum(cnt) AS rows_in_those_orders\\nFROM (\\n  SELECT q.order_id, count(*) AS cnt\\n  FROM q2 q JOIN order_reviews r ON r.order_id = q.order_id\\n  GROUP BY q.order_id\\n  HAVING count(*) > 1\\n) t\"}",
+              "name": "run_sql"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "agent",
+      "step": 6,
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 694,
+        "prompt_tokens": 5681,
+        "total_tokens": 6375,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 5248
+        },
+        "prompt_cache_hit_tokens": 5248,
+        "prompt_cache_miss_tokens": 433
+      },
+      "input_summary": {
+        "messages": 13,
+        "characters": 15136
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_00_3xeVsYmxO1pt6976qdDo5291",
+            "function": {
+              "arguments": "{\"answer\": \"2018 年 Q2（按 order_purchase_timestamp 落在 2018-04-01 至 2018-06-30 之间，含全部订单状态）：\\n- 订单总数 orders = 19,979\\n- 已评价订单数 reviewed_orders = 19,863（按订单去重，即至少有一条评价的订单数）\\n- 评价记录数 review_rows = 19,889（order_reviews 中关联到这些订单的行数）\\n\\n用评价记录数当已评价订单数会怎样：\\n- 会高估 26 单（review_rows − reviewed_orders = 26），相对已评价订单数高估 0.1309%。\\n- 评价覆盖率会被虚高：真实覆盖率 99.4194%（19,863/19,979），若用评价行数计算则为 99.5495%（19,889/19,979）。\\n- 原因：Q2 中有 26 个订单存在多条评价记录（这 26 单共产生 52 条评价行），一单多评导致行数大于订单数。因此评价类指标必须按订单去重（count distinct order_id 或 EXISTS 语义），不能用评价行数代替订单数；否则在评价率、有评价订单占比等口径上会系统性偏高，且偏差随多评订单比例放大。\", \"claims\": [{\"text\": \"2018 Q2 订单总数、已评价订单数（按订单去重）、评价记录数分别为 19979、19863、19889\", \"value\": [{\"orders\": 19979, \"reviewed_orders\": 19863, \"review_rows\": 19889}], \"evidence\": [\"3b471368-8eb7-48f1-82d9-24ba92d5e123\"]}, {\"text\": \"用评价记录数代替已评价订单数会多计 26 单，相对高估 0.1309%；真实评价覆盖率 99.4194%，按评价行数计算为 99.5495%\", \"value\": [{\"orders\": 19979, \"reviewed_orders\": 19863, \"review_rows\": 19889, \"overcount_abs\": 26, \"overcount_pct\": \"0.1309\", \"reviewed_rate_pct\": \"99.4194\", \"naive_rate_pct\": \"99.5495\"}], \"evidence\": [\"2369faca-f38a-4e94-b93a-c1adb5b566fc\"]}, {\"text\": \"Q2 中有 26 个订单存在多条评价记录，这 26 单合计产生 52 条评价行，是一单多评导致行数大于订单数的原因\", \"value\": [{\"multi_review_orders\": 26, \"rows_in_those_orders\": \"52\"}], \"evidence\": [\"ac9cd8a9-1e43-4bb3-80da-85733d8622b8\"]}]}",
+              "name": "final_answer"
+            },
+            "type": "function",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "role": "eval_judge",
+      "attempt": 0,
+      "requested_model": "deepseek-flash",
+      "temperature": 0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "usage": {
+        "completion_tokens": 107,
+        "prompt_tokens": 1039,
+        "total_tokens": 1146,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 911
+      },
+      "input_summary": {
+        "question_id": "D08",
+        "claim_count": 3
+      },
+      "response_model": "deepseek-flash",
+      "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+      "output_summary": "{\"score\":5,\"rationale\":\"报告准确给出订单数19979、去重已评价订单数19863、评价记录数19889，与关键事实一致；量化了26单高估及0.1309%相对偏差，并正确区分覆盖率分母（99.4194% vs 99.5495%）；明确解释一单多评机制（26单共52行）及按订单去重的口径要求，限制与后续口径建议清晰，无混淆分母或重复计数。\"}"
+    }
+  ],
+  "cases": [
+    {
+      "question_id": "D01",
+      "category": "D",
+      "task_id": "08513e4e-b2e6-498e-b24a-ba69343de431",
+      "setup_task_id": null,
+      "user_id": "4c6dbb66-cc73-473e-9f2a-34dbe7fc6700",
+      "judge": {
+        "score": 4,
+        "rationale": "报告正确给出 Q1/Q2 GMV 与 +3.09% 变化率，口径明确（排除取消及不可用订单、price 之和、不含运费、按购买时间分期），与 gold facts 一致，且未把统计相关写成确定原因。但仅描述变化，未量化关键差异的构成、未讨论限制或交叉核对替代解释，也未给出可验证的后续行动，故未达 5 分。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 4406,
+      "sql_calls": 1,
+      "termination": "final_answer",
+      "steps": 3,
+      "agent_latency_ms": 4720.608493000327,
+      "correct": true,
+      "fact_hits": 3,
+      "fact_total": 3,
+      "fact_hit_rate": 1.0,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 6,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "response": {
+        "answer": "2018 年 Q2 GMV 为 2,849,730.26，较 Q1 的 2,764,402.78 增长 3.09%（口径：order_items.price 之和，不含运费，排除 canceled 与 unavailable 订单，按订单购买时间分期）。",
+        "claims": [
+          {
+            "text": "2018 年 Q1 GMV（排除取消及不可用订单，price 之和，不含运费）为 2764402.78，Q2 为 2849730.26，Q2 相对 Q1 变化率为 +3.09%。",
+            "value": [
+              {
+                "q1_gmv": 2764402.78,
+                "q2_gmv": 2849730.26,
+                "change_pct": 3.09
+              }
+            ],
+            "evidence": [
+              "fed4f7fc-73b9-49d3-b1cb-d166edd53217"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 3,
+        "input_tokens": 9926,
+        "output_tokens": 616,
+        "total_tokens": 10542,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 5748.023547999765
+    },
+    {
+      "question_id": "D02",
+      "category": "D",
+      "task_id": "5aa5136c-b336-4158-bc6c-0f681342f3ab",
+      "setup_task_id": null,
+      "user_id": "97ebd1c7-3cff-4896-bd65-99ba5a7ece10",
+      "judge": {
+        "score": 1,
+        "rationale": "报告仅称未能在执行限制内验证答案，未给出任何分析、比较范围、下降品类数量、最大拖累品类或原因，属于无有效分析；且未覆盖关键事实（30个品类下降、informatica_acessorios下降114709.72）。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 8456,
+      "sql_calls": 4,
+      "termination": "context_limit",
+      "steps": 5,
+      "agent_latency_ms": 10523.064945000442,
+      "correct": false,
+      "fact_hits": 0,
+      "fact_total": 3,
+      "fact_hit_rate": 0.0,
+      "evidence": {
+        "claims": [],
+        "claim_count": 0,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": null,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "response": {
+        "answer": "未能在执行限制内验证答案",
+        "claims": []
+      },
+      "error": "context_limit",
+      "agent_usage": {
+        "model_calls": 5,
+        "input_tokens": 24955,
+        "output_tokens": 2409,
+        "total_tokens": 27364,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 11734.917207000763
+    },
+    {
+      "question_id": "D03",
+      "category": "D",
+      "task_id": "6fed2021-48ec-48ad-853d-bea1cb669742",
+      "setup_task_id": null,
+      "user_id": "e6a6680b-d3c7-4943-808a-fdc29c79bbd1",
+      "judge": {
+        "score": 1,
+        "rationale": "报告未提供任何分析或事实，仅称无法验证答案，四个关键事实（SP/RJ 客户数与 GMV）均未给出，也无规模与客单结构讨论，属于无有效分析。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 6629,
+      "sql_calls": 2,
+      "termination": "context_limit",
+      "steps": 4,
+      "agent_latency_ms": 11381.00951999877,
+      "correct": false,
+      "fact_hits": 0,
+      "fact_total": 4,
+      "fact_hit_rate": 0.0,
+      "evidence": {
+        "claims": [],
+        "claim_count": 0,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": null,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "response": {
+        "answer": "未能在执行限制内验证答案",
+        "claims": []
+      },
+      "error": "context_limit",
+      "agent_usage": {
+        "model_calls": 4,
+        "input_tokens": 17295,
+        "output_tokens": 1906,
+        "total_tokens": 19201,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 12114.602390998698
+    },
+    {
+      "question_id": "D04",
+      "category": "D",
+      "task_id": "8441ffe5-514c-4e7b-9a0d-bcce16c8e1b5",
+      "setup_task_id": null,
+      "user_id": "7bb539af-4ad6-44a3-931c-ffb99d355dd6",
+      "judge": {
+        "score": 4,
+        "rationale": "核心数值与金标准完全一致，口径说明清晰（delivered 且实际送达时间非空、按购买日期分期、含时分秒、小数天），并量化了差异（-4.97 天、约 31.6%）。但因果解释仅停留在“物流/履约效率显著提升”的假设层面，未交叉核对替代解释（如季节性、订单结构、承运商或地区构成变化），也未给出可验证的后续行动；同时报告中的订单量、降幅等部分数字缺乏证据支撑。因此达到 4 分但未达 5 分。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 3660,
+      "sql_calls": 2,
+      "termination": "final_answer",
+      "steps": 2,
+      "agent_latency_ms": 6217.273262998788,
+      "correct": false,
+      "fact_hits": 3,
+      "fact_total": 3,
+      "fact_hit_rate": 1.0,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 4,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 20,
+        "unsupported_numbers": 11,
+        "unsupported_number_ratio": 0.55
+      },
+      "response": {
+        "answer": "2018 年 Q1（按购买日期 1/1–3/31）已送达且有实际送达时间的订单共 20,627 单，平均交付天数 15.7449 天；Q2（4/1–6/30）共 19,643 单，平均交付天数 10.7703 天。两期相差 -4.9746 天（Q2 比 Q1 缩短约 4.97 天，降幅约 31.6%）。口径：仅统计 order_status='delivered' 且 order_delivered_customer_date 非空的订单，用完整时间戳（含时分秒）计算购买到实际送达的秒数除以 86400 后取平均，按购买时间分期；未送达或缺失实际送达时间的订单不计入分母。结论：Q2 交付时效明显改善，平均交付天数由约 15.7 天降至约 10.8 天，缩短近 5 天，说明该季度物流/履约效率有显著提升；但两期订单量接近（Q2 略少约 4.8%），需注意 Q2 样本量略小及季节性因素影响。",
+        "claims": [
+          {
+            "text": "2018 Q1 平均交付天数（delivered 且实际送达时间非空，按购买日期分期）",
+            "value": {
+              "q1_days": 15.744880463892166
+            },
+            "evidence": [
+              "e567663f-7f2c-4755-9838-9acd54cb085b"
+            ]
+          },
+          {
+            "text": "2018 Q2 平均交付天数",
+            "value": {
+              "q2_days": 10.77030644457266
+            },
+            "evidence": [
+              "e567663f-7f2c-4755-9838-9acd54cb085b"
+            ]
+          },
+          {
+            "text": "Q2 相对 Q1 的平均交付天数变化（Q2 减 Q1，负值表示缩短）",
+            "value": {
+              "change_days": -4.9745740193195065
+            },
+            "evidence": [
+              "e567663f-7f2c-4755-9838-9acd54cb085b"
+            ]
+          },
+          {
+            "text": "两期纳入统计的订单量：Q1 与 Q2",
+            "value": [
+              {
+                "period": "Q1",
+                "days": 15.744880463892166,
+                "n": 20627
+              },
+              {
+                "period": "Q2",
+                "days": 10.77030644457266,
+                "n": 19643
+              }
+            ],
+            "evidence": [
+              "6dd30e67-eb6f-43b0-b755-584ff253ed27"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 2,
+        "input_tokens": 5745,
+        "output_tokens": 1097,
+        "total_tokens": 6842,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 7778.119008999056
+    },
+    {
+      "question_id": "D05",
+      "category": "D",
+      "task_id": "e9e6c652-7454-44c3-b462-5394805b548d",
+      "setup_task_id": null,
+      "user_id": "fcf17f59-565c-43e4-b5af-3f0f093a6c2e",
+      "judge": {
+        "score": 4,
+        "rationale": "报告给出的三个关键数值与 gold_facts 完全一致（1000、19643、5.0908720663849717%），并明确解释了分母口径：仅统计 delivered 且实际交付时间非空的订单，空交付时间不计入分母，符合 focus 要求；同时说明按完整原始时间戳比较、不截断日期，并指出截断会系统性低估迟到，属于对口径限制的合理说明。证据检查显示三条 claim 均有证据支持。不足之处在于：未交叉核对替代解释（如按预计交付日期截断、按订单批准时间归属季度等口径差异对结果的影响），也未给出可验证的后续行动；此外报告中的部分数字（如日期边界、100.0 等）未被证据直接覆盖，但属于口径描述而非关键事实错误。整体达到“比较完整、量化关键差异且说明限制”的 4 分水平，未达到 5 分要求的交叉核对与可验证后续行动。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 3555,
+      "sql_calls": 1,
+      "termination": "final_answer",
+      "steps": 3,
+      "agent_latency_ms": 5966.3038500002585,
+      "correct": false,
+      "fact_hits": 3,
+      "fact_total": 3,
+      "fact_hit_rate": 1.0,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 14,
+        "unsupported_numbers": 7,
+        "unsupported_number_ratio": 0.5
+      },
+      "response": {
+        "answer": "2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30，含 6 月 30 日全天）的已送达订单中：\n\n- 实际交付晚于预计交付的订单数（late_orders）：1,000\n- 实际交付时间完整的订单数（measured_orders，即分母）：19,643\n- 迟到率（late_pct）：5.0908720663849717%\n\n口径说明：\n1. 时间范围按 order_purchase_timestamp 落在 [2018-04-01, 2018-07-01) 界定，即按购买时间归属季度。\n2. 分母 = order_status='delivered' 且 order_delivered_customer_date 非空的订单数（19,643）。未送达订单缺实际交付时间属正常，不计入；delivered 但缺实际交付时间的订单因无法判断是否迟到，也不计入分母。\n3. 分子按完整原始时间戳比较 order_delivered_customer_date > order_estimated_delivery_date，不截断为日期（预计送达时间多为 00:00:00，若截断日期会系统性低估迟到）。\n4. 迟到率 = 分子/分母×100，由 SQL 直接计算，未做四舍五入。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达且实际交付时间完整的订单数为 19,643，作为迟到率分母",
+            "value": {
+              "measured_orders": 19643
+            },
+            "evidence": [
+              "04ad998b-3526-497c-9a57-f12d27bee272"
+            ]
+          },
+          {
+            "text": "其中实际交付时间晚于预计交付时间的订单数为 1,000（按完整原始时间戳比较，不截断日期）",
+            "value": {
+              "late_orders": 1000
+            },
+            "evidence": [
+              "04ad998b-3526-497c-9a57-f12d27bee272"
+            ]
+          },
+          {
+            "text": "迟到率为 5.0908720663849717%（100.0*late_orders/measured_orders，由 SQL 计算）",
+            "value": {
+              "late_pct": "5.0908720663849717"
+            },
+            "evidence": [
+              "04ad998b-3526-497c-9a57-f12d27bee272"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 3,
+        "input_tokens": 8605,
+        "output_tokens": 760,
+        "total_tokens": 9365,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 7625.639238000076
+    },
+    {
+      "question_id": "D06",
+      "category": "D",
+      "task_id": "c0b74ee3-fbb9-4f12-b078-a912fe7428d8",
+      "setup_task_id": null,
+      "user_id": "12f84ddd-296a-41ff-9a5d-1e7b28e638d2",
+      "judge": {
+        "score": 1,
+        "rationale": "报告仅称“未能在执行限制内验证答案”，未给出任何数值或分析，未涉及商品金额、运费、支付金额的汇总与对比，也未解释为何不能直接把支付金额当作商品 GMV，属于无有效分析。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 7433,
+      "sql_calls": 4,
+      "termination": "context_limit",
+      "steps": 4,
+      "agent_latency_ms": 8708.281444000022,
+      "correct": false,
+      "fact_hits": 0,
+      "fact_total": 3,
+      "fact_hit_rate": 0.0,
+      "evidence": {
+        "claims": [],
+        "claim_count": 0,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": null,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "response": {
+        "answer": "未能在执行限制内验证答案",
+        "claims": []
+      },
+      "error": "context_limit",
+      "agent_usage": {
+        "model_calls": 4,
+        "input_tokens": 18447,
+        "output_tokens": 1649,
+        "total_tokens": 20096,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 9743.910682000205
+    },
+    {
+      "question_id": "D07",
+      "category": "D",
+      "task_id": "08a35237-f0af-4045-a70a-d34ffb9eb6b9",
+      "setup_task_id": null,
+      "user_id": "45fdd188-ffe3-4df0-b33c-fb6caa0d4bc4",
+      "judge": {
+        "score": 4,
+        "rationale": "报告正确给出三个关键数值，明确按 customer_unique_id 去重、保留全部订单状态，并说明 2017 自然年观察窗口，且强调该复购率不是终身复购率，符合核心要求。但报告仅复述结果，未量化或解释复购率低的原因，未讨论窗口截断、客户标识合并等限制，也未交叉核对替代解释或给出可验证的后续行动，因此未达到 5 分标准。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 3958,
+      "sql_calls": 1,
+      "termination": "final_answer",
+      "steps": 3,
+      "agent_latency_ms": 5462.82853699995,
+      "correct": false,
+      "fact_hits": 3,
+      "fact_total": 3,
+      "fact_hit_rate": 1.0,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 8,
+        "unsupported_numbers": 2,
+        "unsupported_number_ratio": 0.25
+      },
+      "response": {
+        "answer": "2017 年（观察窗口：order_purchase_timestamp 在 2017-01-01 至 2017-12-31 之间，保留全部订单状态）按 customer_unique_id 汇总订单数：有过下单的真实客户数（buyers）为 43,713 人；年内至少下单两次的客户数（repeat_buyers）为 1,256 人；年内复购率（repeat_pct）为 2.8732871228238739%。注意该复购率仅为 2017 自然年窗口内的复购，不等于终身复购率。",
+        "claims": [
+          {
+            "text": "2017 自然年窗口内（全部订单状态，按 customer_unique_id 去重）有过下单的真实客户数为 43,713 人",
+            "value": {
+              "buyers": 43713,
+              "repeat_buyers": 1256,
+              "repeat_pct": "2.8732871228238739"
+            },
+            "evidence": [
+              "f5709d98-7815-43bd-8b61-216fa57f1466"
+            ]
+          },
+          {
+            "text": "同一 2017 年窗口内至少下单两次的客户数为 1,256 人，年内复购率为 2.8732871228238739%（窗口内复购，非终身复购）",
+            "value": {
+              "buyers": 43713,
+              "repeat_buyers": 1256,
+              "repeat_pct": "2.8732871228238739"
+            },
+            "evidence": [
+              "f5709d98-7815-43bd-8b61-216fa57f1466"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 3,
+        "input_tokens": 9335,
+        "output_tokens": 640,
+        "total_tokens": 9975,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 6870.608471999731
+    },
+    {
+      "question_id": "D08",
+      "category": "D",
+      "task_id": "9c9a682a-4d47-4a71-b6ba-e9457cb333b4",
+      "setup_task_id": null,
+      "user_id": "ea789f2a-239e-42f9-b095-defa188d9811",
+      "judge": {
+        "score": 5,
+        "rationale": "报告准确给出订单数19979、去重已评价订单数19863、评价记录数19889，与关键事实一致；量化了26单高估及0.1309%相对偏差，并正确区分覆盖率分母（99.4194% vs 99.5495%）；明确解释一单多评机制（26单共52行）及按订单去重的口径要求，限制与后续口径建议清晰，无混淆分母或重复计数。"
+      },
+      "judge_status": "scored",
+      "peak_context_tokens": 5681,
+      "sql_calls": 4,
+      "termination": "final_answer",
+      "steps": 6,
+      "agent_latency_ms": 10374.690965998525,
+      "correct": true,
+      "fact_hits": 3,
+      "fact_total": 3,
+      "fact_hit_rate": 1.0,
+      "evidence": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 25,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "response": {
+        "answer": "2018 年 Q2（按 order_purchase_timestamp 落在 2018-04-01 至 2018-06-30 之间，含全部订单状态）：\n- 订单总数 orders = 19,979\n- 已评价订单数 reviewed_orders = 19,863（按订单去重，即至少有一条评价的订单数）\n- 评价记录数 review_rows = 19,889（order_reviews 中关联到这些订单的行数）\n\n用评价记录数当已评价订单数会怎样：\n- 会高估 26 单（review_rows − reviewed_orders = 26），相对已评价订单数高估 0.1309%。\n- 评价覆盖率会被虚高：真实覆盖率 99.4194%（19,863/19,979），若用评价行数计算则为 99.5495%（19,889/19,979）。\n- 原因：Q2 中有 26 个订单存在多条评价记录（这 26 单共产生 52 条评价行），一单多评导致行数大于订单数。因此评价类指标必须按订单去重（count distinct order_id 或 EXISTS 语义），不能用评价行数代替订单数；否则在评价率、有评价订单占比等口径上会系统性偏高，且偏差随多评订单比例放大。",
+        "claims": [
+          {
+            "text": "2018 Q2 订单总数、已评价订单数（按订单去重）、评价记录数分别为 19979、19863、19889",
+            "value": [
+              {
+                "orders": 19979,
+                "reviewed_orders": 19863,
+                "review_rows": 19889
+              }
+            ],
+            "evidence": [
+              "3b471368-8eb7-48f1-82d9-24ba92d5e123"
+            ]
+          },
+          {
+            "text": "用评价记录数代替已评价订单数会多计 26 单，相对高估 0.1309%；真实评价覆盖率 99.4194%，按评价行数计算为 99.5495%",
+            "value": [
+              {
+                "orders": 19979,
+                "reviewed_orders": 19863,
+                "review_rows": 19889,
+                "overcount_abs": 26,
+                "overcount_pct": "0.1309",
+                "reviewed_rate_pct": "99.4194",
+                "naive_rate_pct": "99.5495"
+              }
+            ],
+            "evidence": [
+              "2369faca-f38a-4e94-b93a-c1adb5b566fc"
+            ]
+          },
+          {
+            "text": "Q2 中有 26 个订单存在多条评价记录，这 26 单合计产生 52 条评价行，是一单多评导致行数大于订单数的原因",
+            "value": [
+              {
+                "multi_review_orders": 26,
+                "rows_in_those_orders": "52"
+              }
+            ],
+            "evidence": [
+              "ac9cd8a9-1e43-4bb3-80da-85733d8622b8"
+            ]
+          }
+        ]
+      },
+      "agent_usage": {
+        "model_calls": 6,
+        "input_tokens": 23993,
+        "output_tokens": 1556,
+        "total_tokens": 25549,
+        "cost_usd": null,
+        "usage_complete": true
+      },
+      "latency_ms": 11644.129161999444
+    }
+  ],
+  "oracle_values": {
+    "D01": {
+      "q1_gmv": "2764402.78",
+      "q2_gmv": "2849730.26",
+      "change_pct": "3.0866515045249665"
+    },
+    "D02": {
+      "declining_categories": 30,
+      "largest_drop_category": "informatica_acessorios",
+      "largest_drop_amount": "114709.72"
+    },
+    "D03": {
+      "sp_buyers": 8913,
+      "rj_buyers": 2345,
+      "sp_gmv": "1173308.82",
+      "rj_gmv": "352617.27"
+    },
+    "D04": {
+      "q1_days": "15.74488046389216578796",
+      "q2_days": "10.77030644457265900003",
+      "change_days": "-4.97457401931950678793"
+    },
+    "D05": {
+      "late_orders": 1000,
+      "measured_orders": 19643,
+      "late_pct": "5.0908720663849717"
+    },
+    "D06": {
+      "item_total": "2858289.74",
+      "freight_total": "473867.23",
+      "payment_total": "3338648.13"
+    },
+    "D07": {
+      "buyers": 43713,
+      "repeat_buyers": 1256,
+      "repeat_pct": "2.8732871228238739"
+    },
+    "D08": {
+      "orders": 19979,
+      "reviewed_orders": 19863,
+      "review_rows": 19889
+    }
+  },
+  "source_log": "eval_review6-fixed-pressure-none_20261017T095656Z_8ff0973c.jsonl",
+  "human_calibration": "pending",
+  "source_log_sha256": "e89bb363c7fc5f2ac7182583d002d2d69ec0dcf7b9ccc4e630cd35a64df06134"
+}

@@ -1,5 +1,6 @@
 """Real-model extraction audit with predeclared quotes; human review stays blank."""
 import asyncio
+import argparse
 import json
 import hashlib
 from pathlib import Path
@@ -18,14 +19,14 @@ CASES=[
 ]+[('delivery_duration',q) for q in ['以后平均交付天数用购买到实际签收的秒数除以 86400。','以后交付时长只看 delivered 且实际送达时间非空。','默认配送时长从批准订单算到实际送达。','记住交付时长保留小数天，不要只取日期差。']]
 
 
-async def main():
-    logger,path=start_log('memory_audit')
+async def main(cases=CASES, tag='memory_audit'):
+    logger,path=start_log(tag)
     record(logger,'audit_started',model=OPENAI_MODEL,embedding=provenance(used=False),
         extractor_sha256=hashlib.sha256((Path(__file__).resolve().parents[1]/'agent/preferences.py').read_bytes()).hexdigest(),
-        cases_sha256=hashlib.sha256(json.dumps(CASES,ensure_ascii=False).encode()).hexdigest())
+        cases_sha256=hashlib.sha256(json.dumps(cases,ensure_ascii=False).encode()).hexdigest())
     outcomes=[]
     async with AsyncOpenAI(base_url=OPENAI_BASE_URL,max_retries=0,timeout=MODEL_TIMEOUT) as client:
-        for index,(key,quote) in enumerate(CASES):
+        for index,(key,quote) in enumerate(cases):
             def emit(kind,payload,tokens=0,latency_ms=0): record(logger,kind,case=index,payload=payload,tokens=tokens,latency_ms=latency_ms)
             try:
                 items=await extract(quote,client,OPENAI_MODEL,emit)
@@ -36,4 +37,8 @@ async def main():
     record(logger,'memory_audit_summary',total=len(outcomes),automatic_exact_matches=sum(r['automatic_exact_match'] for r in outcomes),human_review='pending',limitations='Author-written examples; exact quote/key check is not human validation or deployment accuracy')
     print('Evidence:',publish_log(path).name)
 
-if __name__=='__main__': asyncio.run(main())
+if __name__=='__main__':
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--cases',type=Path)
+    args=parser.parse_args()
+    asyncio.run(main(json.loads(args.cases.read_text(encoding='utf-8')), 'memory_holdout_audit') if args.cases else main())

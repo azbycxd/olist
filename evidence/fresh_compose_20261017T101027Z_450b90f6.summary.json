@@ -1,0 +1,76 @@
+{
+  "source_log": "fresh_compose_20261017T101027Z_450b90f6.jsonl",
+  "project": "olist-step8-smoke",
+  "initialized": true,
+  "api_http_status": 200,
+  "migrations": [
+    "1|001_agent_core.sql",
+    "2|002_olist_core.sql",
+    "3|003_olist_column_comments.sql",
+    "4|004_knowledge.sql",
+    "5|005_task_state.sql",
+    "6|006_embedding_revision.sql",
+    "7|007_reviewed_findings.sql",
+    "8|008_background_tasks.sql"
+  ],
+  "services": [
+    {
+      "Service": "api",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "db",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "embeddings",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "mcp-olist",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "worker",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    }
+  ],
+  "embedding_cache": "olist-step8-smoke_embedding_models",
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "dimensions": 1024,
+    "pooling": "CLS",
+    "normalization": true,
+    "provider": "CPUExecutionProvider",
+    "threads": 2,
+    "batch_size": 2,
+    "fastembed_version": "0.9.0",
+    "onnxruntime_version": "1.31.0",
+    "hf_endpoint": "https://hf-mirror.com",
+    "files_sha256": {
+      "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+      "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+      "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+      "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+      "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+      "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+      "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+    },
+    "load_seconds": 295.99401161900096
+  },
+  "limitations": "Isolated fresh database and empty model cache on this host, using existing built images and original CSV inputs; not a different physical machine.",
+  "cleanup_success": true,
+  "source_log_sha256": "ebd086280d8b4805995ce2b89dbe17300e723e311e8f695e23a8f9c50cdf4741"
+}

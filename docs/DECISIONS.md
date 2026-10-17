@@ -271,3 +271,63 @@
 **隔离复跑结果也保留**：[single 隔离复跑](../evidence/eval_bge-single-isolated_20261017T090525Z_c75a15fc.summary.json)，原始日志 `eval_bge-single-isolated_20261017T090525Z_c75a15fc.jsonl`。代码、依赖版本、题库、数据与向量身份与主对比一致；完成 25/25，整题正确 18/25，D 事实 23/25，无证据 claims 2/47，D 正文无证据数字 56/210，归因均分 4.125。Agent 调用 83 次，平均 Agent 耗时 7295.55 ms。仍有连接失败尝试没有 usage，所以完整 token 和费用继续留空，不再反复重跑以挑出完整或更好看的成绩。复跑更差的数字没有替换或隐藏主运行；温度固定也未保证输出相同。本步不能据单次主对比断言 single 或 multi 稳定更优，更不能报告精确 token 成本增幅。十份报告按预先选定的三轮主运行导出，未根据复跑成绩重挑样本。
 
 [最终证据一致性核验](../evidence/step6_integrity_20261017T091012Z.summary.json)，原始日志 `step6_integrity_20261017T091012Z.jsonl`：RESULTS 所有已填指标与真实运行收据一致，原始日志哈希匹配；旧表未填列继续留空，新 bge 行逐列核对，包括缺失用量空白。主对比与隔离复跑的代码、依赖、题库和数据版本一致。
+
+
+## Step 6 审查修复：数字门禁与重复实验
+
+问题：正文中会出现没有已批准证据的差值、比率和其他数字，标红只能提示，不能阻止报告继续输出。
+
+方案：继续标红、无限退回、或一次退回后确定性替换。选择 `NUMBER_GATE=true` 时先扫描正文，把不受支持的数字列表反馈给模型重写一次，仍不合格则替换为“未验证”。关闭时保留原行为。单 Agent 和简单路由的数字来源先经过同名列、同一行的确定性证据核查；复杂 multi 使用 Reviewer 批准的 claims。代码核查与语义审核的能力不同，不把单 Agent 的值匹配称为语义通过。数字匹配仍按绝对值和既有容差，不允许模型自行计算。日期标签、证据 UUID 和列表序号不作为业务数值；它们不是经过核验的业务事实。
+
+数据：初版实跑发现行首小数被列表编号规则误截，导致正确的数值答案被退回并变成不符合数值答案契约的文本。已有 review6 行保留，不能作为门禁有效性的最终对比。中断尚未完成的 D 门禁实验，并保留[中断收据](../evidence/eval_review6-D-single-gatetrue-r1_20261017T092721Z_53d1efae.summary.json)。运行时与独立核查器分别修复“句点后紧跟数字不是序号”，补充小数原值、文本小数和真序号回归；[测试收据](../evidence/step78_decimal_tests.xml)，日志 `step78_decimal_tests.log`。后续完整重跑使用 review6-fixed 标签，不能把前后两批混合成重复样本。正文门禁不改结构化 claim.value 或 gold；独立核查器同时检查正文与 claim.text，因此即使正文已清理，元数据中的文字仍可能被扣分。
+
+
+完整四组结果见 [审查补充对比](REVIEW_COMPARISON.md)、[重复运行汇总](../evidence/eval_review6-fixed_20261017T092756Z_ed1d9efd.summary.json)和[实际拆题配对及计数](../evidence/eval_review6-statistics_20261017T100149Z_ea5440cc.summary.json)；汇总日志分别为 `eval_review6-fixed_20261017T092756Z_ed1d9efd.jsonl`、`eval_review6-statistics_20261017T100149Z_ea5440cc.jsonl`，各次原始日志列在报告内。C dev 四组均为 17/17。D 每组完整保留三次：single 的无证据数字比例均值由 21.67% 降为 2.43%，multi 由 14.59% 降为 3.99%；范围、分母和计数均单列。single 开关前后的事实命中均值相同，为 93.33%；multi 从 86.67% 到 93.33%。这支持在网页交付报告时启用门禁，但不证明其能纠正语义错误或保证全部元数据没有幻觉。
+
+复杂题按每次实际拆分题号与同轮 single 配对，所有配对中 multi 的平均 Agent 耗时更长，事实命中有升有降，不能宣称并行已有加速收益。CLI 保留 single；网页采用 multi 是为了计划确认、审核与子问题恢复，不把它宣传为更准确、更快。三轮仍是很小的样本，温度为零也有路由与生成波动。预算和上下文失败进入分母，没有择优重跑。为保留实际评测版本，另存 [冻结源码快照](../evidence/review6_evaluated_source.zip)，其中 manifest 的逐文件哈希已与首轮收据核对；后续 Step 7–8 的代码变化不回填这些运行。
+
+6000 上下文压力测试单独运行：none 完成 5/8、事实 15/25；mask 与 summary 均完成 7/8、事实 22/25。mask 实际总 token 108080，summary 148094，均含独立评分；本轮紧窗口优先选择 mask，正常窗口默认不因单轮压力成绩整体切换。summary 阈值在运行前固定为 3600，未据成绩再调；两种压缩均仍有一次上下文超限。日志分别为 `eval_review6-fixed-pressure-none_20261017T095656Z_8ff0973c.jsonl`、`eval_review6-fixed-pressure-mask_20261017T095817Z_0707467e.jsonl`、`eval_review6-fixed-pressure-summary_20261017T095925Z_5a49533f.jsonl`，对应证据及峰值在对比报告中。
+
+## 检索默认值的实测选择
+
+问题：等权 RRF 会让较弱的关键词排名挤掉正确的向量候选。对照纯向量、等权混合，以及预先固定 BM25:vector=0.25:1 的加权 RRF；未进行多轮权重搜索。
+
+选择：默认改为纯向量，保留 `RETRIEVAL_METHOD=hybrid|weighted|bm25|vector` 可选。依据[本次检索证据](../evidence/eval_review-weighted-retrieval_20261017T091858Z_d2d8db45.summary.json)，日志 `eval_review-weighted-retrieval_20261017T091858Z_d2d8db45.jsonl`：C dev recall@3，纯向量 17/17，等权混合 15/17，加权混合 16/17，BM25 14/17。加权仍漏掉 C02 的 buyers 块。只有 17 道同源陷阱题，样本小且知识库与题库共享业务陷阱，不能外推到其他问法、其他语料或 holdout。固定 bge-m3 模型与 revision 保持不变。
+
+## 偏好抽取的新写法留出审计
+
+问题：原样例复跑成功可能是提示适配该批措辞。新增独立的 [20 条新说法](../eval/preference_holdout.json)，保持抽取器代码与提示完全不变，只跑一次。[真实审计](../evidence/memory_holdout_audit_20261017T092012Z_ab705f05.summary.json)，日志 `memory_holdout_audit_20261017T092012Z_ab705f05.jsonl`，完整原话与预声明 key 精确匹配 20/20；收据保存抽取器及样例哈希、逐次模型输出和实际 usage。它是自编表达留出，不是生产输入的随机抽样，也不是题库 holdout 的最终评测。未把它称为人工准确率。
+
+## Step 7：已审核结论的复用边界
+
+问题：重复查询浪费调用，未经审核或过期的结论又会持续污染后续答案。选择只读取持久化黑板中的 Reviewer 通过项，且该项必须进入最终报告；未通过、缺证据、版本不一致的内容不写入 finding。迁移 007 增加证据、版本、向量和来源任务，复用既有 memories 表。
+
+finding 在多角色规划阶段读取；single 的 USE_MEMORY 继续用于用户偏好，不能把它当作 finding 复用。按用户隔离，固定模型及 revision，余弦相似度阈值预设 0.78，最多取三条。当前版本的证据复制到当前任务，保留 source_result_id 和原始引用；MCP 仍只能读取当前任务，不能凭历史 UUID 跨用户取结果。Planner 判断是否覆盖新问题，复用项仍由 Reviewer 针对新问题复核。数据版本不同时仅给历史问题，不给旧结论、数值或 result_id。真实两会话与版本变更测试见 [复用实验](FINDING_REUSE.md)，不承诺每个问题都会省 token。
+
+两会话实测固定选择 D01–D05，见 [证据](../evidence/eval_findings-dev_20261017T100156Z_399f6c31.summary.json)，日志 `eval_findings-dev_20261017T100156Z_399f6c31.jsonl`。五题第二次都触发了历史复用；D01、D03、D04、D05 第二次 SQL 调用为零，事实命中保持，步骤和 token 下降。D02 只获得部分历史证据，仍需补查：步骤从 14 增至 17，SQL 从 5 增至 7，token 从 74587 到 69613，事实命中从 2/3 到 3/3。不能把局部复用描述成全部重复问题都无需查库。逐题原始值与首次/再次正确性均在实验报告中。
+
+版本测试提交临时 data_imports 记录，让独立读取连接看见不同版本；各题匹配项只能返回 stale_clue，不含旧 claim 或结果引用；测试完成后删除该测试标记并核对原版本恢复。原业务行未修改。它验证版本边界，不代替生产数据更新后的业务正确性评估。
+
+## Step 8：数据库任务队列、确认与恢复
+
+问题：HTTP 请求不能承担长分析，进程重启也不能丢失已完成的查证。选择独立 worker 和 PostgreSQL 行锁，不增加消息队列；新增迁移 008 保存确认时间、租约、心跳和领取次数。
+
+API 的 JWT subject 决定所有任务、SQL 结果及记忆的归属。密码使用带随机盐的 PBKDF2，JWT 有有效期；浏览器只接收用户 token，不接收 MCP 或数据库凭据。任务创建只入队，计划完成后必须人工确认；确认提交校验整个依赖图，客户端不能塞入未经计划提供的历史引用。
+
+租约过期允许接管，所有后台事件和状态写入检查当前租约；保存 SQL 结果时再次核对租约，阻止旧进程在接管后提交。恢复跳过已审核的完成子问题，已有查询未审核则继续审核，其他未完成项重跑。事件 seq 在任务行锁下分配，SSE 根据 Last-Event-ID 续传。被杀死的在途模型调用可能没有 usage，完整总 token 留空，已记录用量单列；不假装恢复能找回供应商没有返回的用量。
+
+
+真实恢复：[核验收据](../evidence/resume_demo_20261017T100621Z.summary.json)，日志 `resume_demo_20261017T100621Z.jsonl`。同一个任务在 SP 子问题审核通过后被 SIGKILL，重启接管后，已完成的 SP claims、审核和 evidence 原样保留，只重跑 RJ；SSE 以 Last-Event-ID 重连得到严格对应的事件后缀。原始任务总历时包含前期排队、人工确认及重启诊断，不把它当作模型推理延迟。
+
+演示首次使用 `docker compose start worker` 时，Compose 连带启动遗留的旧 init-data 镜像，迁移检查因缺少已执行的迁移文件而拒绝启动。没有修改迁移或清库绕过；将恢复命令改为 `docker compose up -d --no-deps worker`，继续同一个检查点，并将主项目初始化容器更新到当前镜像。此问题与恢复成功均记录，未重挑任务隐藏失败。新部署还改为在向量服务启动期间下载并加载固定快照，健康检查通过后才允许导入索引，避免空缓存时由第一条 HTTP 索引请求承担下载。
+
+浏览器完成了计划修改、确认、实时事件、恢复完成和金额点击 SQL 的真实验收，未发现控制台错误；[画面收据](../evidence/ui_demo_20261017T100932Z_f92bcf6e.summary.json)对应日志 `ui_demo_20261017T100932Z_f92bcf6e.jsonl`。GIF 为真实阶段截图编码，等待和故障诊断时间被压缩，不能据动画播放时长计算性能。
+
+[最终回归](../evidence/step78_release_tests.xml)为 176 passed，日志 `step78_release_tests.log`。保留初次 [失败收据](../evidence/step78_initial_tests.xml)（旧计划断言漏掉新增默认 memory_ids）和后续 [失败收据](../evidence/step78_ready_tests.xml)（错误地在整个返回字符串中检查数字，随机 UUID 碰巧包含该数字）；修正为计划规范化比较和明确字段级断言，没有放宽隔离或版本校验。
+
+
+冷启动验收使用独立项目 `olist-step8-smoke`，先确认数据库卷和模型卷均不存在，从空卷下载固定 revision；[通过收据](../evidence/fresh_compose_20261017T101027Z_450b90f6.summary.json)，日志 `fresh_compose_20261017T101027Z_450b90f6.jsonl`。全部迁移落库，初始化容器实际 exited/0，API 返回成功，数据库、向量服务、MCP、API 健康且 worker 运行，测试卷已清理。复用了本机已构建镜像与原 CSV，不宣称在另一台物理机器实际部署过。首次 [失败收据](../evidence/fresh_compose_20261017T100503Z_ac054510.summary.json)来自验收脚本：`compose wait` 对已退出容器返回“no containers”，并非可据此判断初始化进程失败；改为读取退出容器状态与 ExitCode 后，从空卷重新验证，没有把第一次收据改为成功。
+
+最终页面还验证了已完成任务重开后的历史时间线，见 [UI 回放证据](../evidence/step8_reopen_ui.summary.json)，日志 `step8_reopen_ui.json`。当前工作在 Step 9 之前停止，未启动题库 holdout 或最终消融。人工归因评分校准仍未完成，不能将模型分数当作已验证的人类判断。
+
+[提交前证据一致性检查](../evidence/evidence_integrity_20261017T101750Z_8c083213.summary.json)，日志 `evidence_integrity_20261017T101750Z_8c083213.jsonl`：RESULTS 的已填单元格与真实收据一致，原始日志哈希匹配，已检查的文档链接存在，候选 Git 文件未发现配置密钥。

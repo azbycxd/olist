@@ -1,0 +1,306 @@
+{
+  "source_log": "eval_review6-D-single-gatetrue-r1_20261017T092721Z_53d1efae.jsonl",
+  "source_log_sha256": "0ab999a8a48ea3390d05e88900ffa904e0e6eedbc80d6b5a77404d0d26f749e8",
+  "records": [
+    {
+      "at": "2026-10-17T09:27:21.697604+00:00",
+      "event": "run_started",
+      "run_id": "62f95e08-267c-44f2-88af-ed389f776212",
+      "tag": "review6-D-single-gatetrue-r1",
+      "adapter": "single",
+      "adapter_version": "single-v1",
+      "judge": "model",
+      "split": "dev",
+      "categories": [
+        "D"
+      ],
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a",
+      "temperature": 0,
+      "schema_mode": "on_demand",
+      "embedding": {
+        "model": "BAAI/bge-m3",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "used": true,
+        "service_verified": true,
+        "dimensions": 1024,
+        "pooling": "CLS",
+        "normalization": true,
+        "provider": "CPUExecutionProvider",
+        "threads": 2,
+        "batch_size": 2,
+        "fastembed_version": "0.9.0",
+        "onnxruntime_version": "1.31.0",
+        "hf_endpoint": "https://hf-mirror.com",
+        "files_sha256": {
+          "onnx/model.onnx": "f84251230831afb359ab26d9fd37d5936d4d9bb5d1d5410e66442f630f24435b",
+          "onnx/model.onnx_data": "1eebfb28493f67bba03ce0ef64bfdc7fc5a3bd9d7493f818bb1d78cd798416b4",
+          "onnx/Constant_7_attr__value": "cdf16f72c5d07b36484056e601ed9687f78477e5d85cee85a34f2406b7fb5906",
+          "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+          "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+          "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+          "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+          "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+        },
+        "load_seconds": 2.189725891999842
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.698059+00:00",
+      "event": "oracle_result",
+      "question_id": "D01",
+      "sql": "WITH x AS (\n        SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp < '2018-04-01') AS q1_gmv,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01') AS q2_gmv\n        FROM orders o JOIN order_items i USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND o.order_status NOT IN ('canceled','unavailable'))\n        SELECT q1_gmv, q2_gmv, 100.0*(q2_gmv-q1_gmv)/nullif(q1_gmv,0) AS change_pct FROM x",
+      "value": {
+        "q1_gmv": "2764402.78",
+        "q2_gmv": "2849730.26",
+        "change_pct": "3.0866515045249665"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.698289+00:00",
+      "event": "oracle_result",
+      "question_id": "D02",
+      "sql": "WITH c AS (\n        SELECT p.product_category_name AS category,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp < '2018-04-01') AS q1,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01') AS q2\n        FROM orders o JOIN order_items i USING(order_id) JOIN products p USING(product_id)\n        WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND o.order_status NOT IN ('canceled','unavailable') AND p.product_category_name IS NOT NULL\n        GROUP BY p.product_category_name), d AS (SELECT *, q1-q2 AS drop_amount FROM c WHERE q2<q1)\n        SELECT (SELECT count(*) FROM d) AS declining_categories, category AS largest_drop_category,\n        drop_amount AS largest_drop_amount FROM d ORDER BY drop_amount DESC, category LIMIT 1",
+      "value": {
+        "declining_categories": 30,
+        "largest_drop_category": "informatica_acessorios",
+        "largest_drop_amount": "114709.72"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.698484+00:00",
+      "event": "oracle_result",
+      "question_id": "D03",
+      "sql": "WITH c AS (\n        SELECT c.customer_state AS state, count(DISTINCT c.customer_unique_id) AS buyers FROM orders o JOIN customers c USING(customer_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state), g AS (\n        SELECT c.customer_state AS state, sum(i.price) AS gmv FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND o.order_status NOT IN ('canceled','unavailable') GROUP BY c.customer_state)\n        SELECT (SELECT buyers FROM c WHERE state='SP') AS sp_buyers, (SELECT buyers FROM c WHERE state='RJ') AS rj_buyers,\n        (SELECT gmv FROM g WHERE state='SP') AS sp_gmv, (SELECT gmv FROM g WHERE state='RJ') AS rj_gmv",
+      "value": {
+        "sp_buyers": 8913,
+        "rj_buyers": 2345,
+        "sp_gmv": "1173308.82",
+        "rj_gmv": "352617.27"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.698743+00:00",
+      "event": "oracle_result",
+      "question_id": "D04",
+      "sql": "WITH x AS (\n        SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) FILTER (WHERE order_purchase_timestamp < '2018-04-01') AS q1_days,\n        avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) FILTER (WHERE order_purchase_timestamp >= '2018-04-01') AS q2_days\n        FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01'\n        AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL)\n        SELECT *, q2_days-q1_days AS change_days FROM x",
+      "value": {
+        "q1_days": "15.74488046389216578796",
+        "q2_days": "10.77030644457265900003",
+        "change_days": "-4.97457401931950678793"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.698961+00:00",
+      "event": "oracle_result",
+      "question_id": "D05",
+      "sql": "SELECT\n        count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,\n        count(*) AS measured_orders,\n        100.0*count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date)/nullif(count(*),0) AS late_pct\n        FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\n        AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+      "value": {
+        "late_orders": 1000,
+        "measured_orders": 19643,
+        "late_pct": "5.0908720663849717"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.699192+00:00",
+      "event": "oracle_result",
+      "question_id": "D06",
+      "sql": "WITH i AS (\n        SELECT sum(i.price) AS item_total, sum(i.freight_value) AS freight_total FROM order_items i JOIN orders o USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'), p AS (\n        SELECT sum(p.payment_value) AS payment_total FROM order_payments p JOIN orders o USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') SELECT * FROM i CROSS JOIN p",
+      "value": {
+        "item_total": "2858289.74",
+        "freight_total": "473867.23",
+        "payment_total": "3338648.13"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.699384+00:00",
+      "event": "oracle_result",
+      "question_id": "D07",
+      "sql": "WITH c AS (\n        SELECT c.customer_unique_id, count(*) AS n FROM orders o JOIN customers c USING(customer_id)\n        WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY c.customer_unique_id)\n        SELECT count(*) AS buyers, count(*) FILTER (WHERE n>=2) AS repeat_buyers,\n        100.0*count(*) FILTER (WHERE n>=2)/nullif(count(*),0) AS repeat_pct FROM c",
+      "value": {
+        "buyers": 43713,
+        "repeat_buyers": 1256,
+        "repeat_pct": "2.8732871228238739"
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.699577+00:00",
+      "event": "oracle_result",
+      "question_id": "D08",
+      "sql": "SELECT count(*) AS orders,\n        count(*) FILTER (WHERE EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)) AS reviewed_orders,\n        (SELECT count(*) FROM order_reviews r JOIN orders x USING(order_id) WHERE x.order_purchase_timestamp >= '2018-04-01' AND x.order_purchase_timestamp < '2018-07-01') AS review_rows\n        FROM orders o WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'",
+      "value": {
+        "orders": 19979,
+        "reviewed_orders": 19863,
+        "review_rows": 19889
+      }
+    },
+    {
+      "at": "2026-10-17T09:27:21.703042+00:00",
+      "event": "memory_read",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "enabled": false,
+        "count": 0
+      },
+      "tokens": 0,
+      "latency_ms": 0
+    },
+    {
+      "at": "2026-10-17T09:27:22.503837+00:00",
+      "event": "tool_call",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "name": "search_knowledge",
+        "call_id": "knowledge-inject",
+        "phase": "bootstrap",
+        "input_summary": {
+          "query": "比较 2018 年 Q1、Q2 的 GMV 和变化率（百分数）。先排除取消及不可用订单，再分析变化；不要把统计相关写成确定原因。\n输出类型：key_facts；报告需要的事实字段：q1_gmv, q2_gmv, change_pct"
+        }
+      },
+      "tokens": 0,
+      "latency_ms": 0
+    },
+    {
+      "at": "2026-10-17T09:27:22.506426+00:00",
+      "event": "mcp_call",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "call_id": "7ed38202-dc8b-48b7-a7c3-bbd24becebd4",
+        "name": "search_knowledge",
+        "input_summary": {
+          "keys": [
+            "query"
+          ],
+          "characters": 130,
+          "sha256": "f92c8ff98446dfadb510d223ab8e99993a013f3f65515584511a278c633729e9"
+        },
+        "state_role": null,
+        "subtask_id": null
+      },
+      "tokens": 0,
+      "latency_ms": 0
+    },
+    {
+      "at": "2026-10-17T09:27:22.805686+00:00",
+      "event": "mcp_result",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "call_id": "7ed38202-dc8b-48b7-a7c3-bbd24becebd4",
+        "name": "search_knowledge",
+        "output_summary": {
+          "keys": [
+            "chunks",
+            "embedding_model",
+            "embedding_revision",
+            "method"
+          ],
+          "characters": 1235,
+          "sha256": "5990be652e527c4a7bf9eeeb87b1789cb5dc8798338cadc1a2a40f256cdfd040"
+        },
+        "result_id": null,
+        "error": null
+      },
+      "tokens": 0,
+      "latency_ms": 301.79307000071276
+    },
+    {
+      "at": "2026-10-17T09:27:22.807788+00:00",
+      "event": "tool_result",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "name": "search_knowledge",
+        "call_id": "knowledge-inject",
+        "phase": "bootstrap",
+        "output_summary": "{\"method\": \"vector\", \"embedding_model\": \"BAAI/bge-m3\", \"embedding_revision\": \"5617a9f61b028005a4858fdac845db406aefb181\", \"chunks\": [{\"chunk_id\": \"statuses\", \"source\": \"kb/caveats.md\", \"content\": \"statuses 状态与 GMV\\n画像“订单状态分布”“金额口径与关联膨胀”表明取消和不可用订单仍可能有商品明细。仅有明细不等于有效 GMV；按业务指标定义筛选，商品销售额和 GMV 状态范围不同。\", \"content_sha256\": \"0fd1ad4bb64eda20f3825e87d83064e49af8db6cd2a99d72baaa4053e0471167\"}, {\"chunk_id\": \"gmv\", \"source\": \"kb/metrics.md\", \"content\": \"gmv GMV／成交商品金额\\nGMV 为 order_items.price 之和，不含 freight_value，排除 canceled 和 unavailable。它不等于支付流水金额。按订单购买时间分期，地区使用客户州，不是卖家州。\\n```sql\\nSELECT sum(i.price) AS gmv FROM orders o JOIN order_items i USING(order_id) WHERE o.order_status NOT IN ('canceled','unavailable');\\n```\", \"content_sha256\": \"4cd827d98d0d48d6effd539906e0c4f25dc9c5abba21d44229010a96a0ae2f5a\"}, {\"chunk_id\": \"cancellation\", \"source\": \"kb/metrics.md\", \"content\": \"cancellation 取消订单与取消率\\n分子为 canceled，分母同窗口全部订单，按购买时间分期。unavailable 不自动算作 canceled。状态数据不能单独解释取消原因。\\n```sql\\nSELECT count(*) FILTER(WHERE order_status='canceled') AS canceled,100.0*count(*) FILTER(WHERE order_status='canceled')/nullif(count(*),0) AS cancel_pct FROM orders;\\n```\", \"content_sha256\": \"2cb7f0f58ad200de168e6f711e7671f73e4684f26748fdb941680d845e862e83\"}]}",
+        "error": null,
+        "result_id": null
+      },
+      "tokens": 0,
+      "latency_ms": 301.94597999980033
+    },
+    {
+      "at": "2026-10-17T09:27:22.809361+00:00",
+      "event": "tool_call",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "name": "list_tables",
+        "call_id": "bootstrap-tables",
+        "phase": "bootstrap",
+        "input_summary": {}
+      },
+      "tokens": 0,
+      "latency_ms": 0
+    },
+    {
+      "at": "2026-10-17T09:27:22.810771+00:00",
+      "event": "mcp_call",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "call_id": "da3c44a4-64c6-4941-8e53-723396c36869",
+        "name": "list_tables",
+        "input_summary": {
+          "keys": [],
+          "characters": 2,
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        "state_role": null,
+        "subtask_id": null
+      },
+      "tokens": 0,
+      "latency_ms": 0
+    },
+    {
+      "at": "2026-10-17T09:27:22.812053+00:00",
+      "event": "mcp_result",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "call_id": "da3c44a4-64c6-4941-8e53-723396c36869",
+        "name": "list_tables",
+        "output_summary": {
+          "keys": [
+            "tables"
+          ],
+          "characters": 541,
+          "sha256": "61c362311ed28c4e573808e0a569b39c09f60b17d1358fad3ecab8fdb60b8979"
+        },
+        "result_id": null,
+        "error": null
+      },
+      "tokens": 0,
+      "latency_ms": 4.023860999950557
+    },
+    {
+      "at": "2026-10-17T09:27:22.813534+00:00",
+      "event": "tool_result",
+      "question_id": "D01",
+      "task_id": "5976bf00-8739-4e44-ab42-bdd63773c7e8",
+      "payload": {
+        "name": "list_tables",
+        "call_id": "bootstrap-tables",
+        "phase": "bootstrap",
+        "output_summary": "{\"tables\": [{\"name\": \"orders\", \"description\": \"订单、状态和各阶段时间。\"}, {\"name\": \"customers\", \"description\": \"订单关联的客户记录、客户标识与地区。\"}, {\"name\": \"order_items\", \"description\": \"订单商品明细、卖家、商品价格与运费。\"}, {\"name\": \"order_payments\", \"description\": \"订单的各笔支付记录。\"}, {\"name\": \"order_reviews\", \"description\": \"订单评价、分数与原始评价文字。\"}, {\"name\": \"products\", \"description\": \"商品属性和原始品类名称。\"}, {\"name\": \"sellers\", \"description\": \"卖家与所在地区。\"}, {\"name\": \"geolocation\", \"description\": \"邮编前缀、坐标和地区记录。\"}, {\"name\": \"product_category_name_translation\", \"description\": \"葡文品类名与英文品类名对照。\"}]}",
+        "error": null,
+        "result_id": null
+      },
+      "tokens": 0,
+      "latency_ms": 4.126167999856989
+    },
+    {
+      "event": "run_interrupted",
+      "run_id": "62f95e08-267c-44f2-88af-ed389f776212",
+      "reason": "leading-decimal-was-mistaken-for-list-ordinal-replaced-by-full-fixed-protocol",
+      "completed_cases": 0,
+      "failed_running_tasks": [
+        "5976bf00-8739-4e44-ab42-bdd63773c7e8"
+      ],
+      "aggregate_metrics": null
+    }
+  ]
+}

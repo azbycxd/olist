@@ -5,8 +5,8 @@
 `questions.jsonl` 由 `generate_questions.py` 确定性生成。A/B/D 为手写 SQL，C/E 使用可逐条核对的 `templates.py`。分组为 A/B/C/D/E 各 10/10/25/12/10 题，共 67 题；dev 45 题，holdout 22 题。C 的每个模板都有 holdout，使用不同的业务自然问法；两个划分都不得在题干提示去重、运费或状态口径。模板 ID、参数、画像来源及私有 `naive_sql` 保留在题库中。
 
 ```powershell
-docker compose run --rm init-data python eval/validate_gold.py
-docker compose run --rm init-data python eval/run.py --tag zero-smoke --categories C,D --split dev
+docker compose run --rm --no-deps init-data python eval/validate_gold.py
+docker compose run --rm --no-deps init-data python eval/run.py --tag zero-smoke --categories C,D --split dev
 ```
 
 更改模板后运行 `python eval/generate_questions.py`，并重新执行全部 gold SQL 验证。验证器检查 SQL 可执行、结果形状与非空事实；对每道 C 题在同一个只读快照内执行 gold 和 naive SQL，要求标准答案非零，且 `abs(naive-gold)/abs(gold) >= 1%`。不合格时记录拒绝原因并返回非零退出码，必须替换参数或剔除后重新生成、验证，不能带着失败题进入评测。每道题的两条 SQL、两个答案、绝对／相对差异、参数与判定写入 `evidence/validate_gold_*.summary.json`，并注明原始日志名与哈希。
@@ -17,7 +17,7 @@ docker compose run --rm init-data python eval/run.py --tag zero-smoke --categori
 
 ```powershell
 $gold = (Get-ChildItem evidence/validate_gold_*.summary.json | Sort-Object LastWriteTime -Descending | Select-Object -First 1).Name
-docker compose run --rm --entrypoint python -v "${PWD}/eval:/app/eval" init-data eval/cross_check.py --gold-evidence "evidence/$gold"
+docker compose run --rm --no-deps --entrypoint python -v "${PWD}/eval:/app/eval" init-data eval/cross_check.py --gold-evidence "evidence/$gold"
 ```
 
 覆盖 entrypoint 是为了不执行初始化迁移；绑定 eval 目录用于保留自动生成的 HUMAN_REVIEW.md。数值相对误差不超过 1% 判一致，零值绝对容差为一亿分之一，列表按集合比较，复合事实逐字段比较。真实运行 [67 / 67 一致](../evidence/cross_check_20261017T070428Z_accb136c.summary.json)，原始日志 `cross_check_20261017T070428Z_accb136c.jsonl`；这是标准答案计算核验，不是模型评分校准。
@@ -38,7 +38,7 @@ number 正确率允许相对误差不超过 1%；标准值为零时只允许绝�
 
 报告扫描覆盖 answer 与 claim.text，包括未声明为 claim 的数字。排除标准日期、带“年”的年份、Q 季度标签和列表序号；支持千分位、科学记数法及千／万／亿单位。报告显示数字按绝对值匹配，相对误差允许 1%，使 SQL 中的负数可以写成“下降／减少”加正数幅度；结构化 claim.value 仍必须保留 SQL 的符号与查询精度。所有报告业务数字（包括差值、比率、百分数）必须由 SQL 计算并引用，Agent 不得自行计算。百分数应由 SQL 转为百分数单位，不能把比例小数直接当百分数匹配。报告中的业务数量统一使用阿拉伯数字。按绝对值匹配只核验幅度，方向语义仍需审核者或人工检查。
 
-限制：数值存在并不能证明 SQL 的业务口径或文字归因正确，中文数字写法和隐含单位也无法靠当前词法扫描完全核实。运行时 Reviewer 后续另行实现；评测必须保留人工抽查，不把数值核查称为语义证明。没有数字的空泛回答不会获得 D 类事实信用。
+限制：数值存在并不能证明 SQL 的业务口径或文字归因正确，中文数字写法和隐含单位也无法靠当前词法扫描完全核实。运行时 Reviewer 已独立实现；评测必须保留人工抽查，不把数值核查称为语义证明。没有数字的空泛回答不会获得 D 类事实信用。
 
 ## 模型归因评分与费用
 
@@ -59,8 +59,8 @@ number 正确率允许相对误差不超过 1%；标准值为零时只允许绝�
 `--adapter single --schema-mode full|on_demand` 调用 `agent/loop.py`。评测器只将公开问题和输出约定送入独立子进程；该进程环境按白名单构造，去除所有数据库凭据并禁止 dotenv 加载。MCP 服务负责业务查询和结果持久化；评测器仍独立执行 gold 和核查证据。`--judge off` 只关闭评分模型，不能关闭 single 的 Agent 调用。Step 5 已实现 E 的独立偏好设置会话与后续查询会话，使用同一用户的持久偏好、不同子进程和任务 ID。
 
 ```powershell
-docker compose run --rm init-data python eval/run.py --adapter single --schema-mode full --tag baseline-full --categories A,B --split dev --judge off
-docker compose run --rm init-data python eval/run.py --adapter single --schema-mode on_demand --tag baseline-on-demand --categories A,B --split dev --judge off
+docker compose run --rm --no-deps init-data python eval/run.py --adapter single --schema-mode full --tag baseline-full --categories A,B --split dev --judge off
+docker compose run --rm --no-deps init-data python eval/run.py --adapter single --schema-mode on_demand --tag baseline-on-demand --categories A,B --split dev --judge off
 ```
 
 两组真实记录分别为 [full](../evidence/eval_baseline-full_20261017T070736Z_def8c3a7.summary.json)、[on_demand](../evidence/eval_baseline-on-demand_20261017T070828Z_4dd93f3c.summary.json)，对应同名 `.jsonl` 原始日志。A/B 正确率比较 answer，证据支持率独立报告；本次两组均答对全部题，但都有被拒绝的 claim，详见 README 和 DECISIONS。
@@ -68,11 +68,11 @@ docker compose run --rm init-data python eval/run.py --adapter single --schema-m
 官方 MCP Inspector CLI 可独立验证本服务（先安装 Node.js；本次固定 Inspector 1.0.2）：
 
 ```powershell
-docker compose run --rm init-data python -m scripts.inspector_demo prepare
+docker compose run --rm --no-deps init-data python -m scripts.inspector_demo prepare
 $cfg = Get-Content logs/inspector.private.json -Raw | ConvertFrom-Json
 $inspectorLog = 'inspector_call_' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '.json'
 npx.cmd --yes @modelcontextprotocol/inspector@1.0.2 --cli http://localhost:8001/mcp --transport http --method tools/call --tool-name run_sql --tool-arg 'sql=SELECT COUNT(*) AS orders FROM orders' --header ('Authorization: ' + $cfg.mcpServers.olist.headers.Authorization) --header ('X-Task-ID: ' + $cfg.mcpServers.olist.headers.'X-Task-ID') > "logs/$inspectorLog"
-docker compose run --rm init-data python -m scripts.inspector_demo verify --response "logs/$inspectorLog"
+docker compose run --rm --no-deps init-data python -m scripts.inspector_demo verify --response "logs/$inspectorLog"
 ```
 
 `prepare` 创建运行中任务并将鉴权配置仅写入忽略的 logs。`verify` 对照实际持久化结果，完成任务并生成不含 token 的 evidence 摘要。UI 连接时使用相同两个请求头；来源、传输类型、SQL、结果 ID 和截图见 [真实界面证据](../evidence/inspector_ui_20261017T071031Z_4d025329.summary.json)。
@@ -109,3 +109,24 @@ docker compose run --rm init-data python -m scripts.inspector_demo verify --resp
 RESULTS 的总 token 和平均耗时包含独立评测评分；汇总的 agent_usage 与 average_agent_latency_ms 单列 Agent 本身成本，便于比较。未配置单价则费用为空。没有 claim 的失败不会作为零幻觉的成功报告；同时检查事实命中、完成率、空报告和未验证分析项。
 
 `scripts/export_reports.py` 从真实评测收据抽取 D 报告，按模式轮流选取，导出 evidence 中静态 HTML；链接只打开本任务保存的 SQL 和结果，并转义数据库文本。REPORT_REVIEW.md 记录自动核查和模型评分，人工结论仍留空。CSV 的标准答案交叉验证不等于报告因果推断或评分模型已经人工校准。
+
+
+## Step 6 审查补充协议
+
+```powershell
+docker compose run --rm --no-deps init-data python eval/run.py --review-suite --tag review6-fixed --split dev
+```
+
+协议先记录再运行：C dev 的 single、single+NUMBER_GATE、multi、multi+NUMBER_GATE 各一次；D dev 同四组各三次，按轮次交错模式，坏结果和无 usage 的错误尝试均保留。相同 RAG inject、向量默认、预算和模型。汇总报告每组均值及最小/最大范围。复杂题同题比较使用所有 multi 重复中实际拆题的 D 题号并集，在 single 上取完全相同题目，不用包含大量简单 C 题的总平均声称并行加速。
+
+压力测试单列：D dev 的 none/mask/summary 各一次，CONTEXT_LIMIT=6000，summary 提前触发阈值预设 3600，三种都保存该配置，不事后调整。限制按模型返回的真实 prompt usage 判定，超出会失败；峰值可能因此高于限制，不伪造裁切到阈值。普通模式与压力模式不得混成均值。
+
+固定 0.25:1 加权 RRF 由 `--retrieval` 与等权和纯向量同批比较。默认按本轮小样本数据选择，不运行题库 holdout。`python -m eval.memory_audit --cases eval/preference_holdout.json` 是独立的新措辞抽取审计，不改提示、不重跑挑结果。
+
+## Step 7 两会话协议
+
+```powershell
+docker compose run --rm --no-deps init-data python eval/run.py --finding-reuse --tag findings-dev --split dev
+```
+
+预先选 D01–D05，分别使用同一题的同一用户、不同 task 和子进程。首次和再次均使用 multi、门禁、记忆和 RAG inject；首次也必须经过 Reviewer 才会保存 finding。对比实际模型步骤、SQL 调用、Agent token、事实命中与正确率，不将评测 judge 用量冒充 Agent 开销。版本测试在所有模型运行完成后临时提交一个新导入版本记录，让独立连接实际看见新版本，确认只给线索，finally 移除该测试记录并核对恢复；真实业务行不变。

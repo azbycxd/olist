@@ -58,10 +58,12 @@ def bm25(query,documents):
     return sorted(range(len(corpus)),key=lambda i:(-scores[i],i))
 
 
-def fuse(*rankings):
+def fuse(*rankings, weights=None):
     score={}
-    for ranking in rankings:
-        for rank,ident in enumerate(ranking,1): score[ident]=score.get(ident,0)+1/(60+rank)
+    weights = weights or [1.0]*len(rankings)
+    if len(weights)!=len(rankings) or any(w<0 or not math.isfinite(w) for w in weights): raise ValueError("Invalid RRF weights")
+    for ranking,weight in zip(rankings,weights):
+        for rank,ident in enumerate(ranking,1): score[ident]=score.get(ident,0)+weight/(60+rank)
     return sorted(score,key=lambda i:(-score[i],i))
 
 
@@ -79,8 +81,9 @@ def rebuild():
         "dimensions":len(vectors[0]),"contents":[{k:v for k,v in r.items() if k!='content'} for r in records]}
 
 
-def search(query,method="hybrid",limit=3):
-    if method not in {"bm25","vector","hybrid"} or not 1<=limit<=10: raise ValueError("Invalid retrieval settings")
+def search(query,method=None,limit=3):
+    method=method or os.getenv("RETRIEVAL_METHOD","vector")
+    if method not in {"bm25","vector","hybrid","weighted"} or not 1<=limit<=10: raise ValueError("Invalid retrieval settings")
     if not query.strip() or len(query)>6000: raise ValueError("Query must contain 1..6000 characters")
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
         conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
@@ -93,6 +96,6 @@ def search(query,method="hybrid",limit=3):
             embedding=embed([query],query=True)[0]
             if any(r[5]!=len(embedding) for r in records): raise ValueError("Embedding dimensions changed")
             vector=[r[0] for r in conn.execute("SELECT chunk_id FROM knowledge_chunks ORDER BY embedding <=> %s::vector,chunk_id",(json.dumps(embedding),)).fetchall()]
-    order=keyword if method=="bm25" else vector if method=="vector" else fuse(keyword,vector)
+    order=keyword if method=="bm25" else vector if method=="vector" else fuse(keyword,vector,weights=[0.25,1.0] if method=="weighted" else [1.0,1.0])
     lookup={r[0]:{"chunk_id":r[0],"source":r[1],"content":r[2],"content_sha256":r[3]} for r in records}
     return {"method":method,"embedding_model":MODEL,"embedding_revision":REVISION,"chunks":[lookup[i] for i in order[:limit]]}

@@ -13,15 +13,16 @@ from mcp.client.streamable_http import streamable_http_client
 
 
 class MCPClient:
-    def __init__(self, url, token, task_id, emit=None):
+    def __init__(self, url, token, task_id, emit=None, lease_token=None):
         self.url, self.token, self.task_id = url, token, task_id
+        self.lease_token = lease_token
         self.emit = emit
         self.stack = AsyncExitStack()
 
     async def __aenter__(self):
         try:
             http = await self.stack.enter_async_context(httpx.AsyncClient(
-                headers={"Authorization":"Bearer "+self.token, "X-Task-ID":self.task_id}, timeout=30))
+                headers={"Authorization":"Bearer "+self.token, "X-Task-ID":self.task_id, **({"X-Lease-Token":self.lease_token} if self.lease_token else {})}, timeout=30))
             transport = await self.stack.enter_async_context(streamable_http_client(self.url, http_client=http))
             self.session = await self.stack.enter_async_context(ClientSession(transport[0], transport[1],
                                                                  read_timeout_seconds=timedelta(seconds=30)))

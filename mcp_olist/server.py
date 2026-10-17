@@ -35,7 +35,7 @@ async def describe_table(name: str) -> dict:
 async def run_sql(sql: str, ctx: Context) -> dict:
     """Execute one read-only PostgreSQL SELECT; save the capped full result and return its evidence ID."""
     request = ctx.request_context.request
-    return await asyncio.to_thread(run_query, sql, request.headers.get("x-task-id", ""))
+    return await asyncio.to_thread(run_query, sql, request.headers.get("x-task-id", ""),request.headers.get("x-lease-token"))
 
 
 @mcp.tool()
@@ -62,7 +62,7 @@ async def state_read(ctx: Context) -> dict:
 async def state_write(role: str, payload: dict, ctx: Context) -> dict:
     """Internal orchestrator control: persist an allowed typed role update."""
     from mcp_olist.blackboard import write_state
-    return await asyncio.to_thread(write_state,ctx.request_context.request.headers.get('x-task-id',''),role,payload)
+    return await asyncio.to_thread(write_state,ctx.request_context.request.headers.get('x-task-id',''),role,payload,ctx.request_context.request.headers.get('x-lease-token'))
 
 
 class BearerAuth:

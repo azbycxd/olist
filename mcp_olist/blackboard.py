@@ -14,11 +14,11 @@ def read_state(task_id):
     return Board(plan=row[0],subtasks=row[1],report=row[2]).model_dump()
 
 
-def write_state(task_id,role,payload):
+def write_state(task_id,role,payload,lease_token=None):
     ident=UUID(task_id)
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        task=conn.execute('SELECT status FROM tasks WHERE task_id=%s FOR UPDATE',(ident,)).fetchone()
-        if not task or task[0]!='running':raise ValueError('Task must be running')
+        from mcp_olist.leases import validate
+        validate(conn,ident,lease_token,states=('running','planning') if role=='planner' else ('running',),lock=True)
         row=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s FOR UPDATE',(ident,)).fetchone()
         if role=='planner':
             plan=Plan.model_validate(payload)

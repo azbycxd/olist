@@ -45,13 +45,12 @@ def describe(name):
         "samples":json_value([dict(zip([c[0] for c in columns], row)) for row in samples])}
 
 
-def run_query(statement, task_id):
+def run_query(statement, task_id, lease_token=None):
     task_id = UUID(task_id)
     executable = guard_sql(statement)
     with psycopg.connect(**db_kwargs("agent", "app")) as agent_db:
-        task = agent_db.execute("SELECT status FROM tasks WHERE task_id=%s", (task_id,)).fetchone()
-        if not task or task[0] != "running":
-            raise ValueError("X-Task-ID must identify a running task")
+        from mcp_olist.leases import validate
+        validate(agent_db,task_id,lease_token)
         with psycopg.connect(**db_kwargs(role="reader")) as conn:
             conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             conn.execute("SET LOCAL statement_timeout = '10s'")
@@ -68,6 +67,7 @@ def run_query(statement, task_id):
             stats, rows = numeric_stats(raw, columns), json_value(raw)
             if len(json.dumps(rows, ensure_ascii=False).encode()) > 2_000_000:
                 raise ValueError("Result exceeds 2 MB; select fewer columns or aggregate in SQL")
+        validate(agent_db,task_id,lease_token,lock=True)
         result_id = agent_db.execute("""INSERT INTO query_results(task_id,sql,columns,rows,row_count,data_version)
             VALUES(%s,%s,%s,%s,%s,%s) RETURNING result_id""",
             (task_id, executable, Jsonb(columns), Jsonb(rows), len(rows), version)).fetchone()[0]
