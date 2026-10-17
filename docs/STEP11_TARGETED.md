@@ -76,3 +76,5 @@ D 采用同一个未修改的独立核查器。边界列是按预先 expected �
 离线汇总生成过程的 [脚本副本](../evidence/step11_targeted_finalize.py) 与选择收据中的 `finalizer_sha256` 一致；它只处理保存的运行结果，不调用模型。
 
 [部署核验](../evidence/step11_targeted_deployment_20261017T130044Z_4770a877.summary.json)确认 API、worker、MCP 使用同一份已冻结源码，默认边界增强关闭、维度预检开启，运行服务状态正常；本检查没有模型调用。[证据完整性检查](../evidence/evidence_integrity_20261017T130018Z_70dd19dd.summary.json)核对 RESULTS 实测单元格、日志哈希、文档链接及待提交文件的密钥泄漏情况，全部通过。
+
+实现提交 `1330a42` 已推送；[GitHub Actions](https://github.com/azbycxd/olist/actions/runs/39034858848) 离线测试通过，[CI 收据](../evidence/step11_targeted_github_ci.json)保留提交 SHA、任务状态和真实测试摘要。后续仅归档这份收据，没有更改 Agent 行为或追加模型运行。
