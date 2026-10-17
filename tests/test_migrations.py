@@ -5,7 +5,7 @@ import psycopg
 import pytest
 from psycopg import sql
 
-from config import db_kwargs
+from config import ROOT, db_kwargs
 from scripts import migrate as runner
 
 
@@ -43,7 +43,7 @@ def test_fresh_database_migrations_idempotence_and_recovery(monkeypatch, tmp_pat
             runner.migrate()
             with psycopg.connect(**runner.db_kwargs("agent")) as conn:
                 before = runner.history(conn)
-                assert len(before) == 2
+                assert len(before) == len(runner.discover(ROOT / "sql" / "migrations"))
                 assert conn.execute("SELECT count(*) FROM users").fetchone()[0] == 0
             runner.migrate()
             with psycopg.connect(**runner.db_kwargs("agent")) as conn:
@@ -52,7 +52,8 @@ def test_fresh_database_migrations_idempotence_and_recovery(monkeypatch, tmp_pat
             runner.migrate()  # repairs central mirror from the target-local receipt
             with psycopg.connect(**runner.db_kwargs("agent")) as conn:
                 assert runner.history(conn) == before
-                failed = runner.Migration(3, "003_failure.sql", "test", "agent",
+                version = len(before)+1
+                failed = runner.Migration(version, f"{version:03d}_failure.sql", "test", "agent",
                     "CREATE TABLE rollback_probe (id integer); SELECT 1/0;")
                 with pytest.raises(psycopg.errors.DivisionByZero):
                     runner.apply_one(conn, failed)

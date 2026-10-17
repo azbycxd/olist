@@ -1,45 +1,105 @@
-# 人工核对清单（尚未完成）
+# 标准答案自动交叉验证
 
-SQL 执行成功和自动测试通过不等于人工核对。以下项目由用户逐项签认；不得把空勾选当作已检查，也不能用模型自评替代人工。
+按用户要求，用独立 pandas 计算替代 C、E 模板和 D 类 gold SQL 的人工核对。
+原始 CSV 直接读取；不执行 SQL、不连接数据库、不导入 SQL 模板或评分实现。数值相对误差不超过 1% 视为一致，列表比较集合，关键事实逐字段比较。
 
-## C 类模板
+证据：[cross_check_20261017T070428Z_accb136c.summary.json](../evidence/cross_check_20261017T070428Z_accb136c.summary.json)；原始日志：`cross_check_20261017T070428Z_accb136c.jsonl`。
 
-这是评测侧的私有审查清单，不传给 Agent。逐条核对 `templates.py` 的 gold／naive SQL、参数、对应 `docs/data_profile.md` 发现，以及生成题的 dev／holdout 问法。尤其核对左闭右开时间区间、原始表粒度和 NULL 处理。确认 naive 是不了解口径时自然会写的错误 SQL，题干不提示修正方式；两种答案及差异须与最新 `evidence/validate_gold_*.summary.json` 一致。自动验证不能代替这些人工判断。
+不一致只列出，绝不自动修改 gold。计算一致性不代表归因语义或模型评分已经校准。
 
-- [ ] C_unique_customer：使用真实客户标识，按指定州与购买时间去重。
-- [ ] C_gmv_status：采用显式业务约定排除取消／不可用订单。
-- [ ] C_freight：核对私有标准 SQL 的商品金额口径，题干不提示费用或状态范围。
-- [ ] C_join_grain：用 EXISTS 限定有支付记录的订单，不重复商品明细。
-- [ ] C_boundary_month：自然日去重，不把边界月当作完整观测。
-- [ ] C_category_coverage：LEFT JOIN 保留空品类及翻译缺失的商品。
-- [ ] C_delivery_null：已送达状态与实际交付时间完整性分别判断。
-- [ ] C_review_grain：按已评价订单计数，不把一单多评当多单。
+## C 类
 
-## E 类模板
+| 题目 | 模板 | 交叉验证结果 | 差异 |
+| --- | --- | --- | --- |
+| C01 | C_unique_customer | 一致 |  |
+| C02 | C_unique_customer | 一致 |  |
+| C03 | C_unique_customer | 一致 |  |
+| C04 | C_unique_customer | 一致 |  |
+| C05 | C_gmv_status | 一致 |  |
+| C06 | C_gmv_status | 一致 |  |
+| C07 | C_gmv_status | 一致 |  |
+| C08 | C_freight | 一致 |  |
+| C09 | C_freight | 一致 |  |
+| C10 | C_freight | 一致 |  |
+| C11 | C_join_grain | 一致 |  |
+| C12 | C_join_grain | 一致 |  |
+| C13 | C_join_grain | 一致 |  |
+| C14 | C_boundary_month | 一致 |  |
+| C15 | C_boundary_month | 一致 |  |
+| C16 | C_boundary_month | 一致 |  |
+| C17 | C_category_coverage | 一致 |  |
+| C18 | C_category_coverage | 一致 |  |
+| C19 | C_category_coverage | 一致 |  |
+| C20 | C_delivery_null | 一致 |  |
+| C21 | C_delivery_null | 一致 |  |
+| C22 | C_delivery_null | 一致 |  |
+| C23 | C_review_grain | 一致 |  |
+| C24 | C_review_grain | 一致 |  |
+| C25 | C_review_grain | 一致 |  |
 
-- [ ] E_sales_amount：用户原话明确排除运费并保留所有状态。
-- [ ] E_customer_identity：跨订单使用 customer_unique_id。
-- [ ] E_order_status：只统计用户指定的 delivered。
-- [ ] E_geography：客户州筛选，不能误用卖家州。
-- [ ] E_delivery_duration：只算有效实际送达，秒数换算小数天。
+## E 类
 
-## D 类 gold SQL
+| 题目 | 模板 | 交叉验证结果 | 差异 |
+| --- | --- | --- | --- |
+| E01 | E_sales_amount | 一致 |  |
+| E02 | E_sales_amount | 一致 |  |
+| E03 | E_customer_identity | 一致 |  |
+| E04 | E_customer_identity | 一致 |  |
+| E05 | E_order_status | 一致 |  |
+| E06 | E_order_status | 一致 |  |
+| E07 | E_geography | 一致 |  |
+| E08 | E_geography | 一致 |  |
+| E09 | E_delivery_duration | 一致 |  |
+| E10 | E_delivery_duration | 一致 |  |
 
-核对 `handwritten.py` 中每道多步分析的标准 SQL、输出字段与题意；先分别查询中间汇总再复算最终结果。不要只看最终数值是否“合理”。
+## D 类
 
-- [ ] D01 季度 GMV 与变化率。
-- [ ] D02 两季度均有成交品类的下降数量与最大下降金额。
-- [ ] D03 两州的客户去重与 GMV 范围。
-- [ ] D04 小数交付天数与两期差值。
-- [ ] D05 迟到数、有效样本分母与迟到率。
-- [ ] D06 商品、运费、支付分别聚合。
-- [ ] D07 年内客户复购及观察窗口。
-- [ ] D08 订单数、已评价订单数、评价记录数。
-- [ ] D09 翻译缺失明细与金额。
-- [ ] D10 同一订单集合的 JOIN 金额膨胀。
-- [ ] D11 取消数量、全部订单分母、取消率。
-- [ ] D12 卖家集中度、前三名及并列规则。
+| 题目 | 模板 | 交叉验证结果 | 差异 |
+| --- | --- | --- | --- |
+| D01 |  | 一致 |  |
+| D02 |  | 一致 |  |
+| D03 |  | 一致 |  |
+| D04 |  | 一致 |  |
+| D05 |  | 一致 |  |
+| D06 |  | 一致 |  |
+| D07 |  | 一致 |  |
+| D08 |  | 一致 |  |
+| D09 |  | 一致 |  |
+| D10 |  | 一致 |  |
+| D11 |  | 一致 |  |
+| D12 |  | 一致 |  |
+
+## A 类
+
+| 题目 | 模板 | 交叉验证结果 | 差异 |
+| --- | --- | --- | --- |
+| A01 |  | 一致 |  |
+| A02 |  | 一致 |  |
+| A03 |  | 一致 |  |
+| A04 |  | 一致 |  |
+| A05 |  | 一致 |  |
+| A06 |  | 一致 |  |
+| A07 |  | 一致 |  |
+| A08 |  | 一致 |  |
+| A09 |  | 一致 |  |
+| A10 |  | 一致 |  |
+
+## B 类
+
+| 题目 | 模板 | 交叉验证结果 | 差异 |
+| --- | --- | --- | --- |
+| B01 |  | 一致 |  |
+| B02 |  | 一致 |  |
+| B03 |  | 一致 |  |
+| B04 |  | 一致 |  |
+| B05 |  | 一致 |  |
+| B06 |  | 一致 |  |
+| B07 |  | 一致 |  |
+| B08 |  | 一致 |  |
+| B09 |  | 一致 |  |
+| B10 |  | 一致 |  |
 
 ## 模型归因评分校准
 
-等待真实 Agent 报告和模型评分可用后，选择至少十份 D 类 dev 报告（可来自重复运行），先遮住模型分数按同一 rubric 人工打分，再比较差值与主要分歧。保留报告的 run_id、question_id、task_id、证据汇总文件名、人工分数、模型分数和解释。当前没有真实模型报告，尚未进行此项校准；不要填示例分数。
+尚未进行。CSV 交叉验证只校验标准答案的计算一致性，不替代真实 D 类报告的归因评分校准。
+待真实报告和模型评分可用后，按同一 rubric 独立评分并保留 run_id、question_id、task_id、证据文件、分数和分歧说明；未运行不填分数。

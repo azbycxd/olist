@@ -58,7 +58,7 @@ def main():
                         if not comparison["passed"]:
                             raise ValueError(f"C trap must be replaced: {comparison['reason']}")
                     record(logger, "gold_validated", question_id=q["id"], split=q["split"], rows=len(rows),
-                        sql_sha256=hashlib.sha256(q["gold_sql"].encode()).hexdigest())
+                        gold_value=gold, sql_sha256=hashlib.sha256(q["gold_sql"].encode()).hexdigest())
             except Exception as exc:
                 failures.append(q["id"])
                 record(logger, "gold_failed", question_id=q["id"], error=str(exc))

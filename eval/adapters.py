@@ -38,6 +38,28 @@ class ZeroAdapter:
 
 
 def make_adapter(name):
-    if name != "zero":
-        raise ValueError("Only the zero fixture is implemented in Step 1; runtime agents start in Step 2")
-    return ZeroAdapter()
+    if name == "zero":
+        return ZeroAdapter()
+    if name == "single":
+        return SingleAdapter()
+    raise ValueError("Unknown adapter")
+
+
+class SingleAdapter:
+    name = "single"
+    version = "single-v1"
+
+    def __init__(self):
+        import os
+        if not all(os.getenv(k) for k in ("OPENAI_API_KEY","OPENAI_MODEL","MCP_BEARER_TOKEN")):
+            raise ValueError("Configure OPENAI_API_KEY, OPENAI_MODEL and MCP_BEARER_TOKEN before evaluating")
+
+    def run(self, case, emit):
+        if case.setup_turns:
+            raise ValueError("Persistent preference memory is not implemented until Step 5")
+        from scripts.runtime import run_runtime
+        # Pass only public question fields into the isolated model process.
+        question = case.question+"\n输出类型："+case.answer_type
+        if case.required_facts:
+            question += "；报告需要的事实字段："+", ".join(case.required_facts)
+        return run_runtime(question, case.task_id, emit)

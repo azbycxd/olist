@@ -18,7 +18,7 @@ if __package__ in (None, ""):
 import psycopg
 from psycopg.types.json import Jsonb
 
-from config import EVAL_ADAPTER, EVAL_JUDGE, MODEL_TEMPERATURE, ROOT, db_kwargs
+from config import EVAL_ADAPTER, EVAL_JUDGE, MODEL_TEMPERATURE, ROOT, SCHEMA_MODE, db_kwargs
 from contracts import FinalAnswer
 from eval.adapters import make_adapter, public_case
 from eval.checker import DatabaseEvidence, check
@@ -57,7 +57,10 @@ def summarize(rows):
         "d_unsupported_number_ratio": ratio(sum(row["evidence"]["unsupported_numbers"] for row in d_rows), sum(row["evidence"]["report_number_count"] for row in d_rows)),
         "judge_mean": sum(grades)/len(grades) if grades else None, "judged_reports": len(grades),
         "average_latency_ms": sum(row["latency_ms"] for row in rows)/len(rows) if rows else None,
-        "failures": sum(bool(row.get("error")) for row in rows)}
+        "failures": sum(bool(row.get("error")) for row in rows),
+        "average_steps": sum(row.get("steps",0) for row in rows)/len(rows) if rows and all("steps" in r for r in rows) else None,
+        "terminations": {reason:sum(r.get("termination") == reason for r in rows)
+                         for reason in sorted({r["termination"] for r in rows if r.get("termination")})}}
 
 
 def usage_summary(calls, input_price=None, output_price=None):
@@ -96,6 +99,7 @@ def append_results(summary, receipt, path=ROOT / "docs" / "RESULTS.md"):
 
 
 def execute(args):
+    os.environ["SCHEMA_MODE"] = args.schema_mode
     selected = [q for q in load_questions() if q["category"] in args.categories and q["split"] == args.split]
     if not selected:
         raise ValueError("No matching questions")
@@ -123,7 +127,7 @@ def execute(args):
             gold = {q["id"]: execute_gold(oracle_db, q)[0] for q in selected}
             record(logger, "run_started", run_id=run_id, tag=args.tag, adapter=adapter.name,
                 adapter_version=adapter.version, judge=args.judge, split=args.split, categories=args.categories,
-                data_version=data_version, temperature=MODEL_TEMPERATURE)
+                data_version=data_version, temperature=MODEL_TEMPERATURE, schema_mode=args.schema_mode)
             for q in selected:
                 # Private evaluator log only: never store the oracle in agent
                 # query_results or pass it across the adapter boundary.
@@ -144,6 +148,8 @@ def execute(args):
                         (task_id, sequence, kind, Jsonb(payload, dumps=lambda v: json.dumps(v, default=str)), tokens, latency_ms))
                     if kind == "model_call":
                         calls.append(payload)
+                    if kind == "termination":
+                        row.update({"termination":payload["reason"], "steps":payload["steps"]})
 
                 started = perf_counter()
                 row = {"question_id": q["id"], "category": q["category"], "task_id": str(task_id),
@@ -155,6 +161,8 @@ def execute(args):
                     row.update(score(q, response, gold[q["id"]], audit))
                     row["evidence"] = audit
                     row["response"] = response.model_dump()
+                    if row.get("termination") and row["termination"] != "final_answer":
+                        row["error"] = row["termination"]
                     if q["category"] == "D" and judge:
                         try:
                             row["judge"] = judge.grade(q, response, gold[q["id"]], audit, emit)
@@ -176,15 +184,20 @@ def execute(args):
                 results.append(row)
             summary = {"run_id": run_id, "tag": args.tag, "categories": args.categories, "split": args.split,
                 "adapter": adapter.name, "adapter_version": adapter.version, "judge_mode": args.judge,
+                "schema_mode":args.schema_mode,
                 "temperature": MODEL_TEMPERATURE, "data_version": data_version,
                 "question_file_sha256": hashlib.sha256(QUESTION_FILE.read_bytes()).hexdigest(),
-                "runtime": {"python": sys.version.split()[0], **{p: package_version(p) for p in ("psycopg", "pydantic", "openai")}},
+                "runtime": {"python": sys.version.split()[0], **{p: package_version(p) for p in ("psycopg", "pydantic", "openai", "mcp", "sqlglot")}},
                 "code_sha256": {str(p.relative_to(ROOT)).replace("\\", "/"): hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in [ROOT/"contracts.py", ROOT/"config.py", *sorted((ROOT/"eval").glob("*.py"))]},
+                    for p in [ROOT/"contracts.py", ROOT/"config.py", ROOT/"scripts/runtime.py",
+                        *sorted((ROOT/"eval").glob("*.py")), *sorted((ROOT/"agent").glob("*.py")),
+                        *sorted((ROOT/"mcp_olist").glob("*.py"))]},
                 "metrics": summarize(results), "by_category": {c: summarize([r for r in results if r["category"] == c]) for c in args.categories},
                 "usage": usage_summary(calls, *prices), "pricing": {"input_per_million": prices[0], "output_per_million": prices[1]},
                 "model_calls": calls, "cases": results, "oracle_values": gold, "source_log": log_path.name,
                 "human_calibration": "pending"}
+            summary["metrics"]["average_tokens"] = (summary["usage"]["total_tokens"]/len(results)
+                if summary["usage"]["total_tokens"] is not None and results else None)
             record(logger, "run_summary", **summary)
             log_finalized = True
             summary["source_log_sha256"] = hashlib.sha256(log_path.read_bytes()).hexdigest()
@@ -203,7 +216,8 @@ def main():
     parser.add_argument("--tag", required=True)
     parser.add_argument("--categories", default="A,B,C,D,E")
     parser.add_argument("--split", choices=["dev", "holdout"], default="dev")
-    parser.add_argument("--adapter", default=EVAL_ADAPTER, choices=["zero"])
+    parser.add_argument("--adapter", default=EVAL_ADAPTER, choices=["zero", "single"])
+    parser.add_argument("--schema-mode", default=SCHEMA_MODE, choices=["full", "on_demand"])
     parser.add_argument("--judge", default=EVAL_JUDGE, choices=["off", "model"])
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.tag):

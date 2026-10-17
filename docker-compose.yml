@@ -21,18 +21,26 @@ services:
 
   init-data:
     build: .
+    image: olist-agent:local
     environment:
       PGHOST: db
       PGPORT: "5432"
       PGUSER: olist_admin
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_API_KEY: ${DEEPSEEK_API_KEY:-${OPENAI_API_KEY:-}}
+      OPENAI_BASE_URL: ${DEEPSEEK_BASE_URL:-${OPENAI_BASE_URL:-}}
+      OPENAI_MODEL: ${DEEPSEEK_MODEL:-${OPENAI_MODEL:-}}
       EVAL_JUDGE_MODEL: ${EVAL_JUDGE_MODEL:-}
       EVAL_ADAPTER: ${EVAL_ADAPTER:-zero}
       EVAL_JUDGE: ${EVAL_JUDGE:-off}
       EVAL_INPUT_PRICE_PER_MILLION: ${EVAL_INPUT_PRICE_PER_MILLION:-}
       EVAL_OUTPUT_PRICE_PER_MILLION: ${EVAL_OUTPUT_PRICE_PER_MILLION:-}
+      MCP_URL: http://mcp-olist:8001/mcp
+      MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:-}
+      SCHEMA_MODE: ${SCHEMA_MODE:-on_demand}
+      MAX_STEPS: ${MAX_STEPS:-20}
+      TOKEN_BUDGET: ${TOKEN_BUDGET:-50000}
+      MODEL_TIMEOUT: ${MODEL_TIMEOUT:-60}
+      MODEL_MAX_OUTPUT_TOKENS: ${MODEL_MAX_OUTPUT_TOKENS:-4096}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_admin_change_me}
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
       AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
@@ -45,6 +53,53 @@ services:
       db:
         condition: service_healthy
     restart: "no"
+
+  mcp-olist:
+    image: olist-agent:local
+    entrypoint: ["python", "-m", "mcp_olist.server"]
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
+      AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
+      MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:-}
+    ports:
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      init-data:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; r=httpx.post('http://localhost:8001/mcp'); assert r.status_code == 401"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  agent:
+    image: olist-agent:local
+    profiles: ["cli"]
+    entrypoint: ["python", "-m", "scripts.ask"]
+    command: ["--help"]
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
+      MCP_URL: http://mcp-olist:8001/mcp
+      MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:-}
+      OPENAI_API_KEY: ${DEEPSEEK_API_KEY:-${OPENAI_API_KEY:-}}
+      OPENAI_BASE_URL: ${DEEPSEEK_BASE_URL:-${OPENAI_BASE_URL:-}}
+      OPENAI_MODEL: ${DEEPSEEK_MODEL:-${OPENAI_MODEL:-}}
+      SCHEMA_MODE: ${SCHEMA_MODE:-on_demand}
+      MAX_STEPS: ${MAX_STEPS:-20}
+      TOKEN_BUDGET: ${TOKEN_BUDGET:-50000}
+      MODEL_TIMEOUT: ${MODEL_TIMEOUT:-60}
+      MODEL_MAX_OUTPUT_TOKENS: ${MODEL_MAX_OUTPUT_TOKENS:-4096}
+    volumes:
+      - ./logs:/app/logs
+      - ./evidence:/app/evidence
+    depends_on:
+      mcp-olist:
+        condition: service_healthy
 
 volumes:
   postgres_data:

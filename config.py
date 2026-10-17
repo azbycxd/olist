@@ -2,11 +2,18 @@
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parent
-load_dotenv(ROOT / ".env", override=False)
+if os.getenv("OLIST_LOAD_DOTENV", "1") == "1":
+    load_dotenv(ROOT / ".env", override=False)
+# A complete explicit provider selection takes precedence over an unrelated
+# ambient OPENAI_API_KEY. The runtime still uses the OpenAI-compatible SDK.
+if os.getenv("DEEPSEEK_MODEL"):
+    for suffix in ("API_KEY", "BASE_URL", "MODEL"):
+        os.environ["OPENAI_"+suffix] = os.getenv("DEEPSEEK_"+suffix, "")
 DATA_DIR = ROOT / "data" / "raw"
 LOG_DIR = ROOT / "logs"
 EVAL_ADAPTER = os.getenv("EVAL_ADAPTER", "zero")
@@ -14,7 +21,15 @@ EVAL_JUDGE = os.getenv("EVAL_JUDGE", "off")
 MODEL_TEMPERATURE = 0
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL") or None
 OPENAI_MODEL = os.getenv("OPENAI_MODEL") or None
+MODEL_EXTRA_BODY = {"thinking":{"type":"disabled"}} if urlparse(OPENAI_BASE_URL or "").hostname == "api.deepseek.com" else {}
 EVAL_JUDGE_MODEL = os.getenv("EVAL_JUDGE_MODEL") or OPENAI_MODEL
+SCHEMA_MODE = os.getenv("SCHEMA_MODE", "on_demand")
+MAX_STEPS = int(os.getenv("MAX_STEPS", "20"))
+TOKEN_BUDGET = int(os.getenv("TOKEN_BUDGET", "50000"))
+MODEL_TIMEOUT = float(os.getenv("MODEL_TIMEOUT", "60"))
+MODEL_MAX_OUTPUT_TOKENS = int(os.getenv("MODEL_MAX_OUTPUT_TOKENS", "4096"))
+MCP_URL = os.getenv("MCP_URL", "http://localhost:8001/mcp")
+MCP_BEARER_TOKEN = os.getenv("MCP_BEARER_TOKEN", "")
 
 
 def db_kwargs(database: str = "olist", role: str = "admin") -> dict:
