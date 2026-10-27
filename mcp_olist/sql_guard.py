@@ -59,7 +59,15 @@ def guard_sql(sql):
         if not isinstance(value, exp.Literal) or not value.is_int or int(value.this) < 0:
             raise UnsafeSQL("LIMIT must be a nonnegative integer literal")
         if int(value.this) > MAX_ROWS:
-            tree = tree.limit(MAX_ROWS+1)
+            tree = tree.limit(MAX_ROWS)
     else:
-        tree = tree.limit(MAX_ROWS+1)
+        tree = tree.limit(MAX_ROWS)
     return tree.sql(dialect="postgres", unsupported_level=ErrorLevel.RAISE)
+
+
+def probe_sql(public_sql):
+    """Internal fetch sentinel; never returned, persisted or content-hashed."""
+    tree=sqlglot.parse_one(public_sql,read='postgres')
+    if int(tree.args['limit'].expression.this)==MAX_ROWS:
+        tree=tree.limit(MAX_ROWS+1)
+    return tree.sql(dialect='postgres',unsupported_level=ErrorLevel.RAISE)

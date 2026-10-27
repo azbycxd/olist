@@ -14,7 +14,7 @@ from psycopg.types.json import Jsonb
 from config import db_kwargs,dimension_precheck_enabled,SQL_TIMEOUT_SECONDS
 from agent.sql_normalize import normalize_sql
 from mcp_olist.catalog import TABLES
-from mcp_olist.sql_guard import MAX_ROWS, guard_sql
+from mcp_olist.sql_guard import MAX_ROWS, guard_sql, probe_sql
 
 
 def json_value(value):
@@ -59,8 +59,11 @@ def describe(name):
 
 def run_query(statement, task_id, lease_token=None, idempotency_key=None):
     from mcp_olist.idempotency import run
-    return run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement},
+    response=run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement},
                lambda:_run_query(statement,task_id,lease_token))
+    # Historical transport receipts may contain the old internal sentinel SQL.
+    if response.get('sql'):response={**response,'sql':guard_sql(response['sql'])}
+    return response
 
 
 def _run_query(statement, task_id, lease_token=None):
@@ -87,7 +90,7 @@ def _run_query(statement, task_id, lease_token=None):
             if missing:
                 return {'error':'unknown_dimension','missing':missing,
                         'notice':'未找到该维度值，请核对名称或代码；尚未执行业务统计，不能将无记录解释为零。'}
-            cursor = conn.execute(executable)
+            cursor = conn.execute(probe_sql(executable))
             columns = [c.name for c in cursor.description]
             if len(set(columns)) != len(columns):
                 raise ValueError("Duplicate output columns; give each expression a unique SQL alias")
@@ -115,6 +118,6 @@ def get_saved_result(result_id, task_id, offset=0, limit=20):
         row = conn.execute("SELECT sql,columns,rows,row_count,data_version,truncated FROM query_results WHERE result_id=%s AND task_id=%s",
             (UUID(result_id),UUID(task_id))).fetchone()
     if not row: raise ValueError("Result is unavailable for this task")
-    return {"result_id":str(result_id),"sql":row[0],"columns":row[1],"preview":row[2][offset:offset+limit],
+    return {"result_id":str(result_id),"sql":guard_sql(row[0]),"columns":row[1],"preview":row[2][offset:offset+limit],
             "row_count":row[3],"data_version":row[4],"offset":offset,"limit":limit,
             "truncated":row[5],"notice":result_notice(row[0],row[5])}

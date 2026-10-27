@@ -176,3 +176,11 @@ API 单池，MCP 两池，worker 两个独立小池，checkout 检查失效连�
 [持续503收据](../evidence/step12_review3_503_after_20261027T153551Z_ae4867a3.summary.json)、[40秒恢复收据](../evidence/step12_review3_recovery_after_20261027T153215Z_fc1cba00.summary.json)。均为真实运行的HTTP替身，不是真实模型性能。原A1改后“9个 provider_unavailable 最终失败”的收据是历史版本，已被当前排队策略取代；持续故障现在等待原截止时间，不能把总耗时增加解释为性能退化。
 
 局限：恢复发现受30s冷却和最多5s轮询影响；未知token用量继续保守占用额度，不将网络失败猜成0消耗；用户取消、任务截止和额度上限仍优先。
+
+## 12.1 复核4：内部探测 SQL 与证据 SQL
+
+旧代码把内部 LIMIT 1001 存入 query_results.sql 并返回给模型/证据页。现 guard_sql 输出对外 LIMIT 1000，以此计算 sql_hash；仅实际执行时 probe_sql 转成 LIMIT 1001。小于1000的显式 LIMIT 保持原样。工具 run_sql/get_result、证据API以及新保存的SQL都使用对外版本。已有历史行不原地重写，读取展示时会将旧外层1001规范为1000；历史内部子查询的显式LIMIT不改变。
+
+失败测试 `fa976f0`，修改 tests/test_sql_guard.py 和 tests/test_mcp.py 的对外断言为 LIMIT 1000；新增真实SQL执行、数据库哈希和证据API联合测试，确认执行1001但公开SQL重跑为1000行。
+
+[失败收据](../evidence/step12_review4_red.json)11失败/39通过；[通过收据](../evidence/step12_review4_green.json)50通过。[复核后全量](../evidence/step12_reviews_full.json)298通过，含本地数据库与私有MCP。局限：历史存储行保持原样，公开读取兼容转换；历史内部探测版哈希不会原地改写，因此已有任务首次改用公开版哈希时可能新增一份结果。
