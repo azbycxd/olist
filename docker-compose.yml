@@ -24,6 +24,11 @@ services:
     image: olist-agent:local
     command: ["python", "-m", "scripts.bootstrap"]
     environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      TOKEN_PRICE_INPUT: ${TOKEN_PRICE_INPUT:-}
+      TOKEN_PRICE_CACHED_INPUT: ${TOKEN_PRICE_CACHED_INPUT:-}
+      TOKEN_PRICE_OUTPUT: ${TOKEN_PRICE_OUTPUT:-}
+      METRIC_DURATION_BUCKETS: ${METRIC_DURATION_BUCKETS:-.005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300}
       PGHOST: db
       PGPORT: "5432"
       PGUSER: olist_admin
@@ -110,6 +115,11 @@ services:
       READY_CONNECTION_TIMEOUT_SECONDS: ${READY_CONNECTION_TIMEOUT_SECONDS:-1}
       DB_POOL_MAX_LIFETIME_SECONDS: ${DB_POOL_MAX_LIFETIME_SECONDS:-1800}
       SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      TOKEN_PRICE_INPUT: ${TOKEN_PRICE_INPUT:-}
+      TOKEN_PRICE_CACHED_INPUT: ${TOKEN_PRICE_CACHED_INPUT:-}
+      TOKEN_PRICE_OUTPUT: ${TOKEN_PRICE_OUTPUT:-}
+      METRIC_DURATION_BUCKETS: ${METRIC_DURATION_BUCKETS:-.005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300}
       PGHOST: db
       PGPORT: "5432"
       EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://embeddings:8002/v1}
@@ -157,6 +167,11 @@ services:
     profiles: ["memory"]
     entrypoint: ["uvicorn", "api.memories:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      TOKEN_PRICE_INPUT: ${TOKEN_PRICE_INPUT:-}
+      TOKEN_PRICE_CACHED_INPUT: ${TOKEN_PRICE_CACHED_INPUT:-}
+      TOKEN_PRICE_OUTPUT: ${TOKEN_PRICE_OUTPUT:-}
+      METRIC_DURATION_BUCKETS: ${METRIC_DURATION_BUCKETS:-.005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300}
       PGHOST: db
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
@@ -178,6 +193,11 @@ services:
     command: ["--help"]
     environment: &runtime-environment
       BOUNDARY_GUARDS: ${BOUNDARY_GUARDS:-false}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      TOKEN_PRICE_INPUT: ${TOKEN_PRICE_INPUT:-}
+      TOKEN_PRICE_CACHED_INPUT: ${TOKEN_PRICE_CACHED_INPUT:-}
+      TOKEN_PRICE_OUTPUT: ${TOKEN_PRICE_OUTPUT:-}
+      METRIC_DURATION_BUCKETS: ${METRIC_DURATION_BUCKETS:-.005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300}
       PGHOST: db
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
@@ -245,6 +265,11 @@ services:
     entrypoint: ["uvicorn", "api.tasks:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       BOUNDARY_GUARDS: ${BOUNDARY_GUARDS:-false}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      TOKEN_PRICE_INPUT: ${TOKEN_PRICE_INPUT:-}
+      TOKEN_PRICE_CACHED_INPUT: ${TOKEN_PRICE_CACHED_INPUT:-}
+      TOKEN_PRICE_OUTPUT: ${TOKEN_PRICE_OUTPUT:-}
+      METRIC_DURATION_BUCKETS: ${METRIC_DURATION_BUCKETS:-.005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300}
       PGHOST: db
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
@@ -298,6 +323,13 @@ services:
       embeddings:
         condition: service_healthy
     restart: unless-stopped
+
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.22.0
+    profiles: [observability]
+    ports:
+      - "127.0.0.1:16686:16686"
+      - "127.0.0.1:4318:4318"
 
 volumes:
   postgres_data:

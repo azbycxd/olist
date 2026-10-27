@@ -120,3 +120,21 @@ def db_kwargs(database: str = "olist", role: str = "admin") -> dict:
         "password": passwords[role],
         "connect_timeout": 10,
     }
+
+
+# Observability is passive; empty endpoint/prices disable export/cost calculation.
+OTEL_EXPORTER_OTLP_ENDPOINT = os.getenv('OTEL_EXPORTER_OTLP_ENDPOINT','').strip()
+TOKEN_PRICE_INPUT = float(os.environ['TOKEN_PRICE_INPUT']) if os.getenv('TOKEN_PRICE_INPUT') else None
+TOKEN_PRICE_CACHED_INPUT = float(os.environ['TOKEN_PRICE_CACHED_INPUT']) if os.getenv('TOKEN_PRICE_CACHED_INPUT') else None
+TOKEN_PRICE_OUTPUT = float(os.environ['TOKEN_PRICE_OUTPUT']) if os.getenv('TOKEN_PRICE_OUTPUT') else None
+METRIC_DURATION_BUCKETS = tuple(float(x) for x in os.getenv('METRIC_DURATION_BUCKETS','.005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300').split(','))
+if OTEL_EXPORTER_OTLP_ENDPOINT:
+    from urllib.parse import urlsplit
+    _otel_url=urlsplit(OTEL_EXPORTER_OTLP_ENDPOINT)
+    if _otel_url.scheme not in {'http','https'} or not _otel_url.hostname or _otel_url.username or _otel_url.password or _otel_url.query:
+        raise ValueError('OTEL_EXPORTER_OTLP_ENDPOINT must be an HTTP(S) endpoint without credentials or query')
+import math as _math
+if any(v is not None and (not _math.isfinite(v) or v<0) for v in (TOKEN_PRICE_INPUT,TOKEN_PRICE_CACHED_INPUT,TOKEN_PRICE_OUTPUT)):
+    raise ValueError('Token prices must be finite, nonnegative yuan per million tokens')
+if not METRIC_DURATION_BUCKETS or any(not _math.isfinite(v) or v<=0 for v in METRIC_DURATION_BUCKETS) or tuple(sorted(set(METRIC_DURATION_BUCKETS)))!=METRIC_DURATION_BUCKETS:
+    raise ValueError('METRIC_DURATION_BUCKETS must be strictly increasing positive seconds')

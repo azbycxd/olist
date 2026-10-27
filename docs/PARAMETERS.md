@@ -151,7 +151,7 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | WORKER_GRACE_SECONDS | 20 | 预先固定 | 停止领取后等待当前任务；须小于 Compose stop_grace_period=35s |
 | WORKER_HEARTBEAT_SECONDS | 5 | 预先固定 | agent 库心跳；超过三周期不健康 |
 
-池均 min_size=0，按实际需求创建。总上限=API_POOL_MAX+MCP_AGENT_POOL_MAX+MCP_OLIST_POOL_MAX+worker数×(WORKER_AGENT_POOL_MAX+WORKER_OLIST_POOL_MAX)。扩多个 API/MCP 进程时分别累加。readyz 只检查 agent 库，避免探测惰性 olist 连接。
+池均 min_size=0，按实际需求创建。总上限=API_POOL_MAX+MCP_AGENT_POOL_MAX+MCP_OLIST_POOL_MAX+worker数×(WORKER_AGENT_POOL_MAX+WORKER_OLIST_POOL_MAX)。扩多个 API/MCP 进程时分别累加。API/worker readyz只检查agent库，避免探测worker惰性olist连接；MCP readyz检查agent与olist两个库。
 
 复核3新增 `MAX_SLEEP=5`（秒，来源类型：安全护栏），限制熔断冷却期间每次等待，确保周期性处理取消和截止；不改变30s冷却阈值。
 
@@ -167,6 +167,33 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 
 验收预先固定为 RPM=10、TPM=16000、在途=3、等待=180s，仅适用于本次HTTP替身故障压测，不是供应商参数建议。未对参数做搜索。实际TPM由替身返回usage和真实时钟计算，见STEP12_HARDENING收据。
 
-| `PROVIDER_REQUEUE_MAX` | 3 | 预先固定 | 第1批第二轮复核指定；每任务最多供应商故障重排次数；达到后再次失败以provider_unavailable终止，不搜索参数。 |
+## 第1批第二轮复核参数
 
+| 参数 | 默认 | 来源类型 | 用途 |
+| --- | --- | --- | --- |
+| `PROVIDER_REQUEUE_MAX` | 3 | 预先固定 | 第1批第二轮复核指定；每任务最多供应商故障重排次数；达到后再次失败以provider_unavailable终止，不搜索参数。 |
 | `READY_CONNECTION_TIMEOUT_SECONDS` | 1s | 安全护栏 | 第1批第二轮复核指定；readyz每个池的取连接超时，低于compose healthcheck的3秒；普通请求仍用DB_POOL_TIMEOUT_SECONDS。 |
+
+
+## Step 12.3 B3 观测配置与告警
+
+| 参数 | 默认 | 来源类型 | 用途 |
+| --- | --- | --- | --- |
+| OTEL_EXPORTER_OTLP_ENDPOINT | 空 | 预先固定 | OTLP HTTP collector基础地址；空时不创建exporter、不联网、不报错 |
+| TOKEN_PRICE_INPUT | 空 | 预先固定 | 用户按供应商价格页填写，未命中缓存输入价，元/百万token |
+| TOKEN_PRICE_CACHED_INPUT | 空 | 预先固定 | 用户按供应商价格页填写，命中缓存输入价，元/百万token |
+| TOKEN_PRICE_OUTPUT | 空 | 预先固定 | 用户按供应商价格页填写，输出价，元/百万token |
+| METRIC_DURATION_BUCKETS | .005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300 | 预先固定 | 秒；模型、SQL、队列等待直方图，覆盖既有10/60/300秒超时，未据实验调参 |
+
+费用=(input-cached)×输入价+cached×缓存输入价+output×输出价，最后除以1000000。任一单价或必要usage缺失则费用留空，不视为0。缓存率只对供应商实际返回缓存字段的调用计算；未知不混进分母。供应商若没有该字段，报告注明“该供应商未返回”。/metrics费用为按当前配置价格计算的已知用量快照，不是账单或跨历史价格的结算金额。
+
+以下规则仅文档，未接入告警系统；阈值均为预先固定运维起点/安全护栏，不来自holdout或参数搜索：
+
+| 规则（PromQL） | 持续时间 | 阈值来源与含义 |
+| --- | --- | --- |
+| `olist_circuit_state == 2` | 0秒 | 安全护栏：沿用5次连续错误/30秒冷却，一开即告警 |
+| `histogram_quantile(0.95, sum by(le)(rate(olist_queue_wait_seconds_bucket[5m]))) > 30` | 5分钟 | 预先固定：排队p95不宜超过默认300秒任务截止的10% |
+| `sum(rate(olist_model_calls_total{error_class!="success"}[5m])) / clamp_min(sum(rate(olist_model_calls_total[5m])), 0.001) > 0.10` | 5分钟 | 预先固定：10%错误率；至少20次调用后判断，避免低流量噪声 |
+| `up == 0` | 1分钟 | 安全护栏：抓取失败/进程不可达；按实际Prometheus job限制作用域 |
+
+模型错误率规则部署时同时加 `sum(increase(olist_model_calls_total[5m])) >= 20`。任务计数是当前状态Gauge，model/token/lease/gate为事件累计Counter；删除历史事件会导致累计值重置，保留策略另属后续批次。标签只含固定状态、归一终止原因、错误分类、token种类和直方图le，不含task_id、user_id、SQL或供应商返回文本。

@@ -13,7 +13,7 @@ RUNTIME_ENV = set("""PATH SYSTEMROOT WINDIR TEMP TMP LANG LC_ALL SSL_CERT_FILE S
     SCHEMA_MODE MAX_STEPS TOKEN_BUDGET MODEL_TIMEOUT MODEL_MAX_OUTPUT_TOKENS MCP_URL MCP_BEARER_TOKEN
     MODEL_RETRY_ATTEMPTS MODEL_RETRY_BASE_SECONDS MODEL_RETRY_CAP_SECONDS
     REPEATED_CALL_LIMIT NO_PROGRESS_WINDOW NO_PROGRESS_EMPTY_TURNS
-    MCP_RETRY_ATTEMPTS
+    MCP_RETRY_ATTEMPTS TRACEPARENT OTEL_EXPORTER_OTLP_ENDPOINT TOKEN_PRICE_INPUT TOKEN_PRICE_CACHED_INPUT TOKEN_PRICE_OUTPUT
     CONTEXT_STRATEGY CONTEXT_KEEP_TURNS CONTEXT_SUMMARY_THRESHOLD CONTEXT_LIMIT RAG_MODE USE_MEMORY SMALL_MODEL AGENT_MODE NUMBER_GATE BOUNDARY_GUARDS""".split())
 
 
@@ -33,7 +33,7 @@ def run_runtime(question, task_id, emit, *, preference_only=False, user_text=Non
         history=retrieve(task_id,question,lease_token=lease_token)
         emit('finding_read',{'findings':history})
     emit('memory_read',{'enabled':use_memory,'count':len(preferences)})
-    with subprocess.Popen([sys.executable, "-m", "agent.worker"], cwd=ROOT, env=runtime_environment(),
+    with subprocess.Popen([sys.executable, "-m", "agent.worker"], cwd=ROOT, env={**runtime_environment(),**({"TRACEPARENT":parent} if (parent:=__import__("telemetry").traceparent()) else {})},
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             text=True, encoding="utf-8") as process:
         try:

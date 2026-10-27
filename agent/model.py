@@ -59,7 +59,7 @@ def retry_delay(exc, attempt):
     return uniform(0, min(MODEL_RETRY_CAP_SECONDS, MODEL_RETRY_BASE_SECONDS * 2**attempt))
 
 
-async def request(client, model, messages, emit, *, role="agent", step=0, tools=None,
+async def _request(client, model, messages, emit, *, role="agent", step=0, tools=None,
                   remaining=50000, sleep=asyncio.sleep, json_mode=False):
     wait_budget = float('inf')
     deadline = float('inf')
@@ -124,3 +124,35 @@ async def request(client, model, messages, emit, *, role="agent", step=0, tools=
         if payload['error_class']!='retryable' or wait_budget <= 0 or perf_counter() >= deadline:
             return None
     return None
+
+
+async def request(client, model, messages, emit, *, role="agent", step=0, tools=None,
+                  remaining=50000, sleep=asyncio.sleep, json_mode=False):
+    import telemetry
+    from opentelemetry.trace import SpanKind,Status,StatusCode
+    with telemetry.span('chat '+model,'agent',kind=SpanKind.CLIENT,
+                        attributes=telemetry.model_span_attributes(model)) as current:
+        retries=0;wait_ms=0.0;last_error='unknown'
+        def observed(kind,payload,tokens=0,latency_ms=0):
+            nonlocal retries,wait_ms,last_error
+            if kind=='model_call':
+                retries=max(retries,payload['attempt'])
+                last_error=payload.get('error_class') or 'success'
+                current.set_attributes(telemetry.model_attributes(payload))
+                current.add_event('model.attempt',{'attempt':payload['attempt'],
+                    'error_class':payload.get('error_class') or 'success','duration_ms':latency_ms})
+                payload={**payload,'accounting':telemetry.usage_summary(payload.get('usage'))}
+            elif kind=='model_retry_wait':wait_ms+=payload['retry_wait_ms']
+            emit(kind,payload,tokens,latency_ms)
+        try:
+            result=await _request(client,model,messages,observed,role=role,step=step,tools=tools,
+                                  remaining=remaining,sleep=sleep,json_mode=json_mode)
+            if result is None:
+                current.set_status(Status(StatusCode.ERROR))
+                current.set_attribute('error.type',last_error)
+            return result
+        except ModelStopped as exc:
+            current.set_attributes({'error.type':exc.reason,'error_class':exc.reason})
+            raise
+        finally:
+            current.set_attributes({'retry_count':retries,'retry_wait_ms':wait_ms})

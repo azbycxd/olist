@@ -20,6 +20,8 @@ async def lifespan(app):
         yield
     finally:
         close_all('api')
+        import telemetry
+        telemetry.flush()
 
 
 app=FastAPI(lifespan=lifespan)

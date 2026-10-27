@@ -1,5 +1,6 @@
 """Authenticated task API. Requests only enqueue; a separate process does all model work."""
 from db_pool import connection
+import telemetry
 import asyncio
 import hashlib
 import hmac
@@ -64,6 +65,14 @@ def event(conn,task_id,kind,payload,tokens=0,latency_ms=0):
 def index():return FileResponse(Path(__file__).parent/'web/index.html')
 
 
+@app.get('/metrics')
+def metrics():
+    from api.metrics import render
+    from fastapi.responses import Response
+    from prometheus_client import CONTENT_TYPE_LATEST
+    return Response(render(),media_type=CONTENT_TYPE_LATEST)
+
+
 @app.post('/register',status_code=201)
 def register(body:Credentials):
     with connection('api') as conn:
@@ -86,11 +95,11 @@ def create_task(body:NewTask,owner:UUID=Depends(user)):
     from scripts import task_limits as limits
     settings={**FINAL_CONFIG,'AGENT_MODE':body.agent_mode,'CONTEXT_STRATEGY':body.context_strategy,
         'TOKEN_BUDGET':os.getenv('TOKEN_BUDGET','100000'),**limits.settings()}
-    with connection('api') as conn:
+    with telemetry.span('task.create','api'), connection('api') as conn:
         limits.owner_lock(conn,owner)
         if not limits.quota(conn,owner)['available_tokens']:raise HTTPException(429,'UTC daily token quota exhausted')
-        ident=conn.execute("INSERT INTO tasks(user_id,question,background,run_config,deadline_at) VALUES(%s,%s,true,%s,now()+%s*interval '1 second') RETURNING task_id",
-            (owner,body.question,Jsonb(settings),settings['TASK_MAX_SECONDS'])).fetchone()[0]
+        ident=conn.execute("INSERT INTO tasks(user_id,question,background,run_config,deadline_at,traceparent) VALUES(%s,%s,true,%s,now()+%s*interval '1 second',%s) RETURNING task_id",
+            (owner,body.question,Jsonb(settings),settings['TASK_MAX_SECONDS'],telemetry.traceparent())).fetchone()[0]
     return {'task_id':str(ident),'status':'pending'}
 
 

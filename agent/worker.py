@@ -78,7 +78,7 @@ async def _execute(request):
                       "steps":outcome.steps, "total_tokens":outcome.total_tokens}, ensure_ascii=False), flush=True)
 
 
-async def execute(request):
+async def _execute_with_errors(request):
     try:
         await _execute(request)
     except ModelStopped as exc:
@@ -87,6 +87,14 @@ async def execute(request):
         emit('termination',{'reason':exc.reason,'steps':0,'total_tokens':tokens,'scope':'task'})
         print(json.dumps({'response':FinalAnswer(answer='模型服务请求终止',claims=[]).model_dump(),
             'termination':exc.reason,'steps':0,'total_tokens':tokens},ensure_ascii=False),flush=True)
+
+
+async def execute(request):
+    import telemetry
+    try:
+        with telemetry.span('agent.run','agent',parent=os.getenv('TRACEPARENT')):
+            await _execute_with_errors(request)
+    finally:telemetry.flush()
 
 
 if __name__ == "__main__":

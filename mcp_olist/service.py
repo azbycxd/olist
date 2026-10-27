@@ -5,6 +5,9 @@ import json
 import hashlib
 from decimal import Decimal
 from uuid import UUID,uuid4
+from time import perf_counter
+from contextvars import ContextVar
+import telemetry
 
 import psycopg
 import sqlglot
@@ -15,6 +18,21 @@ from config import db_kwargs,dimension_precheck_enabled,SQL_TIMEOUT_SECONDS
 from agent.sql_normalize import normalize_sql
 from mcp_olist.catalog import TABLES
 from mcp_olist.sql_guard import MAX_ROWS, guard_sql, probe_sql, sql_fingerprint
+
+SQL_OBSERVATIONS=ContextVar('sql_observations',default=None)
+
+
+def execute_sql(conn,statement,digest):
+    began=perf_counter()
+    with telemetry.span('sql.execute','mcp',attributes={'sql_hash':digest}) as current:
+        try:
+            cursor=conn.execute(statement)
+            return [c.name for c in cursor.description],cursor.fetchmany(MAX_ROWS+1)
+        finally:
+            elapsed=(perf_counter()-began)*1000
+            current.set_attribute('duration_ms',elapsed)
+            observations=SQL_OBSERVATIONS.get()
+            if observations is not None:observations.append({'sql_hash':digest,'duration_ms':elapsed})
 
 
 def json_value(value):
@@ -59,8 +77,23 @@ def describe(name):
 
 def run_query(statement, task_id, lease_token=None, idempotency_key=None):
     from mcp_olist.idempotency import run
-    response=run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement},
-               lambda:_run_query(statement,task_id,lease_token))
+    observations=[];token=SQL_OBSERVATIONS.set(observations)
+    try:
+        response=run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement},
+                   lambda:_run_query(statement,task_id,lease_token))
+    finally:
+        SQL_OBSERVATIONS.reset(token)
+        if observations:
+            # Run after the query transaction has ended, including SQL errors.
+            # Fencing still applies; telemetry failure must not change a result.
+            try:
+                from api.tasks import event
+                from mcp_olist.leases import validate
+                with connection('mcp') as conn:
+                    validate(conn,UUID(task_id),lease_token,lock=True)
+                    for item in observations:event(conn,UUID(task_id),'sql_execution',item,latency_ms=item['duration_ms'])
+            except Exception:
+                pass  # DB outage/expired lease: trace may survive; durable metric cannot.
     # Historical transport receipts may contain the old internal sentinel SQL.
     if response.get('sql'):response={**response,'sql':guard_sql(response['sql']).sql}
     return response
@@ -90,11 +123,10 @@ def _run_query(statement, task_id, lease_token=None):
             if missing:
                 return {'error':'unknown_dimension','missing':missing,
                         'notice':'未找到该维度值，请核对名称或代码；尚未执行业务统计，不能将无记录解释为零。'}
-            cursor = conn.execute(probe_sql(executable,capped))
-            columns = [c.name for c in cursor.description]
+            columns, fetched = execute_sql(conn,probe_sql(executable,capped),digest)
             if len(set(columns)) != len(columns):
                 raise ValueError("Duplicate output columns; give each expression a unique SQL alias")
-            raw = [dict(zip(columns, row)) for row in cursor.fetchmany(MAX_ROWS+1)]
+            raw = [dict(zip(columns, row)) for row in fetched]
             truncated = len(raw)>MAX_ROWS
             raw=raw[:MAX_ROWS]
             stats, rows = numeric_stats(raw, columns), json_value(raw)

@@ -80,7 +80,7 @@ docker compose up -d --no-deps api mcp-olist worker
 ```
 
 
-Step 12.2 服务启动前会校验 `.env` 中数据库密码、MCP token、API 签名密钥与 worker 模型配置。API/MCP 的 `/healthz` 仅表示进程存活，`/readyz` 仅探测 agent 库；worker 的 olist 只读池按 findings 需求懒加载。修改代码后重建镜像并执行新增迁移，再重建 API/MCP/worker。worker 停止宽限为35秒，`WORKER_GRACE_SECONDS` 默认20秒并必须留足释放租约时间。连接池设置和来源见 [参数表](docs/PARAMETERS.md)。
+Step 12.2 服务启动前会校验 `.env` 中数据库密码、MCP token、API 签名密钥与 worker 模型配置。API/MCP 的 `/healthz` 仅表示进程存活，API `/readyz` 探测 agent 库、MCP `/readyz` 同时探测 agent 与只读业务库；worker 的 olist 只读池按 findings 需求懒加载。修改代码后重建镜像并执行新增迁移，再重建 API/MCP/worker。worker 停止宽限为35秒，`WORKER_GRACE_SECONDS` 默认20秒并必须留足释放租约时间。连接池设置和来源见 [参数表](docs/PARAMETERS.md)。
 
 
 需要 Docker Desktop 的 Linux 容器模式与 Compose。把 Olist 原始 CSV 放进 `data/raw/`，包含客户、地理位置、订单、订单商品、支付、评价、商品、卖家、品类翻译。原始数据不提交到 Git。
@@ -159,3 +159,14 @@ Step 10 补充 [参数依据](docs/PARAMETERS.md)、[独立边界评测](docs/BO
 可选边界增强：在 `.env` 设置 `BOUNDARY_GUARDS=true` 后重新创建 `api`、`worker`；CLI 可用 `docker compose run --rm --no-deps -e BOUNDARY_GUARDS=true agent "问题" --username demo`。`DIMENSION_PRECHECK` 属于 MCP 服务，默认开启且不依赖该增强开关。
 
 后台任务新增 `POST /tasks/{id}/cancel` 和 `GET /quota`。默认总时长 300 秒（含排队/确认）、每用户并发 2、UTC 日 token 额度 1000000，均可在 .env 中配置。预留额度与已确认用量分开；中断后未知用量不当作零。配置、限制与真实测试证据见 [任务控制](docs/TASK_CONTROLS.md)。GitHub Actions 在 push/pull_request 时运行离线单元测试，模型评测不自动触发。
+
+
+### Step 12.3 追踪与指标
+
+先重建镜像并执行新增迁移，再启动API/MCP/worker。可选的Jaeger：
+
+```bash
+docker compose --profile observability up -d jaeger
+```
+
+在`.env`填写`OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318`后重建相关服务；留空不导出。Jaeger界面为 http://localhost:16686 ，本地演示使用内存存储，容器重启后数据不保留。API的`/metrics`提供Prometheus文本，采集端请使用内部网络。三种token单价在`.env`按供应商价格填写，空值保持费用未知。指标、语义约定版本和告警阈值见[参数表](docs/PARAMETERS.md)与[工程化收据](docs/STEP12_HARDENING.md)。历史成绩仍属于Step9源码。

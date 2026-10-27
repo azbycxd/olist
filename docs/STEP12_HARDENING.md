@@ -138,7 +138,7 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 本批要求“worker 一个小池”，但已有多智能体历史结论路径在可信 worker 内访问两个数据库/角色：`scripts/runtime.py` 调用 `scripts.findings.retrieve/save_reviewed`；后者通过 `current_version()` 以 agent_ro 连接 olist 库读取 data_imports，同时以 agent_app 访问 agent 库。标准 psycopg_pool.ConnectionPool 不能将两个不同数据库/角色的连接当作一个可互换池。
 
-用户明确批准 worker 两个独立小池，默认 agent=2、olist=1，olist 使用 agent_ro、只读事务、懒加载。现已实现；两个池在退出时均关闭。API/MCP readyz 和 worker 心跳只检查 agent 库，olist 不因健康探测创建连接。
+用户明确批准 worker 两个独立小池，默认 agent=2、olist=1，olist 使用 agent_ro、只读事务、懒加载。现已实现；两个池在退出时均关闭。API readyz和worker心跳仅检查agent库，worker的olist不因健康探测创建连接；第二轮复核5后MCP readyz同时检查agent与olist库。
 
 ## 12.1 复核1：空行不是新证据
 
@@ -297,3 +297,36 @@ B2额外失败测试 `2109e73` 复现 rate_limited 后继续提取Memory；现�
 | 6 | 81ec99f | b495f70 |
 
 全量319通过；CI离线242通过、77集成测试未运行，见[离线XML](../evidence/step12_r2_offline.xml)。六条均完成，无新增迁移或工具字段；准备进入12.3。历史503与SIGTERM收据保持原样，不重跑。
+
+
+## Step 12.3 B3：追踪、指标和成本
+
+### 旧问题与改法
+
+旧实现只有events，没有跨进程trace或Prometheus指标。API创建任务时生成W3C traceparent并存入tasks；worker领取与执行延续该trace，通过RUNTIME_ENV白名单将当前父节点传给Agent。Agent每一步、逻辑模型调用（含重试）、本地工具和MCP调用均建span，MCP请求_meta携带当前父节点，HTTP钩子转成traceparent头；服务端恢复上下文，SQL执行建子span。并发工具调用使用各自的上下文，不把SQL、问题、提示词、结果内容、密钥或异常文本写入span。
+
+新增迁移016保存traceparent及事件类型时间索引；首次本地执行016后发现SDK设置random trace ID标志位03，原约束只接受00/01，按不可改已执行迁移规则新增017扩展flags约束。
+
+采用OpenTelemetry Python SDK/OTLP HTTP exporter **1.45.1**。GenAI约定已从core语义约定1.44.0迁出，本次固定参考[官方GenAI仓库fc13eed7](https://github.com/open-telemetry/semantic-conventions-genai/blob/fc13eed7a8019acfda2643ef4d1c4c729d3601c9/docs/gen-ai/client-inference.md)（Development，2026-10-28查阅）。模型span名chat+请求模型，CLIENT类型；属性gen_ai.operation.name、gen_ai.provider.name、gen_ai.request.model、gen_ai.response.model、gen_ai.usage.input_tokens/output_tokens/cache_read.input_tokens，附error_class、error.type、retry_count、retry_wait_ms；每次HTTP尝试记model.attempt事件，逻辑span涵盖等待。工具记录gen_ai.tool.name及可用的result_id、row_count、truncated。SQL业务属性仅sql_hash、duration_ms（SDK还自动提供scope/resource信息）。
+
+OTLP地址空时不导出且不联网。可选compose profile observability使用[Jaeger 2.22.0](https://www.jaegertracing.io/docs/2.22/getting-started/)。/metrics从共享数据库构造快照，包含状态/归一终止原因任务数、错误分类模型尝试、输入/缓存/输出token、模型/SQL/队列等待直方图、队列深度、当前配置供应商熔断、租约接管、门禁替换；固定低基数标签。SQL新增sql_execution事件（sql_hash、duration_ms），model_call增加accounting（input_tokens、output_tokens、cached_tokens、cache_hit_ratio、cost_yuan）；无工具返回新增字段。缓存字段兼容prompt_cache_hit_tokens与prompt/input_tokens_details.cached_tokens。
+
+### 实测验收与发现的问题
+
+失败测试提交f6a7e8e：旧代码2失败、3缺失模块错误。实现后，各span类型及真实PostgreSQL链路均覆盖。首次真实README示例任务成功，但MCP在SIGTERM前未显式flush，丢失最后一批SQL span；已加API/MCP/worker生命周期flush，补充失败与通过XML。第二次经用户明确批准运行相同示例，成功完成；采集脚本首次读取又遇到collector异步入库尚未结束，现等待全部必需span出现；**只读重取第二次trace，无第三次模型任务**，完整22个span、4个service，SQL span在同一trace且父子链可追溯。
+
+| 真实任务 | 总tokens | 结果 | 追踪验收 |
+| --- | ---: | --- | --- |
+| 首次README示例 | 9879 | completed | 退出缺少最后SQL span，保留为失败收据 |
+| 用户批准的再验收 | 4939 | completed | 完整22 spans |
+| 合计 | 14818 | 两次 | 没有调用holdout或C/D/E题 |
+
+供应商本次返回缓存命中字段，逐请求input/cached/output及命中率见原始usage；3个单价未配置，费用留空，未估算。两次仅用于工程链路验收，不作模型质量或性能结论。
+
+收据：[首次真实任务](../evidence/step12_b3_real_task_first_attempt.json)、[首次缺失trace](../evidence/step12_b3_real_trace_first_attempt.json)、[最终真实任务用量](../evidence/step12_b3_real_task.json)、[最终完整trace](../evidence/step12_b3_real_trace.json)、[Jaeger截图](../evidence/step12_b3_jaeger.png)、[/metrics样例](../evidence/step12_b3_metrics.prom)。第二次过早读取的原始文件保存在*_early_read.json；所有XML、运行日志和哈希汇总在[验收清单](../evidence/step12_b3_checkpoint.json)。metrics样例来自本地共享数据库，包含历史测试替身事件，不是单次真实任务指标。
+
+### 已知局限
+
+Jaeger演示存储仅内存；OTLP批量导出在SIGKILL、网络不可达时可能丢span。旧任务traceparent为空时由worker建立新trace，不能追溯补齐旧API节点。数据库宕机或租约失效时SQL事件不能持久化，SQL直方图可能缺项；trace仍尽力导出。/metrics按现存事件扫描汇总，数据量更大时需后续独立评估聚合/保留策略；费用快照按当前价格重算，不能作为账单。GenAI约定仍在开发，后续升级须显式核对属性。告警仅在PARAMETERS文档定义，未接通知系统。
+
+B3最终检查：全量328通过；离线CI250通过、78集成项不运行。冻结文件哈希和SYSTEM/FINAL_TOOL/FINDING_TOOL常量与Step12起点一致。未改题库、gold、核查器、知识库、数字闸门或已有迁移。

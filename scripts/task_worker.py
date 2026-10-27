@@ -18,7 +18,7 @@ LEASE_SECONDS=int(os.getenv('WORKER_LEASE_SECONDS','30'))
 MAX_CLAIMS=3
 
 
-def claim(task_id=None):
+def _claim(task_id=None):
     with connection('worker') as conn:
         owners=conn.execute("SELECT DISTINCT user_id FROM tasks WHERE background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND status IN ('pending','planning','running','awaiting_confirmation')",(task_id,task_id)).fetchall()
         for (owner,) in owners:
@@ -26,9 +26,9 @@ def claim(task_id=None):
             limits.reap_owner(conn,owner)
             if provider_health.queue_delay(conn)>0:continue
             while True:
-                row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status,claim_count,released_count,provider_requeues FROM tasks WHERE user_id=%s AND background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at,task_id FOR UPDATE SKIP LOCKED LIMIT 1",(owner,task_id,task_id)).fetchone()
+                row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status,claim_count,released_count,provider_requeues,traceparent FROM tasks WHERE user_id=%s AND background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at,task_id FOR UPDATE SKIP LOCKED LIMIT 1",(owner,task_id,task_id)).fetchone()
                 if not row:break
-                ident,question,confirmed,settings,previous,count,released,requeued=row
+                ident,question,confirmed,settings,previous,count,released,requeued,parent=row
                 if count-released-requeued>=MAX_CLAIMS:
                     reason=f'claim_limit_exceeded: {count} leases already issued; maximum {MAX_CLAIMS}'
                     limits.stop_task(conn,ident,reason,extra={'attempted_claim':count+1,'max_claims':MAX_CLAIMS})
@@ -44,7 +44,7 @@ def claim(task_id=None):
                 event(conn,ident,'worker_claimed',{'phase':phase,'recovered':previous in {'planning','running'},'claim_count':count+1,'worker_id':os.getenv('WORKER_ID') or f'{os.getenv("HOSTNAME","local")}:{os.getpid()}'})
                 state=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(ident,)).fetchone()
                 budget=conn.execute("SELECT COALESCE(SUM(tokens),0) FROM events WHERE task_id=%s AND type='model_call'",(ident,)).fetchone()[0]
-                return {'task_id':ident,'question':question,'token':token,'phase':phase,'settings':settings,'board':dict(zip(['plan','subtasks','report'],state)) if state else None,'budget_used':budget}
+                return {'task_id':ident,'question':question,'token':token,'phase':phase,'settings':settings,'board':dict(zip(['plan','subtasks','report'],state)) if state else None,'budget_used':budget,'traceparent':parent}
         return None
 
 
@@ -98,7 +98,7 @@ def worker_heartbeat(status):
     write_heartbeat(status)
 
 
-def process(job,shutdown=None):
+def _process(job,shutdown=None):
     ident,token=job['task_id'],job['token'];stop=threading.Event();lost=threading.Event();child=[]
     shutdown=shutdown or threading.Event()
     releasing=threading.Event()
@@ -189,6 +189,22 @@ def process(job,shutdown=None):
         stop.set();thread.join(timeout=2)
 
 
+def claim(task_id=None):
+    import telemetry
+    began=time.time_ns()
+    job=_claim(task_id)
+    if job:
+        with telemetry.span('worker.claim','worker',parent=job['traceparent'],start_time=began):
+            job['traceparent']=telemetry.traceparent()
+    return job
+
+
+def process(job,shutdown=None):
+    import telemetry
+    with telemetry.span('worker.execute','worker',parent=job.get('traceparent')):
+        return _process(job,shutdown)
+
+
 def main():
     validate_settings('worker')
     shutdown=threading.Event();done=threading.Event()
@@ -213,6 +229,8 @@ def main():
         try:worker_heartbeat('stopped')
         finally:
             close_all('worker')
+            import telemetry
+            telemetry.flush()
             for sig,handler in old.items():signal.signal(sig,handler)
 
 

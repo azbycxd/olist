@@ -45,6 +45,8 @@ async def idempotency_header(request):
     if body.get('method')=='tools/call':
         key=body.get('params',{}).get('_meta',{}).get('idempotency_key')
         if key: request.headers['Idempotency-Key']=key
+        parent=body.get('params',{}).get('_meta',{}).get('traceparent')
+        if parent: request.headers['traceparent']=parent
 
 
 class MCPClient:
@@ -80,7 +82,7 @@ class MCPClient:
     async def __aexit__(self, *args):
         return await self.stack.__aexit__(*args)
 
-    async def call(self, name, arguments, tool_call_id=None):
+    async def _observed_call(self, name, arguments, tool_call_id=None):
         ident=tool_call_id or TOOL_CALL_ID.get() or str(uuid4())
         started=perf_counter()
         def summary(value):
@@ -103,7 +105,8 @@ class MCPClient:
         return result
 
     async def _call(self, name, arguments, key):
-        result = await self.session.call_tool(name, arguments,meta={'idempotency_key':key})
+        import telemetry
+        result = await self.session.call_tool(name, arguments,meta={'idempotency_key':key,**({'traceparent':parent} if (parent:=telemetry.traceparent()) else {})})
         if result.isError:
             return {"error":"mcp_tool_error", "detail":"\n".join(c.text for c in result.content if c.type == "text")[:2000]}
         if result.structuredContent is not None:
@@ -116,3 +119,12 @@ class MCPClient:
             except ValueError:
                 pass
         return {"content":[c.model_dump(mode="json") for c in result.content]}
+
+
+    async def call(self,name,arguments,tool_call_id=None):
+        import telemetry
+        from opentelemetry.trace import SpanKind
+        with telemetry.span('mcp.call','agent',kind=SpanKind.CLIENT,attributes={'gen_ai.tool.name':name}) as current:
+            result=await self._observed_call(name,arguments,tool_call_id)
+            current.set_attributes(telemetry.tool_attributes(result))
+            return result

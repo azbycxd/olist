@@ -135,7 +135,10 @@ class BearerAuth:
             try:
                 # JSON response mode: buffer until the tool finishes so pool
                 # exhaustion remains HTTP 503 even when the SDK wraps errors.
-                await self.app(scope,receive,capture)
+                import telemetry
+                from opentelemetry.trace import SpanKind
+                with telemetry.span('mcp.request','mcp',parent=headers.get(b'traceparent',b'').decode(),kind=SpanKind.SERVER):
+                    await self.app(scope,receive,capture)
                 for message in messages:
                     if message['type']=='http.response.start' and state.get('pool_timeout'):
                         message={**message,'status':503}
@@ -157,6 +160,8 @@ def create_app(token=MCP_BEARER_TOKEN):
                 yield
         finally:
             close_all('mcp')
+            import telemetry
+            telemetry.flush()
     app.router.lifespan_context=lifespan
     return BearerAuth(app, token)
 

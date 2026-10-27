@@ -1,0 +1,106 @@
+# HELP olist_tasks Tasks currently in each status
+# TYPE olist_tasks gauge
+olist_tasks{reason="none",status="running"} 113.0
+olist_tasks{reason="other",status="failed"} 3.0
+olist_tasks{reason="none",status="canceled"} 92.0
+olist_tasks{reason="claim_limit_exceeded",status="failed"} 63.0
+olist_tasks{reason="none",status="pending"} 1.0
+olist_tasks{reason="model_error",status="canceled"} 13.0
+olist_tasks{reason="task_timeout",status="failed"} 90.0
+olist_tasks{reason="rate_limited",status="failed"} 10.0
+olist_tasks{reason="provider_unavailable",status="canceled"} 6.0
+olist_tasks{reason="none",status="failed"} 30.0
+olist_tasks{reason="daily_token_quota",status="failed"} 20.0
+olist_tasks{reason="model_error",status="failed"} 12.0
+olist_tasks{reason="provider_unavailable",status="failed"} 9.0
+olist_tasks{reason="final_answer",status="completed"} 1416.0
+olist_tasks{reason="canceled",status="canceled"} 457.0
+olist_tasks{reason="task_timeout",status="canceled"} 11.0
+# HELP olist_queue_depth Pending task count
+# TYPE olist_queue_depth gauge
+olist_queue_depth 1.0
+# HELP olist_model_calls_total Model attempts
+# TYPE olist_model_calls_total counter
+olist_model_calls_total{error_class="success"} 4848.0
+olist_model_calls_total{error_class="retryable"} 156.0
+olist_model_calls_total{error_class="unknown"} 12.0
+# HELP olist_tokens_total Observed tokens; cached is a subset of input
+# TYPE olist_tokens_total counter
+olist_tokens_total{kind="input"} 1.3140266e+07
+olist_tokens_total{kind="cached"} 9.549911e+06
+olist_tokens_total{kind="output"} 1.099426e+06
+# HELP olist_cache_usage_missing_total Calls with input usage but no cache field
+# TYPE olist_cache_usage_missing_total counter
+olist_cache_usage_missing_total 132.0
+# HELP olist_cache_hit_ratio Ratio for calls with reported cache usage only
+# TYPE olist_cache_hit_ratio gauge
+olist_cache_hit_ratio 0.7307710908241384
+# HELP olist_model_duration_seconds Observed duration in seconds
+# TYPE olist_model_duration_seconds histogram
+olist_model_duration_seconds_bucket{le="0.005"} 195.0
+olist_model_duration_seconds_bucket{le="0.01"} 199.0
+olist_model_duration_seconds_bucket{le="0.025"} 204.0
+olist_model_duration_seconds_bucket{le="0.05"} 205.0
+olist_model_duration_seconds_bucket{le="0.1"} 207.0
+olist_model_duration_seconds_bucket{le="0.25"} 220.0
+olist_model_duration_seconds_bucket{le="0.5"} 330.0
+olist_model_duration_seconds_bucket{le="1.0"} 1456.0
+olist_model_duration_seconds_bucket{le="2.5"} 4634.0
+olist_model_duration_seconds_bucket{le="5.0"} 4942.0
+olist_model_duration_seconds_bucket{le="10.0"} 5014.0
+olist_model_duration_seconds_bucket{le="30.0"} 5016.0
+olist_model_duration_seconds_bucket{le="60.0"} 5016.0
+olist_model_duration_seconds_bucket{le="120.0"} 5016.0
+olist_model_duration_seconds_bucket{le="300.0"} 5016.0
+olist_model_duration_seconds_bucket{le="+Inf"} 5016.0
+olist_model_duration_seconds_count 5016.0
+olist_model_duration_seconds_sum 6981.8587465619385
+# HELP olist_sql_duration_seconds Observed duration in seconds
+# TYPE olist_sql_duration_seconds histogram
+olist_sql_duration_seconds_bucket{le="0.005"} 19.0
+olist_sql_duration_seconds_bucket{le="0.01"} 19.0
+olist_sql_duration_seconds_bucket{le="0.025"} 19.0
+olist_sql_duration_seconds_bucket{le="0.05"} 19.0
+olist_sql_duration_seconds_bucket{le="0.1"} 19.0
+olist_sql_duration_seconds_bucket{le="0.25"} 20.0
+olist_sql_duration_seconds_bucket{le="0.5"} 20.0
+olist_sql_duration_seconds_bucket{le="1.0"} 20.0
+olist_sql_duration_seconds_bucket{le="2.5"} 20.0
+olist_sql_duration_seconds_bucket{le="5.0"} 20.0
+olist_sql_duration_seconds_bucket{le="10.0"} 20.0
+olist_sql_duration_seconds_bucket{le="30.0"} 20.0
+olist_sql_duration_seconds_bucket{le="60.0"} 20.0
+olist_sql_duration_seconds_bucket{le="120.0"} 20.0
+olist_sql_duration_seconds_bucket{le="300.0"} 20.0
+olist_sql_duration_seconds_bucket{le="+Inf"} 20.0
+olist_sql_duration_seconds_count 20.0
+olist_sql_duration_seconds_sum 0.12495126900194009
+# HELP olist_queue_wait_seconds Observed duration in seconds
+# TYPE olist_queue_wait_seconds histogram
+olist_queue_wait_seconds_bucket{le="0.005"} 390.0
+olist_queue_wait_seconds_bucket{le="0.01"} 538.0
+olist_queue_wait_seconds_bucket{le="0.025"} 622.0
+olist_queue_wait_seconds_bucket{le="0.05"} 660.0
+olist_queue_wait_seconds_bucket{le="0.1"} 697.0
+olist_queue_wait_seconds_bucket{le="0.25"} 698.0
+olist_queue_wait_seconds_bucket{le="0.5"} 698.0
+olist_queue_wait_seconds_bucket{le="1.0"} 706.0
+olist_queue_wait_seconds_bucket{le="2.5"} 712.0
+olist_queue_wait_seconds_bucket{le="5.0"} 749.0
+olist_queue_wait_seconds_bucket{le="10.0"} 769.0
+olist_queue_wait_seconds_bucket{le="30.0"} 786.0
+olist_queue_wait_seconds_bucket{le="60.0"} 790.0
+olist_queue_wait_seconds_bucket{le="120.0"} 800.0
+olist_queue_wait_seconds_bucket{le="300.0"} 800.0
+olist_queue_wait_seconds_bucket{le="+Inf"} 801.0
+olist_queue_wait_seconds_count 801.0
+olist_queue_wait_seconds_sum 3577.906292
+# HELP olist_lease_takeovers_total Expired lease takeovers
+# TYPE olist_lease_takeovers_total counter
+olist_lease_takeovers_total 117.0
+# HELP olist_gate_replacements_total Replaced unsupported numeric occurrences
+# TYPE olist_gate_replacements_total counter
+olist_gate_replacements_total 313.0
+# HELP olist_circuit_state Configured provider circuit: closed=0, half_open=1, open=2
+# TYPE olist_circuit_state gauge
+olist_circuit_state 0.0

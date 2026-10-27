@@ -64,7 +64,7 @@ class Registry:
         answer = FinalAnswer.model_validate(arguments)
         return ToolResult({"accepted":True}, answer)
 
-    async def call(self, name, arguments, call_id, phase="agent"):
+    async def _call(self, name, arguments, call_id, phase="agent"):
         start = perf_counter()
         self.emit("tool_call", {"name":name, "call_id":call_id, "phase":phase,
                                "input_summary":arguments[:2000] if isinstance(arguments, str) else arguments})
@@ -86,3 +86,12 @@ class Registry:
             "error":result.content.get("error"), "result_id":result.content.get("result_id")},
             0, (perf_counter()-start)*1000)
         return result
+
+
+    async def call(self,name,arguments,call_id,phase="agent"):
+        import telemetry
+        with telemetry.span('execute_tool '+name,'agent',attributes={
+                'gen_ai.operation.name':'execute_tool','gen_ai.tool.name':name}) as current:
+            result=await self._call(name,arguments,call_id,phase)
+            current.set_attributes(telemetry.tool_attributes(result.content))
+            return result
