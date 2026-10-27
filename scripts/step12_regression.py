@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import shutil
 from datetime import datetime,timezone
 from types import SimpleNamespace
 
@@ -19,13 +20,24 @@ def claim_once(protocol_path,marker):
     return protocol
 
 
+def verify_committed_protocol(path,root):
+    digest=hashlib.sha256(path.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
+    if shutil.which('git'):
+        committed=subprocess.check_output(['git','-c',f'safe.directory={root}','show','HEAD:evidence/step12_regression_protocol.json'],cwd=root)
+        if hashlib.sha256(committed.replace(b'\r\n',b'\n')).hexdigest()!=digest:raise ValueError('Commit the exact protocol before evaluation')
+        return subprocess.check_output(['git','-c',f'safe.directory={root}','log','-1','--format=%H','--','evidence/step12_regression_protocol.json'],cwd=root,text=True).strip()
+    # The host verifies git show and supplies a matching committed-blob digest.
+    commit=os.getenv('STEP12_PROTOCOL_COMMIT','')
+    if len(commit)!=40 or any(c not in '0123456789abcdef' for c in commit) or os.getenv('STEP12_PROTOCOL_SHA256')!=digest:
+        raise ValueError('Missing/mismatched host-verified committed protocol ticket')
+    return commit
+
+
 def main():
     root=Path(__file__).resolve().parents[1]
     path=root/'evidence/step12_regression_protocol.json'
     protocol=json.loads(path.read_text(encoding='utf-8'))
-    committed=subprocess.check_output(['git','-c',f'safe.directory={root}','show','HEAD:evidence/step12_regression_protocol.json'],cwd=root)
-    if committed.replace(b'\r\n',b'\n')!=path.read_bytes().replace(b'\r\n',b'\n'):
-        raise ValueError('Commit the exact protocol before evaluation')
+    protocol_commit=verify_committed_protocol(path,root)
     for key,value in protocol['config'].items():os.environ[key]=str(value)
     from config import db_kwargs
     from eval.dataset import load_questions,QUESTION_FILE
@@ -65,7 +77,7 @@ def main():
     counts={c:sum(r['correct'] for r in cases if r['category']==c) for c in 'CDE'}
     costs=[r['cost_yuan'] for r in cases];known_prices=all(c is not None for c in costs)
     input_total=sum(r['input_tokens'] or 0 for r in cases);cached_total=sum(r['cached_tokens'] or 0 for r in cases)
-    report={'model_kind':'真实模型；C/D/E dev一次性默认配置回归','protocol_commit':subprocess.check_output(['git','-c',f'safe.directory={root}','log','-1','--format=%H','--','evidence/step12_regression_protocol.json'],cwd=root,text=True).strip(),
+    report={'model_kind':'真实模型；C/D/E dev一次性默认配置回归','protocol_commit':protocol_commit,
         'protocol_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'cases':cases,'correct':counts,
         'passed':all(counts[c]>=protocol['pass'][c] for c in 'CDE'),'total_tokens':sum(r['tokens'] or 0 for r in cases),
         'average_cost_yuan':sum(costs)/len(costs) if known_prices else None,
