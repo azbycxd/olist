@@ -377,3 +377,13 @@ B4未增加模型工具返回字段、运行时配置或数据库迁移。B3新�
 | B4 故障演练与压测 | 82a2ab0 | 9f3864a |
 
 [归档校验清单](../evidence/step12_batch2_archive_checksums.json)覆盖本轮六项复核及第2批证据，固定9f3864a中的Git字节哈希和本机采集哈希，保留CRLF规范化差异。没有额外调用真实模型。
+
+## 第2批复核1：保留期独立的指标汇总
+
+旧问题：抓取扫描全量events并逐行计算usage，删除历史事件会让counter下降。新增018_metrics_rollup，锁定事件写入后以一条回填SQL汇总现有数据，事件AFTER INSERT触发器在原事务内原子累加model_call、sql_execution、worker_claimed、number_gate及累计直方图桶。任务持久标记首次排队采样，清理旧事件后不会把接管再次当成首次领取。CLI等直接写事件的路径同样受触发器覆盖，回滚不会留下虚增指标。
+
+/metrics只读metrics_rollup、tasks和provider_health；counter只增不减，保留期清理不影响指标。汇总没有用户/任务外键，用户删除也不回减历史匿名总量。应用账号只有汇总表SELECT，不能直接改计数；触发器以固定search_path的受限函数执行。费用仍以当前配置单价计算汇总中完整usage的token总量。
+
+失败测试提交2e77d1d：2失败；实现后指标及追踪11通过，包括6并发写者提交12组事件，计数精确增长；管理员删除这些事件后所有counter/直方图保持不变。收据为step12_r3_metrics_red.xml、step12_r3_metrics_green.xml，日志同名存logs。性能前后耗时未另测，留空，不估算。
+
+局限：汇总行是共享写热点；桶由迁移固定，不能用环境变量对历史累计数据任意重分桶。此前已删除的历史事件无法补回，只从018回填时实际存在的事件开始累计。容量告警解释补在PARAMETERS：排队p95随任务数/worker数/单任务耗时变化，不能将容量等待直接视为故障。
