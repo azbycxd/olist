@@ -1,0 +1,111 @@
+{"model_kind": "模型替身",
+  "workers": 2,
+  "task_count": 1,
+  "sse_peak": 1,
+  "sse_errors": [],
+  "elapsed_seconds": 23.209056814999713,
+  "completed": 1,
+  "success_rate": 1.0,
+  "throughput_tasks_per_minute": 2.5851976871900617,
+  "queue_wait_p50_seconds": 0.800829,
+  "queue_wait_p95_seconds": 0.800829,
+  "queue_wait_observed_count": 1,
+  "error_types": {},
+  "connection_peak": 11,
+  "connection_cap": 30,
+  "connection_cap_formula": "API + MCP agent + MCP olist + workers * (worker agent + worker olist)",
+  "database_all_client_peak": 13,
+  "connection_sampling_interval_seconds": 0.1,
+  "sql_count": 1,
+  "sql_mean_ms": 9.297771000092325,
+  "sql_p95_ms": 9.297771000092325,
+  "model_requests": 2,
+  "model_tokens": 2000,
+  "worker_exits": [],
+  "injection_seconds": 0,
+  "tool_event_counts": {
+    "mcp_call": 2,
+    "mcp_result": 2,
+    "tool_call": 3
+  },
+  "tool_error_types": {},
+  "tasks": [
+    {
+      "task_id": "97d0eda0-3b78-4975-b004-444988534263",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.800829
+    }
+  ],
+  "conclusion": "模型替身：实际重启PostgreSQL容器，逐次healthz/readyz响应、任务状态、worker退出情况和连接池恢复采样已保留。未修改产品代码；恢复时间为离散探测上界，未观测到就绪失败时不推算恢复时间。",
+  "changed_code": false,
+  "source_commit": null,
+  "source_hashes": {
+    "scripts/step12_chaos.py": "5733eae99109d33dc038a7e174884e04e04f1a758ab5170f035149ebb7edc992",
+    "scripts/task_worker.py": "9152f6980c0e5dda815e108b85e81ed99b1188ad27fbf10ffd8298b078633acb",
+    "db_pool.py": "29fe2f90d897b71db4ee48fdfc7a01df5f5a31240fca42f572ce1d56b97883de",
+    "api/tasks.py": "c3c1344ae15fb9800078824f1f5c83b3ad85565a225bbdd5c367ad0e069ba776",
+    "mcp_olist/service.py": "812f75327906db6889fc16b1eaa2963b91aeebef534b8eb1816ca88af19740d2"
+  },
+  "source_log": "step12_chaos_db_restart.jsonl",
+  "source_log_sha256": "5467ec7696819587488b7f9476e41a35dfe49dd042835af951795261f557cc1f",
+  "process_logs": [
+    {
+      "path": "logs/step12_chaos_db_restart_bef02aa5_mcp.txt",
+      "sha256": "c203b654e0a3d30d20e01db42a2826c73b9d4e3e67ffeb1a2ab19294f0572ff4"
+    },
+    {
+      "path": "logs/step12_chaos_db_restart_bef02aa5_api.txt",
+      "sha256": "826c17c69a986074dc9047b526f0ee6ae3ed3e93d2ba3c312407a2fa692d3fac"
+    },
+    {
+      "path": "logs/step12_chaos_db_restart_bef02aa5_worker0.txt",
+      "sha256": "8f5d975d450a64243e47973dae8c722feb4658e2c2c42e80032eecc4a23f3e6b"
+    },
+    {
+      "path": "logs/step12_chaos_db_restart_bef02aa5_worker1.txt",
+      "sha256": "8f5d975d450a64243e47973dae8c722feb4658e2c2c42e80032eecc4a23f3e6b"
+    }
+  ],
+  "diagnostic_events": {
+    "path": "step12_chaos_db_restart_events.jsonl",
+    "sha256": "7927994a7eb8712b34ec36cbde46a98ab131aefd0e65b91bcece38e72a3186af"
+  },
+  "server_tool_requests": 2,
+  "extra_server_tool_requests": 0,
+  "retry_observation": "Server tools/call count minus persisted logical mcp_call count; lower bound, not a per-key transport retry counter.",
+  "pool_connect_timeout_log_count": 0,
+  "mcp_error_max_latency_ms": null,
+  "restart_signal": {
+    "command": "docker restart olist-agent-db-1",
+    "exit_code": 0,
+    "completed_unix_seconds": 1793118915.458,
+    "started_unix_seconds": 1793118914.628,
+    "container": "olist-agent-db-1",
+    "path": "logs/step12_chaos_db_signal.json",
+    "sha256": "ae0c4b909e5ebfb5d7ef33ead2adf167b6efeca07d69c88946a3853c191198c2"
+  },
+  "api_pool_recovery_seconds_from_restart": 1.4747650623321533,
+  "api_ready_failures_observed": 1,
+  "mcp_pool_recovery_seconds_from_restart": null,
+  "mcp_ready_failures_observed": 0,
+  "clock_anchor": {
+    "task_ids": [
+      "97d0eda0-3b78-4975-b004-444988534263"
+    ],
+    "at": 7285.796476246,
+    "unix_seconds": 1793118902.45958,
+    "api_url": "http://127.0.0.1:52175",
+    "mcp_url": "http://127.0.0.1:50965",
+    "path": "logs/step12_chaos_db_restart_ready.json",
+    "sha256": "356ef5b84d1fd9931afa19084c69a0eeb7ab55bf3f018dbf86a8b519fa59f49e"
+  },
+  "first_observed_replacement_connection_seconds_from_restart": {
+    "api": 1.4501609802246094,
+    "mcp": 1.4501609802246094,
+    "worker": 2.57887601852417
+  },
+  "source_hash_capture": "report_creation_working_tree; product code unchanged across all five runs; harness was edited for later scenarios, so its digest is not a loaded-source snapshot"
+}

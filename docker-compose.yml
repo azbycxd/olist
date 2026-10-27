@@ -324,6 +324,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.13.0
+    profiles: [chaos]
+    ports:
+      - "127.0.0.1:8474:8474"
+
   jaeger:
     image: cr.jaegertracing.io/jaegertracing/jaeger:2.22.0
     profiles: [observability]

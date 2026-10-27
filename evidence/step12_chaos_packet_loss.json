@@ -1,0 +1,124 @@
+{"model_kind": "模型替身",
+  "workers": 2,
+  "task_count": 5,
+  "sse_peak": 5,
+  "sse_errors": [],
+  "elapsed_seconds": 69.86986625000009,
+  "completed": 1,
+  "success_rate": 0.2,
+  "throughput_tasks_per_minute": 0.858739299504526,
+  "queue_wait_p50_seconds": 32.30893,
+  "queue_wait_p95_seconds": 58.4180022,
+  "queue_wait_observed_count": 5,
+  "error_types": {
+    "bootstrap_error": 3,
+    "RuntimeError": 1
+  },
+  "connection_peak": 15,
+  "connection_cap": 30,
+  "connection_cap_formula": "API + MCP agent + MCP olist + workers * (worker agent + worker olist)",
+  "sql_count": 1,
+  "sql_mean_ms": 4.162223000093945,
+  "sql_p95_ms": 4.162223000093945,
+  "model_requests": 4,
+  "model_tokens": 4000,
+  "worker_exits": [],
+  "injection_seconds": 45.12880007599961,
+  "tool_event_counts": {
+    "mcp_call": 8,
+    "mcp_result": 7,
+    "tool_call": 9
+  },
+  "tool_error_types": {
+    "McpError": 8,
+    "ExceptionGroup": 1,
+    "RuntimeError": 1
+  },
+  "tasks": [
+    {
+      "task_id": "b88ec2a5-9200-4f85-972c-6eb3581d0e83",
+      "status": "failed",
+      "error": "bootstrap_error",
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 32.30893
+    },
+    {
+      "task_id": "445a1244-b651-42d7-9599-b9e4b521f15a",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 63.350886
+    },
+    {
+      "task_id": "8b89b2e4-9ef3-4ac9-bc41-e1626134d1a0",
+      "status": "failed",
+      "error": "RuntimeError",
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.865991
+    },
+    {
+      "task_id": "e14c9957-74bb-40aa-ac29-869164b4cf3d",
+      "status": "failed",
+      "error": "bootstrap_error",
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 38.686467
+    },
+    {
+      "task_id": "7aa21f1c-9caa-46bc-bc5a-ca2855aad892",
+      "status": "failed",
+      "error": "bootstrap_error",
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.887513
+    }
+  ],
+  "conclusion": "模型替身：5任务仅1成功，3个bootstrap_error、1个RuntimeError；观察到池连接超时和MCP重复传输。故障撤除后后续任务成功；仅1个SQL耗时样本，不能解释为丢失提高性能。当前初始化/工具故障不保证任务自动重排，未扩大重排范围或修改产品代码。",
+  "changed_code": false,
+  "source_commit": null,
+  "source_hashes": {
+    "scripts/step12_chaos.py": "5733eae99109d33dc038a7e174884e04e04f1a758ab5170f035149ebb7edc992",
+    "scripts/task_worker.py": "9152f6980c0e5dda815e108b85e81ed99b1188ad27fbf10ffd8298b078633acb",
+    "db_pool.py": "29fe2f90d897b71db4ee48fdfc7a01df5f5a31240fca42f572ce1d56b97883de",
+    "api/tasks.py": "c3c1344ae15fb9800078824f1f5c83b3ad85565a225bbdd5c367ad0e069ba776",
+    "mcp_olist/service.py": "812f75327906db6889fc16b1eaa2963b91aeebef534b8eb1816ca88af19740d2"
+  },
+  "source_log": "step12_chaos_packet_loss.jsonl",
+  "source_log_sha256": "35058b07aab8d178219e5d06d54e0afbf2df12e0cb92950eb1d9ad9c33647228",
+  "process_logs": [
+    {
+      "path": "logs/step12_chaos_packet_loss_191dadc2_mcp.txt",
+      "sha256": "96dba8c53ecb3ace4f7ed9000e6bbc55913b67311fe2199ab905b2330b08905a"
+    },
+    {
+      "path": "logs/step12_chaos_packet_loss_191dadc2_api.txt",
+      "sha256": "5f9ba30ae2982b6e4e00911e53f76a2820739e6e90b356a5309f95cec1af9a97"
+    },
+    {
+      "path": "logs/step12_chaos_packet_loss_191dadc2_worker0.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/step12_chaos_packet_loss_191dadc2_worker1.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "diagnostic_events": {
+    "path": "step12_chaos_packet_loss_events.jsonl",
+    "sha256": "e4050e2585c3bde20e5f1d758711af4653ab8ca3028630546bf2835c2dc44005"
+  },
+  "server_tool_requests": 9,
+  "extra_server_tool_requests": 1,
+  "retry_observation": "Server tools/call count minus persisted logical mcp_call count; lower bound, not a per-key transport retry counter.",
+  "pool_connect_timeout_log_count": 1,
+  "mcp_error_max_latency_ms": 30031.71888900033,
+  "fault_semantics": "Toxiproxy 2.13.0 packet_loss: downstream TCP chunks, loss_rate=0.1, correlation=0, toxicity=1; removed after 45 seconds. This is not kernel IP packet loss/retransmission.",
+  "baseline": {
+    "path": "step12_chaos_network_baseline.json",
+    "sql_mean_ms": 4.651886599822319
+  },
+  "source_hash_capture": "report_creation_working_tree; product code unchanged across all five runs; harness was edited for later scenarios, so its digest is not a loaded-source snapshot"
+}

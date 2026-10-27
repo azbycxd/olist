@@ -1,0 +1,112 @@
+{"model_kind": "模型替身",
+  "workers": 2,
+  "task_count": 5,
+  "sse_peak": 5,
+  "sse_errors": [],
+  "elapsed_seconds": 12.729377480999574,
+  "completed": 5,
+  "success_rate": 1.0,
+  "throughput_tasks_per_minute": 23.567531126152332,
+  "queue_wait_p50_seconds": 5.207197,
+  "queue_wait_p95_seconds": 8.1051778,
+  "queue_wait_observed_count": 5,
+  "error_types": {},
+  "connection_peak": 13,
+  "connection_cap": 30,
+  "connection_cap_formula": "API + MCP agent + MCP olist + workers * (worker agent + worker olist)",
+  "sql_count": 5,
+  "sql_mean_ms": 4.651886599822319,
+  "sql_p95_ms": 5.230221999772766,
+  "model_requests": 10,
+  "model_tokens": 10000,
+  "worker_exits": [],
+  "injection_seconds": 0,
+  "tool_event_counts": {
+    "mcp_call": 10,
+    "mcp_result": 10,
+    "tool_call": 15
+  },
+  "tool_error_types": {},
+  "tasks": [
+    {
+      "task_id": "e6bebfa8-ad28-4879-881a-253b5d242f4c",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.916572
+    },
+    {
+      "task_id": "d9462602-7934-4965-94f2-466b32627ef1",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.91901
+    },
+    {
+      "task_id": "940df05b-3508-472b-bc0b-62c3f0a97a4a",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 5.207197
+    },
+    {
+      "task_id": "c2d7edad-5602-4680-a7c0-c638c5978ec4",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 5.207805
+    },
+    {
+      "task_id": "9f9ca982-d26f-4f00-9589-80676ed3bfc1",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 8.829521
+    }
+  ],
+  "conclusion": "模型替身：5/5任务成功，未观察到超时或重复传输；作为相同代理拓扑的无故障基线。未修改产品代码。",
+  "changed_code": false,
+  "source_commit": null,
+  "source_hashes": {
+    "scripts/step12_chaos.py": "87f40a3cab2ab9f1d6248dc27172d92203ccca5aa1d68a51c316b2d085828442",
+    "scripts/task_worker.py": "9152f6980c0e5dda815e108b85e81ed99b1188ad27fbf10ffd8298b078633acb",
+    "db_pool.py": "29fe2f90d897b71db4ee48fdfc7a01df5f5a31240fca42f572ce1d56b97883de",
+    "api/tasks.py": "c3c1344ae15fb9800078824f1f5c83b3ad85565a225bbdd5c367ad0e069ba776",
+    "mcp_olist/service.py": "812f75327906db6889fc16b1eaa2963b91aeebef534b8eb1816ca88af19740d2"
+  },
+  "source_log": "step12_chaos_network_baseline.jsonl",
+  "source_log_sha256": "530078dbec78a8f197874fdb38e5f6f6c813e4adb1857ec334ce3cc34be9e4cb",
+  "process_logs": [
+    {
+      "path": "logs/step12_chaos_network_baseline_67aff247_mcp.txt",
+      "sha256": "649576c2fc3e072a6b03d125e732b499da567bae8a8024220c83ab33acdefcd1"
+    },
+    {
+      "path": "logs/step12_chaos_network_baseline_67aff247_api.txt",
+      "sha256": "b55d9eb228e2c8a8710c5e1f7b4244d930d9947d2b3e79e9ab3937f77a535737"
+    },
+    {
+      "path": "logs/step12_chaos_network_baseline_67aff247_worker0.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/step12_chaos_network_baseline_67aff247_worker1.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "diagnostic_events": {
+    "path": "step12_chaos_network_baseline_events.jsonl",
+    "sha256": "998381a2ef0c5faa84c94d14582953c9cf31d144d59c01474bea9f94cf42aef3"
+  },
+  "server_tool_requests": 10,
+  "extra_server_tool_requests": 0,
+  "retry_observation": "Server tools/call count minus persisted logical mcp_call count; lower bound, not a per-key transport retry counter.",
+  "pool_connect_timeout_log_count": 0,
+  "mcp_error_max_latency_ms": null,
+  "source_hash_capture": "report_creation_working_tree; product code unchanged across all five runs; harness was edited for later scenarios, so its digest is not a loaded-source snapshot"
+}

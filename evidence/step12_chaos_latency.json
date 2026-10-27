@@ -1,0 +1,117 @@
+{"model_kind": "模型替身",
+  "workers": 2,
+  "task_count": 5,
+  "sse_peak": 5,
+  "sse_errors": [],
+  "elapsed_seconds": 74.4538343739996,
+  "completed": 5,
+  "success_rate": 1.0,
+  "throughput_tasks_per_minute": 4.029342511670085,
+  "queue_wait_p50_seconds": 25.693189,
+  "queue_wait_p95_seconds": 45.739878399999995,
+  "queue_wait_observed_count": 5,
+  "error_types": {},
+  "connection_peak": 13,
+  "connection_cap": 30,
+  "connection_cap_formula": "API + MCP agent + MCP olist + workers * (worker agent + worker olist)",
+  "sql_count": 5,
+  "sql_mean_ms": 508.9169105998735,
+  "sql_p95_ms": 517.672561800282,
+  "model_requests": 10,
+  "model_tokens": 10000,
+  "worker_exits": [],
+  "injection_seconds": 74.3886324670002,
+  "tool_event_counts": {
+    "mcp_call": 10,
+    "mcp_result": 10,
+    "tool_call": 15
+  },
+  "tool_error_types": {},
+  "tasks": [
+    {
+      "task_id": "cb9c0c47-2c46-4624-9d21-8ede98dbeaf5",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 49.775397
+    },
+    {
+      "task_id": "b6b28394-33cc-4479-aa35-8d4ada9cbe54",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.861232
+    },
+    {
+      "task_id": "0e2ebc08-9859-47c5-9bb6-7164b9ade2da",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.874343
+    },
+    {
+      "task_id": "bdaa7a3a-3319-40c2-8ba9-c3d2ec46f17e",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 29.597804
+    },
+    {
+      "task_id": "ad014485-4376-4176-8af8-81c82635cd94",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 25.693189
+    }
+  ],
+  "conclusion": "模型替身：500ms下行延迟下5/5成功；多次数据库往返累积，SQL均值和任务总耗时明显上升。MCP的agent/olist两个池均经过代理；API/worker直连。未合并事务或更改SQL/重试规则，未修改产品代码。",
+  "changed_code": false,
+  "source_commit": null,
+  "source_hashes": {
+    "scripts/step12_chaos.py": "6ce68e63e55c41dc1f2c97613c68b7ad079cce26868966c649ae927614878616",
+    "scripts/task_worker.py": "9152f6980c0e5dda815e108b85e81ed99b1188ad27fbf10ffd8298b078633acb",
+    "db_pool.py": "29fe2f90d897b71db4ee48fdfc7a01df5f5a31240fca42f572ce1d56b97883de",
+    "api/tasks.py": "c3c1344ae15fb9800078824f1f5c83b3ad85565a225bbdd5c367ad0e069ba776",
+    "mcp_olist/service.py": "812f75327906db6889fc16b1eaa2963b91aeebef534b8eb1816ca88af19740d2"
+  },
+  "source_log": "step12_chaos_latency.jsonl",
+  "source_log_sha256": "1e2b32badf5e6f802d66b811e4ade4c680835fcdc0d4951bc332fcd72a8e1343",
+  "process_logs": [
+    {
+      "path": "logs/step12_chaos_latency_cd21a5c9_mcp.txt",
+      "sha256": "1ac476dba16392b86c8bd99e819444b194bc570a7915f6976a4563450efd0c62"
+    },
+    {
+      "path": "logs/step12_chaos_latency_cd21a5c9_api.txt",
+      "sha256": "fa4a8d3023863661ea621fb8ee467898288e7704dae7e9c60a3ac3d0cdd70234"
+    },
+    {
+      "path": "logs/step12_chaos_latency_cd21a5c9_worker0.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/step12_chaos_latency_cd21a5c9_worker1.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "diagnostic_events": {
+    "path": "step12_chaos_latency_events.jsonl",
+    "sha256": "ead4f20c4558a0cc902b84c2fe5148a4f86919371594f3c9be3e1b155edee223"
+  },
+  "server_tool_requests": 10,
+  "extra_server_tool_requests": 0,
+  "retry_observation": "Server tools/call count minus persisted logical mcp_call count; lower bound, not a per-key transport retry counter.",
+  "pool_connect_timeout_log_count": 0,
+  "mcp_error_max_latency_ms": null,
+  "baseline": {
+    "path": "step12_chaos_network_baseline.json",
+    "sql_mean_ms": 4.651886599822319,
+    "elapsed_seconds": 12.729377480999574
+  },
+  "source_hash_capture": "report_creation_working_tree; product code unchanged across all five runs; harness was edited for later scenarios, so its digest is not a loaded-source snapshot"
+}

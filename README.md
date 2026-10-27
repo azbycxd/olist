@@ -170,3 +170,19 @@ docker compose --profile observability up -d jaeger
 ```
 
 在`.env`填写`OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318`后重建相关服务；留空不导出。Jaeger界面为 http://localhost:16686 ，本地演示使用内存存储，容器重启后数据不保留。API的`/metrics`提供Prometheus文本，采集端请使用内部网络。三种token单价在`.env`按供应商价格填写，空值保持费用未知。指标、语义约定版本和告警阈值见[参数表](docs/PARAMETERS.md)与[工程化收据](docs/STEP12_HARDENING.md)。历史成绩仍属于Step9源码。
+
+本地故障演练使用可选的Toxiproxy，模型全部为HTTP替身：
+
+```bash
+docker compose --profile chaos up -d toxiproxy
+# 在独立验收数据库运行，先停常驻worker，避免领取替身任务。
+docker compose stop worker
+docker compose run --rm --no-deps init-data python -m scripts.step12_chaos network_baseline
+docker compose run --rm --no-deps init-data python -m scripts.step12_chaos latency
+docker compose run --rm --no-deps init-data python -m scripts.step12_chaos packet_loss
+docker compose run --rm --no-deps init-data python -m scripts.step12_chaos load
+```
+
+容器产物需要挂载工作区或复制出来归档；脚本使用当前镜像源码，修改后先重建。数据库重启场景由`db_restart`模式写出`logs/step12_chaos_db_restart_ready.json`后等待操作者写入信号时间并重启数据库；本次实测命令及时间已保存在收据。演练结束后确认任务已终止，再恢复原worker。已有SIGTERM/503收据在12.3中直接复用，不重跑。
+
+第2批已取得完整[真实任务trace](evidence/step12_b3_real_trace.json)、[Jaeger截图](evidence/step12_b3_jaeger.png)、[/metrics样例](evidence/step12_b3_metrics.prom)和[100任务压测](evidence/step12_chaos_load.json)。压测100/100成功、100个同时SSE、连接峰值24/池上限36；丢失故障仅1/5成功，局限与未修改项完整记录在工程报告，不作为真实模型性能或质量数据。

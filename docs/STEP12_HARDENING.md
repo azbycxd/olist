@@ -330,3 +330,43 @@ OTLP地址空时不导出且不联网。可选compose profile observability使�
 Jaeger演示存储仅内存；OTLP批量导出在SIGKILL、网络不可达时可能丢span。旧任务traceparent为空时由worker建立新trace，不能追溯补齐旧API节点。数据库宕机或租约失效时SQL事件不能持久化，SQL直方图可能缺项；trace仍尽力导出。/metrics按现存事件扫描汇总，数据量更大时需后续独立评估聚合/保留策略；费用快照按当前价格重算，不能作为账单。GenAI约定仍在开发，后续升级须显式核对属性。告警仅在PARAMETERS文档定义，未接通知系统。
 
 B3最终检查：全量328通过；离线CI250通过、78集成项不运行。冻结文件哈希和SYSTEM/FINAL_TOOL/FINDING_TOOL常量与Step12起点一致。未改题库、gold、核查器、知识库、数字闸门或已有迁移。
+
+失败测试提交 `f6a7e8e`，修复提交 `4d8d7c8`（含退出flush和collector完整性检查）。
+
+## Step 12.3 B4：故障演练与压测
+
+### 旧问题与改法
+
+此前只有较小并发和部分故障演示，没有数据库重启、数据库网络故障及100个同时SSE连接的实测。新增隔离验收脚本 `scripts.step12_chaos`、只读分析 `scripts.step12_chaos_review` 和可选compose profile `chaos`，使用Toxiproxy 2.13.0。所有B4报告首行注明“模型替身”；真实API、MCP、worker、PostgreSQL保留，只有模型HTTP响应为替身。RAG关闭、Memory关闭用于隔离服务层，不改变默认配置或提示词。
+
+先提交统计/收据验收失败测试 `82a2ab0`（3失败），再实现脚本，3通过。脚本在启动worker之前等待所有SSE连接实际打开；吞吐按完成任务数和从开始提交到全部终止的真实时间计算，排队时间取API创建到首次worker_claimed。无估算或参数搜索。
+
+### 实测结果与收据
+
+| 场景 | 任务结果 | 关键实测 | 收据 |
+| --- | --- | --- | --- |
+| 无故障网络基线 | 5/5成功 | 总12.729s；SQL均值4.652ms | [基线](../evidence/step12_chaos_network_baseline.json) |
+| 500ms下行延迟 | 5/5成功 | 总74.454s；SQL均值508.917ms；无工具错误或额外传输 | [延迟](../evidence/step12_chaos_latency.json) |
+| 10%下行TCP数据块丢失 | 1/5成功 | 总69.870s；3 bootstrap_error、1 RuntimeError；故障持续45.129s | [丢失](../evidence/step12_chaos_packet_loss.json) |
+| PostgreSQL重启 | 1/1成功 | API readyz出现1次503，信号后1.475s恢复；worker均未退出 | [重启](../evidence/step12_chaos_db_restart.json) |
+| 4 worker / 100任务 / 100同时SSE | 100/100成功，0任务错误、0 SSE错误 | 总97.160s；61.754任务/分钟；排队p50/p95=48.156/89.463s | [压测](../evidence/step12_chaos_load.json) |
+
+数据库重启为真实 `docker restart olist-agent-db-1`，发生在替身模型请求运行中。API/MCP的healthz采样均200；API短暂未就绪，MCP的顺序就绪采样没有捕捉到失败，因此MCP“未就绪到恢复”时间留空。重启命令完成后首次观察到API/MCP替换连接均在信号后1.450s、worker为2.579s（不是同一时刻所有池全部建满）。API/worker日志记录连接拒绝或DNS短暂失败，连接池自行替换连接；任务仍只领取1次，无重排。信号、时钟锚点、原始探测和进程日志名/哈希均在收据中。
+
+网络场景中仅MCP的agent和olist两个池经过代理；API、worker直连。延迟对每次数据库往返累积，并非一个任务只增加500ms。丢失使用[Toxiproxy packet_loss](https://github.com/Shopify/toxiproxy/blob/v2.13.0/README.md)的 `loss_rate=0.1, correlation=0, toxicity=1`，丢弃TCP数据块，**不是内核IP层丢包和TCP重传模拟**，也不宣称本次恰好丢了10%的实际数据块。丢失场景观察到1条池连接超时日志、最长错误MCP调用30031.719ms；服务端9次tools/call对应8次已记录逻辑调用，至少1次重复传输（这是日志差额下界，不是按幂等键逐次测出的重试计数）。只留下1个成功SQL样本4.162ms，其余缺失，不能解释为性能改善。
+
+压测应用池连接峰值 **24**，配置上限公式：`API 8 + MCP agent 8 + MCP olist 8 + 4 × (worker agent 2 + worker olist 1) = 36`。采样包含观察连接等在内的数据库全部客户端峰值为26；上限36只约束应用池，不约束管理/观察连接。worker的olist池保持懒加载，本次single任务没有建立该池。采样周期至少50ms（故障场景至少100ms），短于采样间隔的峰值可能漏掉，不将采样峰值当作严格瞬时上界。
+
+### 复用第1批与发现的问题
+
+按要求没有重跑SIGTERM或持续503。引用汇总见 [复用收据](../evidence/step12_chaos_reused.json)：SIGTERM信号到接管由30803.701ms到20736.954ms，两次均领取2次，主动释放后计入上限的领取由2次降为1次；持续503的历史改后结果为14次替身请求、10个任务截止失败、0个provider_unavailable终态失败。该503收据早于本轮 `PROVIDER_REQUEUE_MAX=3`，不能当作新上限的再次验收。
+
+发现的问题及处理：高延迟会放大事务往返成本；数据块丢失会让MCP初始化/工具调用失败，现有传输重试不能保证整个任务恢复；100任务同时提交时排队p95达89.463秒，超过文档30秒告警起点。本次保留这些实测局限，没有合并事务、扩大任务重排范围或调参，没有新增产品代码修复。数据库重启和100任务压测没有发现连接池越界或worker退出。后续若要扩展恢复策略，应另行设计并按测试先行执行。
+
+### 验证与范围
+
+B4未增加模型工具返回字段、运行时配置或数据库迁移。B3新增迁移016/017以及OTLP地址、三种价格、固定直方图桶配置；本轮第1批复核新增PROVIDER_REQUEUE_MAX和READY_CONNECTION_TIMEOUT_SECONDS，详见PARAMETERS。
+
+第2批完成后停止在12.3，不进入12.4；真实模型仅前述两次README示例，共14818 tokens，其余均为替身。全量与离线测试、冻结文件核对、证据及日志哈希见 [第2批验收清单](../evidence/step12_batch2_checkpoint.json)。
+
+最终全量331通过；CI离线253通过、78集成项不运行。历史演练的脚本哈希是在生成报告时读取工作区，收据已明确该哈希不是运行时加载源码快照；所有场景的产品源码保持一致，产品源码哈希可核对。采集脚本现改为启动时固定哈希，未为此重跑实验。验收后恢复了原常驻worker、停止Toxiproxy，保留Jaeger供查看。
