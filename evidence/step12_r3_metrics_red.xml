@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.936" timestamp="2026-10-27T16:54:37.621053+00:00" hostname="765e2f3561e9"><testcase classname="tests.test_metrics_rollup" name="test_scrape_has_no_event_scan_or_usage_loop" time="0.172"><failure message="assert ('FROM events' not in &quot;    def col...losed',0))\n&quot;&#10;  &#10;  'FROM events' is contained here:&#10;    -&gt;'usage' FROM events WHERE type='model_call'&quot;):&#10;  ?           +++++++++++&#10;                    classification=error or 'success';calls[classification if classification in ERRORS else 'unknown']+=1&#10;                    summary=usage_summary(usage)&#10;                    for kind,key in [('input','input_tokens'),('cached','cached_tokens'),('output','output_tokens')]:...&#10;  &#10;  ...Full output truncated (29 lines hidden), use '-vv' to show)">def test_scrape_has_no_event_scan_or_usage_loop():
+        from api import metrics
+        source=inspect.getsource(metrics.DurableMetrics.collect)
+&gt;       assert 'FROM events' not in source and 'JOIN events' not in source
+E       assert ('FROM events' not in "    def col...losed',0))\n"
+E         
+E         'FROM events' is contained here:
+E           -&gt;'usage' FROM events WHERE type='model_call'"):
+E         ?           +++++++++++
+E                           classification=error or 'success';calls[classification if classification in ERRORS else 'unknown']+=1
+E                           summary=usage_summary(usage)
+E                           for kind,key in [('input','input_tokens'),('cached','cached_tokens'),('output','output_tokens')]:...
+E         
+E         ...Full output truncated (29 lines hidden), use '-vv' to show)
+
+tests/test_metrics_rollup.py:12: AssertionError</failure></testcase><testcase classname="tests.test_metrics_rollup" name="test_retention_and_concurrent_event_writes_keep_counters" time="0.588"><failure message="AssertionError: assert {('olist_cach...): 186.0, ...} == {('olist_cach...): 198.0, ...}&#10;  &#10;  Omitting 9 identical items, use -vv to show&#10;  Differing items:&#10;  {('olist_model_duration_seconds_bucket', (('le', '120.0'),)): 5291.0} != {('olist_model_duration_seconds_bucket', (('le', '120.0'),)): 5303.0}&#10;  {('olist_sql_duration_seconds_bucket', (('le', '120.0'),)): 185.0} != {('olist_sql_duration_seconds_bucket', (('le', '120.0'),)): 197.0}&#10;  {('olist_queue_wait_seconds_bucket', (('le', '2.5'),)): 872.0} != {('olist_queue_wait_seconds_bucket', (('le', '2.5'),)): 884.0}&#10;  {('olist_queue_wait_seconds_bucket', (('le', '0.1'),)): 845.0} != {('olist_queue_wait_seconds_bucket', (('le', '0.1'),)): 851.0}...&#10;  &#10;  ...Full output truncated (51 lines hidden), use '-vv' to show">@pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local database required')
+    def test_retention_and_concurrent_event_writes_keep_counters():
+        import psycopg
+        from config import db_kwargs
+        from api.tasks import event
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('rollup-'+uuid4().hex,)).fetchone()[0]
+            ids=[conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'rollup fixture','completed') RETURNING task_id",(owner,)).fetchone()[0] for _ in range(12)]
+        before=snapshot()
+        def write(ident):
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                event(conn,ident,'model_call',{'error_class':'retryable','usage':{'prompt_tokens':100,'completion_tokens':7,'prompt_cache_hit_tokens':20}},107,25)
+                event(conn,ident,'sql_execution',{'sql_hash':'fixture'},latency_ms=5)
+                event(conn,ident,'worker_claimed',{'recovered':True})
+                event(conn,ident,'number_gate',{'replaced':['1','2']})
+        with ThreadPoolExecutor(max_workers=6) as pool:list(pool.map(write,ids))
+        after=snapshot()
+        def delta(name,labels=()):return after.get((name,labels),0)-before.get((name,labels),0)
+        assert delta('olist_model_calls_total',(('error_class','retryable'),))==12
+        assert delta('olist_tokens_total',(('kind','input'),))==1200
+        assert delta('olist_model_duration_seconds_count')==12
+        assert delta('olist_sql_duration_seconds_count')==12
+        assert delta('olist_gate_replacements_total')==24
+        # Admin-only test deletion emulates the future retention owner, without
+        # relaxing the application's current append-only permission boundary.
+        with psycopg.connect(**db_kwargs('agent')) as conn:
+            conn.execute("SET LOCAL session_replication_role='replica'")
+            conn.execute('DELETE FROM events WHERE task_id=ANY(%s::uuid[])',(ids,))
+&gt;       assert snapshot()==after
+E       AssertionError: assert {('olist_cach...): 186.0, ...} == {('olist_cach...): 198.0, ...}
+E         
+E         Omitting 9 identical items, use -vv to show
+E         Differing items:
+E         {('olist_model_duration_seconds_bucket', (('le', '120.0'),)): 5291.0} != {('olist_model_duration_seconds_bucket', (('le', '120.0'),)): 5303.0}
+E         {('olist_sql_duration_seconds_bucket', (('le', '120.0'),)): 185.0} != {('olist_sql_duration_seconds_bucket', (('le', '120.0'),)): 197.0}
+E         {('olist_queue_wait_seconds_bucket', (('le', '2.5'),)): 872.0} != {('olist_queue_wait_seconds_bucket', (('le', '2.5'),)): 884.0}
+E         {('olist_queue_wait_seconds_bucket', (('le', '0.1'),)): 845.0} != {('olist_queue_wait_seconds_bucket', (('le', '0.1'),)): 851.0}...
+E         
+E         ...Full output truncated (51 lines hidden), use '-vv' to show
+
+tests/test_metrics_rollup.py:52: AssertionError</failure></testcase></testsuite></testsuites>
