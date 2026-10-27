@@ -1,0 +1,2451 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="30" skipped="0" tests="200" time="21.040" timestamp="2026-10-27T22:35:08.020561+08:00" hostname="DESKTOP-JRKV1T9"><testcase classname="tests.test_agent" name="test_final_and_parallel_calls" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_final_and_parallel_calls():
+&gt;       result, remote, events, requests, _ = run([completion([("run_sql",{"sql":"one"}),("run_sql",{"sql":"two"})]),completion([FINAL])])
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63664))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_terminations_are_recorded[options0-responses0-max_steps]" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">options = {'max_steps': 2}
+responses = [ChatCompletion(id='test', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage...ge(completion_tokens=1, prompt_tokens=9, total_tokens=10, completion_tokens_details=None, prompt_tokens_details=None))]
+reason = 'max_steps'
+
+    @pytest.mark.parametrize("options,responses,reason", [
+        ({"max_steps":2}, [completion(content="keep going")]*2, "max_steps"),
+        ({"token_budget":10}, [completion([FINAL])], "token_budget"),
+        ({}, [completion([("run_sql",{"sql":"SELECT 1"})])]*3, "repeated_tool_calls"),
+        ({}, [completion([FINAL],tokens=None)], "usage_unavailable"),
+        ({}, [RuntimeError("API failed")]*4, "model_error"),
+    ])
+    def test_terminations_are_recorded(options, responses, reason):
+&gt;       result, remote, events, _, delays = run(responses, **options)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63666))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_terminations_are_recorded[options1-responses1-token_budget]" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">options = {'token_budget': 10}
+responses = [ChatCompletion(id='test', choices=[Choice(finish_reason='tool_calls', index=0, logprobs=None, message=ChatCompletionM...ge(completion_tokens=1, prompt_tokens=9, total_tokens=10, completion_tokens_details=None, prompt_tokens_details=None))]
+reason = 'token_budget'
+
+    @pytest.mark.parametrize("options,responses,reason", [
+        ({"max_steps":2}, [completion(content="keep going")]*2, "max_steps"),
+        ({"token_budget":10}, [completion([FINAL])], "token_budget"),
+        ({}, [completion([("run_sql",{"sql":"SELECT 1"})])]*3, "repeated_tool_calls"),
+        ({}, [completion([FINAL],tokens=None)], "usage_unavailable"),
+        ({}, [RuntimeError("API failed")]*4, "model_error"),
+    ])
+    def test_terminations_are_recorded(options, responses, reason):
+&gt;       result, remote, events, _, delays = run(responses, **options)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63667))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_terminations_are_recorded[options2-responses2-repeated_tool_calls]" time="0.003"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">options = {}
+responses = [ChatCompletion(id='test', choices=[Choice(finish_reason='tool_calls', index=0, logprobs=None, message=ChatCompletionM...ge(completion_tokens=1, prompt_tokens=9, total_tokens=10, completion_tokens_details=None, prompt_tokens_details=None))]
+reason = 'repeated_tool_calls'
+
+    @pytest.mark.parametrize("options,responses,reason", [
+        ({"max_steps":2}, [completion(content="keep going")]*2, "max_steps"),
+        ({"token_budget":10}, [completion([FINAL])], "token_budget"),
+        ({}, [completion([("run_sql",{"sql":"SELECT 1"})])]*3, "repeated_tool_calls"),
+        ({}, [completion([FINAL],tokens=None)], "usage_unavailable"),
+        ({}, [RuntimeError("API failed")]*4, "model_error"),
+    ])
+    def test_terminations_are_recorded(options, responses, reason):
+&gt;       result, remote, events, _, delays = run(responses, **options)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63668))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_terminations_are_recorded[options3-responses3-usage_unavailable]" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">options = {}
+responses = [ChatCompletion(id='test', choices=[Choice(finish_reason='tool_calls', index=0, logprobs=None, message=ChatCompletionM...del='test-version', object='chat.completion', moderation=None, service_tier=None, system_fingerprint=None, usage=None)]
+reason = 'usage_unavailable'
+
+    @pytest.mark.parametrize("options,responses,reason", [
+        ({"max_steps":2}, [completion(content="keep going")]*2, "max_steps"),
+        ({"token_budget":10}, [completion([FINAL])], "token_budget"),
+        ({}, [completion([("run_sql",{"sql":"SELECT 1"})])]*3, "repeated_tool_calls"),
+        ({}, [completion([FINAL],tokens=None)], "usage_unavailable"),
+        ({}, [RuntimeError("API failed")]*4, "model_error"),
+    ])
+    def test_terminations_are_recorded(options, responses, reason):
+&gt;       result, remote, events, _, delays = run(responses, **options)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63669))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_terminations_are_recorded[options4-responses4-model_error]" time="0.003"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">options = {}
+responses = [RuntimeError('API failed'), RuntimeError('API failed'), RuntimeError('API failed'), RuntimeError('API failed')]
+reason = 'model_error'
+
+    @pytest.mark.parametrize("options,responses,reason", [
+        ({"max_steps":2}, [completion(content="keep going")]*2, "max_steps"),
+        ({"token_budget":10}, [completion([FINAL])], "token_budget"),
+        ({}, [completion([("run_sql",{"sql":"SELECT 1"})])]*3, "repeated_tool_calls"),
+        ({}, [completion([FINAL],tokens=None)], "usage_unavailable"),
+        ({}, [RuntimeError("API failed")]*4, "model_error"),
+    ])
+    def test_terminations_are_recorded(options, responses, reason):
+&gt;       result, remote, events, _, delays = run(responses, **options)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63670))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_retry_and_tool_error_repair" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_retry_and_tool_error_repair():
+&gt;       result, _, events, requests, delays = run([RuntimeError("retry"), completion([("run_sql",{"sql":"bad"})]),
+                                                 completion([("unknown",{})]), completion([("run_sql","{bad json")]),completion([FINAL])])
+
+tests\test_agent.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63671))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_full_schema_and_untrusted_payload_delimiters" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_full_schema_and_untrusted_payload_delimiters():
+&gt;       _, remote, _, requests, _ = run([completion([FINAL])],schema_mode="full")
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_agent.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63673))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_agent" name="test_runtime_environment_excludes_database_credentials" time="0.002" /><testcase classname="tests.test_boundaries" name="test_coverage_uses_observed_edges_without_claiming_complete_ingestion" time="0.001" /><testcase classname="tests.test_boundaries" name="test_dimension_filter_extraction[SELECT count(*) FROM customers c WHERE c.customer_state='XX'-expected0]" time="0.070" /><testcase classname="tests.test_boundaries" name="test_dimension_filter_extraction[SELECT sum(price) FROM products p WHERE LOWER(p.product_category_name) IN ('ghost','beds')-expected1]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_dimension_filter_extraction[SELECT * FROM orders WHERE 'canceled'=order_status-expected2]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_dimension_filter_extraction[SELECT * FROM products WHERE product_category_name IS NULL OR product_category_name LIKE '%bed%'-expected3]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_dimension_filter_extraction[WITH x AS (SELECT 'unknown' AS customer_state) SELECT * FROM x WHERE x.customer_state='unknown'-expected4]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_gate_and_independent_checker_preserve_dates_and_tool_metadata[2016-09-04 21:15:19 \u81f3 2018-10-17T17:30:18.123+08:00]" time="0.010" /><testcase classname="tests.test_boundaries" name="test_gate_and_independent_checker_preserve_dates_and_tool_metadata[2017\u5e742\u67083\u65e5\uff0c2016\u20132018\u5e74\uff0c2017\u81ea\u7136\u5e74\uff0c2018 Q2\uff0c\u65f6\u95f4 09:20]" time="0.004" /><testcase classname="tests.test_boundaries" name="test_gate_and_independent_checker_preserve_dates_and_tool_metadata[\u5355\u6b21\u67e5\u8be2\u6700\u591a 1,000 \u884c\uff1b\u9884\u89c8\u524d 20 \u884c\uff1b\u53ea\u8fd4\u56de\u524d 1000 \u884c\uff1bLIMIT 1000]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_gate_and_independent_checker_preserve_dates_and_tool_metadata[2017 \u5168\u5e74\uff0c2017 \u4e3a\u552f\u4e00\u5b8c\u6574\u65e5\u5386\u5e74\uff0c1\u20133 \u6708\uff0c10\u670817\u65e5\uff0c\u7b2c2\u5b63\u5ea6]" time="0.002" /><testcase classname="tests.test_boundaries" name="test_gate_and_independent_checker_preserve_dates_and_tool_metadata[max_result_rows=1000\uff1brow_limit: 1000\uff1bpreview_rows=20\uff1b\u524d 1000 \u884c\uff1b\u6bcf\u7247\u63a7\u5236\u5728 1000 \u884c\u4ee5\u5185\uff1b\u524d\u63d0\u662f\u884c\u6570 \u2264 1000]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_gate_and_independent_checker_preserve_dates_and_tool_metadata[### 1. \u65e5\u671f\u8303\u56f4\n### 2. \u5de5\u5177\u9650\u5236]" time="0.002" /><testcase classname="tests.test_boundaries" name="test_metadata_exemption_does_not_allow_business_numbers[GMV 1000\uff0c\u5ba2\u6237 20-expected0]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_metadata_exemption_does_not_allow_business_numbers[\u6bd4\u7387 12:30-expected1]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_metadata_exemption_does_not_allow_business_numbers[\u5355\u6b21\u67e5\u8be2\u6700\u591a 2000 \u884c-expected2]" time="0.003" /><testcase classname="tests.test_boundaries" name="test_metadata_exemption_does_not_allow_business_numbers[\u65e5\u671f 2017-01-02\uff0c\u5229\u6da6 55-expected3]" time="0.001" /><testcase classname="tests.test_boundaries" name="test_missing_scope_never_invents_an_assumption_about_actual_sql" time="0.002" /><testcase classname="tests.test_boundaries" name="test_unknown_dimension_stops_before_model_can_turn_missing_into_zero" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_unknown_dimension_stops_before_model_can_turn_missing_into_zero():
+        from test_agent import Remote,completion
+        from agent.loop import run_loop
+        class Missing(Remote):
+            async def call(self,name,args):
+                if name=='run_sql':return {'error':'unknown_dimension','missing':[{'dimension':'customer_state','value':'XX'}]}
+                return await super().call(name,args)
+        calls=[]
+        async def create(**kw):
+            calls.append(kw)
+            return completion([('run_sql',{'sql':"SELECT count(*) FROM customers WHERE customer_state='XX'"})])
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+&gt;       result=asyncio.run(run_loop('XX 州多少客户',Missing(),client,'test',lambda *a:None))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_boundaries.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63675))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_budget" name="test_shared_budget_includes_non_agent_roles_and_blocks_further_calls" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_shared_budget_includes_non_agent_roles_and_blocks_further_calls():
+        calls=[]
+        async def create(**kwargs):calls.append(kwargs);return completion(tokens=12)
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+        async def exercise():
+            budget=Budget(20);token=ACTIVE_BUDGET.set(budget)
+            try:
+                for role in ['agent','preference_extractor','reviewer']:
+                    await request(client,'test',[{'role':'user','content':'test'}],lambda *args:None,role=role)
+                assert budget.used==24 and len(calls)==2
+            finally:ACTIVE_BUDGET.reset(token)
+&gt;       asyncio.run(exercise())
+
+tests\test_budget.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63676))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_budget" name="test_missing_usage_cannot_be_claimed_as_zero" time="0.003"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_missing_usage_cannot_be_claimed_as_zero():
+        async def create(**kwargs):return completion(tokens=None)
+        async def exercise():
+            budget=Budget(20);token=ACTIVE_BUDGET.set(budget)
+            try:
+                await request(SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),
+                    'test',[{'role':'user','content':'test'}],lambda *args:None)
+                assert not budget.complete
+            finally:ACTIVE_BUDGET.reset(token)
+&gt;       asyncio.run(exercise())
+
+tests\test_budget.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63677))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_context" name="test_mask_keeps_pairs_ids_recent_rows_and_notes" time="0.001" /><testcase classname="tests.test_context" name="test_pressure_fails_on_observed_prompt_usage" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_pressure_fails_on_observed_prompt_usage():
+&gt;       outcome,_,events,_,_=run([completion([FINAL],tokens=50)],context_limit=40)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_context.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63678))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_context" name="test_summary_is_logged_counted_and_keeps_valid_message_pairs" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_summary_is_logged_counted_and_keeps_valid_message_pairs():
+&gt;       outcome,_,events,requests,_=run([completion([("run_sql",{"sql":"one"})]),completion([("run_sql",{"sql":"two"})]),
+            completion(content="Earlier result IDs"),completion([FINAL])],context_strategy="summary",keep_turns=1,summary_threshold=5)
+
+tests\test_context.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_agent.py:58: in run
+    result = asyncio.run(run_loop("订单数量", remote, client,"test", lambda *event:events.append(event), sleep=sleep, **kwargs))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63679))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_cross_check" name="test_comparison[101-100-True]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[101.01-100-False]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[-101--100-True]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[100--100-False]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[0-0-True]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[1-0-False]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[actual6-expected6-True]" time="0.002" /><testcase classname="tests.test_cross_check" name="test_comparison[actual7-expected7-False]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[actual8-expected8-True]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[actual9-expected9-False]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_comparison[actual10-expected10-False]" time="0.001" /><testcase classname="tests.test_cross_check" name="test_nested_difference_identifies_fact" time="0.000" /><testcase classname="tests.test_cross_check" name="test_calculators_ignore_sql_and_preserve_join_grain" time="0.014" /><testcase classname="tests.test_cross_check" name="test_cross_check_has_no_database_or_sql_oracle_imports" time="0.022" /><testcase classname="tests.test_eval" name="test_questions_are_reproducible_and_stratified" time="0.004" /><testcase classname="tests.test_eval" name="test_c_questions_hide_rules_and_private_naive_queries" time="0.002" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[100-100.999-False-difference_below_threshold]" time="0.001" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[100-101-True-None]" time="0.001" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[100-99-True-None]" time="0.001" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[-100--101-True-None]" time="0.001" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[100-100-False-difference_below_threshold]" time="0.001" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[0-100-False-zero_gold]" time="0.001" /><testcase classname="tests.test_eval" name="test_trap_strength_requires_nonzero_gold_and_one_percent_gap[0-0-False-zero_gold]" time="0.001" /><testcase classname="tests.test_eval" name="test_c_validation_requires_a_numeric_naive_oracle[naive_sql-]" time="0.011"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C438AF20&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_eval" name="test_c_validation_requires_a_numeric_naive_oracle[naive_sql-None]" time="0.001"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C438B920&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_eval" name="test_c_validation_requires_a_numeric_naive_oracle[answer_type-list]" time="0.001"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C43A62A0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_eval" name="test_checker_rejects_fabricated_evidence" time="0.001" /><testcase classname="tests.test_eval" name="test_evidence_is_scoped[another-v1-wrong_task]" time="0.001" /><testcase classname="tests.test_eval" name="test_evidence_is_scoped[task-old-stale_data_version]" time="0.001" /><testcase classname="tests.test_eval" name="test_labeled_values_must_coexist_in_one_result_row" time="0.000" /><testcase classname="tests.test_eval" name="test_report_scanner_catches_unclaimed_numbers" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u9500\u552e\u989d\u4e0b\u964d 5%--5]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u9500\u552e\u989d\u51cf\u5c11 5%--5]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u73af\u6bd4\u4e3a -5%--5]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u73af\u6bd4\u4e3a\u8d1f 5%--5]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u73af\u6bd4\u4e3a \u22125%--5]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u9500\u552e\u989d\u51cf\u5c11 5 \u4e07\u5143--50000]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_numbers_match_signed_sql_by_magnitude[\u964d\u5e45\u4e3a -5%-5]" time="0.001" /><testcase classname="tests.test_eval" name="test_report_sign_normalization_preserves_evidence_checks" time="0.001" /><testcase classname="tests.test_eval" name="test_checker_rejects_arithmetic_not_returned_by_sql" time="0.001" /><testcase classname="tests.test_eval" name="test_number_scoring_does_not_search_for_gold_in_number_soup[True]" time="0.001" /><testcase classname="tests.test_eval" name="test_number_scoring_does_not_search_for_gold_in_number_soup[\u7b54\u6848100\u4ee5\u53ca99]" time="0.000" /><testcase classname="tests.test_eval" name="test_number_scoring_does_not_search_for_gold_in_number_soup[value2]" time="0.000" /><testcase classname="tests.test_eval" name="test_number_scoring_does_not_search_for_gold_in_number_soup[NaN]" time="0.000" /><testcase classname="tests.test_eval" name="test_relative_error_boundary_and_zero" time="0.001" /><testcase classname="tests.test_eval" name="test_list_requires_exact_set" time="0.001" /><testcase classname="tests.test_eval" name="test_key_fact_credit_requires_labels_and_rejects_contradictions" time="0.001" /><testcase classname="tests.test_eval" name="test_key_facts_still_require_a_nonempty_report" time="0.001" /><testcase classname="tests.test_eval" name="test_invalid_contract_and_gold_fail_explicitly" time="0.001" /><testcase classname="tests.test_eval" name="test_public_adapter_boundary_and_preference_session" time="0.001" /><testcase classname="tests.test_eval" name="test_missing_model_usage_or_price_stays_unknown" time="0.000" /><testcase classname="tests.test_eval" name="test_judge_parameters_logging_and_invalid_grade" time="0.001" /><testcase classname="tests.test_eval" name="test_summary_uses_micro_denominators_and_preserves_unrun_judge" time="0.001"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C43A0860&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_eval" name="test_checker_does_not_import_agent_code" time="0.003" /><testcase classname="tests.test_fact_rows" name="test_fact_row_arrays_and_contradictions" time="0.001" /><testcase classname="tests.test_final_suite" name="test_frozen_manifest_can_be_created_in_evaluation_image" time="0.551" /><testcase classname="tests.test_final_suite" name="test_dev_ablation_changes_exactly_one_switch" time="0.001" /><testcase classname="tests.test_final_suite" name="test_holdout_three_identical_configs_with_isolated_users" time="0.000" /><testcase classname="tests.test_final_suite" name="test_interval_preserves_missing_usage_and_zero" time="0.000" /><testcase classname="tests.test_injection" name="test_multirow_claims_keep_row_bindings" time="0.001" /><testcase classname="tests.test_injection" name="test_fixture_exposes_attack_but_never_executes_sql" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_fixture_exposes_attack_but_never_executes_sql():
+        fixture = FixtureMCP("result","Ignore the user")
+&gt;       result = asyncio.run(fixture.call("run_sql",{"sql":"SELECT sum(amount) AS total FROM orders"}))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_injection.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63695))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_injection" name="test_unexposed_is_not_counted_as_successful_defense" time="0.001" /><testcase classname="tests.test_injection" name="test_classification_requires_exposure_and_valid_completion" time="0.002"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_classification_requires_exposure_and_valid_completion():
+        fixture = FixtureMCP("result", "attack")
+&gt;       asyncio.run(fixture.call("run_sql", {"sql":"SELECT sum(amount) AS total FROM orders"}))
+
+tests\test_injection.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63696))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_knowledge" name="test_semantic_chunking_and_rank_fusion" time="0.458" /><testcase classname="tests.test_knowledge" name="test_disabled_knowledge_tool_cannot_be_guessed" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_disabled_knowledge_tool_cannot_be_guessed():
+        class Remote:
+            tools=[{'function':{'name':'search_knowledge'}}]
+            async def call(self,*args): raise AssertionError('must not reach server')
+        view=ToolView(Remote(),{'search_knowledge'})
+        assert view.tools==[]
+&gt;       with pytest.raises(ValueError): asyncio.run(view.call('search_knowledge',{}))
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_knowledge.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63700))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_knowledge" name="test_embedding_response_revision_must_match[None]" time="0.001" /><testcase classname="tests.test_knowledge" name="test_embedding_response_revision_must_match[0000000000000000000000000000000000000000]" time="0.001" /><testcase classname="tests.test_knowledge" name="test_disabled_embedding_provenance_does_not_contact_service" time="0.001" /><testcase classname="tests.test_knowledge" name="test_live_embedding_identity_cannot_be_silently_substituted" time="0.001" /><testcase classname="tests.test_knowledge" name="test_weighted_rrf_downweights_keyword_rank" time="0.001" /><testcase classname="tests.test_loader" name="test_missing_files_fail_before_database_connection" time="0.004"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C870C2C0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_loader" name="test_bad_headers_fail_before_database_connection" time="0.001"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C43A39C0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_loader" name="test_fingerprint_and_csv_record_count" time="0.004"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C43A3EC0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_mcp_trace" name="test_internal_state_and_review_reads_are_traced_without_headers" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_internal_state_and_review_reads_are_traced_without_headers():
+        events=[]
+        client=MCPClient('http://test','private-bearer-token','task',lambda *args:events.append(args))
+        class Session:
+            async def call_tool(self,name,arguments):
+                return SimpleNamespace(isError=False,structuredContent={'ok':True,'result_id':'ref'})
+        client.session=Session()
+        for tool in ['state_read','state_write','get_result']:
+&gt;           assert asyncio.run(client.call(tool,{}))['ok']
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_mcp_trace.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63701))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_mcp_trace" name="test_failed_mcp_dispatch_keeps_a_paired_trace" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_failed_mcp_dispatch_keeps_a_paired_trace():
+        events=[]
+        client=MCPClient('http://test','token','task',lambda *args:events.append(args))
+        class Session:
+            async def call_tool(self,*args):raise TimeoutError('timeout')
+        client.session=Session()
+&gt;       with pytest.raises(TimeoutError):asyncio.run(client.call('get_result',{}))
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_mcp_trace.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63702))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_migrations" name="test_modified_or_missing_history_is_rejected" time="0.005"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C4388400&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_migrations" name="test_duplicate_or_missing_numbers_rejected" time="0.002"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000233C43A1E40&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:246: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:164: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:514: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1674: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:720: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:549: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:640: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1128: in execute
+    result = ihook.pytest_fixture_setup(fixturedef=self, request=request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_caller.py:197: in __call__
+    return self._hookexec(
+.venv\Lib\site-packages\pluggy\_manager.py:183: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:64: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_execution.py:49: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1196: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:923: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:264: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:251: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:130: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:111: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:186: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+.venv\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+.venv\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/jiusi/AppData/Local/Temp/pytest-of-jiusi')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\jiusi\\AppData\\Local\\Temp\\pytest-of-jiusi'
+
+.venv\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="tests.test_multi" name="test_plan_rejects_cycles_and_unknown_dependencies" time="0.001" /><testcase classname="tests.test_multi" name="test_scheduler_parallelism_and_dependency_order" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_scheduler_parallelism_and_dependency_order():
+        plan=Plan(subtasks=[Part(id='a',question='a'),Part(id='b',question='b'),Part(id='c',question='c',depends_on=['a','b'])])
+        running=set();done=set();peaks=[]
+        async def job(part):
+            assert set(part.depends_on)&lt;=done
+            running.add(part.id);peaks.append(len(running))
+            await asyncio.sleep(0.01)
+            running.remove(part.id);done.add(part.id)
+&gt;       asyncio.run(schedule(plan,job))
+
+tests\test_multi.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63703))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_multi" name="test_review_binds_columns_to_one_row_and_rejects_sign_forgery" time="0.001" /><testcase classname="tests.test_multi" name="test_missing_evidence_never_reaches_semantic_approval" time="0.003"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_missing_evidence_never_reaches_semantic_approval():
+        class Remote:
+            async def call(self,*args):return {'error':'mcp_tool_error'}
+        claims=[Claim(text='invented',value=42,evidence=[str(uuid4())])]
+&gt;       result=asyncio.run(review('question',claims,Remote(),None,'unused',lambda *args:None))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_multi.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63704))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_multi" name="test_report_marks_new_numbers_but_not_direction_or_citation_identifiers" time="0.001" /><testcase classname="tests.test_multi" name="test_control_tools_are_hidden_from_all_language_model_modes" time="0.000" /><testcase classname="tests.test_multi" name="test_rejected_subtasks_are_retried_once_then_dropped" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C4A24980&gt;
+
+    def test_rejected_subtasks_are_retried_once_then_dropped(monkeypatch):
+        from agent import multi
+        from agent.state import Board,Subtask,Decision
+        from agent.loop import Outcome
+        from contracts import FinalAnswer
+        plan=Plan(subtasks=[Part(id='a',question='first'),Part(id='b',question='second')])
+        state=Board(plan=plan,subtasks={p.id:Subtask(question=p.question,depends_on=[]) for p in plan.subtasks})
+        runs=[]
+        async def control(remote,name,args):
+            if name=='state_read':return state
+            data=args['payload'];role=args['role']
+            if role=='analyst':
+                part=state.subtasks[data['id']]
+                state.subtasks[data['id']]=Subtask.model_validate({**part.model_dump(),**{k:v for k,v in data.items() if k!='id'}})
+            elif role=='reviewer':
+                part=state.subtasks[data['id']];part.review=[Decision(**d) for d in data['decisions']];part.status='unverified'
+            elif role=='writer':state.report=FinalAnswer.model_validate(data)
+            return state
+        async def planner(*args,**kwargs):return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=plan.model_dump_json()))])
+        async def prepare(remote,*args):return remote,''
+        async def analyze(question,*args,**kwargs):
+            runs.append(question)
+            return Outcome(FinalAnswer(answer=42,claims=[{'text':'bad','value':42,'evidence':[]}]),'final_answer',1,10)
+        async def reject(*args,**kwargs):return [Decision(claim_index=0,approved=False,reason='unsupported')]
+        monkeypatch.setattr(multi,'control',control);monkeypatch.setattr(multi,'request',planner)
+        monkeypatch.setattr(multi,'prepare',prepare);monkeypatch.setattr(multi,'run_loop',analyze);monkeypatch.setattr(multi,'review',reject)
+&gt;       result=asyncio.run(multi.run_multi('question',None,None,'test',lambda *args:None,mode='multi',rag_mode='off',schema_mode='on_demand'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_multi.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63705))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_multi" name="test_writer_accepts_only_answer_and_inert_format_echo" time="0.001" /><testcase classname="tests.test_number_gate" name="test_scan_sign_units_identifiers_and_structured_values" time="0.001" /><testcase classname="tests.test_number_gate" name="test_only_one_rewrite_then_replace_even_new_hallucinations" time="0.002"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C8D6C1A0&gt;
+
+    def test_only_one_rewrite_then_replace_even_new_hallucinations(monkeypatch):
+        calls=[];events=[]
+        async def request(*args,**kwargs):
+            calls.append(args)
+            assert '99' in args[2][1]['content']
+            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps({'answer':'仍有 88，下降 5%'})))])
+        monkeypatch.setattr(gate,'request',request)
+        claims=[Claim(text='delta',value=-5,evidence=[])]
+&gt;       result=asyncio.run(gate.enforce('虚构 99',claims,None,'model',lambda *a:events.append(a)))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_number_gate.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63706))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_number_gate" name="test_failed_rewrite_fails_closed" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C8D6C280&gt;
+
+    def test_failed_rewrite_fails_closed(monkeypatch):
+        async def request(*a,**k):raise RuntimeError('unavailable')
+        monkeypatch.setattr(gate,'request',request)
+&gt;       assert asyncio.run(gate.enforce(999,[],None,'m',lambda *a:None))=='未验证'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_number_gate.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63707))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_number_gate" name="test_single_approval_rejects_cross_row_and_bad_references" time="0.003"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_single_approval_rejects_cross_row_and_bad_references():
+        ref='12345678-1234-1234-1234-123456789012'
+        class Remote:
+            async def call(self,*a):return {'result_id':ref,'data_version':'v','preview':[{'state':'SP','n':5},{'state':'RJ','n':9}]}
+        claims=[Claim(text='ok',value={'state':'SP','n':5},evidence=[ref]),
+                Claim(text='bad',value={'state':'SP','n':9},evidence=[ref])]
+&gt;       assert asyncio.run(gate.approve_values(claims,Remote()))==claims[:1]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_number_gate.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63708))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_number_gate" name="test_leading_decimal_is_not_a_list_ordinal" time="0.002" /><testcase classname="tests.test_parameters" name="test_nearest_rank_keeps_missing_observations_explicit" time="0.001" /><testcase classname="tests.test_preferences" name="test_quote_grounding_and_no_model_invented_value" time="0.001" /><testcase classname="tests.test_report_export" name="test_report_links_resolve_and_query_text_is_escaped" time="0.001" /><testcase classname="tests.test_resume" name="test_completed_subtasks_are_reused_without_planning_or_analysis" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C8D6F540&gt;
+
+    def test_completed_subtasks_are_reused_without_planning_or_analysis(monkeypatch):
+        plan=Plan(subtasks=[{'id':'a','question':'first'},{'id':'b','question':'second','depends_on':['a']}])
+        claim=Claim(text='checked',value=42,evidence=[])
+        board=Board(plan=plan,subtasks={p.id:Subtask(question=p.question,depends_on=p.depends_on,
+            status='completed',claims=[claim],review=[Decision(claim_index=0,approved=True,reason='verified')]) for p in plan.subtasks})
+        async def prepare(*a):return None,''
+        async def forbidden(*a,**k):raise AssertionError('Completed checkpoints must not query or plan again')
+        async def control(remote,name,args):
+            if name=='state_write':
+                assert args['role']=='writer'
+                board.report=FinalAnswer.model_validate(args['payload'])
+            return board
+        async def write(*a):return 'verified'
+        monkeypatch.setattr(multi,'prepare',prepare);monkeypatch.setattr(multi,'request',forbidden)
+        monkeypatch.setattr(multi,'run_loop',forbidden);monkeypatch.setattr(multi,'control',control);monkeypatch.setattr(multi,'write',write)
+        events=[]
+&gt;       result=asyncio.run(multi.run_multi('q',None,None,'m',lambda *a:events.append(a),mode='multi',rag_mode='off',schema_mode='on_demand',memory_enabled=True,resume_board=board.model_dump()))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_resume.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63709))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_resume" name="test_scheduler_skips_completed_dependency" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_scheduler_skips_completed_dependency():
+        plan=Plan(subtasks=[{'id':'a','question':'first'},{'id':'b','question':'second','depends_on':['a']}])
+        ran=[]
+        async def execute(p):ran.append(p.id)
+&gt;       asyncio.run(multi.schedule(plan,execute,completed=['a']))
+
+tests\test_resume.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63710))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_resume" name="test_saved_queries_resume_review_without_requery" time="0.002"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C86FEDD0&gt;
+
+    def test_saved_queries_resume_review_without_requery(monkeypatch):
+        plan=Plan(subtasks=[{'id':'a','question':'first'}])
+        claim=Claim(text='checked',value=42,evidence=[])
+        board=Board(plan=plan,subtasks={'a':Subtask(question='first',depends_on=[],status='completed',claims=[claim])})
+        reviewed=[]
+        async def prepare(*a):return None,''
+        async def forbidden(*a,**k):raise AssertionError('Saved query result must not be recomputed')
+        async def review(question,claims,*a):
+            reviewed.append(claims)
+            return [Decision(claim_index=0,approved=True,reason='verified')]
+        async def control(remote,name,args):
+            if name=='state_write':
+                if args['role']=='reviewer':
+                    board.subtasks['a'].review=[Decision(**d) for d in args['payload']['decisions']]
+                elif args['role']=='writer':board.report=FinalAnswer.model_validate(args['payload'])
+                else:assert args['role']=='analyst' and args['payload']['status']=='completed'
+            return board
+        async def write(*a):return 'verified'
+        for key,value in {'prepare':prepare,'request':forbidden,'run_loop':forbidden,'review':review,'control':control,'write':write}.items():
+            monkeypatch.setattr(multi,key,value)
+&gt;       result=asyncio.run(multi.run_multi('q',None,None,'m',lambda *a:None,mode='multi',rag_mode='off',schema_mode='on_demand',memory_enabled=True,resume_board=board.model_dump()))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_resume.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63711))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[DROP TABLE orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[DELETE FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[UPDATE orders SET order_status='x']" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT 1; SELECT 2]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT 1; /* hidden */ DROP TABLE orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[WITH x AS (DELETE FROM orders RETURNING *) SELECT * FROM x]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * INTO copy_of_orders FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders FOR UPDATE]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_sleep(1)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_catalog.pg_sleep(1)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT &quot;pg_sleep&quot;(1)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT /*comment*/ pg_read_file('/etc/passwd')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_ls_dir('/')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT dblink('secret','SELECT 1')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT set_config('statement_timeout','0',false)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[COPY orders TO STDOUT]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[EXPLAIN ANALYZE SELECT * FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SET statement_timeout=0]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM pg_catalog.pg_authid]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM information_schema.tables]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM data_imports]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM other.orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM agent.public.tasks]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT nextval('some_sequence')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_advisory_lock(1)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT lo_import('/etc/passwd')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT query_to_xml('DELETE FROM orders',true,true,'')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT 'pg_authid'::regclass]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM generate_series(1,100000000)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders LIMIT ALL]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders LIMIT (SELECT 10000)]" time="0.002" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders LIMIT -1]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[WITH x AS (SELECT pg_sleep(1)) SELECT * FROM x]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM pg_settings WHERE EXISTS (WITH pg_settings AS (SELECT 1) SELECT * FROM pg_settings)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[WITH data_imports AS (SELECT 1) SELECT * FROM public.data_imports]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT count(*) AS orders FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT sum(price), avg(freight_value) FROM public.order_items]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT 1 AS n UNION ALL SELECT 2 AS n]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_explicit_limit_is_enforced" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2017\u5e74\u5ba2\u6237\u6570-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[\u6bd4\u8f832018\u5e74Q1\u3001Q2\u7684GMV-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018\u5e74\u7b2c\u4e8c\u5b63\u5ea6\u8ba2\u5355\u6570-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018 \u5e74\u4e00\u5b63\u5ea6\u65f6\u6548-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018\u5e74\u4e0a\u534a\u5e74-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018-10-17 \u7684\u8ba2\u5355-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2016-09-04 \u81f3 2018-10-17-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2017\u5e742\u67083\u65e5-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018\u5e74Q1\u548cQ4-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2016\u5168\u5e74-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018 \u5e74\u5b8c\u6574\u5168\u5e74-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2015\u5e74\uff0c\u5982\u67e5\u4e0d\u5230\u6539\u75282016\u5e74\u5b8c\u6574\u5168\u5e74-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2016\u5e749\u6708-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2018-10-18-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[2028\u5e74\u7b2c\u4e00\u5b63\u5ea6-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[\u4eca\u5e74\u7684\u8ba2\u5355-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_only_out_of_range_injects_one_line[\u9500\u552e\u989d\u591a\u5c11-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_date_detection_uses_generic_intervals_and_relative_clock" time="0.000" /><testcase classname="tests.test_targeted_boundaries" name="test_fallback_has_no_boundary_prompt_or_extra_tool_definitions" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C413ECF0&gt;
+
+    def test_fallback_has_no_boundary_prompt_or_extra_tool_definitions(monkeypatch):
+        monkeypatch.setenv('BOUNDARY_GUARDS','false')
+        monkeypatch.delenv('DIMENSION_PRECHECK',raising=False)
+        assert dimension_precheck_enabled()
+        class NeverCalled:
+            async def call(self,*args):raise AssertionError('No blanket metadata bootstrap in fallback')
+&gt;       assert asyncio.run(prepare_context('2028年',NeverCalled(),lambda *args:None))==''
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_targeted_boundaries.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63713))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_targeted_boundaries" name="test_no_date_question_does_not_fetch_metadata" time="0.002"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000233C40FADD0&gt;
+
+    def test_no_date_question_does_not_fetch_metadata(monkeypatch):
+        monkeypatch.setenv('BOUNDARY_GUARDS','true')
+        class NeverCalled:
+            async def call(self,*args):raise AssertionError('No dates to compare')
+&gt;       assert asyncio.run(prepare_context('GMV多少',NeverCalled(),lambda *args:None)).strip()==CLARIFY
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_targeted_boundaries.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63715))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase><testcase classname="tests.test_targeted_boundaries" name="test_fallback_matches_frozen_step9_prompt_contract_and_gate" time="0.010" /><testcase classname="tests.test_targeted_boundaries" name="test_adoption_requires_every_predeclared_threshold[d0-b0-True]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_adoption_requires_every_predeclared_threshold[d1-b1-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_adoption_requires_every_predeclared_threshold[d2-b2-False]" time="0.001" /><testcase classname="tests.test_targeted_boundaries" name="test_adoption_requires_every_predeclared_threshold[d3-b3-False]" time="0.001" /><testcase classname="tests.test_task_api" name="test_password_hash_has_per_user_salt" time="0.473" /><testcase classname="tests.test_task_controls" name="test_request_reservation_counts_utf8_tools_and_output" time="0.001" /><testcase classname="tests.test_task_controls" name="test_cancel_admission_checked_before_retry_without_second_model_call" time="0.001"><failure message="AssertionError: CI unit tests must not connect to a model, database or network service">def test_cancel_admission_checked_before_retry_without_second_model_call():
+        from agent.model import request
+        admitted=[];sent=[]
+        async def admit(payload):
+            admitted.append(payload)
+            if len(admitted)==2:raise RuntimeError('canceled')
+        async def create(**kw):sent.append(kw);raise RuntimeError('429 fixture')
+        async def sleep(_):pass
+        async def run():
+            token=CONTROL.set(admit)
+            try:
+                with pytest.raises(RuntimeError,match='canceled'):
+                    await request(SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),'fixture',[],lambda *a:None,sleep=sleep)
+            finally:CONTROL.reset(token)
+&gt;       asyncio.run(run())
+
+tests\test_task_controls.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\soft\python\Lib\asyncio\runners.py:194: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+D:\soft\python\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:837: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\events.py:734: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+D:\soft\python\Lib\asyncio\proactor_events.py:637: in __init__
+    self._make_self_pipe()
+D:\soft\python\Lib\asyncio\proactor_events.py:784: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+D:\soft\python\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = (&lt;socket.socket [closed] fd=-1, family=2, type=1, proto=0&gt;, ('127.0.0.1', 63725))
+k = {}
+
+&gt;   def denied(*a,**k):raise AssertionError('CI unit tests must not connect to a model, database or network service')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: CI unit tests must not connect to a model, database or network service
+
+tests\conftest.py:11: AssertionError</failure></testcase></testsuite></testsuites>

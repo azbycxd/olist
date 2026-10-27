@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="1.905" timestamp="2026-10-27T14:37:19.215614+00:00" hostname="8a8cc02ba3b3"><testcase classname="tests.test_runtime_hardening" name="test_five_errors_open_circuit_and_deny_within_100ms" time="0.189"><failure message="Failed: DID NOT RAISE &lt;class 'scripts.task_limits.TaskStopped'&gt;">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-93e344d92d5e465abe882f36179771d4')
+
+    @pytest.mark.integration
+    @integration
+    def test_five_errors_open_circuit_and_deny_within_100ms(circuit_job):
+        job, model = circuit_job
+        open_circuit(job, model)
+        started = time.perf_counter()
+&gt;       with pytest.raises(limits.TaskStopped, match='provider_unavailable'): admit(job, model)
+E       Failed: DID NOT RAISE &lt;class 'scripts.task_limits.TaskStopped'&gt;
+
+tests/test_runtime_hardening.py:139: Failed</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_half_open_allows_one_probe_then_closes_or_reopens[None]" time="0.136"><failure message="psycopg.errors.UndefinedTable: relation &quot;provider_health&quot; does not exist&#10;LINE 1: UPDATE provider_health SET open_until=clock_timestamp()-inte...&#10;               ^">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-8fe27b4648a243deac5658095c4a79d7')
+probe_error = None
+
+    @pytest.mark.integration
+    @integration
+    @pytest.mark.parametrize('probe_error', [None, 'retryable', 'fatal'])
+    def test_half_open_allows_one_probe_then_closes_or_reopens(circuit_job, probe_error):
+        job, model = circuit_job
+        open_circuit(job, model)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           conn.execute("UPDATE provider_health SET open_until=clock_timestamp()-interval '1 second' WHERE model=%s", (model,))
+
+tests/test_runtime_hardening.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x7545b32aced0&gt;
+query = "UPDATE provider_health SET open_until=clock_timestamp()-interval '1 second' WHERE model=%s"
+params = ('circuit-test-8fe27b4648a243deac5658095c4a79d7',)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "provider_health" does not exist
+E           LINE 1: UPDATE provider_health SET open_until=clock_timestamp()-inte...
+E                          ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedTable</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_half_open_allows_one_probe_then_closes_or_reopens[retryable]" time="0.139"><failure message="psycopg.errors.UndefinedTable: relation &quot;provider_health&quot; does not exist&#10;LINE 1: UPDATE provider_health SET open_until=clock_timestamp()-inte...&#10;               ^">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-4fd3a78325f64d1d9b842d7395a2c9f1')
+probe_error = 'retryable'
+
+    @pytest.mark.integration
+    @integration
+    @pytest.mark.parametrize('probe_error', [None, 'retryable', 'fatal'])
+    def test_half_open_allows_one_probe_then_closes_or_reopens(circuit_job, probe_error):
+        job, model = circuit_job
+        open_circuit(job, model)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           conn.execute("UPDATE provider_health SET open_until=clock_timestamp()-interval '1 second' WHERE model=%s", (model,))
+
+tests/test_runtime_hardening.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x7545b341ae10&gt;
+query = "UPDATE provider_health SET open_until=clock_timestamp()-interval '1 second' WHERE model=%s"
+params = ('circuit-test-4fd3a78325f64d1d9b842d7395a2c9f1',)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "provider_health" does not exist
+E           LINE 1: UPDATE provider_health SET open_until=clock_timestamp()-inte...
+E                          ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedTable</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_half_open_allows_one_probe_then_closes_or_reopens[fatal]" time="0.136"><failure message="psycopg.errors.UndefinedTable: relation &quot;provider_health&quot; does not exist&#10;LINE 1: UPDATE provider_health SET open_until=clock_timestamp()-inte...&#10;               ^">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-8f61424bfde34ef8b047a81565bce67b')
+probe_error = 'fatal'
+
+    @pytest.mark.integration
+    @integration
+    @pytest.mark.parametrize('probe_error', [None, 'retryable', 'fatal'])
+    def test_half_open_allows_one_probe_then_closes_or_reopens(circuit_job, probe_error):
+        job, model = circuit_job
+        open_circuit(job, model)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           conn.execute("UPDATE provider_health SET open_until=clock_timestamp()-interval '1 second' WHERE model=%s", (model,))
+
+tests/test_runtime_hardening.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x7545b32de6d0&gt;
+query = "UPDATE provider_health SET open_until=clock_timestamp()-interval '1 second' WHERE model=%s"
+params = ('circuit-test-8f61424bfde34ef8b047a81565bce67b',)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "provider_health" does not exist
+E           LINE 1: UPDATE provider_health SET open_until=clock_timestamp()-inte...
+E                          ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedTable</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_concurrent_errors_and_duplicate_events_do_not_lose_or_double_counts" time="0.109"><failure message="psycopg.errors.UndefinedTable: relation &quot;provider_health&quot; does not exist&#10;LINE 1: SELECT failure_count FROM provider_health WHERE model=$1&#10;                                  ^">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-ac8518b52e204eecada399acf343a680')
+
+    @pytest.mark.integration
+    @integration
+    def test_concurrent_errors_and_duplicate_events_do_not_lose_or_double_counts(circuit_job):
+        job, model = circuit_job
+        calls = [admit(job, model) for _ in range(4)]
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            list(pool.map(lambda call: result(job,call), calls))
+        result(job, calls[-1])
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           assert conn.execute('SELECT failure_count FROM provider_health WHERE model=%s',(model,)).fetchone()[0] == 4
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_runtime_hardening.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x7545b33dc250&gt;
+query = 'SELECT failure_count FROM provider_health WHERE model=%s'
+params = ('circuit-test-ac8518b52e204eecada399acf343a680',)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "provider_health" does not exist
+E           LINE 1: SELECT failure_count FROM provider_health WHERE model=$1
+E                                             ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedTable</failure></testcase></testsuite></testsuites>

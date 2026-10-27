@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="10" time="0.917" timestamp="2026-10-27T14:36:47.965045+00:00" hostname="36853df343e2"><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[400]" time="0.072"><failure message="assert (4 == 1)&#10; +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s&quot;}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])">status = 400
+
+    @pytest.mark.parametrize('status', [400, 401, 403, 404, 422])
+    def test_fatal_http_error_is_not_retried(status):
+        client, sent = client_for([status_error(status)] * 4)
+        events, waits = [], []
+        async def sleep(value): waits.append(value)
+        result = asyncio.run(run_loop('fixture', Remote(), client, 'fixture', lambda *e: events.append(e), sleep=sleep))
+&gt;       assert len(sent) == 1 and waits == []
+E       assert (4 == 1)
+E        +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s"}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])
+
+tests/test_runtime_hardening.py:40: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[401]" time="0.001"><failure message="assert (4 == 1)&#10; +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s&quot;}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])">status = 401
+
+    @pytest.mark.parametrize('status', [400, 401, 403, 404, 422])
+    def test_fatal_http_error_is_not_retried(status):
+        client, sent = client_for([status_error(status)] * 4)
+        events, waits = [], []
+        async def sleep(value): waits.append(value)
+        result = asyncio.run(run_loop('fixture', Remote(), client, 'fixture', lambda *e: events.append(e), sleep=sleep))
+&gt;       assert len(sent) == 1 and waits == []
+E       assert (4 == 1)
+E        +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s"}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])
+
+tests/test_runtime_hardening.py:40: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[403]" time="0.001"><failure message="assert (4 == 1)&#10; +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s&quot;}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])">status = 403
+
+    @pytest.mark.parametrize('status', [400, 401, 403, 404, 422])
+    def test_fatal_http_error_is_not_retried(status):
+        client, sent = client_for([status_error(status)] * 4)
+        events, waits = [], []
+        async def sleep(value): waits.append(value)
+        result = asyncio.run(run_loop('fixture', Remote(), client, 'fixture', lambda *e: events.append(e), sleep=sleep))
+&gt;       assert len(sent) == 1 and waits == []
+E       assert (4 == 1)
+E        +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s"}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])
+
+tests/test_runtime_hardening.py:40: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[404]" time="0.001"><failure message="assert (4 == 1)&#10; +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s&quot;}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])">status = 404
+
+    @pytest.mark.parametrize('status', [400, 401, 403, 404, 422])
+    def test_fatal_http_error_is_not_retried(status):
+        client, sent = client_for([status_error(status)] * 4)
+        events, waits = [], []
+        async def sleep(value): waits.append(value)
+        result = asyncio.run(run_loop('fixture', Remote(), client, 'fixture', lambda *e: events.append(e), sleep=sleep))
+&gt;       assert len(sent) == 1 and waits == []
+E       assert (4 == 1)
+E        +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s"}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])
+
+tests/test_runtime_hardening.py:40: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[422]" time="0.001"><failure message="assert (4 == 1)&#10; +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s&quot;}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])">status = 422
+
+    @pytest.mark.parametrize('status', [400, 401, 403, 404, 422])
+    def test_fatal_http_error_is_not_retried(status):
+        client, sent = client_for([status_error(status)] * 4)
+        events, waits = [], []
+        async def sleep(value): waits.append(value)
+        result = asyncio.run(run_loop('fixture', Remote(), client, 'fixture', lambda *e: events.append(e), sleep=sleep))
+&gt;       assert len(sent) == 1 and waits == []
+E       assert (4 == 1)
+E        +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s"}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])
+
+tests/test_runtime_hardening.py:40: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_context_length_400_has_context_limit_reason" time="0.001"><failure message="assert (4 == 1)&#10; +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s&quot;}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])">def test_context_length_400_has_context_limit_reason():
+        client, sent = client_for([status_error(400, 'maximum context length exceeded')] * 4)
+        async def sleep(_): pass
+        outcome = asyncio.run(run_loop('fixture', Remote(), client, 'fixture', lambda *e: None, sleep=sleep))
+&gt;       assert len(sent) == 1 and outcome.termination == 'context_limit'
+E       assert (4 == 1)
+E        +  where 4 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': '你是经营分析助手，使用 PostgreS...s"}]}\n&lt;/untrusted_tool_result&gt;', 'role': 'system'}, {'content': 'fixture', 'role': 'user'}], 'model': 'fixture', ...}])
+
+tests/test_runtime_hardening.py:49: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retry_after_precedes_backoff[2]" time="0.002"><failure message="assert [1] == [2]&#10;  &#10;  At index 0 diff: 1 != 2&#10;  Use -v to get more diff">header = '2'
+
+    @pytest.mark.parametrize('header', ['2', format_datetime(datetime.now(timezone.utc) + timedelta(seconds=2))])
+    def test_retry_after_precedes_backoff(header):
+        client, sent = client_for([status_error(429, headers={'Retry-After': header}), completion([FINAL])])
+        waits, events = [], []
+        async def sleep(value): waits.append(value)
+        asyncio.run(request(client, 'fixture', [], lambda *e: events.append(e), sleep=sleep))
+        assert len(sent) == 2 and len(waits) == 1
+        assert 0 &lt; waits[0] &lt;= 2
+&gt;       if header == '2': assert waits == [2]
+                          ^^^^^^^^^^^^^^^^^^^
+E       assert [1] == [2]
+E         
+E         At index 0 diff: 1 != 2
+E         Use -v to get more diff
+
+tests/test_runtime_hardening.py:60: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retry_after_precedes_backoff[Tue, 27 Oct 2026 14:36:50 +0000]" time="0.001"><failure message="KeyError: 'error_class'">header = 'Tue, 27 Oct 2026 14:36:50 +0000'
+
+    @pytest.mark.parametrize('header', ['2', format_datetime(datetime.now(timezone.utc) + timedelta(seconds=2))])
+    def test_retry_after_precedes_backoff(header):
+        client, sent = client_for([status_error(429, headers={'Retry-After': header}), completion([FINAL])])
+        waits, events = [], []
+        async def sleep(value): waits.append(value)
+        asyncio.run(request(client, 'fixture', [], lambda *e: events.append(e), sleep=sleep))
+        assert len(sent) == 2 and len(waits) == 1
+        assert 0 &lt; waits[0] &lt;= 2
+        if header == '2': assert waits == [2]
+&gt;       assert events[0][1]['error_class'] == 'retryable'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'error_class'
+
+tests/test_runtime_hardening.py:61: KeyError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retry_jitter_is_seeded_and_bounded" time="0.001"><failure message="assert [1, 2, 4] == [0.1938238604...1145468036294]&#10;  &#10;  At index 0 diff: 1 != 0.1938238604679151&#10;  Use -v to get more diff">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f7a56382ed0&gt;
+
+    def test_retry_jitter_is_seeded_and_bounded(monkeypatch):
+        import agent.model as model_module
+        rng = Random(1201)
+        monkeypatch.setattr(model_module, 'uniform', rng.uniform, raising=False)
+        client, sent = client_for([status_error(503)] * 4)
+        waits = []
+        async def sleep(value): waits.append(value)
+        assert asyncio.run(request(client, 'fixture', [], lambda *e: None, sleep=sleep)) is None
+        expected = Random(1201)
+&gt;       assert waits == [expected.uniform(0, cap) for cap in (1, 2, 4)]
+E       assert [1, 2, 4] == [0.1938238604...1145468036294]
+E         
+E         At index 0 diff: 1 != 0.1938238604679151
+E         Use -v to get more diff
+
+tests/test_runtime_hardening.py:74: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retry_wait_respects_remaining_task_time" time="0.001"><failure message="assert 7 &lt;= 0.01&#10; +  where 7 = sum([1, 2, 4])">def test_retry_wait_respects_remaining_task_time():
+        from agent.task_control import CONTROL
+        client, sent = client_for([status_error(503)] * 4)
+        waits = []
+        async def admit(_): return {'remaining_seconds': 0.01}
+        async def sleep(value): waits.append(value)
+        async def run():
+            token = CONTROL.set(admit)
+            try: return await request(client, 'fixture', [], lambda *e: None, sleep=sleep)
+            finally: CONTROL.reset(token)
+        asyncio.run(run())
+&gt;       assert sum(waits) &lt;= 0.01
+E       assert 7 &lt;= 0.01
+E        +  where 7 = sum([1, 2, 4])
+
+tests/test_runtime_hardening.py:89: AssertionError</failure></testcase></testsuite></testsuites>
