@@ -1,0 +1,326 @@
+{
+  "model_kind": "模型替身；只读原始事件",
+  "task_id": "8b89b2e4-9ef3-4ac9-bc41-e1626134d1a0",
+  "events": [
+    [
+      1,
+      "worker_claimed",
+      {
+        "phase": "execute",
+        "recovered": false,
+        "worker_id": "chaos-packet_loss_191dadc2-1",
+        "claim_count": 1
+      },
+      0.0
+    ],
+    [
+      2,
+      "memory_read",
+      {
+        "count": 0,
+        "enabled": false
+      },
+      0.0
+    ],
+    [
+      3,
+      "tool_call",
+      {
+        "name": "list_tables",
+        "phase": "bootstrap",
+        "call_id": "bootstrap-tables",
+        "input_summary": {}
+      },
+      0.0
+    ],
+    [
+      4,
+      "mcp_call",
+      {
+        "name": "list_tables",
+        "call_id": "bootstrap-tables",
+        "state_role": null,
+        "subtask_id": null,
+        "input_summary": {
+          "keys": [],
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "characters": 2
+        }
+      },
+      0.0
+    ],
+    [
+      5,
+      "mcp_result",
+      {
+        "name": "list_tables",
+        "error": null,
+        "call_id": "bootstrap-tables",
+        "result_id": null,
+        "output_summary": {
+          "keys": [
+            "tables"
+          ],
+          "sha256": "61c362311ed28c4e573808e0a569b39c09f60b17d1358fad3ecab8fdb60b8979",
+          "characters": 541
+        }
+      },
+      25.388277000274684
+    ],
+    [
+      6,
+      "tool_result",
+      {
+        "name": "list_tables",
+        "error": null,
+        "phase": "bootstrap",
+        "call_id": "bootstrap-tables",
+        "result_id": null,
+        "output_summary": "{\"tables\": [{\"name\": \"orders\", \"description\": \"订单、状态和各阶段时间。\"}, {\"name\": \"customers\", \"description\": \"订单关联的客户记录、客户标识与地区。\"}, {\"name\": \"order_items\", \"description\": \"订单商品明细、卖家、商品价格与运费。\"}, {\"name\": \"order_payments\", \"description\": \"订单的各笔支付记录。\"}, {\"name\": \"order_reviews\", \"description\": \"订单评价、分数与原始评价文字。\"}, {\"name\": \"products\", \"description\": \"商品属性和原始品类名称。\"}, {\"name\": \"sellers\", \"description\": \"卖家与所在地区。\"}, {\"name\": \"geolocation\", \"description\": \"邮编前缀、坐标和地区记录。\"}, {\"name\": \"product_category_name_translation\", \"description\": \"葡文品类名与英文品类名对照。\"}]}"
+      },
+      25.64349200019933
+    ],
+    [
+      7,
+      "model_admitted",
+      {
+        "role": "agent",
+        "step": 1,
+        "call_id": "d5f64b4a-4de7-4f30-8fa3-f577c36c48e0",
+        "usage_day": "2026-10-27",
+        "reserved_tokens": 13727
+      },
+      0.0
+    ],
+    [
+      8,
+      "model_call",
+      {
+        "role": "agent",
+        "step": 1,
+        "usage": {
+          "total_tokens": 1000,
+          "prompt_tokens": 900,
+          "completion_tokens": 100,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "attempt": 0,
+        "accounting": {
+          "cost_yuan": null,
+          "input_tokens": 900,
+          "cached_tokens": null,
+          "output_tokens": 100,
+          "cache_hit_ratio": null
+        },
+        "extra_body": {},
+        "error_class": null,
+        "temperature": 0,
+        "input_summary": {
+          "messages": 2,
+          "characters": 1356
+        },
+        "output_summary": {
+          "role": "assistant",
+          "tool_calls": [
+            {
+              "id": "28ae1c906fdd48099c444ec101e469dd",
+              "type": "function",
+              "function": {
+                "name": "run_sql",
+                "arguments": "{\"sql\": \"SELECT count(*) AS n FROM orders\"}"
+              }
+            }
+          ]
+        },
+        "response_model": "chaos-fixture",
+        "control_call_id": "d5f64b4a-4de7-4f30-8fa3-f577c36c48e0",
+        "requested_model": "chaos-261a7a828e1c4b6fb14080b03e31bee0",
+        "system_fingerprint": null
+      },
+      1279.2230039995047
+    ],
+    [
+      9,
+      "context_usage",
+      {
+        "role": "agent",
+        "step": 1,
+        "limit": 16000,
+        "peak_tokens": 900,
+        "prompt_tokens": 900
+      },
+      0.0
+    ],
+    [
+      10,
+      "tool_call",
+      {
+        "name": "run_sql",
+        "phase": "agent",
+        "call_id": "28ae1c906fdd48099c444ec101e469dd",
+        "input_summary": "{\"sql\": \"SELECT count(*) AS n FROM orders\"}"
+      },
+      0.0
+    ],
+    [
+      11,
+      "mcp_call",
+      {
+        "name": "run_sql",
+        "call_id": "28ae1c906fdd48099c444ec101e469dd",
+        "state_role": null,
+        "subtask_id": null,
+        "input_summary": {
+          "keys": [
+            "sql"
+          ],
+          "sha256": "ed6e79fd8ab1b2951ea34f4c5abb421d9d2c14371cbce3afbde7572be6986bba",
+          "characters": 43
+        }
+      },
+      0.0
+    ],
+    [
+      12,
+      "mcp_result",
+      {
+        "name": "run_sql",
+        "error": "McpError",
+        "call_id": "28ae1c906fdd48099c444ec101e469dd"
+      },
+      30025.4012409996
+    ],
+    [
+      13,
+      "tool_result",
+      {
+        "name": "run_sql",
+        "error": "McpError",
+        "phase": "agent",
+        "call_id": "28ae1c906fdd48099c444ec101e469dd",
+        "result_id": null,
+        "output_summary": "{\"error\": \"McpError\", \"detail\": \"Timed out while waiting for response to ClientRequest. Waited 30.0 seconds.\"}"
+      },
+      30025.77046100032
+    ],
+    [
+      14,
+      "model_admitted",
+      {
+        "role": "agent",
+        "step": 2,
+        "call_id": "52b7d9a9-9c76-4772-9144-c840c6072deb",
+        "usage_day": "2026-10-27",
+        "reserved_tokens": 14454
+      },
+      0.0
+    ],
+    [
+      15,
+      "model_call",
+      {
+        "role": "agent",
+        "step": 2,
+        "usage": {
+          "total_tokens": 1000,
+          "prompt_tokens": 900,
+          "completion_tokens": 100,
+          "prompt_tokens_details": null,
+          "completion_tokens_details": null
+        },
+        "attempt": 0,
+        "accounting": {
+          "cost_yuan": null,
+          "input_tokens": 900,
+          "cached_tokens": null,
+          "output_tokens": 100,
+          "cache_hit_ratio": null
+        },
+        "extra_body": {},
+        "error_class": null,
+        "temperature": 0,
+        "input_summary": {
+          "messages": 4,
+          "characters": 1823
+        },
+        "output_summary": {
+          "role": "assistant",
+          "tool_calls": [
+            {
+              "id": "637c7a0da68e4e91a439ec29f2d82a93",
+              "type": "function",
+              "function": {
+                "name": "run_sql",
+                "arguments": "{\"sql\": \"SELECT count(*) AS n FROM orders\"}"
+              }
+            }
+          ]
+        },
+        "response_model": "chaos-fixture",
+        "control_call_id": "52b7d9a9-9c76-4772-9144-c840c6072deb",
+        "requested_model": "chaos-261a7a828e1c4b6fb14080b03e31bee0",
+        "system_fingerprint": null
+      },
+      1003.9445300008083
+    ],
+    [
+      16,
+      "context_usage",
+      {
+        "role": "agent",
+        "step": 2,
+        "limit": 16000,
+        "peak_tokens": 900,
+        "prompt_tokens": 900
+      },
+      0.0
+    ],
+    [
+      17,
+      "tool_call",
+      {
+        "name": "run_sql",
+        "phase": "agent",
+        "call_id": "637c7a0da68e4e91a439ec29f2d82a93",
+        "input_summary": "{\"sql\": \"SELECT count(*) AS n FROM orders\"}"
+      },
+      0.0
+    ],
+    [
+      18,
+      "mcp_call",
+      {
+        "name": "run_sql",
+        "call_id": "637c7a0da68e4e91a439ec29f2d82a93",
+        "state_role": null,
+        "subtask_id": null,
+        "input_summary": {
+          "keys": [
+            "sql"
+          ],
+          "sha256": "ed6e79fd8ab1b2951ea34f4c5abb421d9d2c14371cbce3afbde7572be6986bba",
+          "characters": 43
+        }
+      },
+      0.0
+    ],
+    [
+      19,
+      "runtime_error",
+      {
+        "error": "ExceptionGroup"
+      },
+      0.0
+    ],
+    [
+      20,
+      "task_status",
+      {
+        "error": "RuntimeError",
+        "status": "failed"
+      },
+      0.0
+    ]
+  ]
+}

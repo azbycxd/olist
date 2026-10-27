@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="10" time="1.725" timestamp="2026-10-27T17:00:35.395069+00:00" hostname="d1982f58193f"><testcase classname="tests.test_infra_recovery" name="test_mcp_timeout_is_not_swallowed_as_a_model_tool_error" time="0.085"><failure message="ModuleNotFoundError: No module named 'agent.infra'">def test_mcp_timeout_is_not_swallowed_as_a_model_tool_error():
+        from agent.tools import Registry
+&gt;       from agent.infra import InfraRetryable
+E       ModuleNotFoundError: No module named 'agent.infra'
+
+tests/test_infra_recovery.py:12: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_infra_recovery" name="test_classification_is_narrow_and_unwraps_exception_groups" time="0.001"><failure message="ModuleNotFoundError: No module named 'agent.infra'">def test_classification_is_narrow_and_unwraps_exception_groups():
+&gt;       from agent.infra import retryable_exception
+E       ModuleNotFoundError: No module named 'agent.infra'
+
+tests/test_infra_recovery.py:20: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_infra_recovery" name="test_semantic_and_permission_results_do_not_requeue[unknown_dimension]" time="0.342" /><testcase classname="tests.test_infra_recovery" name="test_semantic_and_permission_results_do_not_requeue[forbidden_dimension]" time="0.001" /><testcase classname="tests.test_infra_recovery" name="test_semantic_and_permission_results_do_not_requeue[syntax_error]" time="0.001" /><testcase classname="tests.test_infra_recovery" name="test_semantic_and_permission_results_do_not_requeue[permission_denied]" time="0.001" /><testcase classname="tests.test_infra_recovery" name="test_semantic_and_permission_results_do_not_requeue[fatal]" time="0.001" /><testcase classname="tests.test_infra_recovery" name="test_bootstrap_failure_recovery_and_shared_limit[2-completed-2]" time="0.365"><failure message="AssertionError: assert ('failed', 0) == ('completed', 2)&#10;  &#10;  At index 0 diff: 'failed' != 'completed'&#10;  Use -v to get more diff">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72ca167f9c90&gt;
+failures = 2, expected = 'completed', requeues = 2
+
+    @pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local database required')
+    @pytest.mark.parametrize('failures,expected,requeues',[(2,'completed',2),(100,'failed',3)])
+    def test_bootstrap_failure_recovery_and_shared_limit(monkeypatch,failures,expected,requeues):
+        import psycopg
+        from config import db_kwargs
+        from api.tasks import create_task,NewTask
+        from scripts import task_worker as worker
+        from contracts import FinalAnswer
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('infra-'+uuid4().hex,)).fetchone()[0]
+        ident=create_task(NewTask(question='infra scripted bootstrap'),owner)['task_id']
+        attempts=[]
+        def runtime(question,ident,emit,**kwargs):
+            attempts.append(1)
+            emit('termination',{'scope':'task','reason':'infra_retryable' if len(attempts)&lt;=failures else 'final_answer'})
+            return FinalAnswer(answer='scripted',claims=[])
+        monkeypatch.setattr(worker,'run_runtime',runtime)
+        for _ in range(5):
+            job=worker.claim(ident)
+            if job is None:break
+            worker.process(job)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            status,error,count=conn.execute('SELECT status,error,provider_requeues FROM tasks WHERE task_id=%s',(ident,)).fetchone()
+&gt;       assert (status,count)==(expected,requeues)
+E       AssertionError: assert ('failed', 0) == ('completed', 2)
+E         
+E         At index 0 diff: 'failed' != 'completed'
+E         Use -v to get more diff
+
+tests/test_infra_recovery.py:65: AssertionError</failure></testcase><testcase classname="tests.test_infra_recovery" name="test_bootstrap_failure_recovery_and_shared_limit[100-failed-3]" time="0.029"><failure message="AssertionError: assert ('failed', 0) == ('failed', 3)&#10;  &#10;  At index 1 diff: 0 != 3&#10;  Use -v to get more diff">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72ca0ffc70d0&gt;
+failures = 100, expected = 'failed', requeues = 3
+
+    @pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local database required')
+    @pytest.mark.parametrize('failures,expected,requeues',[(2,'completed',2),(100,'failed',3)])
+    def test_bootstrap_failure_recovery_and_shared_limit(monkeypatch,failures,expected,requeues):
+        import psycopg
+        from config import db_kwargs
+        from api.tasks import create_task,NewTask
+        from scripts import task_worker as worker
+        from contracts import FinalAnswer
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('infra-'+uuid4().hex,)).fetchone()[0]
+        ident=create_task(NewTask(question='infra scripted bootstrap'),owner)['task_id']
+        attempts=[]
+        def runtime(question,ident,emit,**kwargs):
+            attempts.append(1)
+            emit('termination',{'scope':'task','reason':'infra_retryable' if len(attempts)&lt;=failures else 'final_answer'})
+            return FinalAnswer(answer='scripted',claims=[])
+        monkeypatch.setattr(worker,'run_runtime',runtime)
+        for _ in range(5):
+            job=worker.claim(ident)
+            if job is None:break
+            worker.process(job)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            status,error,count=conn.execute('SELECT status,error,provider_requeues FROM tasks WHERE task_id=%s',(ident,)).fetchone()
+&gt;       assert (status,count)==(expected,requeues)
+E       AssertionError: assert ('failed', 0) == ('failed', 3)
+E         
+E         At index 1 diff: 0 != 3
+E         Use -v to get more diff
+
+tests/test_infra_recovery.py:65: AssertionError</failure></testcase><testcase classname="tests.test_infra_recovery" name="test_mcp_bootstrap_unavailable_gets_task_termination" time="0.510"><failure message="httpx.ConnectError: MCP initialization fixture">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72ca0fff0e50&gt;
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x72ca0fff20d0&gt;
+
+    def test_mcp_bootstrap_unavailable_gets_task_termination(monkeypatch,capsys):
+        from agent import worker
+        async def execute(_):raise httpx.ConnectError('MCP initialization fixture')
+        monkeypatch.setattr(worker,'_execute',execute)
+&gt;       asyncio.run(worker._execute_with_errors({}))
+
+tests/test_infra_recovery.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.11/asyncio/runners.py:190: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/base_events.py:654: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+agent/worker.py:83: in _execute_with_errors
+    await _execute(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+_ = {}
+
+&gt;   async def execute(_):raise httpx.ConnectError('MCP initialization fixture')
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   httpx.ConnectError: MCP initialization fixture
+
+tests/test_infra_recovery.py:71: ConnectError</failure></testcase></testsuite></testsuites>
