@@ -11,7 +11,7 @@ def trajectory(sqls, *, empty=False):
         async def call(self,name,arguments):
             if name=='run_sql' and empty:
                 self.calls.append((name,arguments))
-                return {'preview':[], 'row_count':0}
+                return {'preview':[], 'row_count':0, 'result_id':str(len(self.calls))}
             return await super().call(name,arguments)
     remote, events = Results(), []
     responses = iter(completion([('run_sql',{'sql':sql})]) for sql in sqls)
@@ -48,11 +48,18 @@ def test_normalization_preserves_quoted_identifiers_literals_and_bad_sql():
     assert normalize_sql("select '")=="select '"
 
 
-def test_empty_results_with_new_evidence_are_progress_and_mixed_success_resets():
+def test_nonempty_new_evidence_is_progress_and_mixed_success_resets():
     from agent.progress import Progress
     guard=Progress()
-    for n in range(8): assert guard.after([{'row_count':0,'result_id':str(n)}]) is None
+    for n in range(8): assert guard.after([{'row_count':1,'result_id':str(n)}]) is None
     for _ in range(3): assert guard.after([{'error':'timeout'}]) is None
     assert guard.after([{'error':'timeout'},{'preview':[{'n':1}]}]) is None
     for _ in range(3): assert guard.after([{'error':'timeout'}]) is None
     assert guard.after([{'error':'timeout'}])=='empty_or_error'
+
+
+def test_empty_result_ids_do_not_reset_empty_streak():
+    from agent.progress import Progress
+    guard=Progress()
+    for n in range(3): assert guard.after([{'row_count':0,'result_id':str(n)}]) is None
+    assert guard.after([{'row_count':0,'result_id':'four'}])=='empty_or_error'

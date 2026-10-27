@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="6" time="0.960" timestamp="2026-10-27T15:07:37.166506+00:00" hostname="1d59671d01da"><testcase classname="tests.test_progress_hardening" name="test_alternating_signatures_stop_on_turn_six" time="0.066" /><testcase classname="tests.test_progress_hardening" name="test_sql_case_and_whitespace_count_as_same_consecutive_call" time="0.005" /><testcase classname="tests.test_progress_hardening" name="test_four_different_empty_state_queries_stop_after_result_four" time="0.003"><failure message="AssertionError: assert ('max_steps' == 'no_progress'&#10;  &#10;  - no_progress&#10;  + max_steps)">def test_four_different_empty_state_queries_stop_after_result_four():
+        outcome,events,_=trajectory([f"SELECT * FROM customers WHERE customer_state='{state}'" for state in ['SP','RJ','MG','BA','PR']],empty=True)
+&gt;       assert outcome.termination=='no_progress' and outcome.steps==4
+E       AssertionError: assert ('max_steps' == 'no_progress'
+E         
+E         - no_progress
+E         + max_steps)
+
+tests/test_progress_hardening.py:40: AssertionError</failure></testcase><testcase classname="tests.test_progress_hardening" name="test_normalization_preserves_quoted_identifiers_literals_and_bad_sql" time="0.001" /><testcase classname="tests.test_progress_hardening" name="test_nonempty_new_evidence_is_progress_and_mixed_success_resets" time="0.000" /><testcase classname="tests.test_progress_hardening" name="test_empty_result_ids_do_not_reset_empty_streak" time="0.001"><failure message="AssertionError: assert None == 'empty_or_error'&#10; +  where None = after([{'result_id': 'four', 'row_count': 0}])&#10; +    where after = &lt;agent.progress.Progress object at 0x78f6cfbf6110&gt;.after">def test_empty_result_ids_do_not_reset_empty_streak():
+        from agent.progress import Progress
+        guard=Progress()
+        for n in range(3): assert guard.after([{'row_count':0,'result_id':str(n)}]) is None
+&gt;       assert guard.after([{'row_count':0,'result_id':'four'}])=='empty_or_error'
+E       AssertionError: assert None == 'empty_or_error'
+E        +  where None = after([{'result_id': 'four', 'row_count': 0}])
+E        +    where after = &lt;agent.progress.Progress object at 0x78f6cfbf6110&gt;.after
+
+tests/test_progress_hardening.py:65: AssertionError</failure></testcase></testsuite></testsuites>
