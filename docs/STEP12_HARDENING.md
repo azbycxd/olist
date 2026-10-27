@@ -8,6 +8,7 @@
 - 本地 Linux Compose 完整测试：[241 项通过](../evidence/step12_baseline_full.xml)。CI 同构离线测试：[200 项通过](../evidence/step12_baseline_linux_offline.xml)。
 - 额外尝试的 Windows 离线测试失败：[原始 XML](../evidence/step12_baseline_offline.xml)。其网络禁止夹具拦截 Windows asyncio 自管道，沙箱也限制 pytest 临时目录；因此本批统一在与 CI 一致的 Linux 容器验证，不为此修改产品代码。
 - [起始文件哈希](../evidence/step12_start_reference.json)用于结束时核对冻结文件；`agent/loop.py`允许工程改动，但其中系统提示必须保持原文。
+- [12.1 归档校验清单](../evidence/step12_1_archive_checksums.json)记录远程 Git 文件的确切 SHA-256 和本机采集字节 SHA-256。少数 Windows 产物由 `.gitattributes` 将 CRLF 规范化为 LF；原收据保留采集时哈希，校验仓库副本使用清单中的 git_blob_sha256，不修改或重算实验数据。
 
 ## 12.1 / A1 模型重试与熔断
 
@@ -104,7 +105,7 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 ### 测试与收据
 
-失败测试提交：`4bd76cf`；[改前4项失败 XML](../evidence/step12_a4_red.xml)。改后本地完整测试：[281项通过](../evidence/step12_1_full.xml)；CI 同构离线：[226项通过](../evidence/step12_1_offline.xml)。1000行、1001行、LIMIT500及有序截断均由真实数据库查询验证。A4 未做延迟对比，不填写估算。
+失败测试提交：`4bd76cf`；修复提交：`d214e80`。[改前4项失败 XML](../evidence/step12_a4_red.xml)。改后本地完整测试：[281项通过](../evidence/step12_1_full.xml)；CI 同构离线：[226项通过](../evidence/step12_1_offline.xml)。1000行、1001行、LIMIT500及有序截断均由真实数据库查询验证。A4 未做延迟对比，不填写估算。
 
 ### 工具返回变化与局限
 
