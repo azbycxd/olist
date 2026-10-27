@@ -1,3 +1,4 @@
+from db_pool import connection
 """Trusted, owner-scoped storage and import of reviewed historical evidence."""
 import hashlib
 import json
@@ -11,13 +12,14 @@ from mcp_olist.knowledge import embed, MODEL, REVISION
 
 
 def current_version():
-    with psycopg.connect(**db_kwargs(role='reader')) as conn:
+    with connection('worker','olist','reader') as conn:
+        conn.execute('SET TRANSACTION READ ONLY')
         return conn.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
 
 
 def save_reviewed(task_id,lease_token=None):
     version=current_version()
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('worker') as conn:
         row=conn.execute('SELECT t.user_id,t.question,s.plan,s.subtasks,s.report FROM tasks t JOIN task_state s USING(task_id) WHERE t.task_id=%s',(UUID(str(task_id)),)).fetchone()
         if not row or not row[4]:return []
         owner,question=row[:2];board=Board(plan=row[2],subtasks=row[3],report=row[4])
@@ -53,7 +55,7 @@ def save_reviewed(task_id,lease_token=None):
 def retrieve(task_id,question,lease_token=None):
     version=current_version();threshold=float(os.getenv('FINDING_MIN_SIMILARITY','0.78'))
     if not 0<=threshold<=1:raise ValueError('Invalid finding similarity threshold')
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('worker') as conn:
         owner=conn.execute('SELECT user_id FROM tasks WHERE task_id=%s',(UUID(str(task_id)),)).fetchone()
         if not owner:raise ValueError('Unknown task')
         exists=conn.execute("SELECT 1 FROM memories WHERE user_id=%s AND type='finding' AND superseded_at IS NULL LIMIT 1",(owner[0],)).fetchone()

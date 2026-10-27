@@ -138,3 +138,17 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 - [step9-holdout-r1](../evidence/eval_step9-holdout-r1_20261017T104235Z_7648ab8d.summary.json)：`eval_step9-holdout-r1_20261017T104235Z_7648ab8d.jsonl`。
 - [step9-holdout-r2](../evidence/eval_step9-holdout-r2_20261017T104451Z_7e1a9d1a.summary.json)：`eval_step9-holdout-r2_20261017T104451Z_7e1a9d1a.jsonl`。
 - [step9-holdout-r3](../evidence/eval_step9-holdout-r3_20261017T104707Z_e9d273ef.summary.json)：`eval_step9-holdout-r3_20261017T104707Z_e9d273ef.jsonl`。
+
+## Step 12.2 B1 服务护栏（不做参数搜索）
+
+| 参数 | 默认 | 来源类型 | 用途 |
+| --- | ---: | --- | --- |
+| API_POOL_MAX | 8 | 安全护栏 | 每 API 进程的 agent 连接上限 |
+| MCP_AGENT_POOL_MAX / MCP_OLIST_POOL_MAX | 8 / 8 | 安全护栏 | MCP 两库独立上限 |
+| WORKER_AGENT_POOL_MAX / WORKER_OLIST_POOL_MAX | 2 / 1 | 预先固定 | 用户批准的两个独立小池；olist 懒加载、agent_ro |
+| DB_POOL_TIMEOUT_SECONDS | 5 | 安全护栏 | 取连接超时，HTTP 503 |
+| DB_POOL_MAX_LIFETIME_SECONDS | 1800 | 预先固定 | 连接最大寿命，checkout 检查有效性 |
+| WORKER_GRACE_SECONDS | 20 | 预先固定 | 停止领取后等待当前任务；须小于 Compose stop_grace_period=35s |
+| WORKER_HEARTBEAT_SECONDS | 5 | 预先固定 | agent 库心跳；超过三周期不健康 |
+
+池均 min_size=0，按实际需求创建。总上限=API_POOL_MAX+MCP_AGENT_POOL_MAX+MCP_OLIST_POOL_MAX+worker数×(WORKER_AGENT_POOL_MAX+WORKER_OLIST_POOL_MAX)。扩多个 API/MCP 进程时分别累加。readyz 只检查 agent 库，避免探测惰性 olist 连接。

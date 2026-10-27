@@ -67,6 +67,15 @@ services:
       NO_PROGRESS_EMPTY_TURNS: ${NO_PROGRESS_EMPTY_TURNS:-4}
       SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
       MCP_RETRY_ATTEMPTS: ${MCP_RETRY_ATTEMPTS:-1}
+      API_POOL_MAX: ${API_POOL_MAX:-8}
+      MCP_AGENT_POOL_MAX: ${MCP_AGENT_POOL_MAX:-8}
+      MCP_OLIST_POOL_MAX: ${MCP_OLIST_POOL_MAX:-8}
+      WORKER_AGENT_POOL_MAX: ${WORKER_AGENT_POOL_MAX:-2}
+      WORKER_OLIST_POOL_MAX: ${WORKER_OLIST_POOL_MAX:-1}
+      DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-5}
+      DB_POOL_MAX_LIFETIME_SECONDS: ${DB_POOL_MAX_LIFETIME_SECONDS:-1800}
+      WORKER_GRACE_SECONDS: ${WORKER_GRACE_SECONDS:-20}
+      WORKER_HEARTBEAT_SECONDS: ${WORKER_HEARTBEAT_SECONDS:-5}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_admin_change_me}
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
       AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
@@ -87,6 +96,10 @@ services:
     entrypoint: ["python", "-m", "mcp_olist.server"]
     environment:
       DIMENSION_PRECHECK: ${DIMENSION_PRECHECK:-true}
+      MCP_AGENT_POOL_MAX: ${MCP_AGENT_POOL_MAX:-8}
+      MCP_OLIST_POOL_MAX: ${MCP_OLIST_POOL_MAX:-8}
+      DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-5}
+      DB_POOL_MAX_LIFETIME_SECONDS: ${DB_POOL_MAX_LIFETIME_SECONDS:-1800}
       SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
       PGHOST: db
       PGPORT: "5432"
@@ -104,7 +117,7 @@ services:
       init-data:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; r=httpx.post('http://localhost:8001/mcp'); assert r.status_code == 401"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/readyz',timeout=2)"]
       interval: 3s
       timeout: 5s
       retries: 20
@@ -139,6 +152,9 @@ services:
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
       MEMORY_API_SECRET: ${MEMORY_API_SECRET:-}
+      API_POOL_MAX: ${API_POOL_MAX:-8}
+      DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-5}
+      DB_POOL_MAX_LIFETIME_SECONDS: ${DB_POOL_MAX_LIFETIME_SECONDS:-1800}
     ports:
       - "127.0.0.1:8003:8000"
     depends_on:
@@ -190,6 +206,15 @@ services:
       NO_PROGRESS_EMPTY_TURNS: ${NO_PROGRESS_EMPTY_TURNS:-4}
       SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
       MCP_RETRY_ATTEMPTS: ${MCP_RETRY_ATTEMPTS:-1}
+      API_POOL_MAX: ${API_POOL_MAX:-8}
+      MCP_AGENT_POOL_MAX: ${MCP_AGENT_POOL_MAX:-8}
+      MCP_OLIST_POOL_MAX: ${MCP_OLIST_POOL_MAX:-8}
+      WORKER_AGENT_POOL_MAX: ${WORKER_AGENT_POOL_MAX:-2}
+      WORKER_OLIST_POOL_MAX: ${WORKER_OLIST_POOL_MAX:-1}
+      DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-5}
+      DB_POOL_MAX_LIFETIME_SECONDS: ${DB_POOL_MAX_LIFETIME_SECONDS:-1800}
+      WORKER_GRACE_SECONDS: ${WORKER_GRACE_SECONDS:-20}
+      WORKER_HEARTBEAT_SECONDS: ${WORKER_HEARTBEAT_SECONDS:-5}
     volumes:
       - ./logs:/app/logs
       - ./evidence:/app/evidence
@@ -206,6 +231,9 @@ services:
       PGPORT: "5432"
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
       MEMORY_API_SECRET: ${MEMORY_API_SECRET:-}
+      API_POOL_MAX: ${API_POOL_MAX:-8}
+      DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-5}
+      DB_POOL_MAX_LIFETIME_SECONDS: ${DB_POOL_MAX_LIFETIME_SECONDS:-1800}
       TOKEN_BUDGET: ${PRODUCT_TOKEN_BUDGET:-100000}
       TASK_MAX_SECONDS: ${TASK_MAX_SECONDS:-300}
       USER_MAX_RUNNING_TASKS: ${USER_MAX_RUNNING_TASKS:-2}
@@ -218,7 +246,7 @@ services:
       init-data:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/',timeout=2)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/readyz',timeout=2)"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -227,6 +255,12 @@ services:
   worker:
     image: olist-agent:local
     init: true
+    stop_grace_period: 35s
+    healthcheck:
+      test: ["CMD", "python", "-m", "scripts.worker_health"]
+      interval: 5s
+      timeout: 7s
+      retries: 3
     entrypoint: ["python", "-m", "scripts.task_worker"]
     environment:
       <<: *runtime-environment

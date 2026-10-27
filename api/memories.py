@@ -1,5 +1,9 @@
 """Authenticated preference listing/deletion; no user ID supplied in request data."""
 import os
+from contextlib import asynccontextmanager
+import asyncio
+from fastapi.responses import JSONResponse
+from db_pool import validate_settings, close_all, ready, PoolTimeout
 from datetime import datetime,timedelta,timezone
 from uuid import UUID
 
@@ -9,7 +13,32 @@ from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 
 from scripts.preferences import list_active,delete
 
-app=FastAPI()
+@asynccontextmanager
+async def lifespan(app):
+    validate_settings('api')
+    try:
+        yield
+    finally:
+        close_all('api')
+
+
+app=FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(PoolTimeout)
+async def pool_unavailable(request, exc):
+    return JSONResponse({'error':'database_pool_exhausted'},status_code=503)
+
+
+@app.get('/healthz')
+def healthz():
+    return {'status':'alive'}
+
+
+@app.get('/readyz')
+async def readyz():
+    available=await asyncio.to_thread(ready,'api')
+    return JSONResponse({'ready':available},status_code=200 if available else 503)
 bearer=HTTPBearer(auto_error=False)
 
 
@@ -34,9 +63,9 @@ def user(credentials: HTTPAuthorizationCredentials=Depends(bearer)):
 
 @app.get('/memories')
 def get_memories(owner: UUID=Depends(user)):
-    return {'memories':list_active(owner)}
+    return {'memories':list_active(owner,component='api')}
 
 
 @app.delete('/memories/{memory_id}',status_code=204)
 def delete_memory(memory_id:UUID,owner:UUID=Depends(user)):
-    if not delete(owner,memory_id): raise HTTPException(404,'Memory not found')
+    if not delete(owner,memory_id,component='api'): raise HTTPException(404,'Memory not found')

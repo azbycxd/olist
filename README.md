@@ -69,6 +69,9 @@ flowchart TD
 
 ## 快速启动
 
+Step 12.2 服务启动前会校验 `.env` 中数据库密码、MCP token、API 签名密钥与 worker 模型配置。API/MCP 的 `/healthz` 仅表示进程存活，`/readyz` 仅探测 agent 库；worker 的 olist 只读池按 findings 需求懒加载。修改代码后重建镜像并执行新增迁移，再重建 API/MCP/worker。worker 停止宽限为35秒，`WORKER_GRACE_SECONDS` 默认20秒并必须留足释放租约时间。连接池设置和来源见 [参数表](docs/PARAMETERS.md)。
+
+
 需要 Docker Desktop 的 Linux 容器模式与 Compose。把 Olist 原始 CSV 放进 `data/raw/`，包含客户、地理位置、订单、订单商品、支付、评价、商品、卖家、品类翻译。原始数据不提交到 Git。
 
 ```powershell

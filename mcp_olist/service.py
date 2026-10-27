@@ -1,3 +1,4 @@
+from db_pool import connection
 """Database access is confined to the MCP service and offline evaluator."""
 
 import json
@@ -42,7 +43,8 @@ def result_notice(executable,truncated):
 def describe(name):
     if name not in TABLES:
         raise ValueError("Unknown business table")
-    with psycopg.connect(**db_kwargs(role="reader")) as conn:
+    with connection('mcp','olist','reader') as conn:
+        conn.execute('SET TRANSACTION READ ONLY')
         columns = conn.execute("""SELECT a.attname, format_type(a.atttypid,a.atttypmod),
             col_description(a.attrelid,a.attnum), a.attnotnull
             FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid
@@ -65,10 +67,10 @@ def _run_query(statement, task_id, lease_token=None):
     task_id = UUID(task_id)
     executable = guard_sql(statement)
     digest=hashlib.sha256(normalize_sql(executable).encode()).hexdigest()
-    with psycopg.connect(**db_kwargs("agent", "app")) as agent_db:
+    with connection('mcp') as agent_db:
         from mcp_olist.leases import validate
         validate(agent_db,task_id,lease_token)
-        with psycopg.connect(**db_kwargs(role="reader")) as conn:
+        with connection('mcp','olist','reader') as conn:
             conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             conn.execute(sql.SQL('SET LOCAL statement_timeout = {}').format(sql.Literal(str(int(SQL_TIMEOUT_SECONDS*1000))+'ms')))
             conn.execute("SET LOCAL lock_timeout = '2s'")
@@ -109,7 +111,7 @@ def _run_query(statement, task_id, lease_token=None):
 def get_saved_result(result_id, task_id, offset=0, limit=20):
     if not isinstance(offset,int) or not isinstance(limit,int) or offset<0 or not 1<=limit<=1000:
         raise ValueError("offset must be nonnegative; limit must be 1..1000")
-    with psycopg.connect(**db_kwargs("agent","app")) as conn:
+    with connection('mcp') as conn:
         row = conn.execute("SELECT sql,columns,rows,row_count,data_version,truncated FROM query_results WHERE result_id=%s AND task_id=%s",
             (UUID(result_id),UUID(task_id))).fetchone()
     if not row: raise ValueError("Result is unavailable for this task")

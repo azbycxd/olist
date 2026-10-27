@@ -10,6 +10,8 @@ import uvicorn
 from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from starlette.responses import JSONResponse
+from contextlib import asynccontextmanager
+from db_pool import ready, validate_settings, close_all, request_state
 
 from config import MCP_BEARER_TOKEN
 from mcp_olist.catalog import TABLES
@@ -116,17 +118,47 @@ class BearerAuth:
 
     async def __call__(self, scope, receive, send):
         if scope["type"] == "http":
+            if scope['path'] in {'/healthz','/readyz'}:
+                available=scope['path']=='/healthz' or await asyncio.to_thread(ready,'mcp')
+                await JSONResponse({'ready':available},status_code=200 if available else 503)(scope,receive,send)
+                return
             headers = dict(scope["headers"])
             actual = headers.get(b"authorization", b"")
             if not hmac.compare_digest(actual, ("Bearer "+self.token).encode()):
                 await JSONResponse({"error":"unauthorized"}, status_code=401,
                                    headers={"WWW-Authenticate":"Bearer"})(scope, receive, send)
                 return
-        await self.app(scope, receive, send)
+            state={};token=request_state.set(state)
+            messages=[]
+            async def capture(message):
+                messages.append(message)
+            try:
+                # JSON response mode: buffer until the tool finishes so pool
+                # exhaustion remains HTTP 503 even when the SDK wraps errors.
+                await self.app(scope,receive,capture)
+                for message in messages:
+                    if message['type']=='http.response.start' and state.get('pool_timeout'):
+                        message={**message,'status':503}
+                    await send(message)
+            finally:
+                request_state.reset(token)
+            return
+        await self.app(scope,receive,send)
 
 
 def create_app(token=MCP_BEARER_TOKEN):
-    return BearerAuth(mcp.streamable_http_app(), token)
+    app=mcp.streamable_http_app()
+    original=app.router.lifespan_context
+    @asynccontextmanager
+    async def lifespan(app):
+        validate_settings('mcp')
+        try:
+            async with original(app):
+                yield
+        finally:
+            close_all('mcp')
+    app.router.lifespan_context=lifespan
+    return BearerAuth(app, token)
 
 
 if __name__ == "__main__":

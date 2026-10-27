@@ -51,6 +51,19 @@ CONTEXT_STRATEGY = os.getenv("CONTEXT_STRATEGY", "none")
 CONTEXT_KEEP_TURNS = int(os.getenv("CONTEXT_KEEP_TURNS", "2"))
 CONTEXT_SUMMARY_THRESHOLD = int(os.getenv("CONTEXT_SUMMARY_THRESHOLD", "6000"))
 CONTEXT_LIMIT = int(os.getenv("CONTEXT_LIMIT", "16000"))
+API_POOL_MAX = int(os.getenv('API_POOL_MAX', '8'))
+MCP_AGENT_POOL_MAX = int(os.getenv('MCP_AGENT_POOL_MAX', '8'))
+MCP_OLIST_POOL_MAX = int(os.getenv('MCP_OLIST_POOL_MAX', '8'))
+WORKER_AGENT_POOL_MAX = int(os.getenv('WORKER_AGENT_POOL_MAX', '2'))
+WORKER_OLIST_POOL_MAX = int(os.getenv('WORKER_OLIST_POOL_MAX', '1'))
+DB_POOL_TIMEOUT_SECONDS = float(os.getenv('DB_POOL_TIMEOUT_SECONDS', '5'))
+DB_POOL_MAX_LIFETIME_SECONDS = float(os.getenv('DB_POOL_MAX_LIFETIME_SECONDS', '1800'))
+WORKER_GRACE_SECONDS = float(os.getenv('WORKER_GRACE_SECONDS', '20'))
+WORKER_HEARTBEAT_SECONDS = float(os.getenv('WORKER_HEARTBEAT_SECONDS', '5'))
+if min(API_POOL_MAX, MCP_AGENT_POOL_MAX, MCP_OLIST_POOL_MAX,
+       WORKER_AGENT_POOL_MAX, WORKER_OLIST_POOL_MAX, DB_POOL_TIMEOUT_SECONDS,
+       DB_POOL_MAX_LIFETIME_SECONDS, WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS) <= 0:
+    raise ValueError('Pool sizes, timeouts and worker intervals must be positive')
 
 # Leave Step 9 behavior as default unless the fixed acceptance passes.
 # Dimension checks are independent and remain enabled in both profiles.

@@ -1,3 +1,4 @@
+from db_pool import connection
 """Authenticated task API. Requests only enqueue; a separate process does all model work."""
 import asyncio
 import hashlib
@@ -65,7 +66,7 @@ def index():return FileResponse(Path(__file__).parent/'web/index.html')
 
 @app.post('/register',status_code=201)
 def register(body:Credentials):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         row=conn.execute('INSERT INTO users(username,password_hash) VALUES(%s,%s) ON CONFLICT(username) DO NOTHING RETURNING user_id',
             (body.username,password_hash(body.password))).fetchone()
         if not row:raise HTTPException(409,'Username unavailable')
@@ -74,7 +75,7 @@ def register(body:Credentials):
 
 @app.post('/login')
 def login(body:Credentials):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         row=conn.execute('SELECT user_id,password_hash FROM users WHERE username=%s',(body.username,)).fetchone()
     if not row or not verify_password(body.password,row[1]):raise HTTPException(401,'Invalid credentials')
     return {'access_token':issue(row[0]),'token_type':'bearer'}
@@ -85,7 +86,7 @@ def create_task(body:NewTask,owner:UUID=Depends(user)):
     from scripts import task_limits as limits
     settings={**FINAL_CONFIG,'AGENT_MODE':body.agent_mode,'CONTEXT_STRATEGY':body.context_strategy,
         'TOKEN_BUDGET':os.getenv('TOKEN_BUDGET','100000'),**limits.settings()}
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         limits.owner_lock(conn,owner)
         if not limits.quota(conn,owner)['available_tokens']:raise HTTPException(429,'UTC daily token quota exhausted')
         ident=conn.execute("INSERT INTO tasks(user_id,question,background,run_config,deadline_at) VALUES(%s,%s,true,%s,now()+%s*interval '1 second') RETURNING task_id",
@@ -96,14 +97,14 @@ def create_task(body:NewTask,owner:UUID=Depends(user)):
 @app.get('/quota')
 def get_quota(owner:UUID=Depends(user)):
     from scripts import task_limits as limits
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         return {**limits.quota(conn,owner),**limits.settings()}
 
 
 @app.post('/tasks/{task_id}/cancel')
 def cancel(task_id:UUID,owner:UUID=Depends(user)):
     from scripts import task_limits as limits
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         limits.owner_lock(conn,owner)
         task=owned(conn,task_id,owner,True)
         if task['status']=='canceled':return {'task_id':str(task_id),'status':'canceled'}
@@ -115,14 +116,14 @@ def cancel(task_id:UUID,owner:UUID=Depends(user)):
 
 @app.get('/tasks')
 def list_tasks(owner:UUID=Depends(user)):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         rows=conn.execute('SELECT task_id,question,status,created_at FROM tasks WHERE user_id=%s ORDER BY created_at DESC LIMIT 50',(owner,)).fetchall()
     return {'tasks':[dict(zip(['task_id','question','status','created_at'],r)) for r in rows]}
 
 
 @app.get('/tasks/{task_id}')
 def get_task(task_id:UUID,owner:UUID=Depends(user)):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         result=owned(conn,task_id,owner)
         result['run_config']=conn.execute('SELECT run_config FROM tasks WHERE task_id=%s',(task_id,)).fetchone()[0]
         state=conn.execute('SELECT plan,subtasks FROM task_state WHERE task_id=%s',(task_id,)).fetchone()
@@ -144,11 +145,11 @@ def get_task(task_id:UUID,owner:UUID=Depends(user)):
 @app.post('/tasks/{task_id}/confirm')
 def confirm(task_id:UUID,plan:Plan,owner:UUID=Depends(user)):
     from scripts import task_limits as limits
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         limits.owner_lock(conn,owner)
         limits.reap_owner(conn,owner)
     # Commit deadline expiration even when the confirmation subsequently gets 409.
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         limits.owner_lock(conn,owner)
         task=owned(conn,task_id,owner,True)
         if task['status']!='awaiting_confirmation':raise HTTPException(409,'Task is not awaiting confirmation')
@@ -168,7 +169,7 @@ def confirm(task_id:UUID,plan:Plan,owner:UUID=Depends(user)):
 
 @app.get('/tasks/{task_id}/results/{result_id}')
 def result(task_id:UUID,result_id:UUID,owner:UUID=Depends(user)):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('api') as conn:
         owned(conn,task_id,owner)
         row=conn.execute('SELECT sql,columns,rows,data_version,source_result_id,truncated FROM query_results WHERE result_id=%s AND task_id=%s',(result_id,task_id)).fetchone()
         if not row:raise HTTPException(404,'Result not found')
@@ -177,11 +178,13 @@ def result(task_id:UUID,result_id:UUID,owner:UUID=Depends(user)):
 
 @app.get('/tasks/{task_id}/events')
 async def events(task_id:UUID,request:Request,owner:UUID=Depends(user)):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:owned(conn,task_id,owner)
+    def authorize():
+        with connection('api') as conn:owned(conn,task_id,owner)
+    await asyncio.to_thread(authorize)
     try:after=max(0,int(request.headers.get('Last-Event-ID','0')))
     except ValueError:raise HTTPException(400,'Invalid Last-Event-ID')
     def poll(cursor):
-        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        with connection('api') as conn:
             task=owned(conn,task_id,owner)
             rows=conn.execute('SELECT seq,type,payload,tokens,latency_ms FROM events WHERE task_id=%s AND seq>%s ORDER BY seq LIMIT 100',(task_id,cursor)).fetchall()
             return rows,task['status']

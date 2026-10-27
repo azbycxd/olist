@@ -1,3 +1,4 @@
+from db_pool import connection
 """Read-only dataset coverage and dimension existence checks before aggregation."""
 import calendar
 from datetime import date
@@ -33,7 +34,7 @@ def coverage(start, end):
 
 
 def data_context():
-    with psycopg.connect(**db_kwargs(role='reader')) as conn:
+    with connection('mcp','olist','reader') as conn:
         conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
         version=conn.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
         dates=conn.execute('SELECT min(order_purchase_timestamp),max(order_purchase_timestamp) FROM orders').fetchone()
@@ -53,7 +54,7 @@ def check_value(conn, column, value, transform=None):
 def check_dimension(column, value):
     if column not in DIMENSIONS or not isinstance(value,str) or not value or len(value)>300:
         raise ValueError('Choose a supported dimension and a bounded exact value')
-    with psycopg.connect(**db_kwargs(role='reader')) as conn:
+    with connection('mcp','olist','reader') as conn:
         conn.execute('SET TRANSACTION READ ONLY')
         item=check_value(conn,column,value)
     return {**item,**({} if item['exists'] else {'error':'unknown_dimension','missing':[item]}),

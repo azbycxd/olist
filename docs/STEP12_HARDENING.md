@@ -115,7 +115,7 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 新增迁移010–012；没有重跑/重新计分 holdout，没有真实模型调用。现有模型提示、知识库、数字闸门和核查器保持不变；所有数据库/MCP 集成测试通过后进入12.2。完整测试使用 `python -m scripts.local_tests` 启动同源码私有 MCP，避免与旧部署版本混淆。
 
-## 12.2 / B1 服务加固（按规则11暂停，尚未修复）
+## 12.2 / B1 服务加固
 
 ### 旧问题与已完成的准备
 
@@ -127,18 +127,18 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 | 指标 | 改前 | 改后 |
 | --- | ---: | ---: |
-| 从 SIGTERM 到第二次领取（ms） | 30803.701 | |
-| 实际领取次数 | 2 | |
-| 主动释放次数 | 0 | |
-| 计入上限的领取次数 | 2 | |
+| 从 SIGTERM 到第二次领取（ms） | 30803.701 | 20736.954 |
+| 实际领取次数 | 2 | 2 |
+| 主动释放次数 | 0 | 1 |
+| 计入上限的领取次数 | 2 | 1 |
 
 [改前收据](../evidence/step12_b1_signal_before_20261027T145755Z_c28e6ca2.summary.json)和[原始日志](../evidence/step12_b1_signal_before_20261027T145755Z_c28e6ca2.jsonl)保存实际时间、事件和源码哈希；不属于真实模型性能数据。
 
-### 需要确认的约束冲突
+### 已获批准的设计调整
 
 本批要求“worker 一个小池”，但已有多智能体历史结论路径在可信 worker 内访问两个数据库/角色：`scripts/runtime.py` 调用 `scripts.findings.retrieve/save_reviewed`；后者通过 `current_version()` 以 agent_ro 连接 olist 库读取 data_imports，同时以 agent_app 访问 agent 库。标准 psycopg_pool.ConnectionPool 不能将两个不同数据库/角色的连接当作一个可互换池。
 
-保留现有路径需要 worker 两个独立小池；保持一个池则需把版本查询转到 MCP 等其他路径。按全局规则11停止，不自行新增第二个池、不保留未池化例外、不改数据版本读取路径。B2 尚未开始，12.2 未完成；待用户明确选择后续实现。
+用户明确批准 worker 两个独立小池，默认 agent=2、olist=1，olist 使用 agent_ro、只读事务、懒加载。现已实现；两个池在退出时均关闭。API/MCP readyz 和 worker 心跳只检查 agent 库，olist 不因健康探测创建连接。
 
 ## 12.1 复核1：空行不是新证据
 
@@ -153,3 +153,15 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 失败测试 `881e18e`，[失败收据](../evidence/step12_review2_red.json)6失败/20通过；[通过收据](../evidence/step12_review2_green.json)26通过。测试客户端是替身，不是真实模型。
 
 局限：按“连续失败”计数，检测不出成功和失败交替出现（比如一半请求失败）的部分故障。传输层幂等键使用供应商返回的 tool_call_id；供应商在同一任务中重复使用同一 ID、但参数不同，会返回冲突错误，不会返回错误结果；test_running_expiry_takeover_conflict 覆盖冲突。
+
+### B1 改法、验收与局限
+
+API 单池，MCP 两池，worker 两个独立小池，checkout 检查失效连接并替换。查询只用 SET LOCAL 或事务级 SET TRANSACTION；statement_timeout 归还后恢复默认。池耗尽 HTTP 503。SIGTERM/SIGINT 停止领取，20s grace 后杀子进程、事务内释放租约和重排任务，released_count 抵消主动释放的领取次数；保留黑板。新增迁移013同时记录 worker_heartbeats。启动校验必填配置并只报变量名。Compose 停止宽限35s；健康检查读取 DB 提交后才写入的本地心跳，避免健康检查进程占额外连接。
+
+[改后 SIGTERM 收据](../evidence/step12_b1_signal_after_20261027T151113Z_bfe476ea.summary.json)：接管20736.954ms、实际领取2次、主动释放1次、计费领取1次。[连接峰值收据](../evidence/step12_b1_pool_after_20261027T151155Z_9983089c.summary.json)：20任务全部完成、20 SSE、4 workers、40次 HTTP 替身调用。上限公式：API池 + MCP agent池 + MCP olist池 + worker数×(worker agent池 + worker olist池)=8+8+8+4×(2+1)=36；20ms采样实测峰值24。采样排除管理/采样连接，包含该验收的所有服务池连接；olist worker池在这些 single/Memory=false 任务中为0。
+
+失败测试提交 `a8cf2ce`；本地全量293通过（含数据库与私有 MCP），离线231通过；XML及日志哈希见 [B1 验收清单](../evidence/step12_b1_checkpoint.json)。以上数字均为替身验收，不是真实模型性能。局限：连接峰值为离散采样；checkout 坏连接替换通过终止 PostgreSQL backend 验证，本项未重启整个数据库服务；SIGKILL 无法优雅释放，仍依赖原租约恢复。
+
+## 当前暂停点：复核3验收语义
+
+要求运行中任务在熔断打开时仍快速失败，同时要求从持续503开始提交的10任务在替身40s恢复后全部成功，两者存在冲突：初期在运行的任务及30s半开探测可能已失败。已请求用户明确是“恢复后仍排队的任务全部成功”还是“允许运行中任务也重新排队”。按全局规则11暂停，不自行改变失败/重排策略。复核4和B2尚未实施；这不是第1批完成报告。

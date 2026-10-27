@@ -1,3 +1,4 @@
+from db_pool import connection
 """Short transactions claim/replay transport requests; running claims have fenced owners."""
 import hashlib
 import json
@@ -19,7 +20,7 @@ def begin(key,task_id,lease_token,name,arguments):
     if not key.startswith(str(ident)+':') or len(key)>512: raise ValueError('Invalid task-scoped Idempotency-Key')
     digest=hashlib.sha256(json.dumps([name,arguments],sort_keys=True,ensure_ascii=False).encode()).hexdigest()
     owner=uuid4()
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('mcp') as conn:
         check(conn,ident,lease_token,name,arguments)
         inserted=conn.execute("INSERT INTO tool_calls(key,task_id,request_hash,status,owner_token) VALUES(%s,%s,%s,'running',%s) ON CONFLICT DO NOTHING RETURNING key",(key,ident,digest,owner)).fetchone()
         if inserted: return owner,None
@@ -32,14 +33,14 @@ def begin(key,task_id,lease_token,name,arguments):
 
 
 def finish(key,owner,response):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('mcp') as conn:
         updated=conn.execute("UPDATE tool_calls SET status='done',response=%s,result_id=%s,updated_at=clock_timestamp() WHERE key=%s AND owner_token=%s AND status='running' RETURNING key",(Jsonb(response),response.get('result_id'),key,owner)).fetchone()
     if not updated: return {'error':'tool_in_progress','retryable':True,'notice':'执行已由其他请求接管，请重试'}
     return response
 
 
 def abandon(key,owner):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('mcp') as conn:
         conn.execute("DELETE FROM tool_calls WHERE key=%s AND owner_token=%s AND status='running'",(key,owner))
 
 

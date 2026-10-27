@@ -1,3 +1,4 @@
+from db_pool import connection
 """Task-scoped state with transactional typed role updates, never arbitrary patches."""
 from uuid import UUID
 import psycopg
@@ -8,7 +9,7 @@ from agent.state import Plan,Board,Subtask,Review
 
 
 def read_state(task_id):
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('mcp') as conn:
         row=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(UUID(task_id),)).fetchone()
     if not row:raise ValueError('No state for this task')
     return Board(plan=row[0],subtasks=row[1],report=row[2]).model_dump()
@@ -16,7 +17,7 @@ def read_state(task_id):
 
 def write_state(task_id,role,payload,lease_token=None):
     ident=UUID(task_id)
-    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+    with connection('mcp') as conn:
         from mcp_olist.leases import validate
         validate(conn,ident,lease_token,states=('running','planning') if role=='planner' else ('running',),lock=True)
         row=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s FOR UPDATE',(ident,)).fetchone()

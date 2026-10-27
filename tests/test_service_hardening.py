@@ -53,3 +53,60 @@ def test_pool_reuses_connection_and_local_timeout_resets():
         assert conn.info.backend_pid==first
         assert conn.execute('SHOW statement_timeout').fetchone()[0]==default
     close_all()
+
+
+def test_query_paths_have_no_session_level_set():
+    import ast,re
+    from pathlib import Path
+    paths=[*Path('mcp_olist').glob('*.py'),Path('scripts/findings.py')]
+    for path in paths:
+        for node in ast.walk(ast.parse(path.read_text(encoding='utf-8'))):
+            if isinstance(node,ast.Constant) and isinstance(node.value,str):
+                assert not re.match(r'\s*SET\s+(?!LOCAL\b|TRANSACTION\b)',node.value,re.I),path
+
+
+@pytest.mark.integration
+@integration
+def test_worker_olist_pool_is_lazy_readonly_and_both_close():
+    import db_pool
+    from scripts.findings import current_version
+    db_pool.close_all()
+    assert db_pool.ready('worker')
+    assert ('worker','olist','reader') not in db_pool._pools
+    current_version()
+    with db_pool.connection('worker','olist','reader') as conn:
+        assert conn.execute('SELECT current_user').fetchone()[0]=='agent_ro'
+        conn.execute('SET TRANSACTION READ ONLY')
+        assert conn.execute('SHOW transaction_read_only').fetchone()[0]=='on'
+    pools=list(db_pool._pools.values())
+    db_pool.close_all('worker')
+    assert all(p.closed for p in pools)
+    assert not db_pool._pools
+
+
+@pytest.mark.integration
+@integration
+def test_checked_pool_replaces_terminated_backend():
+    from db_pool import connection,close_all
+    close_all()
+    with connection('api') as conn:old=conn.info.backend_pid
+    with psycopg.connect(**db_kwargs('agent')) as admin:
+        admin.execute('SELECT pg_terminate_backend(%s)',(old,))
+    with connection('api') as conn:
+        assert conn.info.backend_pid!=old
+        assert conn.execute('SELECT 1').fetchone()==(1,)
+    close_all()
+
+
+@pytest.mark.integration
+@integration
+def test_api_pool_exhaustion_returns_503(monkeypatch):
+    import config
+    from db_pool import connection,close_all
+    close_all()
+    monkeypatch.setattr(config,'API_POOL_MAX',1)
+    monkeypatch.setattr(config,'DB_POOL_TIMEOUT_SECONDS',.05)
+    with connection('api'):
+        assert TestClient(app).get('/readyz').status_code==503
+        assert TestClient(app).post('/login',json={'username':'absent','password':'long-enough-password'}).status_code==503
+    close_all()

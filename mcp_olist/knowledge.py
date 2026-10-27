@@ -1,3 +1,4 @@
+from db_pool import connection
 """Semantic chunks, jieba BM25, pgvector cosine ranking and reciprocal-rank fusion."""
 import hashlib
 import json
@@ -71,7 +72,7 @@ def rebuild():
     records=chunks()
     identity=provenance(used=True)
     vectors=embed([r["content"] for r in records])
-    with psycopg.connect(**db_kwargs("agent","app")) as conn:
+    with connection('mcp') as conn:
         conn.execute("SELECT pg_advisory_xact_lock(730019)")
         conn.execute("DELETE FROM knowledge_chunks")
         for row,vector in zip(records,vectors):
@@ -85,7 +86,7 @@ def search(query,method=None,limit=3):
     method=method or os.getenv("RETRIEVAL_METHOD","vector")
     if method not in {"bm25","vector","hybrid","weighted"} or not 1<=limit<=10: raise ValueError("Invalid retrieval settings")
     if not query.strip() or len(query)>6000: raise ValueError("Query must contain 1..6000 characters")
-    with psycopg.connect(**db_kwargs("agent","app")) as conn:
+    with connection('mcp') as conn:
         conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
         records=conn.execute("SELECT chunk_id,source,content,content_sha256,embedding_model,dimensions,embedding_revision FROM knowledge_chunks ORDER BY chunk_id").fetchall()
         if not records or any(r[4]!=MODEL or r[6]!=REVISION for r in records):
