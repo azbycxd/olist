@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="0.234" timestamp="2026-10-27T16:05:59.674691+00:00" hostname="d3d0c540ef06"><testcase classname="tests.test_readiness" name="test_mcp_readiness_checks_reader_but_worker_does_not" time="0.000" /><testcase classname="tests.test_readiness" name="test_readiness_uses_one_second_acquisition_timeout[api]" time="0.001"><failure message="assert [None] == [1.0]&#10;  &#10;  At index 0 diff: None != 1.0&#10;  Use -v to get more diff">component = 'api'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7d99dbbcb490&gt;
+
+    @pytest.mark.parametrize('component',['api','mcp','worker'])
+    def test_readiness_uses_one_second_acquisition_timeout(component,monkeypatch):
+        timeouts=[]
+        @contextmanager
+        def acquire(**kwargs):
+            timeouts.append(kwargs.get('timeout'))
+            yield SimpleNamespace(execute=lambda *_:None)
+        monkeypatch.setattr(db_pool,'pool',lambda *a:SimpleNamespace(connection=acquire))
+        assert db_pool.ready(component)
+&gt;       assert timeouts==[1.0]*(2 if component=='mcp' else 1)
+E       assert [None] == [1.0]
+E         
+E         At index 0 diff: None != 1.0
+E         Use -v to get more diff
+
+tests/test_readiness.py:32: AssertionError</failure></testcase><testcase classname="tests.test_readiness" name="test_readiness_uses_one_second_acquisition_timeout[mcp]" time="0.001"><failure message="assert [None, None] == [1.0, 1.0]&#10;  &#10;  At index 0 diff: None != 1.0&#10;  Use -v to get more diff">component = 'mcp'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7d99dbbc2f90&gt;
+
+    @pytest.mark.parametrize('component',['api','mcp','worker'])
+    def test_readiness_uses_one_second_acquisition_timeout(component,monkeypatch):
+        timeouts=[]
+        @contextmanager
+        def acquire(**kwargs):
+            timeouts.append(kwargs.get('timeout'))
+            yield SimpleNamespace(execute=lambda *_:None)
+        monkeypatch.setattr(db_pool,'pool',lambda *a:SimpleNamespace(connection=acquire))
+        assert db_pool.ready(component)
+&gt;       assert timeouts==[1.0]*(2 if component=='mcp' else 1)
+E       assert [None, None] == [1.0, 1.0]
+E         
+E         At index 0 diff: None != 1.0
+E         Use -v to get more diff
+
+tests/test_readiness.py:32: AssertionError</failure></testcase><testcase classname="tests.test_readiness" name="test_readiness_uses_one_second_acquisition_timeout[worker]" time="0.001"><failure message="assert [None] == [1.0]&#10;  &#10;  At index 0 diff: None != 1.0&#10;  Use -v to get more diff">component = 'worker'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7d99dbbcb4d0&gt;
+
+    @pytest.mark.parametrize('component',['api','mcp','worker'])
+    def test_readiness_uses_one_second_acquisition_timeout(component,monkeypatch):
+        timeouts=[]
+        @contextmanager
+        def acquire(**kwargs):
+            timeouts.append(kwargs.get('timeout'))
+            yield SimpleNamespace(execute=lambda *_:None)
+        monkeypatch.setattr(db_pool,'pool',lambda *a:SimpleNamespace(connection=acquire))
+        assert db_pool.ready(component)
+&gt;       assert timeouts==[1.0]*(2 if component=='mcp' else 1)
+E       assert [None] == [1.0]
+E         
+E         At index 0 diff: None != 1.0
+E         Use -v to get more diff
+
+tests/test_readiness.py:32: AssertionError</failure></testcase></testsuite></testsuites>
