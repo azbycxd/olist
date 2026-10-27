@@ -64,3 +64,26 @@ def test_unknown_model_error_is_not_requeued(queued,monkeypatch):
     worker.process(worker.claim(ident))
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         assert conn.execute('SELECT status,error FROM tasks WHERE task_id=%s',(ident,)).fetchone()==('failed','model_error')
+
+
+def test_poison_request_stops_after_three_requeues_and_other_task_completes(queued,monkeypatch):
+    ident,model=queued
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        owner=conn.execute('SELECT user_id FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]
+    other=new(owner)
+    def runtime(question,task_id,emit,**kwargs):
+        if str(task_id)==str(ident):
+            emit('model_call',{'error_class':'retryable','error':'HTTP503'})
+            emit('termination',{'scope':'task','reason':'model_error'})
+        else:emit('termination',{'scope':'task','reason':'final_answer'})
+        return FinalAnswer(answer='scripted fixture',claims=[])
+    monkeypatch.setattr(worker,'run_runtime',runtime)
+    for attempt in range(4):
+        worker.process(worker.claim(ident))
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            assert conn.execute('SELECT status,provider_requeues,error FROM tasks WHERE task_id=%s',(ident,)).fetchone()==(
+                'pending' if attempt<3 else 'failed',min(attempt+1,3),None if attempt<3 else 'provider_unavailable')
+    assert worker.claim(ident) is None
+    worker.process(worker.claim(other))
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        assert conn.execute('SELECT status,provider_requeues FROM tasks WHERE task_id=%s',(other,)).fetchone()==('completed',0)
