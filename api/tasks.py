@@ -1,5 +1,5 @@
-from db_pool import connection
 """Authenticated task API. Requests only enqueue; a separate process does all model work."""
+from db_pool import connection
 import asyncio
 import hashlib
 import hmac

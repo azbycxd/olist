@@ -1,5 +1,5 @@
-from db_pool import connection
 """Database access is confined to the MCP service and offline evaluator."""
+from db_pool import connection
 
 import json
 import hashlib

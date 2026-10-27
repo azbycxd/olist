@@ -1,5 +1,5 @@
-from db_pool import connection
 """Owner-serialized admission, fenced leases and a cancellable runtime process."""
+from db_pool import connection
 import os
 import signal
 import threading

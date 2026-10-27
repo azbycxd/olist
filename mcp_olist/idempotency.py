@@ -1,5 +1,5 @@
-from db_pool import connection
 """Short transactions claim/replay transport requests; running claims have fenced owners."""
+from db_pool import connection
 import hashlib
 import json
 from uuid import UUID,uuid4
