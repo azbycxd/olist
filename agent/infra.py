@@ -18,5 +18,6 @@ def retryable_exception(exc):
         return True
     if isinstance(exc,httpx.HTTPStatusError):return exc.response.status_code in {408,429,500,502,503,504}
     if isinstance(exc,McpError):
-        return exc.error.code==-32001  # SDK request timeout, not arbitrary tool text.
+        # MCP SDK 1.30.0 uses httpx.codes.REQUEST_TIMEOUT, not JSON-RPC -32001.
+        return exc.error.code==httpx.codes.REQUEST_TIMEOUT
     return False

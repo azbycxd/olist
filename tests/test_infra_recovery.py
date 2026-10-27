@@ -22,7 +22,8 @@ def test_classification_is_narrow_and_unwraps_exception_groups():
     from mcp.types import ErrorData
     assert retryable_exception(httpx.ConnectError('fixture'))
     assert retryable_exception(ExceptionGroup('transport',[TimeoutError('fixture')]))
-    assert retryable_exception(McpError(ErrorData(code=-32001,message='Timed out while waiting for response to ClientRequest. Waited 30.0 seconds.')))
+    assert retryable_exception(McpError(ErrorData(code=408,message='Timed out while waiting for response to ClientRequest. Waited 30.0 seconds.')))
+    assert not retryable_exception(McpError(ErrorData(code=-32001,message='Unrecognized server application error')))
     assert not retryable_exception(PermissionError('denied'))
     assert not retryable_exception(ValueError('SQL syntax error'))
     assert not retryable_exception(ExceptionGroup('mixed',[TimeoutError(),PermissionError()]))

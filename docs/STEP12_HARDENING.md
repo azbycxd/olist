@@ -393,3 +393,5 @@ B4未增加模型工具返回字段、运行时配置或数据库迁移。B3新�
 旧RuntimeError任务的原始事件已只读提取到step12_r3_infra_runtime_investigation.json：run_sql先等待30秒超时，随后子进程ExceptionGroup退出，父进程以RuntimeError终止；不是SQL语义或权限错误。新增infra_retryable分类、MCP端带类型的连接/超时错误返回、Agent退出时保留已确认的传输根因；worker复用原子release和provider_requeues，共用PROVIDER_REQUEUE_MAX=3，耗尽后infra_unavailable。SQL语法、权限、unknown_dimension、fatal不重排。上限含义改为“故障重排上限”，依旧可能从任务开头重复消耗token，SQL内容去重仍可复用。
 
 失败测试0da3b45：5失败/5通过；首次修复全量345通过。唯一一次相同loss_rate=0.1、45秒、2 worker/5任务演练收据为step12_chaos_packet_loss_after.json，开始标记step12_r3_packet_loss_once.json禁止重复：改前1/5成功、69.870秒，改后3/5成功、67.055秒，剩余2个bootstrap_error。发现当前SDK真实超时码为408，先前替身使用-32001，导致漏分类；该问题另补真实SDK失败测试和修复，不重跑演练，不把3/5描述成后续修复的最终成功率。场景仍是TCP数据块丢失，不是内核IP层丢包。
+
+主修复提交ed959d4；SDK真实内存通道超时失败测试f33be49，1失败。随后改为准确识别408，不凭错误文本重排；最终全量346通过，包含两次MCP初始化ConnectError后任务成功、持续失败重排3次后infra_unavailable、SQL语法/权限/unknown_dimension/fatal不重排。第2批两条复核已处理完，可进入12.4。指标修复对为2e77d1d/95e1529；全部日志、XML和唯一演练的哈希见[复核收据](../evidence/step12_r3_receipt.json)。新增工具错误码infra_retryable，仍使用已有error/detail字段；无新增重排额度或运行参数。
