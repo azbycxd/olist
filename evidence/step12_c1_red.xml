@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="7" time="0.371" timestamp="2026-10-27T17:13:37.134905+00:00" hostname="ce4c32ef8284"><testcase classname="tests.test_task_tokens" name="test_invalid_task_token_rejected[changes0-HS256]" time="0.007"><failure message="ModuleNotFoundError: No module named 'mcp_olist.auth'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bd6c66b63d0&gt;
+changes = {'exp': 1793121097}, algorithm = 'HS256'
+
+    @pytest.mark.parametrize('changes,algorithm',[({'exp':int(time.time())-120},'HS256'),({'aud':'wrong'},'HS256'),({},'none')])
+    def test_invalid_task_token_rejected(monkeypatch,changes,algorithm):
+&gt;       from mcp_olist.auth import decode
+E       ModuleNotFoundError: No module named 'mcp_olist.auth'
+
+tests/test_task_tokens.py:21: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_task_tokens" name="test_invalid_task_token_rejected[changes1-HS256]" time="0.001"><failure message="ModuleNotFoundError: No module named 'mcp_olist.auth'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bd6c6329890&gt;
+changes = {'aud': 'wrong'}, algorithm = 'HS256'
+
+    @pytest.mark.parametrize('changes,algorithm',[({'exp':int(time.time())-120},'HS256'),({'aud':'wrong'},'HS256'),({},'none')])
+    def test_invalid_task_token_rejected(monkeypatch,changes,algorithm):
+&gt;       from mcp_olist.auth import decode
+E       ModuleNotFoundError: No module named 'mcp_olist.auth'
+
+tests/test_task_tokens.py:21: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_task_tokens" name="test_invalid_task_token_rejected[changes2-none]" time="0.001"><failure message="ModuleNotFoundError: No module named 'mcp_olist.auth'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bd6c6309090&gt;
+changes = {}, algorithm = 'none'
+
+    @pytest.mark.parametrize('changes,algorithm',[({'exp':int(time.time())-120},'HS256'),({'aud':'wrong'},'HS256'),({},'none')])
+    def test_invalid_task_token_rejected(monkeypatch,changes,algorithm):
+&gt;       from mcp_olist.auth import decode
+E       ModuleNotFoundError: No module named 'mcp_olist.auth'
+
+tests/test_task_tokens.py:21: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_task_tokens" name="test_role_tokens_reject_sql_and_wrong_state_role" time="0.001"><failure message="ModuleNotFoundError: No module named 'mcp_olist.auth'">def test_role_tokens_reject_sql_and_wrong_state_role():
+&gt;       from mcp_olist.auth import authorize
+E       ModuleNotFoundError: No module named 'mcp_olist.auth'
+
+tests/test_task_tokens.py:28: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_task_tokens" name="test_runtime_allowlist_removes_static_bearer" time="0.091"><failure message="AssertionError: assert 'MCP_BEARER_TOKEN' not in {'AGENT_MODE', 'BOUNDARY_GUARDS', 'CONTEXT_KEEP_TURNS', 'CONTEXT_LIMIT', 'CONTEXT_STRATEGY', 'CONTEXT_SUMMARY_THRESHOLD', ...}">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bd6c62e2c90&gt;
+
+    def test_runtime_allowlist_removes_static_bearer(monkeypatch):
+        from scripts.runtime import runtime_environment,RUNTIME_ENV
+        monkeypatch.setenv('MCP_BEARER_TOKEN','must-not-cross-task-runtime')
+&gt;       assert 'MCP_BEARER_TOKEN' not in RUNTIME_ENV
+E       AssertionError: assert 'MCP_BEARER_TOKEN' not in {'AGENT_MODE', 'BOUNDARY_GUARDS', 'CONTEXT_KEEP_TURNS', 'CONTEXT_LIMIT', 'CONTEXT_STRATEGY', 'CONTEXT_SUMMARY_THRESHOLD', ...}
+
+tests/test_task_tokens.py:39: AssertionError</failure></testcase><testcase classname="tests.test_task_tokens" name="test_signed_identity_overrides_headers_and_role_denial_is_http_403" time="0.001"><failure message="ImportError: cannot import name 'auth' from 'mcp_olist' (/app/mcp_olist/__init__.py)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bd6c412ce10&gt;
+
+    def test_signed_identity_overrides_headers_and_role_denial_is_http_403(monkeypatch):
+&gt;       from mcp_olist import auth
+E       ImportError: cannot import name 'auth' from 'mcp_olist' (/app/mcp_olist/__init__.py)
+
+tests/test_task_tokens.py:44: ImportError</failure></testcase><testcase classname="tests.test_task_tokens" name="test_task_identity_validation_rejects_other_owner_and_lease" time="0.001"><failure message="ModuleNotFoundError: No module named 'mcp_olist.auth'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bd6c412d090&gt;
+
+    def test_task_identity_validation_rejects_other_owner_and_lease(monkeypatch):
+&gt;       from mcp_olist.auth import validate_identity
+E       ModuleNotFoundError: No module named 'mcp_olist.auth'
+
+tests/test_task_tokens.py:69: ModuleNotFoundError</failure></testcase></testsuite></testsuites>
