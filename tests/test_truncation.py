@@ -64,7 +64,8 @@ def test_public_sql_matches_saved_rows_and_hash_but_execution_probes_one_more(ta
         sql,digest=conn.execute('SELECT sql,sql_hash FROM query_results WHERE result_id=%s',(result['result_id'],)).fetchone()
         owner=conn.execute('SELECT user_id FROM tasks WHERE task_id=%s',(task,)).fetchone()[0]
     assert sql==result['sql']
-    assert digest==hashlib.sha256(normalize_sql(sql).encode()).hexdigest()
+    from mcp_olist.sql_guard import sql_fingerprint
+    assert digest==sql_fingerprint(sql,True)
     assert api_result(task,result['result_id'],owner)['sql']==sql
     with psycopg.connect(**db_kwargs(role='reader')) as conn:
         assert len(conn.execute(sql).fetchall())==result['row_count']==1000

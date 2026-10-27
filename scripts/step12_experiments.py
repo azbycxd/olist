@@ -107,7 +107,7 @@ def duplicate_sql(label):
     from api.tasks import create_task,NewTask
     from eval.robustness import read_tasks
     statement='SELECT count(*) AS n FROM orders'
-    executable=probe_sql(guard_sql(statement))
+    executable=probe_sql(*guard_sql(statement))
     original_connect=psycopg.connect
     executed=[]
     original_execute=psycopg.Connection.execute

@@ -1,6 +1,8 @@
 """Conservative PostgreSQL AST allowlist, followed by database enforcement."""
 
 import sqlglot
+import hashlib
+from typing import NamedTuple
 from sqlglot import exp
 from sqlglot.errors import ErrorLevel, ParseError
 from sqlglot.optimizer.scope import traverse_scope
@@ -21,6 +23,16 @@ SAFE_TYPES = set("""TEXT VARCHAR CHAR BPCHAR INT SMALLINT BIGINT TINYINT DECIMAL
 
 class UnsafeSQL(ValueError):
     pass
+
+
+class GuardedSQL(NamedTuple):
+    sql: str
+    capped: bool
+
+
+def sql_fingerprint(public_sql, capped):
+    from agent.sql_normalize import normalize_sql
+    return hashlib.sha256((normalize_sql(public_sql)+'\ncapped='+str(bool(capped))).encode()).hexdigest()
 
 
 def guard_sql(sql):
@@ -54,20 +66,23 @@ def guard_sql(sql):
             if isinstance(source, exp.Table) and source.name not in TABLES:
                 raise UnsafeSQL("Table is outside the business allowlist")
     limit = tree.args.get("limit")
+    capped = False
     if limit:
         value = limit.expression
         if not isinstance(value, exp.Literal) or not value.is_int or int(value.this) < 0:
             raise UnsafeSQL("LIMIT must be a nonnegative integer literal")
         if int(value.this) > MAX_ROWS:
             tree = tree.limit(MAX_ROWS)
+            capped = True
     else:
         tree = tree.limit(MAX_ROWS)
-    return tree.sql(dialect="postgres", unsupported_level=ErrorLevel.RAISE)
+        capped = True
+    return GuardedSQL(tree.sql(dialect="postgres", unsupported_level=ErrorLevel.RAISE), capped)
 
 
-def probe_sql(public_sql):
+def probe_sql(public_sql, capped):
     """Internal fetch sentinel; never returned, persisted or content-hashed."""
     tree=sqlglot.parse_one(public_sql,read='postgres')
-    if int(tree.args['limit'].expression.this)==MAX_ROWS:
+    if capped:
         tree=tree.limit(MAX_ROWS+1)
     return tree.sql(dialect='postgres',unsupported_level=ErrorLevel.RAISE)

@@ -174,7 +174,7 @@ def result(task_id:UUID,result_id:UUID,owner:UUID=Depends(user)):
         row=conn.execute('SELECT sql,columns,rows,data_version,source_result_id,truncated FROM query_results WHERE result_id=%s AND task_id=%s',(result_id,task_id)).fetchone()
         if not row:raise HTTPException(404,'Result not found')
         from mcp_olist.sql_guard import guard_sql
-        return dict(zip(['sql','columns','rows','data_version','source_result_id','truncated'],(guard_sql(row[0]),*row[1:])))
+        return dict(zip(['sql','columns','rows','data_version','source_result_id','truncated'],(guard_sql(row[0]).sql,*row[1:])))
 
 
 @app.get('/tasks/{task_id}/events')

@@ -243,3 +243,10 @@ B2额外失败测试 `2109e73` 复现 rate_limited 后继续提取Memory；现�
 复核6的幂等ID冲突局限随94bd518记录。新增参数名称、默认值及来源类型均在 [PARAMETERS.md](PARAMETERS.md) 和 `.env.example`；供应商RPM/TPM保持空值，等待用户按供应商文档填写，未填不会开启全局限流。
 
 [本批归档校验清单](../evidence/step12_batch1_archive_checksums.json)固定0c05250中新增/更新证据的Git字节SHA-256与本机采集SHA-256；结合早先12.1归档清单可校验全部本批证据。批次已完成，停止于12.2，等待审查，不进入12.3。
+
+
+## 第1批第二轮复核1：LIMIT来源与内容去重
+
+旧问题：显式LIMIT1000被内部探测误标截断，并与护栏补限额共享缓存。guard_sql现在返回公开SQL及capped；仅capped为真执行1001探测。哈希同时包含标准化公开SQL和capped，不增加工具返回字段。保存/证据页仍为1000。
+
+真实数据库回归：改前新增测试1失败；改后全量309通过。超过1000行的orders表，显式1000与无LIMIT分别执行1000/1001、保存1000/1000，truncated分别false/true，result_id不同。收据：[日志、XML及哈希](../evidence/step12_r2_1_receipt.json)。旧哈希不会命中新格式，历史记录不改写；既有历史截断标记不追溯重算。
