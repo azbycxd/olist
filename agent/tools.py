@@ -6,6 +6,7 @@ from time import perf_counter
 
 from contracts import FinalAnswer
 from uuid import UUID
+from agent.call_context import TOOL_CALL_ID
 
 FINDING_TOOL = {"type":"function","function":{"name":"save_finding",
     "description":"Pin a key finding and its SQL result IDs outside compressible history. Notes are unverified until review.",
@@ -73,7 +74,11 @@ class Registry:
                 raise ValueError("Tool arguments must be a JSON object")
             if name not in self.handlers:
                 raise ValueError("Unknown tool")
-            result = await self.handlers[name](args)
+            token = TOOL_CALL_ID.set(call_id)
+            try:
+                result = await self.handlers[name](args)
+            finally:
+                TOOL_CALL_ID.reset(token)
         except Exception as exc:
             result = ToolResult({"error":type(exc).__name__, "detail":str(exc)[:1500]})
         self.emit("tool_result", {"name":name, "call_id":call_id, "phase":phase,

@@ -65,6 +65,8 @@ services:
       REPEATED_CALL_LIMIT: ${REPEATED_CALL_LIMIT:-3}
       NO_PROGRESS_WINDOW: ${NO_PROGRESS_WINDOW:-6}
       NO_PROGRESS_EMPTY_TURNS: ${NO_PROGRESS_EMPTY_TURNS:-4}
+      SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
+      MCP_RETRY_ATTEMPTS: ${MCP_RETRY_ATTEMPTS:-1}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_admin_change_me}
       AGENT_DB_PASSWORD: ${AGENT_DB_PASSWORD:-local_agent_change_me}
       AGENT_RO_PASSWORD: ${AGENT_RO_PASSWORD:-local_reader_change_me}
@@ -85,6 +87,7 @@ services:
     entrypoint: ["python", "-m", "mcp_olist.server"]
     environment:
       DIMENSION_PRECHECK: ${DIMENSION_PRECHECK:-true}
+      SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
       PGHOST: db
       PGPORT: "5432"
       EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://embeddings:8002/v1}
@@ -185,6 +188,8 @@ services:
       REPEATED_CALL_LIMIT: ${REPEATED_CALL_LIMIT:-3}
       NO_PROGRESS_WINDOW: ${NO_PROGRESS_WINDOW:-6}
       NO_PROGRESS_EMPTY_TURNS: ${NO_PROGRESS_EMPTY_TURNS:-4}
+      SQL_TIMEOUT_SECONDS: ${SQL_TIMEOUT_SECONDS:-10}
+      MCP_RETRY_ATTEMPTS: ${MCP_RETRY_ATTEMPTS:-1}
     volumes:
       - ./logs:/app/logs
       - ./evidence:/app/evidence

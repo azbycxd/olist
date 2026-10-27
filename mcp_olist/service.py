@@ -1,14 +1,16 @@
 """Database access is confined to the MCP service and offline evaluator."""
 
 import json
+import hashlib
 from decimal import Decimal
-from uuid import UUID
+from uuid import UUID,uuid4
 
 import psycopg
 from psycopg import sql
 from psycopg.types.json import Jsonb
 
-from config import db_kwargs,dimension_precheck_enabled
+from config import db_kwargs,dimension_precheck_enabled,SQL_TIMEOUT_SECONDS
+from agent.sql_normalize import normalize_sql
 from mcp_olist.catalog import TABLES
 from mcp_olist.sql_guard import MAX_ROWS, guard_sql
 
@@ -45,18 +47,31 @@ def describe(name):
         "samples":json_value([dict(zip([c[0] for c in columns], row)) for row in samples])}
 
 
-def run_query(statement, task_id, lease_token=None):
+def run_query(statement, task_id, lease_token=None, idempotency_key=None):
+    from mcp_olist.idempotency import run
+    return run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement},
+               lambda:_run_query(statement,task_id,lease_token))
+
+
+def _run_query(statement, task_id, lease_token=None):
     task_id = UUID(task_id)
     executable = guard_sql(statement)
+    digest=hashlib.sha256(normalize_sql(executable).encode()).hexdigest()
     with psycopg.connect(**db_kwargs("agent", "app")) as agent_db:
         from mcp_olist.leases import validate
         validate(agent_db,task_id,lease_token)
         with psycopg.connect(**db_kwargs(role="reader")) as conn:
             conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
-            conn.execute("SET LOCAL statement_timeout = '10s'")
+            conn.execute(sql.SQL('SET LOCAL statement_timeout = {}').format(sql.Literal(str(int(SQL_TIMEOUT_SECONDS*1000))+'ms')))
             conn.execute("SET LOCAL lock_timeout = '2s'")
             conn.execute("SET LOCAL search_path = pg_catalog, public")
             version = conn.execute("SELECT data_version FROM public.data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
+            lock_key=int.from_bytes(hashlib.sha256((str(task_id)+digest+version).encode()).digest()[:8],signed=True)
+            agent_db.execute('SELECT pg_advisory_xact_lock(%s)',(lock_key,))
+            cached=agent_db.execute('SELECT tool_response FROM query_results WHERE task_id=%s AND sql_hash=%s AND data_version=%s',(task_id,digest,version)).fetchone()
+            if cached:
+                validate(agent_db,task_id,lease_token,lock=True)
+                return cached[0]
             from mcp_olist.boundaries import validate_filters
             _,missing=validate_filters(conn,executable) if dimension_precheck_enabled() else ([],[])
             if missing:
@@ -73,12 +88,14 @@ def run_query(statement, task_id, lease_token=None):
             if len(json.dumps(rows, ensure_ascii=False).encode()) > 2_000_000:
                 raise ValueError("Result exceeds 2 MB; select fewer columns or aggregate in SQL")
         validate(agent_db,task_id,lease_token,lock=True)
-        result_id = agent_db.execute("""INSERT INTO query_results(task_id,sql,columns,rows,row_count,data_version)
-            VALUES(%s,%s,%s,%s,%s,%s) RETURNING result_id""",
-            (task_id, executable, Jsonb(columns), Jsonb(rows), len(rows), version)).fetchone()[0]
-    return {"result_id":str(result_id), "sql":executable, "data_version":version, "row_count":len(rows),
+        result_id=uuid4()
+        response={"result_id":str(result_id), "sql":executable, "data_version":version, "row_count":len(rows),
             "row_limit":MAX_ROWS, "columns":columns, "preview":rows[:20], "statistics":stats,
             "notice":"row_count and statistics describe the executed, capped query. Compute report numbers in SQL."}
+        agent_db.execute("""INSERT INTO query_results(result_id,task_id,sql,columns,rows,row_count,data_version,sql_hash,tool_response)
+            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (result_id, task_id, executable, Jsonb(columns), Jsonb(rows), len(rows), version,digest,Jsonb(response)))
+    return response
 
 
 def get_saved_result(result_id, task_id, offset=0, limit=20):

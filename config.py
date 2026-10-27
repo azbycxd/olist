@@ -43,6 +43,10 @@ if MODEL_RETRY_ATTEMPTS < 1 or PROVIDER_FAILURE_THRESHOLD < 1 or min(
     raise ValueError("Retry and circuit settings must be positive")
 MCP_URL = os.getenv("MCP_URL", "http://localhost:8001/mcp")
 MCP_BEARER_TOKEN = os.getenv("MCP_BEARER_TOKEN", "")
+SQL_TIMEOUT_SECONDS = float(os.getenv('SQL_TIMEOUT_SECONDS','10'))
+MCP_RETRY_ATTEMPTS = int(os.getenv('MCP_RETRY_ATTEMPTS','1'))
+if SQL_TIMEOUT_SECONDS<=0 or MCP_RETRY_ATTEMPTS not in {0,1}:
+    raise ValueError('SQL timeout must be positive and MCP retries must be zero or one')
 CONTEXT_STRATEGY = os.getenv("CONTEXT_STRATEGY", "none")
 CONTEXT_KEEP_TURNS = int(os.getenv("CONTEXT_KEEP_TURNS", "2"))
 CONTEXT_SUMMARY_THRESHOLD = int(os.getenv("CONTEXT_SUMMARY_THRESHOLD", "6000"))

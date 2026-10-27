@@ -30,7 +30,8 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | CONTEXT_STRATEGY=none；长任务选 mask | 观测数据 | [最终消融](FINAL_RESULTS.md)在同一压力窗口比较，正常窗口不默认压缩。 |
 | CONTEXT_KEEP_TURNS=2；CONTEXT_SUMMARY_THRESHOLD=6000 | 预先固定 | 历史压力组比较整个策略，没有单独搜索保留轮数或摘要阈值；summary 不是默认配置。 |
 | SQL MAX_ROWS=1000；默认 preview=20；get_result limit≤1000 | 安全护栏、预先固定 | 最终 SQL 行数 p95=5、max=30；历史 max=1000。完整聚合应在 SQL 内完成，不能将截断明细当作全量。 |
-| statement_timeout=10s；lock_timeout=2s | 安全护栏、预先固定 | 最终端到端 SQL p95=164.631 ms、max=339.312 ms；不是纯引擎耗时，不能据此声称最优 SQL 超时。 |
+| SQL_TIMEOUT_SECONDS=10；lock_timeout=2s | 安全护栏、预先固定 | 原 statement_timeout 外置到 config/.env；tool_calls running 接管界限为两倍此值（20s）。最终端到端 SQL p95=164.631 ms、max=339.312 ms 不是纯引擎耗时，未搜索超时取值。 |
+| MCP_RETRY_ATTEMPTS=1 | 安全护栏、预先固定 | Step12 A3：持久幂等后，仅对带 key 的 HTTP 连接/超时失败额外重试一次；不重试业务错误，不无限轮询 running。 |
 | SQL 文本≤30000字符；结果≤2000000字节 | 安全护栏、预先固定 | 控制解析/序列化及上下文负载；未保存完整字节分布，不能宣称按观测推导。 |
 | MCP 超时=30s；DB connect_timeout=10s | 安全护栏、预先固定 | 覆盖连接/协议故障的等待边界；故障验证见 [工程边界](ROBUSTNESS.md)。 |
 | MODEL_TIMEOUT=60s；MODEL_MAX_OUTPUT_TOKENS=4096；temperature=0 | 安全护栏 / 预先固定 | 防止长等待、约束输出并减少随机性；未比较其他取值，不宣称调参最优。 |

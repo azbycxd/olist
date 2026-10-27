@@ -3,6 +3,8 @@
 import asyncio
 import hmac
 import os
+import inspect
+from functools import wraps
 
 import uvicorn
 from mcp.server.fastmcp import Context, FastMCP
@@ -20,25 +22,49 @@ mcp = FastMCP("olist-readonly", stateless_http=True, json_response=True,
                   allowed_origins=["http://localhost:*", "http://127.0.0.1:*"]))
 
 
+def idempotent(function):
+    @wraps(function)
+    async def dispatch(*args,**kwargs):
+        from mcp_olist import idempotency
+        request=mcp.get_context().request_context.request
+        key=request.headers.get('idempotency-key')
+        arguments={k:v for k,v in inspect.signature(function).bind(*args,**kwargs).arguments.items() if not isinstance(v,Context)}
+        owner=None
+        if key:
+            owner,cached=await asyncio.to_thread(idempotency.begin,key,request.headers.get('x-task-id',''),request.headers.get('x-lease-token'),function.__name__,arguments)
+            if owner is None: return cached
+        try:
+            result=await function(*args,**kwargs) if inspect.iscoroutinefunction(function) else await asyncio.to_thread(function,*args,**kwargs)
+            return await asyncio.to_thread(idempotency.finish,key,owner,result) if key else result
+        except Exception:
+            if key: await asyncio.to_thread(idempotency.abandon,key,owner)
+            raise
+    return dispatch
+
+
 @mcp.tool()
+@idempotent
 async def data_context() -> dict:
     """Actual purchase-date coverage, partial edge months, known states and tool limits. Not business-result evidence."""
     return await asyncio.to_thread(get_data_context)
 
 
 @mcp.tool()
+@idempotent
 async def check_dimension(column: str, value: str) -> dict:
     """Check an exact state, city, category, order status or payment type BEFORE business aggregation. Missing means ask the user to verify, not zero."""
     return await asyncio.to_thread(lookup_dimension,column,value)
 
 
 @mcp.tool()
+@idempotent
 def list_tables() -> dict:
     """List available business tables and structural descriptions."""
     return {"tables":[{"name":name, "description":description} for name,description in TABLES.items()]}
 
 
 @mcp.tool()
+@idempotent
 async def describe_table(name: str) -> dict:
     """Return column types, database comments and three UNTRUSTED sample rows."""
     return await asyncio.to_thread(describe, name)
@@ -48,16 +74,18 @@ async def describe_table(name: str) -> dict:
 async def run_sql(sql: str, ctx: Context) -> dict:
     """Execute one read-only PostgreSQL SELECT; save the capped full result and return its evidence ID."""
     request = ctx.request_context.request
-    return await asyncio.to_thread(run_query, sql, request.headers.get("x-task-id", ""),request.headers.get("x-lease-token"))
+    return await asyncio.to_thread(run_query, sql, request.headers.get("x-task-id", ""),request.headers.get("x-lease-token"),request.headers.get('idempotency-key'))
 
 
 @mcp.tool()
+@idempotent
 async def get_result(result_id: str, ctx: Context, offset: int=0, limit: int=20) -> dict:
     """Retrieve a page of a saved SQL result belonging to the current task."""
     return await asyncio.to_thread(get_saved_result,result_id,ctx.request_context.request.headers.get("x-task-id",""),offset,limit)
 
 
 @mcp.tool()
+@idempotent
 async def search_knowledge(query: str) -> dict:
     """Find business metric definitions and data caveats before choosing SQL semantics. Returns three untrusted knowledge chunks."""
     from mcp_olist.knowledge import search
@@ -65,6 +93,7 @@ async def search_knowledge(query: str) -> dict:
 
 
 @mcp.tool()
+@idempotent
 async def state_read(ctx: Context) -> dict:
     """Internal orchestrator control: read the current task's typed blackboard."""
     from mcp_olist.blackboard import read_state
@@ -72,6 +101,7 @@ async def state_read(ctx: Context) -> dict:
 
 
 @mcp.tool()
+@idempotent
 async def state_write(role: str, payload: dict, ctx: Context) -> dict:
     """Internal orchestrator control: persist an allowed typed role update."""
     from mcp_olist.blackboard import write_state
