@@ -39,3 +39,20 @@ def test_four_different_empty_state_queries_stop_after_result_four():
     outcome,events,_=trajectory([f"SELECT * FROM customers WHERE customer_state='{state}'" for state in ['SP','RJ','MG','BA','PR']],empty=True)
     assert outcome.termination=='no_progress' and outcome.steps==4
     assert any(e[0]=='no_progress' and e[1]['rule']=='empty_or_error' for e in events)
+
+
+def test_normalization_preserves_quoted_identifiers_literals_and_bad_sql():
+    from agent.sql_normalize import normalize_sql
+    assert normalize_sql("select 'SP' as state") != normalize_sql("select 'sp' as state")
+    assert normalize_sql('select "Order_ID" from orders') != normalize_sql('select "order_id" from orders')
+    assert normalize_sql("select '")=="select '"
+
+
+def test_empty_results_with_new_evidence_are_progress_and_mixed_success_resets():
+    from agent.progress import Progress
+    guard=Progress()
+    for n in range(8): assert guard.after([{'row_count':0,'result_id':str(n)}]) is None
+    for _ in range(3): assert guard.after([{'error':'timeout'}]) is None
+    assert guard.after([{'error':'timeout'},{'preview':[{'n':1}]}]) is None
+    for _ in range(3): assert guard.after([{'error':'timeout'}]) is None
+    assert guard.after([{'error':'timeout'}])=='empty_or_error'

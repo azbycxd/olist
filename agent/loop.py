@@ -11,6 +11,7 @@ from contracts import FinalAnswer
 from agent.tools import Registry, untrusted
 from agent.model import request
 from agent.task_control import ModelStopped
+from agent.progress import Progress
 from agent.context import cutoff, mask, pin
 from config import CONTEXT_STRATEGY, CONTEXT_KEEP_TURNS, CONTEXT_SUMMARY_THRESHOLD, CONTEXT_LIMIT
 
@@ -61,7 +62,8 @@ async def run_loop(question, remote, client, model, emit, *, schema_mode="on_dem
         context = [{k:v for k,v in d.content.items() if k != "samples"} for d in descriptions]
     messages = [{"role":"system", "content":SYSTEM+extra_context+"\n数据库结构资料：\n"+untrusted(context)},
                 {"role":"user", "content":question}]
-    total_tokens, step, streaks = 0, 0, {}
+    total_tokens, step = 0, 0
+    progress = Progress()
     last_prompt, peak = 0, 0
 
     def finish(reason, response=None):
@@ -118,19 +120,13 @@ async def run_loop(question, remote, client, model, emit, *, schema_mode="on_dem
                          **({"tool_calls":[c.model_dump(mode="json") for c in calls]} if calls else {})})
         if not calls:
             messages.append({"role":"user", "content":"请继续查证或调用 final_answer；普通文字不会结束任务。"})
-            streaks = {}
+            progress.before([])
+            progress.after([])
             continue
-        # Compare canonical arguments, ignore call IDs and same-turn completion order.
-        signatures = []
-        for call in calls:
-            try:
-                args = json.loads(call.function.arguments)
-            except (ValueError, TypeError):
-                args = call.function.arguments
-            signatures.append((call.function.name, json.dumps(args, sort_keys=True, ensure_ascii=False)))
-        streaks = {signature:streaks.get(signature,0)+signatures.count(signature) for signature in set(signatures)}
-        if any(count >= 3 for count in streaks.values()):
-            return finish("repeated_tool_calls")
+        rule = progress.before([(c.function.name,c.function.arguments) for c in calls])
+        if rule:
+            emit('no_progress',{'rule':rule,'step':step,'role':role})
+            return finish('repeated_tool_calls' if rule=='consecutive_repeat' else 'no_progress')
         results = await asyncio.gather(*(registry.call(c.function.name, c.function.arguments, c.id) for c in calls))
         unknown=next((r.content for r in results if r.content.get('error')=='unknown_dimension'),None)
         if unknown:
@@ -140,6 +136,10 @@ async def run_loop(question, remote, client, model, emit, *, schema_mode="on_dem
         final_answers = [r.final for r in results if r.final is not None]
         if len(final_answers) == 1:
             return finish("final_answer", final_answers[0])
+        rule = progress.after([r.content for r in results])
+        if rule:
+            emit('no_progress',{'rule':rule,'step':step,'role':role})
+            return finish('no_progress')
         for call,result in zip(calls,results):
             content = {"error":"Submit exactly one final answer per turn"} if result.final else result.content
             messages.append({"role":"tool", "tool_call_id":call.id, "content":untrusted(content)})

@@ -43,7 +43,7 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | FINDING_MIN_SIMILARITY=0.78；最多3条 | 预先固定 | 下表有同题实际命中与已有 finding 向量对分布；异题检索误命中率缺数据，不能把阈值宣传为已校准。仅 multi 使用。 |
 | NUMBER_GATE=true；反馈重写1次 | 安全护栏、观测数据 | 重写次数预先固定，开启依据 [最终消融](FINAL_RESULTS.md)；仍有未验证数字替换和日期误报问题。 |
 | 数字核查相对误差1%、绝对值匹配 | 预先固定 | 容忍 SQL/报告精度差与“下降”表述；不验证因果、未知指标或真实零值的语义。 |
-| 相同工具调用连续3次停止 | 安全护栏、预先固定 | 防止循环调用，MCP中途宕机实验覆盖有界失败；不是模型正确率参数。 |
+| REPEATED_CALL_LIMIT=3；NO_PROGRESS_WINDOW=6；NO_PROGRESS_EMPTY_TURNS=4 | 安全护栏、预先固定 / 观测数据 | Step12 A2：SQL 标准化后保留连续三次规则；六轮最多两种签名或四轮全错/空且无新 result_id 则 no_progress。按指令预设，不搜索；既有最终组97次轨迹回放误判0。 |
 | WORKER_LEASE_SECONDS=30；心跳=max(1,lease/4)秒 | 安全护栏、预先固定 | 原恢复演示验证过期租约接管；未优化心跳间隔，数据库不可达时不能保证即时持久化状态。 |
 | 最多3次实际领取；第四次尝试失败 | 安全护栏、预先固定 | Step 10 新增，含 planning/execute/recovery 全部租约；失败原因和拒绝次数进入事件，claim_count 只计实际发出租约。 |
 | 默认单 Agent + Memory偏好开启；multi 可选 | 观测数据 | [最终消融](FINAL_RESULTS.md)；single 不启用 finding 复用，不能将 multi 复用收益归于默认模式。 |
