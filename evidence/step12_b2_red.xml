@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="6" time="0.959" timestamp="2026-10-27T15:35:39.535658+00:00" hostname="e9a3aa0a076e"><testcase classname="tests.test_rate_limits" name="test_refill_is_fractional_capped_and_never_goes_backwards" time="0.001"><failure message="ModuleNotFoundError: No module named 'scripts.rate_limits'">def test_refill_is_fractional_capped_and_never_goes_backwards():
+&gt;       from scripts.rate_limits import refill
+E       ModuleNotFoundError: No module named 'scripts.rate_limits'
+
+tests/test_rate_limits.py:16: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_rate_limits" name="test_usage_difference_preserves_unknown_and_overage" time="0.001"><failure message="ModuleNotFoundError: No module named 'scripts.rate_limits'">def test_usage_difference_preserves_unknown_and_overage():
+&gt;       from scripts.rate_limits import refund_amount
+E       ModuleNotFoundError: No module named 'scripts.rate_limits'
+
+tests/test_rate_limits.py:23: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_rate_limits" name="test_atomic_shared_rpm_and_tpm_do_not_over_admit" time="0.047"><failure message="ModuleNotFoundError: No module named 'scripts.rate_limits'">rate_job = {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x70f3651a9e10&gt;
+
+    @pytest.mark.integration
+    @integration
+    def test_atomic_shared_rpm_and_tpm_do_not_over_admit(rate_job,monkeypatch):
+&gt;       from scripts.rate_limits import RateWait
+E       ModuleNotFoundError: No module named 'scripts.rate_limits'
+
+tests/test_rate_limits.py:51: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_rate_limits" name="test_inflight_limit_and_exactly_once_tpm_refund" time="0.031"><failure message="ModuleNotFoundError: No module named 'scripts.rate_limits'">rate_job = {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x70f363a0b390&gt;
+
+    @pytest.mark.integration
+    @integration
+    def test_inflight_limit_and_exactly_once_tpm_refund(rate_job,monkeypatch):
+&gt;       from scripts.rate_limits import RateWait
+E       ModuleNotFoundError: No module named 'scripts.rate_limits'
+
+tests/test_rate_limits.py:63: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_rate_limits" name="test_database_clock_refills_and_expired_inflight_is_reclaimed" time="0.046"><failure message="psycopg.errors.UndefinedTable: relation &quot;rate_buckets&quot; does not exist&#10;LINE 1: UPDATE rate_buckets SET updated_at=clock_timestamp()-interva...&#10;               ^">rate_job = {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x70f363991690&gt;
+
+    @pytest.mark.integration
+    @integration
+    def test_database_clock_refills_and_expired_inflight_is_reclaimed(rate_job,monkeypatch):
+        from scripts.provider_health import provider_key
+        monkeypatch.setenv('PROVIDER_RPM','1');monkeypatch.setenv('PROVIDER_TPM','100');monkeypatch.setenv('PROVIDER_MAX_INFLIGHT','1')
+        reserve(rate_job)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           conn.execute("UPDATE rate_buckets SET updated_at=clock_timestamp()-interval '61 seconds' WHERE provider=%s",(provider_key(),))
+
+tests/test_rate_limits.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x70f363991790&gt;
+query = "UPDATE rate_buckets SET updated_at=clock_timestamp()-interval '61 seconds' WHERE provider=%s"
+params = ('http://rate-e7d7043c70c9495485d3578e09b6ea47/v1',)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "rate_buckets" does not exist
+E           LINE 1: UPDATE rate_buckets SET updated_at=clock_timestamp()-interva...
+E                          ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedTable</failure></testcase><testcase classname="tests.test_rate_limits" name="test_disabled_limits_preserve_unrestricted_admission" time="0.154" /></testsuite></testsuites>
