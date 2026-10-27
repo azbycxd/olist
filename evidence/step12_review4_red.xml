@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="50" time="1.586" timestamp="2026-10-27T15:31:45.030048+00:00" hostname="d968fa24fcdf"><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[DROP TABLE orders]" time="0.004" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[DELETE FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[UPDATE orders SET order_status='x']" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT 1; SELECT 2]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT 1; /* hidden */ DROP TABLE orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[WITH x AS (DELETE FROM orders RETURNING *) SELECT * FROM x]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * INTO copy_of_orders FROM orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders FOR UPDATE]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_sleep(1)]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_catalog.pg_sleep(1)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT &quot;pg_sleep&quot;(1)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT /*comment*/ pg_read_file('/etc/passwd')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_ls_dir('/')]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT dblink('secret','SELECT 1')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT set_config('statement_timeout','0',false)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[COPY orders TO STDOUT]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[EXPLAIN ANALYZE SELECT * FROM orders]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SET statement_timeout=0]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM pg_catalog.pg_authid]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM information_schema.tables]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM data_imports]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM other.orders]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM agent.public.tasks]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT nextval('some_sequence')]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT pg_advisory_lock(1)]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT lo_import('/etc/passwd')]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT query_to_xml('DELETE FROM orders',true,true,'')]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT 'pg_authid'::regclass]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM generate_series(1,100000000)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders LIMIT ALL]" time="0.000" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders LIMIT (SELECT 10000)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM orders LIMIT -1]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[WITH x AS (SELECT pg_sleep(1)) SELECT * FROM x]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[SELECT * FROM pg_settings WHERE EXISTS (WITH pg_settings AS (SELECT 1) SELECT * FROM pg_settings)]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_attacks_are_rejected[WITH data_imports AS (SELECT 1) SELECT * FROM public.data_imports]" time="0.001" /><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT count(*) AS orders FROM orders]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31cb0730&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31cb0730&gt; = 'SELECT COUNT(*) AS orders FROM orders LIMIT 1001'.endswith&#10; +      where 'SELECT COUNT(*) AS orders FROM orders LIMIT 1001' = guard_sql('SELECT count(*) AS orders FROM orders')">statement = 'SELECT count(*) AS orders FROM orders'
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31cb0730&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31cb0730&gt; = 'SELECT COUNT(*) AS orders FROM orders LIMIT 1001'.endswith
+E        +      where 'SELECT COUNT(*) AS orders FROM orders LIMIT 1001' = guard_sql('SELECT count(*) AS orders FROM orders')
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT sum(price), avg(freight_value) FROM public.order_items]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31cc41b0&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31cc41b0&gt; = 'SELECT SUM(price), AVG(freight_value) FROM public.order_items LIMIT 1001'.endswith&#10; +      where 'SELECT SUM(price), AVG(freight_value) FROM public.order_items LIMIT 1001' = guard_sql('SELECT sum(price), avg(freight_value) FROM public.order_items')">statement = 'SELECT sum(price), avg(freight_value) FROM public.order_items'
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31cc41b0&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31cc41b0&gt; = 'SELECT SUM(price), AVG(freight_value) FROM public.order_items LIMIT 1001'.endswith
+E        +      where 'SELECT SUM(price), AVG(freight_value) FROM public.order_items LIMIT 1001' = guard_sql('SELECT sum(price), avg(freight_value) FROM public.order_items')
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31d061f0&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31d061f0&gt; = 'WITH x AS (SELECT customer_state, COUNT(*) AS n FROM customers GROUP BY 1) SELECT * FROM x LIMIT 1001'.endswith&#10; +      where 'WITH x AS (SELECT customer_state, COUNT(*) AS n FROM customers GROUP BY 1) SELECT * FROM x LIMIT 1001' = guard_sql('WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x')">statement = 'WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x'
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31d061f0&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31d061f0&gt; = 'WITH x AS (SELECT customer_state, COUNT(*) AS n FROM customers GROUP BY 1) SELECT * FROM x LIMIT 1001'.endswith
+E        +      where 'WITH x AS (SELECT customer_state, COUNT(*) AS n FROM customers GROUP BY 1) SELECT * FROM x LIMIT 1001' = guard_sql('WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x')
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders]" time="0.002"><failure message="assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31cc4ab0&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31cc4ab0&gt; = &quot;SELECT COUNT(*) FILTER(WHERE order_status = 'delivered') FROM orders LIMIT 1001&quot;.endswith&#10; +      where &quot;SELECT COUNT(*) FILTER(WHERE order_status = 'delivered') FROM orders LIMIT 1001&quot; = guard_sql(&quot;SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders&quot;)">statement = "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders"
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31cc4ab0&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31cc4ab0&gt; = "SELECT COUNT(*) FILTER(WHERE order_status = 'delivered') FROM orders LIMIT 1001".endswith
+E        +      where "SELECT COUNT(*) FILTER(WHERE order_status = 'delivered') FROM orders LIMIT 1001" = guard_sql("SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders")
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders]" time="0.001"><failure message="assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31e43870&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31e43870&gt; = &quot;SELECT DATE_TRUNC('MONTH', order_purchase_timestamp) AS month FROM orders LIMIT 1001&quot;.endswith&#10; +      where &quot;SELECT DATE_TRUNC('MONTH', order_purchase_timestamp) AS month FROM orders LIMIT 1001&quot; = guard_sql(&quot;SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders&quot;)">statement = "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders"
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31e43870&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31e43870&gt; = "SELECT DATE_TRUNC('MONTH', order_purchase_timestamp) AS month FROM orders LIMIT 1001".endswith
+E        +      where "SELECT DATE_TRUNC('MONTH', order_purchase_timestamp) AS month FROM orders LIMIT 1001" = guard_sql("SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders")
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31dc8df0&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31dc8df0&gt; = 'SELECT EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 FROM orders LIMIT 1001'.endswith&#10; +      where 'SELECT EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 FROM orders LIMIT 1001' = guard_sql('SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders')">statement = 'SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders'
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31dc8df0&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31dc8df0&gt; = 'SELECT EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 FROM orders LIMIT 1001'.endswith
+E        +      where 'SELECT EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 FROM orders LIMIT 1001' = guard_sql('SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders')
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text]" time="0.001"><failure message="assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31caadb0&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31caadb0&gt; = &quot;SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text LIMIT 1001&quot;.endswith&#10; +      where &quot;SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text LIMIT 1001&quot; = guard_sql(&quot;SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text&quot;)">statement = "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text"
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31caadb0&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31caadb0&gt; = "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text LIMIT 1001".endswith
+E        +      where "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text LIMIT 1001" = guard_sql("SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text")
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_read_only_queries_are_capped[SELECT 1 AS n UNION ALL SELECT 2 AS n]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31cbb280&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31cbb280&gt; = 'SELECT 1 AS n UNION ALL SELECT 2 AS n LIMIT 1001'.endswith&#10; +      where 'SELECT 1 AS n UNION ALL SELECT 2 AS n LIMIT 1001' = guard_sql('SELECT 1 AS n UNION ALL SELECT 2 AS n')">statement = 'SELECT 1 AS n UNION ALL SELECT 2 AS n'
+
+    @pytest.mark.parametrize("statement", [
+        "SELECT count(*) AS orders FROM orders",
+        "SELECT sum(price), avg(freight_value) FROM public.order_items",
+        "WITH x AS (SELECT customer_state,count(*) AS n FROM customers GROUP BY 1) SELECT * FROM x",
+        "SELECT count(*) FILTER (WHERE order_status='delivered') FROM orders",
+        "SELECT date_trunc('month',order_purchase_timestamp) AS month FROM orders",
+        "SELECT extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0 FROM orders",
+        "SELECT 'DROP TABLE orders; pg_sleep(2)' AS untrusted_text",
+        "SELECT 1 AS n UNION ALL SELECT 2 AS n",
+    ])
+    def test_read_only_queries_are_capped(statement):
+&gt;       assert guard_sql(statement).endswith("LIMIT 1000")
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31cbb280&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31cbb280&gt; = 'SELECT 1 AS n UNION ALL SELECT 2 AS n LIMIT 1001'.endswith
+E        +      where 'SELECT 1 AS n UNION ALL SELECT 2 AS n LIMIT 1001' = guard_sql('SELECT 1 AS n UNION ALL SELECT 2 AS n')
+
+tests/test_sql_guard.py:41: AssertionError</failure></testcase><testcase classname="tests.test_sql_guard" name="test_explicit_limit_is_enforced" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e31c65d90&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e31c65d90&gt; = 'SELECT * FROM orders LIMIT 1001'.endswith&#10; +      where 'SELECT * FROM orders LIMIT 1001' = guard_sql('SELECT * FROM orders LIMIT 2000')">def test_explicit_limit_is_enforced():
+&gt;       assert guard_sql("SELECT * FROM orders LIMIT 2000").endswith("LIMIT 1000")
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e31c65d90&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e31c65d90&gt; = 'SELECT * FROM orders LIMIT 1001'.endswith
+E        +      where 'SELECT * FROM orders LIMIT 1001' = guard_sql('SELECT * FROM orders LIMIT 2000')
+
+tests/test_sql_guard.py:45: AssertionError</failure></testcase><testcase classname="tests.test_mcp" name="test_live_protocol_authentication_results_and_errors" time="0.186"><failure message="AssertionError(&quot;assert ('b25886476360...0e7490bdb663a' == 'b25886476360...0e7490bdb663a'\n  \n  Skipping 53 identical leading characters in diff, use -v to show\n    7490bdb663a and False)\n +  where False = &lt;built-in method endswith of str object at 0x720e31bb16f0&gt;('LIMIT 1000')\n +    where &lt;built-in method endswith of str object at 0x720e31bb16f0&gt; = 'SELECT order_id FROM orders ORDER BY order_id LIMIT 1001'.endswith&quot;) [single exception in ExceptionGroup]">+ Exception Group Traceback (most recent call last):
+  |   File "/app/tests/test_mcp.py", line 65, in test_live_protocol_authentication_results_and_errors
+  |     asyncio.run(exercise())
+  |   File "/usr/local/lib/python3.11/asyncio/runners.py", line 190, in run
+  |     return runner.run(main)
+  |            ^^^^^^^^^^^^^^^^
+  |   File "/usr/local/lib/python3.11/asyncio/runners.py", line 118, in run
+  |     return self._loop.run_until_complete(task)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/usr/local/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  |     return future.result()
+  |            ^^^^^^^^^^^^^^^
+  |   File "/app/tests/test_mcp.py", line 25, in exercise
+  |     async with MCPClient(MCP_URL,MCP_BEARER_TOKEN,str(task)) as client:
+  |   File "/app/agent/mcp_client.py", line 81, in __aexit__
+  |     return await self.stack.__aexit__(*args)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/usr/local/lib/python3.11/contextlib.py", line 745, in __aexit__
+  |     raise exc_details[1]
+  |   File "/usr/local/lib/python3.11/contextlib.py", line 728, in __aexit__
+  |     cb_suppress = await cb(*exc_details)
+  |                   ^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/usr/local/lib/python3.11/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "/usr/local/lib/python3.11/site-packages/mcp/client/streamable_http.py", line 672, in streamable_http_client
+  |     async with anyio.create_task_group() as tg:
+  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 847, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/usr/local/lib/python3.11/site-packages/mcp/client/streamable_http.py", line 695, in streamable_http_client
+    |     yield (
+    |   File "/usr/local/lib/python3.11/contextlib.py", line 728, in __aexit__
+    |     cb_suppress = await cb(*exc_details)
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/lib/python3.11/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 847, in __aexit__
+    |     raise BaseExceptionGroup(
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/app/tests/test_mcp.py", line 45, in exercise
+      |     assert stored[3] == result["data_version"] and stored[4].endswith("LIMIT 1000")
+      | AssertionError: assert ('b25886476360...0e7490bdb663a' == 'b25886476360...0e7490bdb663a'
+      |   
+      |   Skipping 53 identical leading characters in diff, use -v to show
+      |     7490bdb663a and False)
+      |  +  where False = &lt;built-in method endswith of str object at 0x720e31bb16f0&gt;('LIMIT 1000')
+      |  +    where &lt;built-in method endswith of str object at 0x720e31bb16f0&gt; = 'SELECT order_id FROM orders ORDER BY order_id LIMIT 1001'.endswith
+      +------------------------------------</failure></testcase><testcase classname="tests.test_truncation" name="test_truncation_boundaries_are_explicit_and_persisted[SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1000) AS exact_rows-1000-False]" time="0.064" /><testcase classname="tests.test_truncation" name="test_truncation_boundaries_are_explicit_and_persisted[SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1001) AS extra_row-1000-True]" time="0.033" /><testcase classname="tests.test_truncation" name="test_truncation_boundaries_are_explicit_and_persisted[SELECT order_id FROM orders LIMIT 500-500-False]" time="0.030" /><testcase classname="tests.test_truncation" name="test_ordered_truncation_has_flag_without_unordered_warning" time="0.025" /><testcase classname="tests.test_truncation" name="test_public_sql_matches_saved_rows_and_hash_but_execution_probes_one_more" time="0.207"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x720e208991b0&gt;('LIMIT 1000')&#10; +    where &lt;built-in method endswith of str object at 0x720e208991b0&gt; = 'SELECT order_id FROM orders ORDER BY order_id LIMIT 1001'.endswith">task = 'dbf89ef3-7ba5-4357-9a58-fca622cc94b3'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x720e31c401d0&gt;
+
+    def test_public_sql_matches_saved_rows_and_hash_but_execution_probes_one_more(task,monkeypatch):
+        import hashlib
+        from agent.sql_normalize import normalize_sql
+        from api.tasks import result as api_result
+        executed=[];original=psycopg.Connection.execute
+        def observe(conn,query,*args,**kwargs):
+            if isinstance(query,str) and query.startswith('SELECT order_id FROM orders ORDER BY order_id LIMIT '):executed.append(query)
+            return original(conn,query,*args,**kwargs)
+        monkeypatch.setattr(psycopg.Connection,'execute',observe)
+        result=run_query('SELECT order_id FROM orders ORDER BY order_id',task)
+        assert executed==['SELECT order_id FROM orders ORDER BY order_id LIMIT 1001']
+&gt;       assert result['sql'].endswith('LIMIT 1000')
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x720e208991b0&gt;('LIMIT 1000')
+E        +    where &lt;built-in method endswith of str object at 0x720e208991b0&gt; = 'SELECT order_id FROM orders ORDER BY order_id LIMIT 1001'.endswith
+
+tests/test_truncation.py:45: AssertionError</failure></testcase></testsuite></testsuites>

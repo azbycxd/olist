@@ -38,9 +38,9 @@ def test_attacks_are_rejected(statement):
     "SELECT 1 AS n UNION ALL SELECT 2 AS n",
 ])
 def test_read_only_queries_are_capped(statement):
-    assert guard_sql(statement).endswith("LIMIT 1001")
+    assert guard_sql(statement).endswith("LIMIT 1000")
 
 
 def test_explicit_limit_is_enforced():
-    assert guard_sql("SELECT * FROM orders LIMIT 2000").endswith("LIMIT 1001")
+    assert guard_sql("SELECT * FROM orders LIMIT 2000").endswith("LIMIT 1000")
     assert guard_sql("SELECT * FROM orders LIMIT 7").endswith("LIMIT 7")

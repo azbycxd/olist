@@ -29,3 +29,26 @@ def test_ordered_truncation_has_flag_without_unordered_warning(task):
     result=run_query('SELECT order_id FROM orders ORDER BY order_id',task)
     assert result['truncated'] is True
     assert '无序截断' not in result['notice']
+
+
+def test_public_sql_matches_saved_rows_and_hash_but_execution_probes_one_more(task,monkeypatch):
+    import hashlib
+    from agent.sql_normalize import normalize_sql
+    from api.tasks import result as api_result
+    executed=[];original=psycopg.Connection.execute
+    def observe(conn,query,*args,**kwargs):
+        if isinstance(query,str) and query.startswith('SELECT order_id FROM orders ORDER BY order_id LIMIT '):executed.append(query)
+        return original(conn,query,*args,**kwargs)
+    monkeypatch.setattr(psycopg.Connection,'execute',observe)
+    result=run_query('SELECT order_id FROM orders ORDER BY order_id',task)
+    assert executed==['SELECT order_id FROM orders ORDER BY order_id LIMIT 1001']
+    assert result['sql'].endswith('LIMIT 1000')
+    assert get_saved_result(result['result_id'],task)['sql']==result['sql']
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        sql,digest=conn.execute('SELECT sql,sql_hash FROM query_results WHERE result_id=%s',(result['result_id'],)).fetchone()
+        owner=conn.execute('SELECT user_id FROM tasks WHERE task_id=%s',(task,)).fetchone()[0]
+    assert sql==result['sql']
+    assert digest==hashlib.sha256(normalize_sql(sql).encode()).hexdigest()
+    assert api_result(task,result['result_id'],owner)['sql']==sql
+    with psycopg.connect(**db_kwargs(role='reader')) as conn:
+        assert len(conn.execute(sql).fetchall())==result['row_count']==1000
