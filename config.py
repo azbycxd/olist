@@ -61,6 +61,9 @@ DB_POOL_MAX_LIFETIME_SECONDS = float(os.getenv('DB_POOL_MAX_LIFETIME_SECONDS', '
 WORKER_GRACE_SECONDS = float(os.getenv('WORKER_GRACE_SECONDS', '20'))
 WORKER_HEARTBEAT_SECONDS = float(os.getenv('WORKER_HEARTBEAT_SECONDS', '5'))
 MAX_SLEEP = float(os.getenv('MAX_SLEEP', '5'))
+PROVIDER_REQUEUE_MAX = int(os.getenv('PROVIDER_REQUEUE_MAX', '3'))
+if PROVIDER_REQUEUE_MAX < 0:
+    raise ValueError('PROVIDER_REQUEUE_MAX must be nonnegative')
 PROVIDER_RPM = float(os.getenv('PROVIDER_RPM') or '0')
 PROVIDER_TPM = float(os.getenv('PROVIDER_TPM') or '0')
 PROVIDER_MAX_INFLIGHT = int(os.getenv('PROVIDER_MAX_INFLIGHT') or '0')

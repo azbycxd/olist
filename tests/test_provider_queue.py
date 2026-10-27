@@ -44,7 +44,7 @@ def test_running_provider_failures_requeue_without_consuming_claim_budget(queued
         emit('termination',{'scope':'task','reason':reason})
         return FinalAnswer(answer='fixture',claims=[])
     monkeypatch.setattr(worker,'run_runtime',runtime)
-    for _ in range(5):
+    for _ in range(3):
         job=worker.claim(ident)
         assert job is not None
         worker.process(job)
@@ -72,10 +72,14 @@ def test_poison_request_stops_after_three_requeues_and_other_task_completes(queu
         owner=conn.execute('SELECT user_id FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]
     other=new(owner)
     def runtime(question,task_id,emit,**kwargs):
+        call=str(uuid4())
+        kwargs['control_check']({'call_id':call,'requested_model':model,'reserved_tokens':10})
         if str(task_id)==str(ident):
-            emit('model_call',{'error_class':'retryable','error':'HTTP503'})
+            emit('model_call',{'control_call_id':call,'error_class':'retryable','error':'HTTP503'})
             emit('termination',{'scope':'task','reason':'model_error'})
-        else:emit('termination',{'scope':'task','reason':'final_answer'})
+        else:
+            emit('model_call',{'control_call_id':call,'error_class':None,'usage':{'total_tokens':1}})
+            emit('termination',{'scope':'task','reason':'final_answer'})
         return FinalAnswer(answer='scripted fixture',claims=[])
     monkeypatch.setattr(worker,'run_runtime',runtime)
     for attempt in range(4):
@@ -87,3 +91,4 @@ def test_poison_request_stops_after_three_requeues_and_other_task_completes(queu
     worker.process(worker.claim(other))
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         assert conn.execute('SELECT status,provider_requeues FROM tasks WHERE task_id=%s',(other,)).fetchone()==('completed',0)
+        assert conn.execute('SELECT state,failure_count FROM provider_health WHERE provider=%s AND model=%s',(provider_health.provider_key(),model)).fetchone()==('closed',0)

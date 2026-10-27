@@ -7,7 +7,7 @@ import time
 from uuid import uuid4
 import psycopg
 from psycopg.types.json import Jsonb
-from config import WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS, MAX_SLEEP, provider_rate_settings
+from config import WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS, MAX_SLEEP, PROVIDER_REQUEUE_MAX, provider_rate_settings
 from db_pool import close_all, validate_settings, ready
 from api.tasks import event
 from scripts.runtime import run_runtime
@@ -75,6 +75,10 @@ def release(job,reason='worker_shutdown'):
         if reason=='worker_shutdown':
             conn.execute("UPDATE tasks SET status='pending',lease_token=NULL,lease_expires_at=NULL,released_count=released_count+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
         else:
+            requeues=conn.execute('SELECT provider_requeues FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]
+            if requeues>=PROVIDER_REQUEUE_MAX:
+                limits.stop_task(conn,ident,'provider_unavailable',extra={'reason':'provider_requeue_limit','provider_requeues':requeues})
+                return False
             conn.execute("UPDATE tasks SET status='pending',error=NULL,lease_token=NULL,lease_expires_at=NULL,provider_requeues=provider_requeues+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
         conn.execute("UPDATE model_reservations SET status='unknown' WHERE task_id=%s AND status='pending'",(ident,))
         from scripts.rate_limits import abandon_task

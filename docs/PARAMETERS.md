@@ -166,3 +166,5 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | RATE_POLL_SECONDS | 0.1 | 预先固定 | 最小重试间隔；长等待受MAX_SLEEP约束 |
 
 验收预先固定为 RPM=10、TPM=16000、在途=3、等待=180s，仅适用于本次HTTP替身故障压测，不是供应商参数建议。未对参数做搜索。实际TPM由替身返回usage和真实时钟计算，见STEP12_HARDENING收据。
+
+| `PROVIDER_REQUEUE_MAX` | 3 | 预先固定 | 第1批第二轮复核指定；每任务最多供应商故障重排次数；达到后再次失败以provider_unavailable终止，不搜索参数。 |
