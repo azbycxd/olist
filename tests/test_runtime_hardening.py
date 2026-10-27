@@ -70,7 +70,7 @@ def test_retry_after_precedes_backoff(header):
     assert 0 < waits[0] <= 2
     if header == '2': assert waits == [2]
     assert events[0][1]['error_class'] == 'retryable'
-    assert events[0][1]['retry_wait_ms'] >= 0
+    assert next(e[1] for e in events if e[0]=='model_retry_wait')['retry_wait_ms'] >= 0
 
 
 def test_retry_after_two_seconds_uses_real_clock_and_reports_actual_wait():
@@ -79,7 +79,15 @@ def test_retry_after_two_seconds_uses_real_clock_and_reports_actual_wait():
     before = time.perf_counter()
     asyncio.run(request(client,'fixture',[],lambda *e: events.append(e)))
     assert 1.9 <= time.perf_counter()-before < 4
-    assert 1900 <= events[0][1]['retry_wait_ms'] < 4000
+    assert 1900 <= next(e[1] for e in events if e[0]=='model_retry_wait')['retry_wait_ms'] < 4000
+
+
+def test_failed_call_is_emitted_before_sleep_then_wait_is_separate():
+    client,_=client_for([status_error(503),completion([FINAL])])
+    order=[]
+    async def sleep(_):order.append('sleep')
+    asyncio.run(request(client,'fixture',[],lambda *e:order.append(e[0]),sleep=sleep))
+    assert order==['model_call','sleep','model_retry_wait','model_call']
 
 
 @pytest.mark.parametrize('status',[408,429,500,502,503,504])
@@ -196,3 +204,67 @@ def test_concurrent_errors_and_duplicate_events_do_not_lose_or_double_counts(cir
         assert conn.execute('SELECT failure_count FROM provider_health WHERE model=%s',(model,)).fetchone()[0] == 4
     result(job, admit(job, model))
     with pytest.raises(limits.TaskStopped, match='provider_unavailable'): admit(job, model)
+
+
+@pytest.mark.integration
+@integration
+def test_five_concurrent_tasks_open_before_any_backoff_finishes(circuit_job,monkeypatch):
+    from test_task_controls import new
+    from agent.task_control import CONTROL
+    _,model=circuit_job
+    jobs=[]
+    for _ in range(5):
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('parallel-'+uuid4().hex,)).fetchone()[0]
+        jobs.append(worker.claim(new(owner)))
+    observed=[]
+    async def run():
+        admitted=0;sleeping=0;all_admitted=asyncio.Event();all_sleeping=asyncio.Event()
+        async def one(job):
+            async def control(req):
+                nonlocal admitted
+                with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                    response=limits.reserve(conn,job['task_id'],job['token'],req)
+                admitted+=1
+                if admitted==5:all_admitted.set()
+                await all_admitted.wait()
+                return response
+            def emit(kind,payload,*_):
+                if kind=='model_call':
+                    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                        limits.lock_task(conn,job['task_id']);limits.settle(conn,job['task_id'],payload)
+            async def sleep(_):
+                nonlocal sleeping
+                sleeping+=1
+                if sleeping==5:
+                    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                        observed.append(conn.execute('SELECT state,failure_count FROM provider_health WHERE model=%s',(model,)).fetchone())
+                    all_sleeping.set()
+                await all_sleeping.wait()
+                raise asyncio.CancelledError  # No backoff is allowed to finish.
+            client,_=client_for([status_error(503,headers={'Retry-After':'8'})])
+            token=CONTROL.set(control)
+            try:await request(client,model,[],emit,sleep=sleep)
+            finally:CONTROL.reset(token)
+        await asyncio.gather(*(one(job) for job in jobs),return_exceptions=True)
+    try:
+        asyncio.run(run())
+        assert observed==[('open',5)]
+    finally:
+        for job in jobs:
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                limits.lock_task(conn,job['task_id']);limits.stop_task(conn,job['task_id'],'canceled')
+
+
+@pytest.mark.integration
+@integration
+def test_fatal_and_unknown_do_not_reset_failures(circuit_job):
+    job,model=circuit_job
+    for _ in range(3):result(job,admit(job,model))
+    for error in ['fatal','unknown']:
+        result(job,admit(job,model),error)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            assert conn.execute('SELECT failure_count FROM provider_health WHERE model=%s',(model,)).fetchone()[0]==3
+    result(job,admit(job,model),None)
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        assert conn.execute('SELECT failure_count FROM provider_health WHERE model=%s',(model,)).fetchone()[0]==0

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="26" time="4.643" timestamp="2026-10-27T15:08:54.902163+00:00" hostname="f2bbef340763"><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[400]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[401]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[403]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[404]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_fatal_http_error_is_not_retried[422]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_context_length_400_has_context_limit_reason" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retry_after_precedes_backoff[2]" time="0.003"><failure message="StopIteration">header = '2'
+
+    @pytest.mark.parametrize('header', ['2', 'http-date'])
+    def test_retry_after_precedes_backoff(header):
+        if header == 'http-date': header = format_datetime(datetime.now(timezone.utc) + timedelta(seconds=2))
+        client, sent = client_for([status_error(429, headers={'Retry-After': header}), completion([FINAL])])
+        waits, events = [], []
+        async def sleep(value): waits.append(value)
+        asyncio.run(request(client, 'fixture', [], lambda *e: events.append(e), sleep=sleep))
+        assert len(sent) == 2 and len(waits) == 1
+        assert 0 &lt; waits[0] &lt;= 2
+        if header == '2': assert waits == [2]
+        assert events[0][1]['error_class'] == 'retryable'
+&gt;       assert next(e[1] for e in events if e[0]=='model_retry_wait')['retry_wait_ms'] &gt;= 0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests/test_runtime_hardening.py:73: StopIteration</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retry_after_precedes_backoff[http-date]" time="0.001"><failure message="StopIteration">header = 'Tue, 27 Oct 2026 15:08:58 +0000'
+
+    @pytest.mark.parametrize('header', ['2', 'http-date'])
+    def test_retry_after_precedes_backoff(header):
+        if header == 'http-date': header = format_datetime(datetime.now(timezone.utc) + timedelta(seconds=2))
+        client, sent = client_for([status_error(429, headers={'Retry-After': header}), completion([FINAL])])
+        waits, events = [], []
+        async def sleep(value): waits.append(value)
+        asyncio.run(request(client, 'fixture', [], lambda *e: events.append(e), sleep=sleep))
+        assert len(sent) == 2 and len(waits) == 1
+        assert 0 &lt; waits[0] &lt;= 2
+        if header == '2': assert waits == [2]
+        assert events[0][1]['error_class'] == 'retryable'
+&gt;       assert next(e[1] for e in events if e[0]=='model_retry_wait')['retry_wait_ms'] &gt;= 0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests/test_runtime_hardening.py:73: StopIteration</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retry_after_two_seconds_uses_real_clock_and_reports_actual_wait" time="2.004"><failure message="StopIteration">def test_retry_after_two_seconds_uses_real_clock_and_reports_actual_wait():
+        client, _ = client_for([status_error(429, headers={'Retry-After':'2'}), completion([FINAL])])
+        events = []
+        before = time.perf_counter()
+        asyncio.run(request(client,'fixture',[],lambda *e: events.append(e)))
+        assert 1.9 &lt;= time.perf_counter()-before &lt; 4
+&gt;       assert 1900 &lt;= next(e[1] for e in events if e[0]=='model_retry_wait')['retry_wait_ms'] &lt; 4000
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests/test_runtime_hardening.py:82: StopIteration</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_failed_call_is_emitted_before_sleep_then_wait_is_separate" time="0.001"><failure message="AssertionError: assert ['sleep', 'mo... 'model_call'] == ['model_call'... 'model_call']&#10;  &#10;  At index 0 diff: 'sleep' != 'model_call'&#10;  Right contains one more item: 'model_call'&#10;  Use -v to get more diff">def test_failed_call_is_emitted_before_sleep_then_wait_is_separate():
+        client,_=client_for([status_error(503),completion([FINAL])])
+        order=[]
+        async def sleep(_):order.append('sleep')
+        asyncio.run(request(client,'fixture',[],lambda *e:order.append(e[0]),sleep=sleep))
+&gt;       assert order==['model_call','sleep','model_retry_wait','model_call']
+E       AssertionError: assert ['sleep', 'mo... 'model_call'] == ['model_call'... 'model_call']
+E         
+E         At index 0 diff: 'sleep' != 'model_call'
+E         Right contains one more item: 'model_call'
+E         Use -v to get more diff
+
+tests/test_runtime_hardening.py:90: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_retryable_statuses_retry_once_then_succeed[408]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retryable_statuses_retry_once_then_succeed[429]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retryable_statuses_retry_once_then_succeed[500]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retryable_statuses_retry_once_then_succeed[502]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retryable_statuses_retry_once_then_succeed[503]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retryable_statuses_retry_once_then_succeed[504]" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retry_after_is_capped_and_invalid_value_uses_jitter" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retry_jitter_is_seeded_and_bounded" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_retry_wait_respects_remaining_task_time" time="0.001" /><testcase classname="tests.test_runtime_hardening" name="test_five_errors_open_circuit_and_deny_within_100ms" time="0.212" /><testcase classname="tests.test_runtime_hardening" name="test_half_open_allows_one_probe_then_closes_or_reopens[None]" time="0.189" /><testcase classname="tests.test_runtime_hardening" name="test_half_open_allows_one_probe_then_closes_or_reopens[retryable]" time="0.184" /><testcase classname="tests.test_runtime_hardening" name="test_half_open_allows_one_probe_then_closes_or_reopens[fatal]" time="0.184" /><testcase classname="tests.test_runtime_hardening" name="test_concurrent_errors_and_duplicate_events_do_not_lose_or_double_counts" time="0.154" /><testcase classname="tests.test_runtime_hardening" name="test_five_concurrent_tasks_open_before_any_backoff_finishes" time="0.241"><failure message="AssertionError: assert [('closed', 0)] == [('open', 5)]&#10;  &#10;  At index 0 diff: ('closed', 0) != ('open', 5)&#10;  Use -v to get more diff">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-c49787016c584430bbdf3a59b0544414')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7bba7d4ec4d0&gt;
+
+    @pytest.mark.integration
+    @integration
+    def test_five_concurrent_tasks_open_before_any_backoff_finishes(circuit_job,monkeypatch):
+        from test_task_controls import new
+        from agent.task_control import CONTROL
+        _,model=circuit_job
+        jobs=[]
+        for _ in range(5):
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('parallel-'+uuid4().hex,)).fetchone()[0]
+            jobs.append(worker.claim(new(owner)))
+        observed=[]
+        async def run():
+            admitted=0;sleeping=0;all_admitted=asyncio.Event();all_sleeping=asyncio.Event()
+            async def one(job):
+                async def control(req):
+                    nonlocal admitted
+                    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                        response=limits.reserve(conn,job['task_id'],job['token'],req)
+                    admitted+=1
+                    if admitted==5:all_admitted.set()
+                    await all_admitted.wait()
+                    return response
+                def emit(kind,payload,*_):
+                    if kind=='model_call':
+                        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                            limits.lock_task(conn,job['task_id']);limits.settle(conn,job['task_id'],payload)
+                async def sleep(_):
+                    nonlocal sleeping
+                    sleeping+=1
+                    if sleeping==5:
+                        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+                            observed.append(conn.execute('SELECT state,failure_count FROM provider_health WHERE model=%s',(model,)).fetchone())
+                        all_sleeping.set()
+                    await all_sleeping.wait()
+                    raise asyncio.CancelledError  # No backoff is allowed to finish.
+                client,_=client_for([status_error(503,headers={'Retry-After':'8'})])
+                token=CONTROL.set(control)
+                try:await request(client,model,[],emit,sleep=sleep)
+                finally:CONTROL.reset(token)
+            await asyncio.gather(*(one(job) for job in jobs),return_exceptions=True)
+        try:
+            asyncio.run(run())
+&gt;           assert observed==[('open',5)]
+E           AssertionError: assert [('closed', 0)] == [('open', 5)]
+E             
+E             At index 0 diff: ('closed', 0) != ('open', 5)
+E             Use -v to get more diff
+
+tests/test_runtime_hardening.py:252: AssertionError</failure></testcase><testcase classname="tests.test_runtime_hardening" name="test_fatal_and_unknown_do_not_reset_failures" time="0.121"><failure message="assert 0 == 3">circuit_job = ({'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}, 'circuit-test-f9f3be4ba29643878fb497380820d0c0')
+
+    @pytest.mark.integration
+    @integration
+    def test_fatal_and_unknown_do_not_reset_failures(circuit_job):
+        job,model=circuit_job
+        for _ in range(3):result(job,admit(job,model))
+        for error in ['fatal','unknown']:
+            result(job,admit(job,model),error)
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;               assert conn.execute('SELECT failure_count FROM provider_health WHERE model=%s',(model,)).fetchone()[0]==3
+E               assert 0 == 3
+
+tests/test_runtime_hardening.py:267: AssertionError</failure></testcase></testsuite></testsuites>
