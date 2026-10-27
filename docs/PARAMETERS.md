@@ -152,3 +152,5 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | WORKER_HEARTBEAT_SECONDS | 5 | 预先固定 | agent 库心跳；超过三周期不健康 |
 
 池均 min_size=0，按实际需求创建。总上限=API_POOL_MAX+MCP_AGENT_POOL_MAX+MCP_OLIST_POOL_MAX+worker数×(WORKER_AGENT_POOL_MAX+WORKER_OLIST_POOL_MAX)。扩多个 API/MCP 进程时分别累加。readyz 只检查 agent 库，避免探测惰性 olist 连接。
+
+复核3新增 `MAX_SLEEP=5`（秒，来源类型：安全护栏），限制熔断冷却期间每次等待，确保周期性处理取消和截止；不改变30s冷却阈值。

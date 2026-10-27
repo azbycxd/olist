@@ -10,6 +10,13 @@ def provider_key():
     return f'{url.scheme}://{url.hostname}' + (f':{url.port}' if url.port else '') + url.path.rstrip('/')
 
 
+def queue_delay(conn):
+    """Read-only pre-claim check; reserve() still arbitrates the single probe."""
+    model=os.getenv('OPENAI_MODEL') or 'unconfigured'
+    row=conn.execute("SELECT GREATEST(0,EXTRACT(EPOCH FROM (CASE WHEN state='open' THEN open_until WHEN state='half_open' THEN probe_until END-clock_timestamp()))) FROM provider_health WHERE provider=%s AND model=%s",(provider_key(),model)).fetchone()
+    return float(row[0] or 0) if row else 0.0
+
+
 def admit(conn, call, model, deadline):
     from scripts.task_limits import TaskStopped
     provider = provider_key()

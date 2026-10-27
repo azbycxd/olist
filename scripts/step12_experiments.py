@@ -33,18 +33,23 @@ def source_identity():
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in files}
 
 
-def persistent_503(label):
+def persistent_503(label, recovery_seconds=None):
     from api.tasks import NewTask, create_task
     from eval.robustness import read_tasks
     from scripts.task_worker import claim, process
-    calls = []
+    calls = [];fixture_started=time.monotonic()
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args): pass
         def do_POST(self):
             self.rfile.read(int(self.headers['Content-Length']))
-            calls.append({'at_monotonic': time.monotonic(), 'status': 503})
-            body = b'{"error":{"message":"Step12 HTTP model double: persistent 503","type":"server_error"}}'
-            self.send_response(503)
+            status=200 if recovery_seconds is not None and time.monotonic()-fixture_started>=recovery_seconds else 503
+            calls.append({'at_monotonic': time.monotonic(), 'status': status})
+            payload={'error':{'message':'Step12 HTTP model double: persistent 503','type':'server_error'}}
+            if status==200:
+                message={'role':'assistant','content':None,'tool_calls':[{'id':uuid4().hex,'type':'function','function':{'name':'final_answer','arguments':json.dumps({'answer':'HTTP替身恢复完成','claims':[]})}}]}
+                payload={'id':'fixture','object':'chat.completion','created':0,'model':'recovery-fixture','choices':[{'index':0,'message':message,'finish_reason':'tool_calls'}],'usage':{'prompt_tokens':0,'completion_tokens':0,'total_tokens':0}}
+            body=json.dumps(payload).encode()
+            self.send_response(status)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
@@ -62,21 +67,34 @@ def persistent_503(label):
         ids = [create_task(NewTask(question='Step12 HTTP 替身故障实验'), owner)['task_id'] for _ in range(10)]
         durations = []
         started = time.perf_counter()
-        for ident in ids:
-            job = claim(ident)
-            if job is None: raise AssertionError('Experiment task was not claimable')
-            # Isolate request retry/circuit behavior from retrieval and preference extraction.
-            job['settings'].update(RAG_MODE='off', USE_MEMORY='false')
-            before = time.perf_counter()
-            process(job)
-            durations.append((time.perf_counter()-before)*1000)
-        elapsed = (time.perf_counter()-started)*1000
-        tasks = read_tasks(ids)
-        if not all(t['status']=='failed' for t in tasks): raise AssertionError('Unexpected non-failed fixture task')
-        receipt('a1_'+label, {'model_kind':'HTTP model double, persistent 503; NOT real-model performance/quality',
-            'source_hashes':source_identity(), 'task_count':10, 'workers':1, 'dispatch':'background API enqueue; production worker claim/process',
-            'overrides':{'RAG_MODE':'off','USE_MEMORY':'false'}, 'wall_ms':elapsed,
-            'request_count':len(calls), 'task_durations_ms':durations, 'calls':calls, 'tasks':tasks})
+        from config import MAX_SLEEP
+        from db_pool import connection
+        from scripts.provider_health import queue_delay
+        while True:
+            for ident in ids:
+                job=claim(ident)
+                if job:
+                    job['settings'].update(RAG_MODE='off',USE_MEMORY='false')
+                    before=time.perf_counter();process(job)
+                    durations.append((time.perf_counter()-before)*1000)
+            tasks=read_tasks(ids)
+            if all(t['status'] in {'failed','completed','canceled'} for t in tasks):break
+            if time.perf_counter()-started>330:raise TimeoutError('Queue fixture did not finish')
+            with connection('worker') as conn:delay=queue_delay(conn)
+            time.sleep(min(MAX_SLEEP,delay) if delay>0 else .1)
+        elapsed=(time.perf_counter()-started)*1000
+        if recovery_seconds is not None:assert all(t['status']=='completed' for t in tasks)
+        else:assert all(t['error']=='task_timeout' for t in tasks)
+        receipt('review3_recovery_after' if recovery_seconds is not None else 'review3_503_after', {
+            'model_kind':'HTTP model double; NOT real-model performance/quality',
+            'source_hashes':source_identity(),'task_count':10,'workers':1,'dispatch':'background API enqueue; production worker claim/process',
+            'overrides':{'RAG_MODE':'off','USE_MEMORY':'false'},'recovery_seconds':recovery_seconds,
+            'task_max_seconds':os.getenv('TASK_MAX_SECONDS','300'),'wall_ms':elapsed,'request_count':len(calls),
+            'completed':sum(t['status']=='completed' for t in tasks),
+            'provider_unavailable_failed':sum(t['status']=='failed' and t['error']=='provider_unavailable' for t in tasks),
+            'deadline_failed':sum(t['error']=='task_timeout' for t in tasks),
+            'provider_requeues':sum(e['type']=='provider_requeued' for t in tasks for e in t['events']),
+            'task_attempt_durations_ms':durations,'calls':calls,'tasks':tasks})
     finally:
         server.shutdown(); server.server_close(); thread.join(timeout=3)
         os.environ.clear(); os.environ.update(previous)
@@ -205,9 +223,10 @@ def signal_recovery(label):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('scenario', choices=['a1','a3','b1-signal','worker'])
+    parser.add_argument('scenario', choices=['a1','a1-recover','a3','b1-signal','worker'])
     parser.add_argument('--label', choices=['before','after'])
     parser.add_argument('--task-id')
     args = parser.parse_args()
     if args.scenario=='worker': scoped_worker(args.task_id)
+    elif args.scenario=='a1-recover':persistent_503(args.label,40)
     else: {'a1':persistent_503,'a3':duplicate_sql,'b1-signal':signal_recovery}[args.scenario](args.label)

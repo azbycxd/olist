@@ -7,11 +7,12 @@ import time
 from uuid import uuid4
 import psycopg
 from psycopg.types.json import Jsonb
-from config import WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS
+from config import WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS, MAX_SLEEP
 from db_pool import close_all, validate_settings, ready
 from api.tasks import event
 from scripts.runtime import run_runtime
 from scripts import task_limits as limits
+from scripts import provider_health
 
 LEASE_SECONDS=int(os.getenv('WORKER_LEASE_SECONDS','30'))
 MAX_CLAIMS=3
@@ -23,11 +24,12 @@ def claim(task_id=None):
         for (owner,) in owners:
             if not conn.execute('SELECT user_id FROM users WHERE user_id=%s FOR UPDATE SKIP LOCKED',(owner,)).fetchone():continue
             limits.reap_owner(conn,owner)
+            if provider_health.queue_delay(conn)>0:continue
             while True:
-                row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status,claim_count,released_count FROM tasks WHERE user_id=%s AND background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at,task_id FOR UPDATE SKIP LOCKED LIMIT 1",(owner,task_id,task_id)).fetchone()
+                row=conn.execute("SELECT task_id,question,confirmed_at,run_config,status,claim_count,released_count,provider_requeues FROM tasks WHERE user_id=%s AND background AND (%s::uuid IS NULL OR task_id=%s::uuid) AND (status='pending' OR (status IN ('planning','running') AND lease_expires_at<now())) ORDER BY created_at,task_id FOR UPDATE SKIP LOCKED LIMIT 1",(owner,task_id,task_id)).fetchone()
                 if not row:break
-                ident,question,confirmed,settings,previous,count,released=row
-                if count-released>=MAX_CLAIMS:
+                ident,question,confirmed,settings,previous,count,released,requeued=row
+                if count-released-requeued>=MAX_CLAIMS:
                     reason=f'claim_limit_exceeded: {count} leases already issued; maximum {MAX_CLAIMS}'
                     limits.stop_task(conn,ident,reason,extra={'attempted_claim':count+1,'max_claims':MAX_CLAIMS})
                     continue
@@ -60,7 +62,7 @@ def heartbeat(ident,token):
         return True
 
 
-def release(job):
+def release(job,reason='worker_shutdown'):
     """Fence the old worker and requeue without charging a recovery attempt."""
     ident,token=job['task_id'],job['token']
     with connection('worker') as conn:
@@ -70,9 +72,12 @@ def release(job):
         if task['expired'] or task['cancel_requested_at']:
             limits.stop_task(conn,ident,'task_timeout' if task['expired'] else 'canceled')
             return False
-        conn.execute("UPDATE tasks SET status='pending',lease_token=NULL,lease_expires_at=NULL,released_count=released_count+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
+        if reason=='worker_shutdown':
+            conn.execute("UPDATE tasks SET status='pending',lease_token=NULL,lease_expires_at=NULL,released_count=released_count+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
+        else:
+            conn.execute("UPDATE tasks SET status='pending',error=NULL,lease_token=NULL,lease_expires_at=NULL,provider_requeues=provider_requeues+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
         conn.execute("UPDATE model_reservations SET status='unknown' WHERE task_id=%s AND status='pending'",(ident,))
-        event(conn,ident,'released',{'reason':'worker_shutdown','worker_id':worker_id()})
+        event(conn,ident,'released' if reason=='worker_shutdown' else 'provider_requeued',{'reason':reason,'worker_id':worker_id()})
         return True
 
 
@@ -111,7 +116,7 @@ def process(job,shutdown=None):
                 if child and child[0].poll() is None:child[0].kill()
                 return
     thread=threading.Thread(target=beat,daemon=True);thread.start()
-    termination=None
+    termination=None;last_error=None
     def admit(request):
         error=None
         with connection('worker') as conn:
@@ -122,17 +127,22 @@ def process(job,shutdown=None):
         if error:raise error
         return admission
     def emit(kind,payload,tokens=0,latency_ms=0):
-        nonlocal termination
+        nonlocal termination,last_error
         if lost.is_set():raise limits.TaskStopped('lease_lost')
         with connection('worker') as conn:
             check_lease(conn,ident,token)
-            if kind=='model_call':limits.settle(conn,ident,payload)
+            if kind=='model_call':
+                limits.settle(conn,ident,payload)
+                last_error=payload.get('error_class')
             event(conn,ident,kind,payload,tokens,latency_ms)
         if kind=='termination' and payload.get('scope')=='task':termination=payload['reason']
     try:
         for key,value in job['settings'].items():
             if key not in limits.settings():os.environ[key]=str(value)
         response=run_runtime(job['question'],ident,emit,phase=job['phase'],resume_board=job['board'],lease_token=str(token),budget_used=job['budget_used'],on_process=attach,control_check=admit)
+        if termination=='provider_unavailable' or (termination=='model_error' and last_error=='retryable'):
+            release(job,termination)
+            return
         status='awaiting_confirmation' if termination=='awaiting_confirmation' else 'completed' if termination=='final_answer' else 'failed'
         with connection('worker') as conn:
             check_lease(conn,ident,token)
@@ -167,7 +177,9 @@ def main():
             if job:
                 if shutdown.is_set():release(job)
                 else:process(job,shutdown)
-            else:shutdown.wait(1)
+            else:
+                with connection('worker') as conn:delay=provider_health.queue_delay(conn)
+                shutdown.wait(min(MAX_SLEEP,delay) if delay>0 else 1)
     finally:
         done.set();reporter.join(timeout=WORKER_HEARTBEAT_SECONDS+1)
         try:worker_heartbeat('stopped')
