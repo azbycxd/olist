@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="0.400" timestamp="2026-10-27T17:26:50.695649+00:00" hostname="aea65ec8a8be"><testcase classname="tests.test_data_scope" name="test_scope_precheck_rejects_foreign_state_and_national_aggregate" time="0.007"><failure message="ModuleNotFoundError: No module named 'mcp_olist.scopes'">def test_scope_precheck_rejects_foreign_state_and_national_aggregate():
+&gt;       from mcp_olist.scopes import check_sql
+E       ModuleNotFoundError: No module named 'mcp_olist.scopes'
+
+tests/test_data_scope.py:8: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_data_scope" name="test_model_cannot_change_or_inspect_scope[set_config('app.allowed_states','ALL',true)]" time="0.056" /><testcase classname="tests.test_data_scope" name="test_model_cannot_change_or_inspect_scope[current_setting('app.allowed_states')]" time="0.001" /><testcase classname="tests.test_data_scope" name="test_reader_unset_scope_denies_and_scoped_queries_cannot_escape" time="0.097"><failure message="assert 99441 == 0">@pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local databases required')
+    def test_reader_unset_scope_denies_and_scoped_queries_cannot_escape():
+        import psycopg
+        from config import db_kwargs
+        with psycopg.connect(**db_kwargs('olist','reader')) as conn:
+            conn.execute('SET TRANSACTION READ ONLY')
+&gt;           assert conn.execute('SELECT count(*) FROM customers').fetchone()[0]==0
+E           assert 99441 == 0
+
+tests/test_data_scope.py:28: AssertionError</failure></testcase><testcase classname="tests.test_data_scope" name="test_sp_task_rejects_rj_and_previous_broader_cached_result" time="0.045"><failure message="psycopg.errors.UndefinedColumn: column &quot;data_scope&quot; of relation &quot;users&quot; does not exist&#10;LINE 1: INSERT INTO users(username,data_scope) VALUES($1,ARRAY['ALL'...&#10;                                   ^">@pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local databases required')
+    def test_sp_task_rejects_rj_and_previous_broader_cached_result():
+        import psycopg
+        from config import db_kwargs
+        from mcp_olist.service import run_query,get_saved_result
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('scope-'+uuid4().hex,)).fetchone()[0]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_data_scope.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x71704e17f9d0&gt;
+query = "INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id"
+params = ('scope-317ed460535e459ba99aa595b4a98a85',)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedColumn: column "data_scope" of relation "users" does not exist
+E           LINE 1: INSERT INTO users(username,data_scope) VALUES($1,ARRAY['ALL'...
+E                                              ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedColumn</failure></testcase></testsuite></testsuites>
