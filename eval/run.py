@@ -139,7 +139,7 @@ def execute(args):
                 raise ValueError("Another evaluation is running; RESULTS append is serialized")
             oracle_db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             oracle_db.execute("SET LOCAL app.allowed_states = 'ALL'")
-            data_version = oracle_db.execute("SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
+            data_version = oracle_db.execute("SELECT current_data_version()").fetchone()[0]
             # Validate ALL selected gold queries before any adapter work or metrics.
             gold = {q["id"]: execute_gold(oracle_db, q)[0] for q in selected}
             embedding = provenance(used=args.adapter != 'zero' and args.rag_mode != 'off')
@@ -265,7 +265,8 @@ def recheck(path, tag):
     with psycopg.connect(**db_kwargs("agent","app"),autocommit=True) as db, psycopg.connect(**db_kwargs(role="reader")) as oracle:
         if not db.execute("SELECT pg_try_advisory_lock(730018)").fetchone()[0]: raise ValueError("Another evaluation is running")
         oracle.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
-        if oracle.execute("SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0] != original["data_version"]:
+        oracle.execute("SET LOCAL app.allowed_states='ALL'")
+        if oracle.execute("SELECT current_data_version()").fetchone()[0] != original["data_version"]:
             raise ValueError("Data version changed")
         rows=[]
         for case in original["cases"]:

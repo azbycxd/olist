@@ -1,17 +1,18 @@
-from db_pool import connection
 """Task-scoped state with transactional typed role updates, never arbitrary patches."""
+from db_pool import connection
 from uuid import UUID
 import psycopg
 from psycopg.types.json import Jsonb
 from config import db_kwargs
 from contracts import Claim,FinalAnswer
-from agent.state import Plan,Board,Subtask,Review
+from agent.state import Plan,Board,Subtask,Review,BOARD_SCHEMA_VERSION
 
 
 def read_state(task_id):
     with connection('mcp') as conn:
-        row=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(UUID(task_id),)).fetchone()
+        row=conn.execute('SELECT plan,subtasks,report,schema_version FROM task_state WHERE task_id=%s',(UUID(task_id),)).fetchone()
     if not row:raise ValueError('No state for this task')
+    if row[3]!=BOARD_SCHEMA_VERSION:return {'error':'state_version_mismatch','schema_version':row[3],'notice':'黑板版本未知，需从任务起点重新规划。'}
     return Board(plan=row[0],subtasks=row[1],report=row[2]).model_dump()
 
 
@@ -20,17 +21,18 @@ def write_state(task_id,role,payload,lease_token=None):
     with connection('mcp') as conn:
         from mcp_olist.leases import validate
         validate(conn,ident,lease_token,states=('running','planning') if role=='planner' else ('running',),lock=True)
-        row=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s FOR UPDATE',(ident,)).fetchone()
+        row=conn.execute('SELECT plan,subtasks,report,schema_version FROM task_state WHERE task_id=%s FOR UPDATE',(ident,)).fetchone()
         if role=='planner':
             plan=Plan.model_validate(payload)
-            if row:
+            if row and row[3]==BOARD_SCHEMA_VERSION:
                 if row[0]!=plan.model_dump():raise ValueError('Cannot overwrite existing plan')
                 return Board(plan=row[0],subtasks=row[1],report=row[2]).model_dump()
             board=Board(plan=plan,subtasks={p.id:Subtask(question=p.question,depends_on=p.depends_on) for p in plan.subtasks})
-            conn.execute('INSERT INTO task_state(task_id,plan,subtasks) VALUES(%s,%s,%s)',
-                (ident,Jsonb(plan.model_dump()),Jsonb({k:v.model_dump() for k,v in board.subtasks.items()})))
+            conn.execute('INSERT INTO task_state(task_id,plan,subtasks,schema_version) VALUES(%s,%s,%s,%s) ON CONFLICT(task_id) DO UPDATE SET plan=excluded.plan,subtasks=excluded.subtasks,report=NULL,schema_version=excluded.schema_version,updated_at=now()',
+                (ident,Jsonb(plan.model_dump()),Jsonb({k:v.model_dump() for k,v in board.subtasks.items()}),BOARD_SCHEMA_VERSION))
             return board.model_dump()
         if not row:raise ValueError('Planner must initialize state')
+        if row[3]!=BOARD_SCHEMA_VERSION:raise ValueError('Unknown blackboard schema; planner must restart')
         board=Board(plan=row[0],subtasks=row[1],report=row[2])
         if role=='writer':
             board.report=FinalAnswer.model_validate(payload)

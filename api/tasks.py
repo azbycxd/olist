@@ -170,7 +170,12 @@ def confirm(task_id:UUID,plan:Plan,owner:UUID=Depends(user)):
         limits.owner_lock(conn,owner)
         task=owned(conn,task_id,owner,True)
         if task['status']!='awaiting_confirmation':raise HTTPException(409,'Task is not awaiting confirmation')
-        stored=conn.execute('SELECT plan FROM task_state WHERE task_id=%s',(task_id,)).fetchone()
+        stored=conn.execute('SELECT plan,schema_version FROM task_state WHERE task_id=%s',(task_id,)).fetchone()
+        from agent.state import BOARD_SCHEMA_VERSION
+        if not stored or stored[1]!=BOARD_SCHEMA_VERSION:
+            conn.execute("UPDATE tasks SET status='pending',confirmed_at=NULL,updated_at=now() WHERE task_id=%s",(task_id,))
+            event(conn,task_id,'state_schema_reset',{'previous_version':stored[1] if stored else None,'schema_version':BOARD_SCHEMA_VERSION})
+            return {'task_id':str(task_id),'status':'pending','notice':'黑板版本已变化，重新生成计划后再确认。'}
         original={p.id:p for p in Plan.model_validate(stored[0]).subtasks}
         for part in plan.subtasks:
             old=original.get(part.id)

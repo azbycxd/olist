@@ -39,15 +39,21 @@ def _claim(task_id=None):
                     limits.stop_task(conn,ident,'daily_token_quota');continue
                 token=uuid4()
                 phase='execute' if confirmed or settings.get('AGENT_MODE')=='single' else 'plan'
+                state=conn.execute('SELECT plan,subtasks,report,schema_version FROM task_state WHERE task_id=%s',(ident,)).fetchone()
+                from agent.state import BOARD_SCHEMA_VERSION
+                if state and state[3]!=BOARD_SCHEMA_VERSION:
+                    event(conn,ident,'state_schema_reset',{'previous_version':state[3],'schema_version':BOARD_SCHEMA_VERSION})
+                    state=None
+                    conn.execute('UPDATE tasks SET confirmed_at=NULL WHERE task_id=%s',(ident,))
+                    if settings.get('AGENT_MODE')!='single':phase='plan'
                 conn.execute("UPDATE tasks SET deadline_at=COALESCE(deadline_at,now()+%s*interval '1 second') WHERE task_id=%s",(limits.settings()['TASK_MAX_SECONDS'],ident))
                 conn.execute("UPDATE tasks SET status=%s,lease_token=%s,lease_expires_at=LEAST(deadline_at,now()+%s*interval '1 second'),heartbeat_at=now(),claim_count=claim_count+1,updated_at=now() WHERE task_id=%s",('running' if phase=='execute' else 'planning',token,LEASE_SECONDS,ident))
                 event(conn,ident,'worker_claimed',{'phase':phase,'recovered':previous in {'planning','running'},'claim_count':count+1,'worker_id':os.getenv('WORKER_ID') or f'{os.getenv("HOSTNAME","local")}:{os.getpid()}'})
-                state=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(ident,)).fetchone()
                 budget=conn.execute("SELECT COALESCE(SUM(tokens),0) FROM events WHERE task_id=%s AND type='model_call'",(ident,)).fetchone()[0]
                 from mcp_olist.auth import issue_tokens
                 deadline=conn.execute('SELECT deadline_at FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]
                 tokens=issue_tokens(owner,ident,token,deadline,settings.get('AGENT_MODE','single'))
-                return {'task_id':ident,'question':question,'token':token,'phase':phase,'settings':settings,'board':dict(zip(['plan','subtasks','report'],state)) if state else None,'budget_used':budget,'traceparent':parent,'mcp_tokens':tokens}
+                return {'task_id':ident,'question':question,'token':token,'phase':phase,'settings':settings,'board':dict(zip(['plan','subtasks','report','schema_version'],state)) if state else None,'budget_used':budget,'traceparent':parent,'mcp_tokens':tokens}
         return None
 
 

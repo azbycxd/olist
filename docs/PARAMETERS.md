@@ -237,3 +237,7 @@ Toxiproxy 2.13.0以packet_loss丢弃TCP数据块，loss_rate=0.1、correlation=0
 | CONTEXT_TOKEN_COEFFICIENT | 0.7288973384030418 | 观测数据 | 3741个历史deepseek-flash dev调用的prompt_tokens/消息JSON字符数的nearest-rank p95；覆盖95.24%，不取均值、不搜索参数 |
 
 估算prompt取向上取整，另预留本次max_tokens，与已有CONTEXT_LIMIT比较；遮蔽沿用CONTEXT_KEEP_TURNS。系数包含历史工具定义/协议开销对prompt的影响，但新模型、新工具分布不保证相同覆盖；95%不是最坏情况保证。默认关闭时不压缩、不改变请求；此次默认配置回归也保持关闭。
+
+## Step 12.5 C5 数据与黑板版本
+
+无新增可调运行参数。数据版本固定为`导入哈希:语句变更计数`，计数器为事务性观测数据，每条INSERT/UPDATE/DELETE/TRUNCATE语句递增一次（即使影响0行），回滚不计入提交后的版本。黑板schema_version=1是代码格式契约，非可调阈值；0或未知版本重新规划，不迁就旧结构继续运行。

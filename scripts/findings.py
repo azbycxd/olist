@@ -14,14 +14,16 @@ from mcp_olist.knowledge import embed, MODEL, REVISION
 def current_version():
     with connection('worker','olist','reader') as conn:
         conn.execute('SET TRANSACTION READ ONLY')
-        return conn.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
+        return conn.execute('SELECT current_data_version()').fetchone()[0]
 
 
 def save_reviewed(task_id,lease_token=None):
     version=current_version()
     with connection('worker') as conn:
-        row=conn.execute('SELECT t.user_id,t.question,s.plan,s.subtasks,s.report FROM tasks t JOIN task_state s USING(task_id) WHERE t.task_id=%s',(UUID(str(task_id)),)).fetchone()
+        row=conn.execute('SELECT t.user_id,t.question,s.plan,s.subtasks,s.report,s.schema_version FROM tasks t JOIN task_state s USING(task_id) WHERE t.task_id=%s',(UUID(str(task_id)),)).fetchone()
         if not row or not row[4]:return []
+        from agent.state import BOARD_SCHEMA_VERSION
+        if row[5]!=BOARD_SCHEMA_VERSION:return []
         owner,question=row[:2];board=Board(plan=row[2],subtasks=row[3],report=row[4])
         # Never hold the owner admission/cancellation lock across HTTP inference.
         vectors={}
@@ -74,7 +76,7 @@ def retrieve(task_id,question,lease_token=None):
             item={'memory_id':str(ident),'similarity':similarity,'source_task_id':str(source_task),'data_version':old_version}
             if old_version!=version:
                 # Do not expose the old conclusion, values, or result IDs to the model.
-                found.append({**item,'status':'stale_clue','question':value['question'],'notice':'历史数据版本已过期，只能作为分析方向，必须重新查询。'})
+                found.append({**item,'status':'stale_clue','question':value['question'],'notice':'需复核：历史数据版本已过期，只能作为分析方向，必须重新查询。'})
                 continue
             sources=conn.execute('SELECT r.result_id,r.sql,r.columns,r.rows,r.row_count,r.data_version,r.truncated FROM query_results r JOIN tasks t USING(task_id) WHERE r.result_id=ANY(%s) AND r.task_id=%s AND t.user_id=%s',
                 ([UUID(ref) for ref in evidence],source_task,owner[0])).fetchall()

@@ -124,7 +124,7 @@ def _run_query(statement, task_id, lease_token=None, states=None):
             conn.execute(sql.SQL('SET LOCAL statement_timeout = {}').format(sql.Literal(str(int(SQL_TIMEOUT_SECONDS*1000))+'ms')))
             conn.execute("SET LOCAL lock_timeout = '2s'")
             conn.execute("SET LOCAL search_path = pg_catalog, public")
-            version = conn.execute("SELECT data_version FROM public.data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
+            version = conn.execute("SELECT public.current_data_version()").fetchone()[0]
             lock_key=int.from_bytes(hashlib.sha256((str(task_id)+digest+version).encode()).digest()[:8],signed=True)
             agent_db.execute('SELECT pg_advisory_xact_lock(%s)',(lock_key,))
             cached=agent_db.execute('SELECT tool_response FROM query_results WHERE task_id=%s AND sql_hash=%s AND data_version=%s',(task_id,digest,version)).fetchone()

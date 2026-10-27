@@ -38,7 +38,8 @@ def execute(suite='step10', *, tag=None, runtime_config=None):
                 'configuration':configuration,'embedding':identity,'questions':questions,'repetitions':1,
                 'scoring':'predeclared behavioral expectations, deterministic evidence audit plus explicit saved-response review; not holdout accuracy'},f,ensure_ascii=False,indent=2)
         data.execute('SET TRANSACTION READ ONLY')
-        version=data.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
+        data.execute("SET LOCAL app.allowed_states='ALL'")
+        version=data.execute('SELECT current_data_version()').fetchone()[0]
         def snapshot():
             return {'orders':data.execute('SELECT count(*) FROM orders').fetchone()[0],
                     'canceled_orders':data.execute("SELECT count(*) FROM orders WHERE order_status='canceled'").fetchone()[0],

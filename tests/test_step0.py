@@ -58,7 +58,7 @@ def test_source_rows_keys_and_timestamps():
             assert count == manifest[table]["rows"]
         assert conn.execute("SELECT data_type FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'order_purchase_timestamp'").fetchone()[0] == "timestamp without time zone"
         assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'f' AND connamespace = 'public'::regnamespace").fetchone()[0] == 6
-        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'p' AND connamespace = 'public'::regnamespace").fetchone()[0] == len(TABLES) + 2
+        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'p' AND connamespace = 'public'::regnamespace").fetchone()[0] == len(TABLES) + 3
 
 
 def test_core_tables_and_evidence_roundtrip():

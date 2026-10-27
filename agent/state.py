@@ -3,6 +3,12 @@ from typing import Literal
 from pydantic import BaseModel,ConfigDict,Field,model_validator
 from contracts import Claim,FinalAnswer
 
+BOARD_SCHEMA_VERSION=1
+
+
+def resumable(value):
+    return isinstance(value,dict) and type(value.get('schema_version')) is int and value['schema_version']==BOARD_SCHEMA_VERSION
+
 
 class Strict(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True)
@@ -54,6 +60,7 @@ class Subtask(Strict):
 
 
 class Board(Strict):
+    schema_version:Literal[1]=BOARD_SCHEMA_VERSION
     plan:Plan
     subtasks:dict[str,Subtask]
     report:FinalAnswer|None=None

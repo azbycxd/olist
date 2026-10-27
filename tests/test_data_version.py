@@ -52,6 +52,10 @@ def test_statement_write_changes_version_and_stale_finding_is_not_injected(monke
                 conn.execute("UPDATE customers SET customer_city='changed' WHERE customer_id='customer'")
             new=findings.current_version()
             assert new!=old and new.startswith('source-hash:')
+            with psycopg.connect(**db_kwargs(names['olist'])) as conn:
+                conn.execute("UPDATE customers SET customer_city='rolled back'")
+                conn.rollback()
+            assert findings.current_version()==new
             result=findings.retrieve(task,'q')
             assert result[0]['status']=='stale_clue' and 'claim' not in result[0] and '需复核' in result[0]['notice']
         finally:
