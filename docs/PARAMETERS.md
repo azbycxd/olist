@@ -168,3 +168,5 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 验收预先固定为 RPM=10、TPM=16000、在途=3、等待=180s，仅适用于本次HTTP替身故障压测，不是供应商参数建议。未对参数做搜索。实际TPM由替身返回usage和真实时钟计算，见STEP12_HARDENING收据。
 
 | `PROVIDER_REQUEUE_MAX` | 3 | 预先固定 | 第1批第二轮复核指定；每任务最多供应商故障重排次数；达到后再次失败以provider_unavailable终止，不搜索参数。 |
+
+| `READY_CONNECTION_TIMEOUT_SECONDS` | 1s | 安全护栏 | 第1批第二轮复核指定；readyz每个池的取连接超时，低于compose healthcheck的3秒；普通请求仍用DB_POOL_TIMEOUT_SECONDS。 |

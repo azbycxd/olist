@@ -51,9 +51,9 @@ def pool(component, database='agent', role='app'):
 
 
 @contextmanager
-def connection(component, database='agent', role='app'):
+def connection(component, database='agent', role='app', *, timeout=None):
     try:
-        with pool(component, database, role).connection() as conn:
+        with pool(component, database, role).connection(timeout=timeout) as conn:
             yield conn
     except PoolTimeout:
         state = request_state.get()
@@ -65,10 +65,10 @@ def connection(component, database='agent', role='app'):
 def ready(component):
     # MCP needs both databases; the worker's olist reader remains lazy.
     try:
-        with connection(component) as conn:
+        with connection(component,timeout=config.READY_CONNECTION_TIMEOUT_SECONDS) as conn:
             conn.execute('SELECT 1')
         if component=='mcp':
-            with connection(component,'olist','reader') as conn:
+            with connection(component,'olist','reader',timeout=config.READY_CONNECTION_TIMEOUT_SECONDS) as conn:
                 conn.execute('SELECT 1')
         return True
     except Exception:

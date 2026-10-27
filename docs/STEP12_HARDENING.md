@@ -276,3 +276,10 @@ B2额外失败测试 `2109e73` 复现 rate_limited 后继续提取Memory；现�
 ## 第1批第二轮复核5：MCP业务库就绪
 
 旧问题：MCP仅检查agent库。现readyz同时检查agent池和使用agent_ro的olist池，任一失败返回503；worker仍仅检查agent，保持olist懒加载。改前1失败，改后就绪/服务10通过；[XML、日志及哈希](../evidence/step12_r2_5_receipt.json)。健康检查只表示当前连通性，不保证后续业务查询一定成功。
+
+
+## 第1批第二轮复核6：就绪取连接短超时
+
+旧问题：readyz使用普通池5秒超时，超过compose检查3秒。现每个池的取连接使用READY_CONNECTION_TIMEOUT_SECONDS，默认1秒，失败返回503；普通业务取连接仍5秒。MCP两个池顺序检查，worker一个池且不建立olist连接。
+
+改前3失败/1通过；六项改完后本地全量319通过；[XML、日志及哈希](../evidence/step12_r2_6_receipt.json)。该配置限制取连接时间，不把业务SQL的执行超时改为1秒。
