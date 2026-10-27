@@ -25,3 +25,15 @@ def test_regression_rejects_holdout_and_repeats(tmp_path):
         value=json.loads(path.read_text());value.update(changes);path.write_text(json.dumps(value))
         with pytest.raises(ValueError):claim_once(path,tmp_path/'never-started.json')
         assert not (tmp_path/'never-started.json').exists()
+
+
+def test_host_verified_protocol_ticket_for_images_without_git(tmp_path,monkeypatch):
+    import hashlib
+    from scripts.step12_regression import verify_committed_protocol
+    path=protocol(tmp_path)
+    monkeypatch.setattr('shutil.which',lambda _:None)
+    monkeypatch.setenv('STEP12_PROTOCOL_COMMIT','a'*40)
+    monkeypatch.setenv('STEP12_PROTOCOL_SHA256','incorrect')
+    with pytest.raises(ValueError):verify_committed_protocol(path,tmp_path)
+    monkeypatch.setenv('STEP12_PROTOCOL_SHA256',hashlib.sha256(path.read_bytes()).hexdigest())
+    assert verify_committed_protocol(path,tmp_path)=='a'*40
