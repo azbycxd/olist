@@ -26,6 +26,28 @@ def test_usage_difference_preserves_unknown_and_overage():
     assert refund_amount(100,None) is None
 
 
+@pytest.mark.integration
+@integration
+def test_reservation_above_tpm_capacity_fails_without_waiting(rate_job,monkeypatch):
+    from contracts import FinalAnswer
+    monkeypatch.setenv('PROVIDER_TPM','100')
+    monkeypatch.setenv('RATE_WAIT_MAX_SECONDS','0.3')
+    def runtime(question,task_id,emit,**kwargs):
+        began=time.monotonic()
+        with pytest.raises(limits.TaskStopped,match='^rate_limited$'):
+            kwargs['control_check']({'call_id':str(uuid4()),'requested_model':'rate-fixture','reserved_tokens':101})
+        assert time.monotonic()-began<0.15
+        emit('termination',{'scope':'task','reason':'rate_limited'})
+        return FinalAnswer(answer='fixture',claims=[])
+    monkeypatch.setattr(worker,'run_runtime',runtime)
+    worker.process(rate_job)
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        assert conn.execute('SELECT status,error FROM tasks WHERE task_id=%s',(rate_job['task_id'],)).fetchone()==('failed','rate_limited')
+        payload=conn.execute("SELECT payload FROM events WHERE task_id=%s AND type='rate_wait'",(rate_job['task_id'],)).fetchone()[0]
+        assert payload['reason']=='request_exceeds_tpm'
+        assert conn.execute('SELECT count(*) FROM model_reservations WHERE task_id=%s',(rate_job['task_id'],)).fetchone()[0]==0
+
+
 def test_rate_limited_runtime_does_not_start_another_memory_model_call(monkeypatch):
     import asyncio
     from agent import worker as runtime

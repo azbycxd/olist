@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.026" timestamp="2026-10-27T16:04:34.170619+00:00" hostname="7356572742f0"><testcase classname="tests.test_rate_limits" name="test_reservation_above_tpm_capacity_fails_without_waiting" time="0.377"><failure message="AssertionError: assert ('failed', 'AssertionError') == ('failed', 'rate_limited')&#10;  &#10;  At index 1 diff: 'AssertionError' != 'rate_limited'&#10;  Use -v to get more diff">rate_job = {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...}
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7efb2d547750&gt;
+
+    @pytest.mark.integration
+    @integration
+    def test_reservation_above_tpm_capacity_fails_without_waiting(rate_job,monkeypatch):
+        from contracts import FinalAnswer
+        monkeypatch.setenv('PROVIDER_TPM','100')
+        monkeypatch.setenv('RATE_WAIT_MAX_SECONDS','0.3')
+        def runtime(question,task_id,emit,**kwargs):
+            began=time.monotonic()
+            with pytest.raises(limits.TaskStopped,match='^rate_limited$'):
+                kwargs['control_check']({'call_id':str(uuid4()),'requested_model':'rate-fixture','reserved_tokens':101})
+            assert time.monotonic()-began&lt;0.15
+            emit('termination',{'scope':'task','reason':'rate_limited'})
+            return FinalAnswer(answer='fixture',claims=[])
+        monkeypatch.setattr(worker,'run_runtime',runtime)
+        worker.process(rate_job)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;           assert conn.execute('SELECT status,error FROM tasks WHERE task_id=%s',(rate_job['task_id'],)).fetchone()==('failed','rate_limited')
+E           AssertionError: assert ('failed', 'AssertionError') == ('failed', 'rate_limited')
+E             
+E             At index 1 diff: 'AssertionError' != 'rate_limited'
+E             Use -v to get more diff
+
+tests/test_rate_limits.py:45: AssertionError</failure></testcase></testsuite></testsuites>
