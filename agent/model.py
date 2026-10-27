@@ -11,10 +11,10 @@ from random import uniform
 from time import perf_counter
 from uuid import uuid4
 import httpx
-from openai import APIConnectionError, APITimeoutError
+from openai import APIConnectionError, APITimeoutError,AsyncOpenAI
 from agent.task_control import CONTROL,reservation_size,ModelStopped
 
-from config import MODEL_EXTRA_BODY, MODEL_MAX_OUTPUT_TOKENS, MODEL_TEMPERATURE
+from config import MODEL_EXTRA_BODY, MODEL_MAX_OUTPUT_TOKENS, MODEL_TEMPERATURE,MODEL_TIMEOUT,fallback_settings
 from config import MODEL_RETRY_ATTEMPTS, MODEL_RETRY_BASE_SECONDS, MODEL_RETRY_CAP_SECONDS
 
 @dataclass
@@ -24,6 +24,16 @@ class Budget:
     complete: bool=True
 
 ACTIVE_BUDGET=ContextVar('model_budget',default=None)
+
+
+def portable_messages(messages):
+    allowed={'role','content','tool_call_id','tool_calls','name'}
+    values=[{k:v for k,v in m.items() if k in allowed} for m in messages]
+    for value in values:
+        if value.get('tool_calls'):
+            value['tool_calls']=[{'id':c['id'],'type':c['type'],'function':{
+                k:v for k,v in c['function'].items() if k in {'name','arguments'}}} for c in value['tool_calls']]
+    return values
 
 
 def classify_error(exc):
@@ -65,6 +75,7 @@ async def _request(client, model, messages, emit, *, role="agent", step=0, tools
     messages=prepare(messages,min(MODEL_MAX_OUTPUT_TOKENS,max(1,remaining)),emit,role)
     wait_budget = float('inf')
     deadline = float('inf')
+    used_fallback=False
     for attempt in range(MODEL_RETRY_ATTEMPTS):
         budget=ACTIVE_BUDGET.get()
         if budget:
@@ -77,6 +88,7 @@ async def _request(client, model, messages, emit, *, role="agent", step=0, tools
             "error_class":None,
             "input_summary":{"messages":len(messages),"characters":sum(len(json.dumps(m,ensure_ascii=False)) for m in messages)}}
         output_limit=min(MODEL_MAX_OUTPUT_TOKENS,max(1,remaining))
+        admission=None
         control=CONTROL.get()
         if control:
             call_id=str(uuid4())
@@ -87,15 +99,26 @@ async def _request(client, model, messages, emit, *, role="agent", step=0, tools
                 seconds = max(0.0, admission['remaining_seconds'])
                 deadline = min(deadline, perf_counter()+seconds)
                 wait_budget = min(wait_budget, seconds)
+        alternate=fallback_settings() if admission and admission.get('route')=='fallback' else None
+        actual_model=alternate['model'] if alternate else model
+        actual_messages=portable_messages(messages) if alternate else messages
+        if alternate:
+            used_fallback=True
+            payload.update(requested_model=actual_model,extra_body={},route='fallback')
+            payload['input_summary']={'messages':len(actual_messages),'characters':sum(len(json.dumps(m,ensure_ascii=False)) for m in actual_messages)}
+            emit('model_fallback',{'role':role,'step':step,'from_model':model,'model':actual_model})
         start = perf_counter()
         completion = None
         error = None
         try:
             kwargs = {"tools":tools,"tool_choice":"auto"} if tools else {}
             if json_mode: kwargs["response_format"] = {"type":"json_object"}
-            completion = await client.chat.completions.create(model=model,temperature=MODEL_TEMPERATURE,
-                messages=messages,max_tokens=output_limit,
-                **kwargs,**({"extra_body":MODEL_EXTRA_BODY} if MODEL_EXTRA_BODY else {}))
+            arguments=dict(model=actual_model,temperature=MODEL_TEMPERATURE,messages=actual_messages,max_tokens=output_limit,**kwargs)
+            if alternate:
+                async with AsyncOpenAI(base_url=alternate['base_url'],api_key=alternate['api_key'],max_retries=0,timeout=MODEL_TIMEOUT) as alternate_client:
+                    completion=await alternate_client.chat.completions.create(**arguments)
+            else:
+                completion=await client.chat.completions.create(**arguments,**({'extra_body':MODEL_EXTRA_BODY} if MODEL_EXTRA_BODY else {}))
             payload.update(response_model=completion.model,
                 system_fingerprint=getattr(completion,"system_fingerprint",None),
                 usage=completion.usage.model_dump() if completion.usage else None,
@@ -103,7 +126,7 @@ async def _request(client, model, messages, emit, *, role="agent", step=0, tools
         except Exception as exc:
             error = exc
             detail = str(exc)
-            for secret in (os.getenv("OPENAI_API_KEY"),os.getenv("MCP_BEARER_TOKEN")):
+            for secret in (os.getenv("OPENAI_API_KEY"),os.getenv("MCP_BEARER_TOKEN"),os.getenv('FALLBACK_API_KEY')):
                 if secret: detail = detail.replace(secret,"[redacted]")
             payload.update(error=type(exc).__name__,error_detail=detail[:1000],error_class=classify_error(exc))
         latency = (perf_counter()-start)*1000
@@ -124,7 +147,9 @@ async def _request(client, model, messages, emit, *, role="agent", step=0, tools
         if payload['error_class'] in {'fatal','context_limit'}:
             raise ModelStopped('context_limit' if payload['error_class']=='context_limit' else 'model_fatal')
         if payload['error_class']!='retryable' or wait_budget <= 0 or perf_counter() >= deadline:
+            if used_fallback:raise ModelStopped('provider_unavailable')
             return None
+    if used_fallback:raise ModelStopped('provider_unavailable')
     return None
 
 

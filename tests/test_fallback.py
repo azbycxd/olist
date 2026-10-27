@@ -20,7 +20,7 @@ def test_parent_switch_routes_to_fallback_and_drops_vendor_fields(monkeypatch):
     async def create_primary(**kw):primary.append(kw);return completion([])
     async def create_fallback(**kw):alternate.append(kw);return completion([])
     class Alternate:
-        def __init__(self,**kw):self.chat=SimpleNamespace(completions=SimpleNamespace(create=create_fallback))
+        def __init__(self,*,base_url,api_key,max_retries,timeout):self.chat=SimpleNamespace(completions=SimpleNamespace(create=create_fallback))
         async def __aenter__(self):return self
         async def __aexit__(self,*a):pass
     monkeypatch.setattr(model,'AsyncOpenAI',Alternate,raising=False)
@@ -59,6 +59,7 @@ def test_open_primary_switches_and_both_open_are_unavailable(monkeypatch):
             call=str(uuid4())
             admission=task_limits.reserve(conn,job['task_id'],job['token'],{'call_id':call,'reserved_tokens':100,'requested_model':primary})
             assert admission['route']=='fallback' and admission['model']==fallback
+            assert task_limits.reserve(conn,job['task_id'],job['token'],{'call_id':call,'reserved_tokens':100,'requested_model':primary})['route']=='fallback'
             assert conn.execute('SELECT provider,model FROM model_reservations WHERE call_id=%s',(call,)).fetchone()==('http://fallback.fixture/v1',fallback)
             conn.execute("UPDATE provider_health SET state='open',open_until=clock_timestamp()+interval '30 seconds' WHERE provider='http://fallback.fixture/v1' AND model=%s",(fallback,))
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
@@ -67,3 +68,24 @@ def test_open_primary_switches_and_both_open_are_unavailable(monkeypatch):
                 task_limits.reserve(conn,job['task_id'],job['token'],{'call_id':str(uuid4()),'reserved_tokens':100,'requested_model':primary})
     finally:
         with psycopg.connect(**db_kwargs('agent','app')) as conn:task_limits.stop_task(conn,job['task_id'],'canceled')
+
+
+def test_fallback_503_exhaustion_uses_provider_unavailable(monkeypatch):
+    import httpx
+    import openai
+    import agent.model as model
+    from agent.task_control import CONTROL,ModelStopped
+    configured(monkeypatch);attempts=[]
+    def response(request):
+        attempts.append(request)
+        return httpx.Response(503,json={'error':{'message':'scripted unavailable','type':'server_error'}})
+    def alternate(**kwargs):return openai.AsyncOpenAI(**kwargs,http_client=httpx.AsyncClient(transport=httpx.MockTransport(response)))
+    monkeypatch.setattr(model,'AsyncOpenAI',alternate)
+    async def admit(payload):return {'route':'fallback','model':'fallback-fixture','remaining_seconds':100}
+    async def no_sleep(seconds):pass
+    async def run():
+        token=CONTROL.set(admit)
+        try:await model.request(None,'primary',[],lambda *a:None,sleep=no_sleep)
+        finally:CONTROL.reset(token)
+    with pytest.raises(ModelStopped,match='provider_unavailable'):asyncio.run(run())
+    assert len(attempts)==model.MODEL_RETRY_ATTEMPTS

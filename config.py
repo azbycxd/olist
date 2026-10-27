@@ -23,6 +23,16 @@ def mcp_token_secret():
     if len(value)<32:raise ValueError('MCP_TOKEN_SECRET must contain at least 32 characters')
     return value
 
+
+def fallback_settings():
+    values={key:os.getenv('FALLBACK_'+key.upper(),'').strip() for key in ('base_url','model','api_key')}
+    if not any(values.values()):return None
+    if not all(values.values()):raise ValueError('FALLBACK_BASE_URL, FALLBACK_MODEL and FALLBACK_API_KEY must be configured together')
+    url=urlparse(values['base_url'])
+    if url.scheme not in {'http','https'} or not url.hostname or url.username or url.password or url.query:
+        raise ValueError('FALLBACK_BASE_URL must be HTTP(S) without credentials or query')
+    return values
+
 # A complete explicit provider selection takes precedence over an unrelated
 # ambient OPENAI_API_KEY. The runtime still uses the OpenAI-compatible SDK.
 if os.getenv("DEEPSEEK_MODEL"):

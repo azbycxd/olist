@@ -58,15 +58,27 @@ def reserve(conn,ident,token,request):
     task=lock_task(conn,ident);active(task,token)
     call=UUID(request['call_id']);amount=request['reserved_tokens']
     if not isinstance(amount,int) or not 0<amount<=10_000_000:raise TaskStopped('invalid_reservation')
-    existing=conn.execute('SELECT task_id,reserved_tokens FROM model_reservations WHERE call_id=%s',(call,)).fetchone()
+    existing=conn.execute('SELECT task_id,reserved_tokens,provider,model FROM model_reservations WHERE call_id=%s',(call,)).fetchone()
     if existing:
-        if existing!=(UUID(str(ident)),amount):raise TaskStopped('reservation_conflict')
-        return
+        if existing[:2]!=(UUID(str(ident)),amount):raise TaskStopped('reservation_conflict')
+        from config import fallback_settings
+        from scripts.provider_health import provider_key
+        alternate=fallback_settings()
+        route='fallback' if alternate and existing[2:]==(provider_key(alternate['base_url']),alternate['model']) else 'primary'
+        remaining=conn.execute('SELECT EXTRACT(EPOCH FROM (%s::timestamptz-clock_timestamp()))',(task['deadline_at'],)).fetchone()[0]
+        return {'remaining_seconds':max(0,float(remaining)),'route':route,'model':existing[3]}
     available=quota(conn,task['user_id'])
     if amount>available['available_tokens']:raise TaskStopped('daily_token_quota')
     from scripts import provider_health
     model=request.get('requested_model') or os.getenv('OPENAI_MODEL') or 'unconfigured'
-    provider,generation=provider_health.admit(conn,call,model,task['deadline_at'])
+    route='primary'
+    try:provider,generation=provider_health.admit(conn,call,model,task['deadline_at'])
+    except TaskStopped as exc:
+        from config import fallback_settings
+        alternate=fallback_settings()
+        if str(exc)!='provider_unavailable' or not alternate:raise
+        model=alternate['model'];route='fallback'
+        provider,generation=provider_health.admit(conn,call,model,task['deadline_at'],alternate['base_url'])
     from scripts import rate_limits
     rate_held=rate_limits.acquire(conn,provider,call,amount,task['deadline_at'])
     conn.execute('INSERT INTO user_token_days(user_id,usage_day,held_tokens) VALUES(%s,%s,%s) ON CONFLICT(user_id,usage_day) DO UPDATE SET held_tokens=user_token_days.held_tokens+excluded.held_tokens',
@@ -74,9 +86,9 @@ def reserve(conn,ident,token,request):
     conn.execute('INSERT INTO model_reservations(call_id,task_id,user_id,usage_day,reserved_tokens,provider,model,provider_generation,rate_held) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                  (call,ident,task['user_id'],available['usage_day'],amount,provider,model,generation,rate_held))
     event(conn,ident,'model_admitted',{'call_id':str(call),'reserved_tokens':amount,'usage_day':str(available['usage_day']),
-                                      'role':request.get('role'),'step':request.get('step')})
+                                      'role':request.get('role'),'step':request.get('step'),'route':route,'model':model})
     remaining=conn.execute('SELECT EXTRACT(EPOCH FROM (%s::timestamptz-clock_timestamp()))',(task['deadline_at'],)).fetchone()[0]
-    return {'remaining_seconds':max(0,float(remaining))}
+    return {'remaining_seconds':max(0,float(remaining)),'route':route,'model':model}
 
 
 def settle(conn,ident,payload):

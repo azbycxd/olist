@@ -4,8 +4,8 @@ from urllib.parse import urlsplit
 from config import PROVIDER_FAILURE_THRESHOLD, PROVIDER_COOLDOWN_SECONDS, MODEL_TIMEOUT
 
 
-def provider_key():
-    url = urlsplit(os.getenv('OPENAI_BASE_URL') or 'https://api.openai.com/v1')
+def provider_key(base_url=None):
+    url = urlsplit(base_url or os.getenv('OPENAI_BASE_URL') or 'https://api.openai.com/v1')
     # No userinfo, query string or credentials enter the database/telemetry key.
     return f'{url.scheme}://{url.hostname}' + (f':{url.port}' if url.port else '') + url.path.rstrip('/')
 
@@ -13,13 +13,18 @@ def provider_key():
 def queue_delay(conn):
     """Read-only pre-claim check; reserve() still arbitrates the single probe."""
     model=os.getenv('OPENAI_MODEL') or 'unconfigured'
-    row=conn.execute("SELECT GREATEST(0,EXTRACT(EPOCH FROM (CASE WHEN state='open' THEN open_until WHEN state='half_open' THEN probe_until END-clock_timestamp()))) FROM provider_health WHERE provider=%s AND model=%s",(provider_key(),model)).fetchone()
-    return float(row[0] or 0) if row else 0.0
+    def delay(provider,model):
+        row=conn.execute("SELECT GREATEST(0,EXTRACT(EPOCH FROM (CASE WHEN state='open' THEN open_until WHEN state='half_open' THEN probe_until END-clock_timestamp()))) FROM provider_health WHERE provider=%s AND model=%s",(provider,model)).fetchone()
+        return float(row[0] or 0) if row else 0.0
+    wait=delay(provider_key(),model)
+    from config import fallback_settings
+    alternate=fallback_settings()
+    return min(wait,delay(provider_key(alternate['base_url']),alternate['model'])) if wait and alternate else wait
 
 
-def admit(conn, call, model, deadline):
+def admit(conn, call, model, deadline,base_url=None):
     from scripts.task_limits import TaskStopped
-    provider = provider_key()
+    provider = provider_key(base_url)
     conn.execute('INSERT INTO provider_health(provider,model) VALUES(%s,%s) ON CONFLICT DO NOTHING',(provider,model))
     row = conn.execute('SELECT state,generation,open_until>clock_timestamp(),probe_until>clock_timestamp() FROM provider_health WHERE provider=%s AND model=%s FOR UPDATE',(provider,model)).fetchone()
     state,generation,cooling,probing = row
