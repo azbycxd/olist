@@ -61,6 +61,8 @@ def retry_delay(exc, attempt):
 
 async def _request(client, model, messages, emit, *, role="agent", step=0, tools=None,
                   remaining=50000, sleep=asyncio.sleep, json_mode=False):
+    from agent.preflight import prepare
+    messages=prepare(messages,min(MODEL_MAX_OUTPUT_TOKENS,max(1,remaining)),emit,role)
     wait_budget = float('inf')
     deadline = float('inf')
     for attempt in range(MODEL_RETRY_ATTEMPTS):

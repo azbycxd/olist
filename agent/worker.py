@@ -62,7 +62,7 @@ async def _execute(request):
                 if mode=="single" and outcome.termination=="final_answer" and os.getenv("NUMBER_GATE","false").lower()=="true":
                     approved=await approve_values(outcome.response.claims,remote)
                     outcome.response.answer=await enforce(outcome.response.answer,approved,client,OPENAI_MODEL,emit)
-        if os.getenv('USE_MEMORY','false').lower()=='true' and request.get('phase')!='plan' and outcome.termination not in {'model_fatal','provider_unavailable','context_limit','rate_limited','infra_retryable'}:
+        if os.getenv('USE_MEMORY','false').lower()=='true' and request.get('phase')!='plan' and outcome.termination not in {'model_fatal','provider_unavailable','context_limit','context_limit_preflight','rate_limited','infra_retryable'}:
             try:
                 items=await extract(request.get('user_text',request['question']),client,os.getenv('SMALL_MODEL') or OPENAI_MODEL,emit)
                 emit('memory_candidates',{'preferences':items})

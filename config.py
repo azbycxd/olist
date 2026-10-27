@@ -11,6 +11,9 @@ if os.getenv("OLIST_LOAD_DOTENV", "1") == "1":
     load_dotenv(ROOT / ".env", override=False)
 RETENTION_DAYS=int(os.getenv('RETENTION_DAYS','30'))
 if not 1<=RETENTION_DAYS<=36500:raise ValueError('RETENTION_DAYS must be in 1..36500')
+CONTEXT_PREFLIGHT=os.getenv('CONTEXT_PREFLIGHT','false').lower()=='true'
+CONTEXT_TOKEN_COEFFICIENT=float(os.getenv('CONTEXT_TOKEN_COEFFICIENT','0.7288973384030418'))
+if not 0<CONTEXT_TOKEN_COEFFICIENT<float('inf'):raise ValueError('CONTEXT_TOKEN_COEFFICIENT must be positive and finite')
 MCP_TOKEN_CLOCK_SKEW_SECONDS = int(os.getenv('MCP_TOKEN_CLOCK_SKEW_SECONDS','30'))
 if MCP_TOKEN_CLOCK_SKEW_SECONDS!=30:raise ValueError('MCP_TOKEN_CLOCK_SKEW_SECONDS is fixed at 30')
 

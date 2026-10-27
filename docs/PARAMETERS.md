@@ -228,3 +228,12 @@ Toxiproxy 2.13.0以packet_loss丢弃TCP数据块，loss_rate=0.1、correlation=0
 | RETENTION_DAYS | 30 | 预先固定 | 本批指定；显式运行保留作业时清理超过该天数的终态任务明细和旧事件，保留最终答案及被引用证据 |
 
 保留期以UTC数据库时钟和终态任务最后更新时间判断，跳过运行中或已被其他事务锁定的任务；每次运行均写maintenance_audit。保留作业不会随服务启动自动执行，管理员运行`python -m scripts.maintenance retain`。用户删除通过`DELETE /me`（已登录的本人）或本机管理员命令`python -m scripts.maintenance delete-user UUID`，级联删除该用户数据并审计。审计与匿名汇总counter不随用户删除回减。
+
+## Step 12.5 C4 上下文预检
+
+| 参数 | 默认 | 来源类型 | 用途 |
+| --- | --- | --- | --- |
+| CONTEXT_PREFLIGHT | false | 安全护栏 | 按全局规则默认关闭；开启后发送前估算，必要时仅执行一次已有mask，仍超限则context_limit_preflight |
+| CONTEXT_TOKEN_COEFFICIENT | 0.7288973384030418 | 观测数据 | 3741个历史deepseek-flash dev调用的prompt_tokens/消息JSON字符数的nearest-rank p95；覆盖95.24%，不取均值、不搜索参数 |
+
+估算prompt取向上取整，另预留本次max_tokens，与已有CONTEXT_LIMIT比较；遮蔽沿用CONTEXT_KEEP_TURNS。系数包含历史工具定义/协议开销对prompt的影响，但新模型、新工具分布不保证相同覆盖；95%不是最坏情况保证。默认关闭时不压缩、不改变请求；此次默认配置回归也保持关闭。
