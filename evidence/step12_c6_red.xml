@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="1.705" timestamp="2026-10-27T17:50:42.957026+00:00" hostname="5047dbb5d86d"><testcase classname="tests.test_fallback" name="test_parent_switch_routes_to_fallback_and_drops_vendor_fields" time="0.970"><failure message="AssertionError: assert (not [{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': 'hello', 'reasoning_content': 'vendor private', 'role': 'assistant', 'vendor_field': 'remove'}], 'model': 'primary', ...}])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74184e01b3d0&gt;
+
+    def test_parent_switch_routes_to_fallback_and_drops_vendor_fields(monkeypatch):
+        import agent.model as model
+        from agent.task_control import CONTROL
+        from test_agent import completion
+        configured(monkeypatch);primary=[];alternate=[];events=[]
+        async def create_primary(**kw):primary.append(kw);return completion([])
+        async def create_fallback(**kw):alternate.append(kw);return completion([])
+        class Alternate:
+            def __init__(self,**kw):self.chat=SimpleNamespace(completions=SimpleNamespace(create=create_fallback))
+            async def __aenter__(self):return self
+            async def __aexit__(self,*a):pass
+        monkeypatch.setattr(model,'AsyncOpenAI',Alternate,raising=False)
+        async def admit(payload):return {'route':'fallback','model':'fallback-fixture','remaining_seconds':100}
+        async def run():
+            token=CONTROL.set(admit)
+            try:return await model.request(SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create_primary))),
+                    'primary',[{'role':'assistant','content':'hello','reasoning_content':'vendor private','vendor_field':'remove'}],
+                    lambda kind,payload,*_:events.append((kind,payload)))
+            finally:CONTROL.reset(token)
+        asyncio.run(run())
+&gt;       assert not primary and len(alternate)==1
+E       AssertionError: assert (not [{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 4096, 'messages': [{'content': 'hello', 'reasoning_content': 'vendor private', 'role': 'assistant', 'vendor_field': 'remove'}], 'model': 'primary', ...}])
+
+tests/test_fallback.py:35: AssertionError</failure></testcase><testcase classname="tests.test_fallback" name="test_open_primary_switches_and_both_open_are_unavailable" time="0.511"><failure message="AssertionError: assert 29.992256 == 0&#10; +  where 29.992256 = &lt;function queue_delay at 0x741848d25ee0&gt;(&lt;psycopg.Connection [INTRANS] (host=db user=agent_app database=agent) at 0x741843b43a50&gt;)&#10; +    where &lt;function queue_delay at 0x741848d25ee0&gt; = &lt;module 'scripts.provider_health' from '/app/scripts/provider_health.py'&gt;.queue_delay">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x74184dfe5790&gt;
+
+    @pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local circuit ledger required')
+    def test_open_primary_switches_and_both_open_are_unavailable(monkeypatch):
+        import psycopg
+        from config import db_kwargs
+        from scripts import provider_health,task_limits,task_worker
+        from api.tasks import create_task,NewTask
+        from test_runtime_hardening import open_circuit
+        configured(monkeypatch)
+        primary='primary-'+uuid4().hex;fallback='fallback-'+uuid4().hex
+        monkeypatch.setenv('OPENAI_MODEL',primary);monkeypatch.setenv('FALLBACK_MODEL',fallback)
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute("INSERT INTO users(username) VALUES(%s) RETURNING user_id",('fallback-'+uuid4().hex,)).fetchone()[0]
+        task=create_task(NewTask(question='fallback fixture'),owner)['task_id'];job=task_worker.claim(task)
+        try:
+            open_circuit(job,primary)
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;               assert provider_health.queue_delay(conn)==0
+E               AssertionError: assert 29.992256 == 0
+E                +  where 29.992256 = &lt;function queue_delay at 0x741848d25ee0&gt;(&lt;psycopg.Connection [INTRANS] (host=db user=agent_app database=agent) at 0x741843b43a50&gt;)
+E                +    where &lt;function queue_delay at 0x741848d25ee0&gt; = &lt;module 'scripts.provider_health' from '/app/scripts/provider_health.py'&gt;.queue_delay
+
+tests/test_fallback.py:58: AssertionError</failure></testcase></testsuite></testsuites>
