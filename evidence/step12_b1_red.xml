@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.692" timestamp="2026-10-27T14:57:21.577013+00:00" hostname="cc5cffe22a08"><testcase classname="tests.test_service_hardening" name="test_liveness_endpoint_does_not_require_database" time="0.004"><failure message="AssertionError: assert 404 == 200&#10; +  where 404 = &lt;Response [404 Not Found]&gt;.status_code&#10; +    where &lt;Response [404 Not Found]&gt; = get('/healthz')&#10; +      where get = &lt;starlette.testclient.TestClient object at 0x7077edfcaf10&gt;.get&#10; +        where &lt;starlette.testclient.TestClient object at 0x7077edfcaf10&gt; = TestClient(app)">def test_liveness_endpoint_does_not_require_database():
+&gt;       assert TestClient(app).get('/healthz').status_code==200
+E       AssertionError: assert 404 == 200
+E        +  where 404 = &lt;Response [404 Not Found]&gt;.status_code
+E        +    where &lt;Response [404 Not Found]&gt; = get('/healthz')
+E        +      where get = &lt;starlette.testclient.TestClient object at 0x7077edfcaf10&gt;.get
+E        +        where &lt;starlette.testclient.TestClient object at 0x7077edfcaf10&gt; = TestClient(app)
+
+tests/test_service_hardening.py:13: AssertionError</failure></testcase><testcase classname="tests.test_service_hardening" name="test_startup_rejects_missing_required_settings" time="0.001"><failure message="ModuleNotFoundError: No module named 'db_pool'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7077edfcad90&gt;
+
+    def test_startup_rejects_missing_required_settings(monkeypatch):
+&gt;       from db_pool import validate_settings
+E       ModuleNotFoundError: No module named 'db_pool'
+
+tests/test_service_hardening.py:17: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_service_hardening" name="test_worker_release_is_atomic_and_does_not_consume_claim_budget" time="0.075"><failure message="AttributeError: module 'scripts.task_worker' has no attribute 'release'">@pytest.mark.integration
+    @integration
+    def test_worker_release_is_atomic_and_does_not_consume_claim_budget():
+        from scripts import task_worker as worker
+        from test_task_controls import new
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('release-'+uuid4().hex,)).fetchone()[0]
+        ident=new(owner)
+        job=worker.claim(ident)
+        try:
+            for _ in range(4):
+&gt;               worker.release(job)
+                ^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.task_worker' has no attribute 'release'
+
+tests/test_service_hardening.py:33: AttributeError</failure></testcase><testcase classname="tests.test_service_hardening" name="test_pool_reuses_connection_and_local_timeout_resets" time="0.001"><failure message="ModuleNotFoundError: No module named 'db_pool'">@pytest.mark.integration
+    @integration
+    def test_pool_reuses_connection_and_local_timeout_resets():
+&gt;       from db_pool import connection,close_all
+E       ModuleNotFoundError: No module named 'db_pool'
+
+tests/test_service_hardening.py:46: ModuleNotFoundError</failure></testcase></testsuite></testsuites>

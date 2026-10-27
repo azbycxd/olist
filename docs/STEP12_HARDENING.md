@@ -114,3 +114,28 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 ## 12.1 验收检查点
 
 新增迁移010–012；没有重跑/重新计分 holdout，没有真实模型调用。现有模型提示、知识库、数字闸门和核查器保持不变；所有数据库/MCP 集成测试通过后进入12.2。完整测试使用 `python -m scripts.local_tests` 启动同源码私有 MCP，避免与旧部署版本混淆。
+
+## 12.2 / B1 服务加固（按规则11暂停，尚未修复）
+
+### 旧问题与已完成的准备
+
+连接仍按请求新建；SIGTERM 不主动释放租约；无 /healthz、/readyz 和统一启动配置校验。[失败测试 XML](../evidence/step12_b1_red.xml)实际复现4项缺失，仅提交测试和改前收据，没有实施连接池或退出逻辑。
+
+### 改前实测
+
+使用长响应 HTTP 模型替身，向生产 worker 进程发送 SIGTERM，另一 worker 经原 claim 路径接管。模型第一次请求阻塞90秒，后续请求立即返回；RAG/Memory 显式关闭以隔离退出流程。
+
+| 指标 | 改前 | 改后 |
+| --- | ---: | ---: |
+| 从 SIGTERM 到第二次领取（ms） | 30803.701 | |
+| 实际领取次数 | 2 | |
+| 主动释放次数 | 0 | |
+| 计入上限的领取次数 | 2 | |
+
+[改前收据](../evidence/step12_b1_signal_before_20261027T145755Z_c28e6ca2.summary.json)和[原始日志](../evidence/step12_b1_signal_before_20261027T145755Z_c28e6ca2.jsonl)保存实际时间、事件和源码哈希；不属于真实模型性能数据。
+
+### 需要确认的约束冲突
+
+本批要求“worker 一个小池”，但已有多智能体历史结论路径在可信 worker 内访问两个数据库/角色：`scripts/runtime.py` 调用 `scripts.findings.retrieve/save_reviewed`；后者通过 `current_version()` 以 agent_ro 连接 olist 库读取 data_imports，同时以 agent_app 访问 agent 库。标准 psycopg_pool.ConnectionPool 不能将两个不同数据库/角色的连接当作一个可互换池。
+
+保留现有路径需要 worker 两个独立小池；保持一个池则需把版本查询转到 MCP 等其他路径。按全局规则11停止，不自行新增第二个池、不保留未池化例外、不改数据版本读取路径。B2 尚未开始，12.2 未完成；待用户明确选择后续实现。

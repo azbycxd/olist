@@ -128,9 +128,86 @@ def duplicate_sql(label):
     finally: psycopg.connect=original_connect
 
 
+def scoped_worker(ident):
+    from scripts import task_worker
+    original=task_worker.claim
+    task_worker.claim=lambda:original(ident)
+    task_worker.main()
+
+
+def signal_recovery(label):
+    import signal
+    from datetime import datetime,timezone
+    from api.tasks import create_task,NewTask
+    from eval.robustness import read_tasks,start_private_mcp
+    from psycopg.types.json import Jsonb
+    calls=[];first_seen=threading.Event()
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self,*a): pass
+        def do_POST(self):
+            self.rfile.read(int(self.headers['Content-Length']))
+            calls.append(time.monotonic())
+            if len(calls)==1:
+                first_seen.set(); time.sleep(90)
+            message={'role':'assistant','content':None,'tool_calls':[{'id':'final-'+uuid4().hex,'type':'function','function':{'name':'final_answer','arguments':json.dumps({'answer':'HTTP替身恢复完成','claims':[]})}}]}
+            payload={'id':'fixture','object':'chat.completion','created':0,'model':'signal-fixture','choices':[{'index':0,'message':message,'finish_reason':'tool_calls'}],'usage':{'prompt_tokens':0,'completion_tokens':0,'total_tokens':0}}
+            body=json.dumps(payload).encode()
+            try:
+                self.send_response(200);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
+            except (BrokenPipeError,ConnectionResetError): pass
+    server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
+    server.daemon_threads=True
+    thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    mcp,url=start_private_mcp()
+    workers=[]
+    try:
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('signal-'+uuid4().hex,)).fetchone()[0]
+        ident=create_task(NewTask(question='Step12 SIGTERM HTTP替身实验'),owner)['task_id']
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            conn.execute('UPDATE tasks SET run_config=run_config||%s WHERE task_id=%s',(Jsonb({'RAG_MODE':'off','USE_MEMORY':'false'}),ident))
+        env={**os.environ,'OPENAI_BASE_URL':f'http://127.0.0.1:{server.server_port}/v1','OPENAI_MODEL':'signal-'+uuid4().hex,'MCP_URL':url,'OLIST_LOAD_DOTENV':'0'}
+        # Remove only the provider selector aliases so config does not override the local fixture URL.
+        for key in ('DEEPSEEK_MODEL','DEEPSEEK_BASE_URL','DEEPSEEK_API_KEY'): env.pop(key,None)
+        def spawn(name):
+            p=subprocess.Popen([sys.executable,'-m','scripts.step12_experiments','worker','--task-id',ident],env={**env,'WORKER_ID':name},stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
+            workers.append(p);return p
+        import sys
+        first=spawn('step12-first-'+uuid4().hex)
+        if not first_seen.wait(15): raise AssertionError('First worker never reached the HTTP fixture')
+        sent_at=datetime.now(timezone.utc);started=time.perf_counter()
+        os.kill(first.pid,signal.SIGTERM)
+        spawn('step12-second-'+uuid4().hex)
+        deadline=time.perf_counter()+70
+        while time.perf_counter()<deadline:
+            tasks=read_tasks([ident])
+            claims=[e for e in tasks[0]['events'] if e['type']=='worker_claimed']
+            if len(claims)>=2 and tasks[0]['status']=='completed': break
+            time.sleep(.1)
+        else: raise AssertionError('Second worker did not recover the signaled task')
+        claimed_at=datetime.fromisoformat(claims[1]['at'])
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            released=conn.execute("SELECT count(*) FROM events WHERE task_id=%s AND type='released'",(ident,)).fetchone()[0]
+        receipt('b1_signal_'+label,{'model_kind':'HTTP model double; first request sleeps 90s, subsequent calls complete; not real-model performance',
+            'source_hashes':source_identity(),'signal':'SIGTERM','signal_at':sent_at.isoformat(),
+            'signal_to_claim_ms':(claimed_at-sent_at).total_seconds()*1000,'wall_ms':(time.perf_counter()-started)*1000,
+            'claim_count':tasks[0]['claim_count'],'released_count':released,'charged_claims':tasks[0]['claim_count']-released,
+            'request_count':len(calls),'tasks':tasks,'overrides':{'RAG_MODE':'off','USE_MEMORY':'false'},
+            'grace_seconds':os.getenv('WORKER_GRACE_SECONDS','20')})
+    finally:
+        for p in workers:
+            try: os.killpg(p.pid,signal.SIGKILL)
+            except ProcessLookupError: pass
+            p.wait()
+        mcp.terminate();mcp.wait(timeout=5)
+        server.shutdown();server.server_close();thread.join(timeout=2)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('scenario', choices=['a1','a3'])
-    parser.add_argument('--label', required=True, choices=['before','after'])
+    parser.add_argument('scenario', choices=['a1','a3','b1-signal','worker'])
+    parser.add_argument('--label', choices=['before','after'])
+    parser.add_argument('--task-id')
     args = parser.parse_args()
-    {'a1':persistent_503,'a3':duplicate_sql}[args.scenario](args.label)
+    if args.scenario=='worker': scoped_worker(args.task_id)
+    else: {'a1':persistent_503,'a3':duplicate_sql,'b1-signal':signal_recovery}[args.scenario](args.label)
