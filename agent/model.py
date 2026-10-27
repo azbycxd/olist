@@ -72,7 +72,7 @@ async def request(client, model, messages, emit, *, role="agent", step=0, tools=
                 return None
         payload = {"role":role,"step":step,"attempt":attempt,"requested_model":model,
             "temperature":MODEL_TEMPERATURE,"extra_body":MODEL_EXTRA_BODY,"usage":None,
-            "error_class":None,"retry_wait_ms":0.0,
+            "error_class":None,
             "input_summary":{"messages":len(messages),"characters":sum(len(json.dumps(m,ensure_ascii=False)) for m in messages)}}
         output_limit=min(MODEL_MAX_OUTPUT_TOKENS,max(1,remaining))
         control=CONTROL.get()
@@ -105,14 +105,16 @@ async def request(client, model, messages, emit, *, role="agent", step=0, tools=
                 if secret: detail = detail.replace(secret,"[redacted]")
             payload.update(error=type(exc).__name__,error_detail=detail[:1000],error_class=classify_error(exc))
         latency = (perf_counter()-start)*1000
+        emit("model_call",payload,(payload.get("usage") or {}).get("total_tokens",0),latency)
         if error is not None and payload['error_class']=='retryable' and attempt < MODEL_RETRY_ATTEMPTS-1:
             delay = min(retry_delay(error, attempt), wait_budget, max(0.0, deadline-perf_counter()))
             if delay > 0:
                 before = perf_counter()
                 await sleep(delay)
-                payload['retry_wait_ms'] = (perf_counter()-before)*1000
-                wait_budget = max(0.0, wait_budget-max(delay,payload['retry_wait_ms']/1000))
-        emit("model_call",payload,(payload.get("usage") or {}).get("total_tokens",0),latency)
+                actual_wait_ms = (perf_counter()-before)*1000
+                emit('model_retry_wait',{'role':role,'step':step,'attempt':attempt,
+                     'control_call_id':payload.get('control_call_id'),'retry_wait_ms':actual_wait_ms})
+                wait_budget = max(0.0, wait_budget-max(delay,actual_wait_ms/1000))
         if completion is not None:
             if budget and completion.usage: budget.used+=completion.usage.total_tokens
             elif budget: budget.complete=False

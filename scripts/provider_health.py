@@ -39,7 +39,7 @@ def record(conn, call, payload):
         opening = not success
         count = 0 if success else max(count,PROVIDER_FAILURE_THRESHOLD)
     elif state=='closed':
-        count = count+1 if error=='retryable' else 0
+        count = count+1 if error=='retryable' else 0 if success else count
         opening = count >= PROVIDER_FAILURE_THRESHOLD
     else: return
     conn.execute("UPDATE provider_health SET state=%s,failure_count=%s,generation=generation+%s,open_until=CASE WHEN %s THEN clock_timestamp()+%s*interval '1 second' ELSE NULL END,probe_call_id=NULL,probe_until=NULL,updated_at=clock_timestamp() WHERE provider=%s AND model=%s",

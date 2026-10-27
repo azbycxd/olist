@@ -145,3 +145,11 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 旧实现把任何新的 result_id 视为进展，实际 run_sql 空结果也分配 ID。现仅 row_count>0 的新 ID 算证据；空结果替身已与线上一致。失败测试提交 `76e5461`，修复提交见 Git 历史。
 
 [失败收据](../evidence/step12_review1_red.json)2失败/4通过；[修复收据](../evidence/step12_review1_green.json)6通过。[只读重放收据](../evidence/step12_a2_replay_20261027T150757Z_76c794b1.summary.json)：97运行、0误判、70条结果内容不完整；未调用模型、未重新计分。结果内容不完整的历史轨迹不能证明完整结果下的所有边界情况。阈值未修改。
+
+## 12.1 复核2、5、6：失败先结算，等待单独观测
+
+旧实现先退避再发 model_call，延迟跨任务的熔断计数。现失败立即发 model_call（含 error_class），随后等待；实际等待毫秒移至 model_retry_wait.retry_wait_ms（带 control_call_id/role/step/attempt），不再放在 model_call。五个并发任务都在退避未结束时，第五个失败已使真实数据库熔断 open。fatal/unknown 保持原失败数，仅成功清零（半开探测失败仍重新打开）。
+
+失败测试 `881e18e`，[失败收据](../evidence/step12_review2_red.json)6失败/20通过；[通过收据](../evidence/step12_review2_green.json)26通过。测试客户端是替身，不是真实模型。
+
+局限：按“连续失败”计数，检测不出成功和失败交替出现（比如一半请求失败）的部分故障。传输层幂等键使用供应商返回的 tool_call_id；供应商在同一任务中重复使用同一 ID、但参数不同，会返回冲突错误，不会返回错误结果；test_running_expiry_takeover_conflict 覆盖冲突。
