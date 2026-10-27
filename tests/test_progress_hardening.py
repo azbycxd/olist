@@ -1,0 +1,41 @@
+"""Actual loop trajectories for Step12 A2 (scripted model; no network)."""
+import asyncio
+from types import SimpleNamespace
+
+from agent.loop import run_loop
+from test_agent import Remote, completion
+
+
+def trajectory(sqls, *, empty=False):
+    class Results(Remote):
+        async def call(self,name,arguments):
+            if name=='run_sql' and empty:
+                self.calls.append((name,arguments))
+                return {'preview':[], 'row_count':0}
+            return await super().call(name,arguments)
+    remote, events = Results(), []
+    responses = iter(completion([('run_sql',{'sql':sql})]) for sql in sqls)
+    async def create(**kwargs): return next(responses)
+    client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+    result = asyncio.run(run_loop('fixture', remote, client, 'fixture', lambda *e:events.append(e), max_steps=len(sqls)))
+    return result,events,remote
+
+
+def test_alternating_signatures_stop_on_turn_six():
+    outcome,events,remote=trajectory(['SELECT 1','SELECT 2']*3)
+    assert outcome.termination=='no_progress' and outcome.steps==6
+    assert len([x for x in remote.calls if x[0]=='run_sql'])==5
+    assert any(e[0]=='no_progress' and e[1]['rule']=='alternating_window' for e in events)
+
+
+def test_sql_case_and_whitespace_count_as_same_consecutive_call():
+    outcome,events,remote=trajectory(['select count(*) from orders','SELECT COUNT(*)  FROM ORDERS','SELECT  count(*) FROM orders'])
+    assert outcome.termination=='repeated_tool_calls'
+    assert len([x for x in remote.calls if x[0]=='run_sql'])==2
+    assert any(e[0]=='no_progress' and e[1]['rule']=='consecutive_repeat' for e in events)
+
+
+def test_four_different_empty_state_queries_stop_after_result_four():
+    outcome,events,_=trajectory([f"SELECT * FROM customers WHERE customer_state='{state}'" for state in ['SP','RJ','MG','BA','PR']],empty=True)
+    assert outcome.termination=='no_progress' and outcome.steps==4
+    assert any(e[0]=='no_progress' and e[1]['rule']=='empty_or_error' for e in events)
