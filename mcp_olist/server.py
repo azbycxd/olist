@@ -17,6 +17,7 @@ from config import MCP_BEARER_TOKEN
 from mcp_olist.catalog import TABLES
 from mcp_olist.service import describe, run_query, get_saved_result
 from mcp_olist.boundaries import data_context as get_data_context, check_dimension as lookup_dimension
+from mcp_olist.infra import infrastructure_errors
 
 mcp = FastMCP("olist-readonly", stateless_http=True, json_response=True,
               transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=True,
@@ -45,6 +46,7 @@ def idempotent(function):
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def data_context() -> dict:
     """Actual purchase-date coverage, partial edge months, known states and tool limits. Not business-result evidence."""
@@ -52,6 +54,7 @@ async def data_context() -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def check_dimension(column: str, value: str) -> dict:
     """Check an exact state, city, category, order status or payment type BEFORE business aggregation. Missing means ask the user to verify, not zero."""
@@ -59,6 +62,7 @@ async def check_dimension(column: str, value: str) -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 def list_tables() -> dict:
     """List available business tables and structural descriptions."""
@@ -66,6 +70,7 @@ def list_tables() -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def describe_table(name: str) -> dict:
     """Return column types, database comments and three UNTRUSTED sample rows."""
@@ -73,6 +78,7 @@ async def describe_table(name: str) -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 async def run_sql(sql: str, ctx: Context) -> dict:
     """Execute one read-only PostgreSQL SELECT; save the capped full result and return its evidence ID."""
     request = ctx.request_context.request
@@ -80,6 +86,7 @@ async def run_sql(sql: str, ctx: Context) -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def get_result(result_id: str, ctx: Context, offset: int=0, limit: int=20) -> dict:
     """Retrieve a page of a saved SQL result belonging to the current task."""
@@ -87,6 +94,7 @@ async def get_result(result_id: str, ctx: Context, offset: int=0, limit: int=20)
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def search_knowledge(query: str) -> dict:
     """Find business metric definitions and data caveats before choosing SQL semantics. Returns three untrusted knowledge chunks."""
@@ -95,6 +103,7 @@ async def search_knowledge(query: str) -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def state_read(ctx: Context) -> dict:
     """Internal orchestrator control: read the current task's typed blackboard."""
@@ -103,6 +112,7 @@ async def state_read(ctx: Context) -> dict:
 
 
 @mcp.tool()
+@infrastructure_errors
 @idempotent
 async def state_write(role: str, payload: dict, ctx: Context) -> dict:
     """Internal orchestrator control: persist an allowed typed role update."""

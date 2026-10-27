@@ -171,7 +171,7 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 
 | 参数 | 默认 | 来源类型 | 用途 |
 | --- | --- | --- | --- |
-| `PROVIDER_REQUEUE_MAX` | 3 | 预先固定 | 第1批第二轮复核指定；每任务最多供应商故障重排次数；达到后再次失败以provider_unavailable终止，不搜索参数。 |
+| `PROVIDER_REQUEUE_MAX` | 3 | 预先固定 | 故障重排上限：供应商与MCP瞬时基础设施故障共用3次，不另开额度；耗尽后分别以provider_unavailable或infra_unavailable终止，不搜索参数。 |
 | `READY_CONNECTION_TIMEOUT_SECONDS` | 1s | 安全护栏 | 第1批第二轮复核指定；readyz每个池的取连接超时，低于compose healthcheck的3秒；普通请求仍用DB_POOL_TIMEOUT_SECONDS。 |
 
 

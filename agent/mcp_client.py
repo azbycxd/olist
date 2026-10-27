@@ -8,6 +8,7 @@ from time import perf_counter
 from uuid import uuid4
 from agent.call_context import TOOL_CALL_ID
 from config import MCP_RETRY_ATTEMPTS
+from agent.infra import InfraRetryable,retryable_exception
 
 import httpx
 from mcp import ClientSession
@@ -75,12 +76,18 @@ class MCPClient:
                 if not cursor:
                     break
             return self
-        except BaseException:
-            await self.stack.aclose()
+        except BaseException as exc:
+            try:await self.stack.aclose()
+            finally:
+                if retryable_exception(exc):raise InfraRetryable(type(exc).__name__) from exc
             raise
 
     async def __aexit__(self, *args):
-        return await self.stack.__aexit__(*args)
+        try:return await self.stack.__aexit__(*args)
+        except BaseException:
+            # SDK cancellation cleanup must not erase the known transport cause.
+            if args[1] is not None and retryable_exception(args[1]):raise args[1]
+            raise
 
     async def _observed_call(self, name, arguments, tool_call_id=None):
         ident=tool_call_id or TOOL_CALL_ID.get() or str(uuid4())
@@ -98,6 +105,7 @@ class MCPClient:
             result=await self._call(name,arguments,self.task_id+':'+ident)
         except Exception as exc:
             if self.emit:self.emit('mcp_result',{'call_id':ident,'name':name,'error':type(exc).__name__},0,(perf_counter()-started)*1000)
+            if retryable_exception(exc):raise InfraRetryable(type(exc).__name__) from exc
             raise
         if self.emit:
             self.emit('mcp_result',{'call_id':ident,'name':name,'output_summary':summary(result),
@@ -110,11 +118,13 @@ class MCPClient:
         if result.isError:
             return {"error":"mcp_tool_error", "detail":"\n".join(c.text for c in result.content if c.type == "text")[:2000]}
         if result.structuredContent is not None:
+            if result.structuredContent.get('error')=='infra_retryable':raise InfraRetryable('MCP infrastructure unavailable')
             return result.structuredContent
         if len(result.content) == 1 and result.content[0].type == "text":
             try:
                 parsed = json.loads(result.content[0].text)
                 if isinstance(parsed, dict):
+                    if parsed.get('error')=='infra_retryable':raise InfraRetryable('MCP infrastructure unavailable')
                     return parsed
             except ValueError:
                 pass

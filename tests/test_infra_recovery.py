@@ -52,8 +52,14 @@ def test_bootstrap_failure_recovery_and_shared_limit(monkeypatch,failures,expect
     ident=create_task(NewTask(question='infra scripted bootstrap'),owner)['task_id']
     attempts=[]
     def runtime(question,ident,emit,**kwargs):
-        attempts.append(1)
-        emit('termination',{'scope':'task','reason':'infra_retryable' if len(attempts)<=failures else 'final_answer'})
+        from agent import worker as runtime_worker
+        async def bootstrap(_):
+            attempts.append(1)
+            if len(attempts)<=failures:raise httpx.ConnectError('scripted MCP initialization unavailable')
+            emit('termination',{'scope':'task','reason':'final_answer'})
+        monkeypatch.setattr(runtime_worker,'_execute',bootstrap)
+        monkeypatch.setattr(runtime_worker,'emit',emit)
+        asyncio.run(runtime_worker._execute_with_errors({}))
         return FinalAnswer(answer='scripted',claims=[])
     monkeypatch.setattr(worker,'run_runtime',runtime)
     for _ in range(5):
@@ -72,3 +78,26 @@ def test_mcp_bootstrap_unavailable_gets_task_termination(monkeypatch,capsys):
     monkeypatch.setattr(worker,'_execute',execute)
     asyncio.run(worker._execute_with_errors({}))
     assert 'infra_retryable' in capsys.readouterr().out
+
+
+def test_server_database_classification_does_not_retry_sql_or_permissions():
+    import psycopg
+    from psycopg_pool import PoolTimeout
+    from mcp_olist.infra import retryable
+    assert retryable(PoolTimeout())
+    assert retryable(psycopg.errors.ConnectionFailure())
+    assert retryable(psycopg.errors.QueryCanceled())
+    assert not retryable(psycopg.errors.SyntaxError())
+    assert not retryable(psycopg.errors.InsufficientPrivilege())
+    assert not retryable(psycopg.errors.InvalidPassword())
+
+
+def test_cleanup_error_keeps_the_known_transport_cause():
+    from agent.mcp_client import MCPClient
+    from agent.infra import InfraRetryable
+    async def close(*_):raise RuntimeError('SDK cancellation cleanup fixture')
+    remote=MCPClient('http://fixture','scripted-token','task')
+    remote.stack=SimpleNamespace(__aexit__=close)
+    original=InfraRetryable('MCP request timed out')
+    with pytest.raises(InfraRetryable) as caught:asyncio.run(remote.__aexit__(type(original),original,None))
+    assert caught.value is original

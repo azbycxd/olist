@@ -27,6 +27,8 @@ def test_failed_mcp_dispatch_keeps_a_paired_trace():
     class Session:
         async def call_tool(self,*args,**kwargs):raise TimeoutError('timeout')
     client.session=Session()
-    with pytest.raises(TimeoutError):asyncio.run(client.call('get_result',{}))
+    from agent.infra import InfraRetryable
+    with pytest.raises(InfraRetryable) as caught:asyncio.run(client.call('get_result',{}))
+    assert isinstance(caught.value.__cause__,TimeoutError)
     assert events[1][1]['call_id']==events[0][1]['call_id']
     assert events[1][1]['error']=='TimeoutError' and events[1][3]>=0

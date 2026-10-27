@@ -101,7 +101,7 @@ class ModelDouble:
     def close(self):self.server.shutdown();self.server.server_close()
 
 
-def run(mode):
+def run(mode,label=None):
     from api.memories import issue
     source_hashes={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in
                    ['scripts/step12_chaos.py','scripts/task_worker.py','db_pool.py','api/tasks.py','mcp_olist/service.py']}
@@ -248,7 +248,7 @@ def run(mode):
             if mode=='load':verify_load(result)
             observations.extend([{'connection_sample':x} for x in samples]);observations.extend([{'health_sample':x} for x in health]);observations.extend([{'model_call':x} for x in fixture.calls])
             if proxy:observations.append({'proxy_metrics':proxy_client.get('/metrics').text})
-            path=write_report(mode,result,observations)
+            path=write_report(label or mode,result,observations)
             print(json.dumps({'receipt':path.name,**{k:result[k] for k in ('completed','task_count','sse_peak','elapsed_seconds','connection_peak','error_types')}},ensure_ascii=False),flush=True)
     finally:
         stop.set()
@@ -271,4 +271,5 @@ def run(mode):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('mode',choices=['load','db_restart','network_baseline','latency','packet_loss'])
-    run(parser.parse_args().mode)
+    parser.add_argument('--label',help='Separate receipt name; preserve previous observations')
+    args=parser.parse_args();run(args.mode,args.label)

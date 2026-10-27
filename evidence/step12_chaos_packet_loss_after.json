@@ -1,0 +1,115 @@
+{"model_kind": "模型替身",
+  "workers": 2,
+  "task_count": 5,
+  "sse_peak": 5,
+  "sse_errors": [],
+  "elapsed_seconds": 67.0552792010003,
+  "completed": 3,
+  "success_rate": 0.6,
+  "throughput_tasks_per_minute": 2.684352405131956,
+  "queue_wait_p50_seconds": 32.376067,
+  "queue_wait_p95_seconds": 58.582582599999995,
+  "queue_wait_observed_count": 5,
+  "error_types": {
+    "bootstrap_error": 2
+  },
+  "connection_peak": 14,
+  "connection_cap": 30,
+  "connection_cap_formula": "API + MCP agent + MCP olist + workers * (worker agent + worker olist)",
+  "database_all_client_peak": 15,
+  "connection_sampling_interval_seconds": 0.1,
+  "sql_count": 3,
+  "sql_mean_ms": 3.98747666683145,
+  "sql_p95_ms": 4.230073900544085,
+  "model_requests": 7,
+  "model_tokens": 7000,
+  "worker_exits": [],
+  "injection_seconds": 45.1387730489987,
+  "tool_event_counts": {
+    "mcp_call": 12,
+    "mcp_result": 9,
+    "tool_call": 15
+  },
+  "tool_error_types": {
+    "McpError": 6
+  },
+  "tasks": [
+    {
+      "task_id": "400c1686-c621-4a74-9042-dfcea6ad7157",
+      "status": "failed",
+      "error": "bootstrap_error",
+      "claim_count": 4,
+      "provider_requeues": 3,
+      "queue_seconds": 0.84538
+    },
+    {
+      "task_id": "7171d4f0-6468-4101-8b67-05c83d79c4f6",
+      "status": "failed",
+      "error": "bootstrap_error",
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 0.856622
+    },
+    {
+      "task_id": "a92c5786-2d7b-41a1-b3c9-154ef83002fe",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 32.376067
+    },
+    {
+      "task_id": "f474fddd-fb46-405b-adb5-83c78b8c36b0",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 55.640937
+    },
+    {
+      "task_id": "c58bba3a-8499-43d3-aa53-667bcdc25f35",
+      "status": "completed",
+      "error": null,
+      "claim_count": 1,
+      "provider_requeues": 0,
+      "queue_seconds": 59.317994
+    }
+  ],
+  "conclusion": "模型替身：唯一一次改后运行3/5成功，原运行1/5。剩余2例bootstrap_error暴露SDK实际408超时码漏分类；之后补测试修复，但不再次运行丢失场景，不能将3/5当成后续修复的最终成功率。",
+  "changed_code": true,
+  "source_commit": null,
+  "source_hashes": {
+    "scripts/step12_chaos.py": "92e171ff9caf9a819629ead8c5d488d83640932b6019bb2e18e99616dd7cb801",
+    "scripts/task_worker.py": "4f2fbaaf19d171b52e93e08586a50407de5335974ee99a87b3b6e9431db81c94",
+    "db_pool.py": "29fe2f90d897b71db4ee48fdfc7a01df5f5a31240fca42f572ce1d56b97883de",
+    "api/tasks.py": "c3c1344ae15fb9800078824f1f5c83b3ad85565a225bbdd5c367ad0e069ba776",
+    "mcp_olist/service.py": "812f75327906db6889fc16b1eaa2963b91aeebef534b8eb1816ca88af19740d2"
+  },
+  "source_hash_capture": "run_start",
+  "source_log": "step12_chaos_packet_loss_after.jsonl",
+  "source_log_sha256": "1663a3fb2cb4f95029e8f4f71525caf5bb3cdb522f8eaa67f331f4024ce66203",
+  "process_logs": [
+    {
+      "path": "logs/step12_chaos_packet_loss_e9a9c74d_mcp.txt",
+      "sha256": "0d7aa9902d5864059fd7880b5cae436a00d4f6647e993026db20200b7c852ce8"
+    },
+    {
+      "path": "logs/step12_chaos_packet_loss_e9a9c74d_api.txt",
+      "sha256": "eb58f8af0a2b9f3af2a8099fa7b2c7c365f8da9a493bb0a6a94ad4a8b1d4057f"
+    },
+    {
+      "path": "logs/step12_chaos_packet_loss_e9a9c74d_worker0.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/step12_chaos_packet_loss_e9a9c74d_worker1.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "baseline": {
+    "path": "step12_chaos_packet_loss.json",
+    "sha256": "13da90c819127ea192bbd6d0fa34aabc5799dbe3b461c3b106da782cd4f4cc9f",
+    "completed": 1,
+    "task_count": 5
+  }
+}

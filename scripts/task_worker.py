@@ -77,7 +77,7 @@ def release(job,reason='worker_shutdown'):
         else:
             requeues=conn.execute('SELECT provider_requeues FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]
             if requeues>=PROVIDER_REQUEUE_MAX:
-                limits.stop_task(conn,ident,'provider_unavailable',extra={'reason':'provider_requeue_limit','provider_requeues':requeues})
+                limits.stop_task(conn,ident,'infra_unavailable' if reason=='infra_retryable' else 'provider_unavailable',extra={'reason':'fault_requeue_limit','provider_requeues':requeues})
                 return False
             conn.execute("UPDATE tasks SET status='pending',error=NULL,lease_token=NULL,lease_expires_at=NULL,provider_requeues=provider_requeues+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
         conn.execute("UPDATE model_reservations SET status='unknown' WHERE task_id=%s AND status='pending'",(ident,))
@@ -168,7 +168,7 @@ def _process(job,shutdown=None):
         for key,value in job['settings'].items():
             if key not in limits.settings():os.environ[key]=str(value)
         response=run_runtime(job['question'],ident,emit,phase=job['phase'],resume_board=job['board'],lease_token=str(token),budget_used=job['budget_used'],on_process=attach,control_check=admit)
-        if termination=='provider_unavailable' or (termination=='model_error' and last_error=='retryable'):
+        if termination in {'provider_unavailable','infra_retryable'} or (termination=='model_error' and last_error=='retryable'):
             release(job,termination)
             return
         status='awaiting_confirmation' if termination=='awaiting_confirmation' else 'completed' if termination=='final_answer' else 'failed'
