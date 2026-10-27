@@ -75,11 +75,12 @@ def process(job):
     def admit(request):
         error=None
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
-            try:limits.reserve(conn,ident,token,request)
+            try:admission=limits.reserve(conn,ident,token,request)
             except limits.TaskStopped as exc:
                 error=exc
-                if str(exc)!='lease_lost':limits.stop_task(conn,ident,str(exc))
+                if str(exc) not in {'lease_lost','provider_unavailable'}:limits.stop_task(conn,ident,str(exc))
         if error:raise error
+        return admission
     def emit(kind,payload,tokens=0,latency_ms=0):
         nonlocal termination
         if lost.is_set():raise limits.TaskStopped('lease_lost')

@@ -25,7 +25,7 @@ def lock_task(conn,ident):
     row=conn.execute('SELECT user_id FROM tasks WHERE task_id=%s',(ident,)).fetchone()
     if not row:raise TaskStopped('task_not_found')
     owner_lock(conn,row[0])
-    cursor=conn.execute('SELECT task_id,user_id,status,lease_token,lease_expires_at>clock_timestamp() AS lease_alive,cancel_requested_at,deadline_at<=clock_timestamp() AS expired,run_config FROM tasks WHERE task_id=%s FOR UPDATE',(ident,))
+    cursor=conn.execute('SELECT task_id,user_id,status,lease_token,lease_expires_at>clock_timestamp() AS lease_alive,cancel_requested_at,deadline_at<=clock_timestamp() AS expired,run_config,deadline_at FROM tasks WHERE task_id=%s FOR UPDATE',(ident,))
     return dict(zip([c.name for c in cursor.description],cursor.fetchone()))
 
 
@@ -62,12 +62,17 @@ def reserve(conn,ident,token,request):
         return
     available=quota(conn,task['user_id'])
     if amount>available['available_tokens']:raise TaskStopped('daily_token_quota')
+    from scripts import provider_health
+    model=request.get('requested_model') or os.getenv('OPENAI_MODEL') or 'unconfigured'
+    provider,generation=provider_health.admit(conn,call,model,task['deadline_at'])
     conn.execute('INSERT INTO user_token_days(user_id,usage_day,held_tokens) VALUES(%s,%s,%s) ON CONFLICT(user_id,usage_day) DO UPDATE SET held_tokens=user_token_days.held_tokens+excluded.held_tokens',
                  (task['user_id'],available['usage_day'],amount))
-    conn.execute('INSERT INTO model_reservations(call_id,task_id,user_id,usage_day,reserved_tokens) VALUES(%s,%s,%s,%s,%s)',
-                 (call,ident,task['user_id'],available['usage_day'],amount))
+    conn.execute('INSERT INTO model_reservations(call_id,task_id,user_id,usage_day,reserved_tokens,provider,model,provider_generation) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
+                 (call,ident,task['user_id'],available['usage_day'],amount,provider,model,generation))
     event(conn,ident,'model_admitted',{'call_id':str(call),'reserved_tokens':amount,'usage_day':str(available['usage_day']),
                                       'role':request.get('role'),'step':request.get('step')})
+    remaining=conn.execute('SELECT EXTRACT(EPOCH FROM (%s::timestamptz-clock_timestamp()))',(task['deadline_at'],)).fetchone()[0]
+    return {'remaining_seconds':max(0,float(remaining))}
 
 
 def settle(conn,ident,payload):
@@ -75,6 +80,8 @@ def settle(conn,ident,payload):
     if not call:return
     row=conn.execute('SELECT user_id,usage_day,reserved_tokens,status FROM model_reservations WHERE call_id=%s AND task_id=%s FOR UPDATE',(UUID(call),ident)).fetchone()
     if not row or row[3]=='settled':return
+    from scripts import provider_health
+    provider_health.record(conn,UUID(call),payload)
     actual=(payload.get('usage') or {}).get('total_tokens')
     if not isinstance(actual,int) or actual<0:
         conn.execute("UPDATE model_reservations SET status='unknown' WHERE call_id=%s",(UUID(call),))

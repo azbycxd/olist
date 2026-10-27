@@ -17,6 +17,7 @@ from agent.loop import Outcome
 from contracts import FinalAnswer
 from agent.model import Budget,ACTIVE_BUDGET
 from config import TOKEN_BUDGET
+from agent.task_control import ModelStopped
 from agent.multi import run_multi
 from agent.number_gate import approve_values,enforce
 from agent.boundaries import prepare_context,make_assumption_explicit
@@ -26,7 +27,7 @@ def emit(kind, payload, tokens=0, latency_ms=0):
     print(json.dumps({"event":kind, "payload":payload, "tokens":tokens, "latency_ms":latency_ms}, ensure_ascii=False), flush=True)
 
 
-async def execute(request):
+async def _execute(request):
     if request.get('controlled'):
         from agent.task_control import CONTROL,ParentControl
         CONTROL.set(ParentControl())
@@ -58,10 +59,12 @@ async def execute(request):
                 if mode=="single" and outcome.termination=="final_answer" and os.getenv("NUMBER_GATE","false").lower()=="true":
                     approved=await approve_values(outcome.response.claims,remote)
                     outcome.response.answer=await enforce(outcome.response.answer,approved,client,OPENAI_MODEL,emit)
-        if os.getenv('USE_MEMORY','false').lower()=='true' and request.get('phase')!='plan':
+        if os.getenv('USE_MEMORY','false').lower()=='true' and request.get('phase')!='plan' and outcome.termination not in {'model_fatal','provider_unavailable','context_limit'}:
             try:
                 items=await extract(request.get('user_text',request['question']),client,os.getenv('SMALL_MODEL') or OPENAI_MODEL,emit)
                 emit('memory_candidates',{'preferences':items})
+            except ModelStopped:
+                raise
             except Exception as exc:
                 emit('memory_extraction_failed',{'error':type(exc).__name__})
         if not budget.complete:
@@ -73,6 +76,17 @@ async def execute(request):
         emit('termination',{'reason':outcome.termination,'steps':outcome.steps,'total_tokens':outcome.total_tokens,'scope':'task'})
     print(json.dumps({"response":outcome.response.model_dump(), "termination":outcome.termination,
                       "steps":outcome.steps, "total_tokens":outcome.total_tokens}, ensure_ascii=False), flush=True)
+
+
+async def execute(request):
+    try:
+        await _execute(request)
+    except ModelStopped as exc:
+        budget=ACTIVE_BUDGET.get()
+        tokens=budget.used if budget and budget.complete else None
+        emit('termination',{'reason':exc.reason,'steps':0,'total_tokens':tokens,'scope':'task'})
+        print(json.dumps({'response':FinalAnswer(answer='模型服务请求终止',claims=[]).model_dump(),
+            'termination':exc.reason,'steps':0,'total_tokens':tokens},ensure_ascii=False),flush=True)
 
 
 if __name__ == "__main__":

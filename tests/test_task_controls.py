@@ -33,7 +33,7 @@ def test_cancel_admission_checked_before_retry_without_second_model_call():
     async def admit(payload):
         admitted.append(payload)
         if len(admitted)==2:raise RuntimeError('canceled')
-    async def create(**kw):sent.append(kw);raise RuntimeError('429 fixture')
+    async def create(**kw):sent.append(kw);raise ConnectionError('connection fixture')
     async def sleep(_):pass
     async def run():
         token=CONTROL.set(admit)

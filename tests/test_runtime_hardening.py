@@ -59,8 +59,9 @@ def test_context_length_400_has_context_limit_reason():
     assert len(sent) == 1 and outcome.termination == 'context_limit'
 
 
-@pytest.mark.parametrize('header', ['2', format_datetime(datetime.now(timezone.utc) + timedelta(seconds=2))])
+@pytest.mark.parametrize('header', ['2', 'http-date'])
 def test_retry_after_precedes_backoff(header):
+    if header == 'http-date': header = format_datetime(datetime.now(timezone.utc) + timedelta(seconds=2))
     client, sent = client_for([status_error(429, headers={'Retry-After': header}), completion([FINAL])])
     waits, events = [], []
     async def sleep(value): waits.append(value)
@@ -70,6 +71,30 @@ def test_retry_after_precedes_backoff(header):
     if header == '2': assert waits == [2]
     assert events[0][1]['error_class'] == 'retryable'
     assert events[0][1]['retry_wait_ms'] >= 0
+
+
+def test_retry_after_two_seconds_uses_real_clock_and_reports_actual_wait():
+    client, _ = client_for([status_error(429, headers={'Retry-After':'2'}), completion([FINAL])])
+    events = []
+    before = time.perf_counter()
+    asyncio.run(request(client,'fixture',[],lambda *e: events.append(e)))
+    assert 1.9 <= time.perf_counter()-before < 4
+    assert 1900 <= events[0][1]['retry_wait_ms'] < 4000
+
+
+@pytest.mark.parametrize('status',[408,429,500,502,503,504])
+def test_retryable_statuses_retry_once_then_succeed(status):
+    client, sent = client_for([status_error(status),completion([FINAL])])
+    async def sleep(_): pass
+    assert asyncio.run(request(client,'fixture',[],lambda *e: None,sleep=sleep)) is not None
+    assert len(sent)==2
+
+
+def test_retry_after_is_capped_and_invalid_value_uses_jitter(monkeypatch):
+    from agent.model import retry_delay
+    monkeypatch.setattr('agent.model.uniform', lambda a,b: b/2)
+    assert retry_delay(status_error(429,headers={'Retry-After':'999999'}),0)==8
+    assert retry_delay(status_error(429,headers={'Retry-After':'invalid'}),1)==1
 
 
 def test_retry_jitter_is_seeded_and_bounded(monkeypatch):

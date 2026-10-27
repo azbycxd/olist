@@ -7,6 +7,13 @@ from contextvars import ContextVar
 CONTROL=ContextVar('task_control',default=None)
 
 
+class ModelStopped(RuntimeError):
+    """Explicit model/control termination, without exposing provider error text."""
+    def __init__(self, reason):
+        self.reason = reason
+        super().__init__(reason)
+
+
 def reservation_size(messages,tools,max_output):
     # Conservative dispatch hold, NOT measured token usage. Byte serialization
     # plus framing headroom prevents concurrent calls spending the same quota.
@@ -22,4 +29,5 @@ class ParentControl:
             line=await asyncio.to_thread(sys.stdin.readline)
             reply=json.loads(line) if line else {}
             if reply.get('call_id')!=payload['call_id'] or not reply.get('allowed'):
-                raise RuntimeError('Task control denied further model work')
+                raise ModelStopped(reply.get('reason', 'lease_lost'))
+            return reply

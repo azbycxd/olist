@@ -11,6 +11,7 @@ from contracts import FinalAnswer
 RUNTIME_ENV = set("""PATH SYSTEMROOT WINDIR TEMP TMP LANG LC_ALL SSL_CERT_FILE SSL_CERT_DIR
     HTTP_PROXY HTTPS_PROXY NO_PROXY OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL
     SCHEMA_MODE MAX_STEPS TOKEN_BUDGET MODEL_TIMEOUT MODEL_MAX_OUTPUT_TOKENS MCP_URL MCP_BEARER_TOKEN
+    MODEL_RETRY_ATTEMPTS MODEL_RETRY_BASE_SECONDS MODEL_RETRY_CAP_SECONDS
     CONTEXT_STRATEGY CONTEXT_KEEP_TURNS CONTEXT_SUMMARY_THRESHOLD CONTEXT_LIMIT RAG_MODE USE_MEMORY SMALL_MODEL AGENT_MODE NUMBER_GATE BOUNDARY_GUARDS""".split())
 
 
@@ -44,8 +45,14 @@ def run_runtime(question, task_id, emit, *, preference_only=False, user_text=Non
                 frame = json.loads(line)
                 if 'control' in frame:
                     if control_check is None:raise RuntimeError('Unexpected control request')
-                    control_check(frame['control'])
-                    process.stdin.write(json.dumps({'call_id':frame['control']['call_id'],'allowed':True})+'\n')
+                    from scripts.task_limits import TaskStopped
+                    try:
+                        admission=control_check(frame['control']) or {}
+                        reply={'allowed':True,**admission}
+                    except TaskStopped as exc:
+                        if str(exc)!='provider_unavailable':raise
+                        reply={'allowed':False,'reason':str(exc)}
+                    process.stdin.write(json.dumps({'call_id':frame['control']['call_id'],**reply})+'\n')
                     process.stdin.flush()
                 elif "event" in frame:
                     if frame['event']=='memory_candidates' and use_memory:

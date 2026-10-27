@@ -74,7 +74,7 @@ def test_final_and_parallel_calls():
     ({"token_budget":10}, [completion([FINAL])], "token_budget"),
     ({}, [completion([("run_sql",{"sql":"SELECT 1"})])]*3, "repeated_tool_calls"),
     ({}, [completion([FINAL],tokens=None)], "usage_unavailable"),
-    ({}, [RuntimeError("API failed")]*4, "model_error"),
+    ({}, [ConnectionError("API failed")]*4, "model_error"),
 ])
 def test_terminations_are_recorded(options, responses, reason):
     result, remote, events, _, delays = run(responses, **options)
@@ -82,13 +82,13 @@ def test_terminations_are_recorded(options, responses, reason):
     if reason == "repeated_tool_calls":
         assert len([c for c in remote.calls if c[0] == "run_sql"]) == 2
     if reason == "model_error":
-        assert delays == [1,2,4]
+        assert len(delays) == 3 and all(0 <= value <= cap for value,cap in zip(delays,[1,2,4]))
 
 
 def test_retry_and_tool_error_repair():
-    result, _, events, requests, delays = run([RuntimeError("retry"), completion([("run_sql",{"sql":"bad"})]),
+    result, _, events, requests, delays = run([ConnectionError("retry"), completion([("run_sql",{"sql":"bad"})]),
                                              completion([("unknown",{})]), completion([("run_sql","{bad json")]),completion([FINAL])])
-    assert result.termination == "final_answer" and delays == [1]
+    assert result.termination == "final_answer" and len(delays) == 1 and 0 <= delays[0] <= 1
     assert len([e for e in events if e[0] == "model_call"]) == 5
     assert any(e[0] == "tool_result" and e[1]["error"] for e in events)
     assert "untrusted_tool_result" in requests[-1]["messages"][-1]["content"]

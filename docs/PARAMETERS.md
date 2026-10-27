@@ -34,7 +34,8 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | SQL 文本≤30000字符；结果≤2000000字节 | 安全护栏、预先固定 | 控制解析/序列化及上下文负载；未保存完整字节分布，不能宣称按观测推导。 |
 | MCP 超时=30s；DB connect_timeout=10s | 安全护栏、预先固定 | 覆盖连接/协议故障的等待边界；故障验证见 [工程边界](ROBUSTNESS.md)。 |
 | MODEL_TIMEOUT=60s；MODEL_MAX_OUTPUT_TOKENS=4096；temperature=0 | 安全护栏 / 预先固定 | 防止长等待、约束输出并减少随机性；未比较其他取值，不宣称调参最优。 |
-| 模型最多4次请求；退避1、2、4秒；SDK重试=0 | 安全护栏、预先固定 | 初次加三次重试；429故障测试分别验证恢复与耗尽。偏好抽取是另一组有界调用。 |
+| MODEL_RETRY_ATTEMPTS=4；MODEL_RETRY_BASE_SECONDS=1；MODEL_RETRY_CAP_SECONDS=8；SDK重试=0 | 安全护栏、预先固定 | Step12 A1：只重试指定 HTTP/网络错误，全抖动 random(0,min(cap,base×2^n))；Retry-After 优先但受 cap 和任务剩余时长约束。没有参数搜索。 |
+| PROVIDER_FAILURE_THRESHOLD=5；PROVIDER_COOLDOWN_SECONDS=30 | 安全护栏、预先固定 | 按用户预设执行，PostgreSQL 跨 worker 熔断；半开只放一个请求，探针租期受现有 MODEL_TIMEOUT 和任务截止限制。CLI/评测没有预扣回调，不经过熔断。见 [Step12 收据](STEP12_HARDENING.md)。 |
 | Embedding timeout=300s；SDK max_retries=2 | 安全护栏、预先固定 | 冷启动/CPU服务等待设置；连接拒绝与超时不同，宕机实验不证明最坏超时长度。 |
 | RAG=inject；RETRIEVAL_METHOD=vector；top_k=3 | 观测数据 / 预先固定 | 方法依据 [检索对比](REVIEW_COMPARISON.md)；top_k 预先固定，未做 k 搜索。 |
 | RRF k=60；BM25:vector 权重=0.25:1 | 预先固定 | 非默认候选；仅比较这些固定组合，样本为 C dev，未调到最优。 |
