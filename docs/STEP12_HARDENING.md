@@ -224,3 +224,22 @@ B2额外失败测试 `2109e73` 复现 rate_limited 后继续提取Memory；现�
 新增迁移：010 provider_health；011 tool_calls/SQL内容去重；012 truncated；013 released_count/worker_heartbeats；014 provider_requeues；015 rate_buckets/rate_leases/model_reservations.rate_held。所有均为新增编号迁移，无旧迁移改写。
 
 工具返回最终新增字段：run_sql.truncated；get_result.truncated/notice；幂等正在执行错误的 error=tool_in_progress、retryable=true、notice。截断时扩展现有notice；外层公开SQL和sql_hash恢复1000版本。证据API另加truncated。其余B1/B2不新增模型工具字段。事件新增/调整：model_call.error_class、独立model_retry_wait.retry_wait_ms、no_progress.rule、released、provider_requeued、rate_wait；终止原因增加model_fatal/provider_unavailable/rate_limited。
+
+## 第1批提交对照
+
+| 项目 | 失败测试提交 | 修复提交 |
+| --- | --- | --- |
+| A1 重试与熔断 | cd24c60 | 44c6f14 |
+| A2 无进展检测 | d4be752 | f292108 |
+| A3 幂等 | 5998c43 | 4dd9dab |
+| A4 截断 | 4bd76cf | d214e80 |
+| B1 服务加固 | a8cf2ce | 48feb95 |
+| B2 全局限流 | 1f84c33；Memory边界补充2109e73 | 0c05250 |
+| 复核1 空结果ID | 76e5461 | df92eea |
+| 复核2 事件时序（含复核5计数） | 881e18e | 94bd518 |
+| 复核3 供应商故障重排 | 684874d | 88746f1 |
+| 复核4 对外SQL | fa976f0 | b1ab325 |
+
+复核6的幂等ID冲突局限随94bd518记录。新增参数名称、默认值及来源类型均在 [PARAMETERS.md](PARAMETERS.md) 和 `.env.example`；供应商RPM/TPM保持空值，等待用户按供应商文档填写，未填不会开启全局限流。
+
+[本批归档校验清单](../evidence/step12_batch1_archive_checksums.json)固定0c05250中新增/更新证据的Git字节SHA-256与本机采集SHA-256；结合早先12.1归档清单可校验全部本批证据。批次已完成，停止于12.2，等待审查，不进入12.3。
