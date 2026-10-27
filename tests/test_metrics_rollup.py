@@ -27,7 +27,7 @@ def test_retention_and_concurrent_event_writes_keep_counters():
     from config import db_kwargs
     from api.tasks import event
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('rollup-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('rollup-'+uuid4().hex,)).fetchone()[0]
         ids=[conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'rollup fixture','completed') RETURNING task_id",(owner,)).fetchone()[0] for _ in range(12)]
     before=snapshot()
     def write(ident):

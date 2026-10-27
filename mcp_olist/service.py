@@ -18,6 +18,7 @@ from config import db_kwargs,dimension_precheck_enabled,SQL_TIMEOUT_SECONDS
 from agent.sql_normalize import normalize_sql
 from mcp_olist.catalog import TABLES
 from mcp_olist.sql_guard import MAX_ROWS, guard_sql, probe_sql, sql_fingerprint
+from mcp_olist.scopes import task_scope,current_scope,apply_scope,check_sql
 
 SQL_OBSERVATIONS=ContextVar('sql_observations',default=None)
 
@@ -61,8 +62,10 @@ def result_notice(executable,truncated):
 def describe(name):
     if name not in TABLES:
         raise ValueError("Unknown business table")
+    states=current_scope()
     with connection('mcp','olist','reader') as conn:
         conn.execute('SET TRANSACTION READ ONLY')
+        apply_scope(conn,states)
         columns = conn.execute("""SELECT a.attname, format_type(a.atttypid,a.atttypmod),
             col_description(a.attrelid,a.attnum), a.attnotnull
             FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid
@@ -77,10 +80,14 @@ def describe(name):
 
 def run_query(statement, task_id, lease_token=None, idempotency_key=None):
     from mcp_olist.idempotency import run
+    public=guard_sql(statement).sql
+    states=task_scope(task_id)
+    denied=check_sql(public,states)
+    if denied:return denied
     observations=[];token=SQL_OBSERVATIONS.set(observations)
     try:
-        response=run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement},
-                   lambda:_run_query(statement,task_id,lease_token))
+        response=run(idempotency_key,task_id,lease_token,'run_sql',{'sql':statement,'_data_scope':sorted(states)},
+                   lambda:_run_query(statement,task_id,lease_token,states))
     finally:
         SQL_OBSERVATIONS.reset(token)
         if observations:
@@ -99,15 +106,21 @@ def run_query(statement, task_id, lease_token=None, idempotency_key=None):
     return response
 
 
-def _run_query(statement, task_id, lease_token=None):
+def _run_query(statement, task_id, lease_token=None, states=None):
     task_id = UUID(task_id)
     executable, capped = guard_sql(statement)
+    states=task_scope(task_id) if states is None else states
+    denied=check_sql(executable,states)
+    if denied:return denied
     digest=sql_fingerprint(executable,capped)
+    # Keep full-access fingerprints stable; scoped caches never cross scopes.
+    if states!=['ALL']:digest=hashlib.sha256((digest+'\nscope='+','.join(sorted(states))).encode()).hexdigest()
     with connection('mcp') as agent_db:
         from mcp_olist.leases import validate
         validate(agent_db,task_id,lease_token)
         with connection('mcp','olist','reader') as conn:
             conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+            apply_scope(conn,states)
             conn.execute(sql.SQL('SET LOCAL statement_timeout = {}').format(sql.Literal(str(int(SQL_TIMEOUT_SECONDS*1000))+'ms')))
             conn.execute("SET LOCAL lock_timeout = '2s'")
             conn.execute("SET LOCAL search_path = pg_catalog, public")
@@ -150,6 +163,8 @@ def get_saved_result(result_id, task_id, offset=0, limit=20):
         row = conn.execute("SELECT sql,columns,rows,row_count,data_version,truncated FROM query_results WHERE result_id=%s AND task_id=%s",
             (UUID(result_id),UUID(task_id))).fetchone()
     if not row: raise ValueError("Result is unavailable for this task")
+    denied=check_sql(row[0],task_scope(task_id))
+    if denied:return denied
     return {"result_id":str(result_id),"sql":guard_sql(row[0]).sql,"columns":row[1],"preview":row[2][offset:offset+limit],
             "row_count":row[3],"data_version":row[4],"offset":offset,"limit":limit,
             "truncated":row[5],"notice":result_notice(row[0],row[5])}

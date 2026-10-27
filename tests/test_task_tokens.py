@@ -90,7 +90,7 @@ def test_live_jwt_cannot_read_another_task_or_use_a_released_lease():
     from mcp_olist.service import run_query
     from agent.mcp_client import MCPClient
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('jwt-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('jwt-'+uuid4().hex,)).fetchone()[0]
     ids=[create_task(NewTask(question='JWT integration fixture'),owner)['task_id'] for _ in range(2)]
     jobs=[worker.claim(ident) for ident in ids]
     foreign=run_query('SELECT 1 AS n',ids[1],str(jobs[1]['token']))

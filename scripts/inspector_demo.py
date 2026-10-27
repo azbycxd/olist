@@ -23,7 +23,7 @@ def main():
         if args.action == "prepare":
             if len(MCP_BEARER_TOKEN) < 24:
                 raise ValueError("Configure MCP_BEARER_TOKEN first")
-            user = db.execute("INSERT INTO users (username) VALUES (%s) RETURNING user_id",
+            user = db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",
                               ("inspector-"+uuid4().hex,)).fetchone()[0]
             task = db.execute("INSERT INTO tasks (user_id,question,status) VALUES (%s,%s,'running') RETURNING task_id",
                               (user,"Official MCP Inspector: SELECT COUNT(*) AS orders FROM orders")).fetchone()[0]

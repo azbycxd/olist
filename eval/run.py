@@ -138,6 +138,7 @@ def execute(args):
             if not agent_db.execute("SELECT pg_try_advisory_lock(730018)").fetchone()[0]:
                 raise ValueError("Another evaluation is running; RESULTS append is serialized")
             oracle_db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+            oracle_db.execute("SET LOCAL app.allowed_states = 'ALL'")
             data_version = oracle_db.execute("SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
             # Validate ALL selected gold queries before any adapter work or metrics.
             gold = {q["id"]: execute_gold(oracle_db, q)[0] for q in selected}
@@ -152,7 +153,7 @@ def execute(args):
                 record(logger, "oracle_result", question_id=q["id"], sql=q["gold_sql"], value=gold[q["id"]])
             for q in selected:
                 username=f"eval-{getattr(args,'user_group',None) or run_id}-{q['id']}"
-                user_id = agent_db.execute("INSERT INTO users (username) VALUES (%s) ON CONFLICT(username) DO UPDATE SET username=excluded.username RETURNING user_id", (username,)).fetchone()[0]
+                user_id = agent_db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) ON CONFLICT(username) DO UPDATE SET username=excluded.username RETURNING user_id", (username,)).fetchone()[0]
                 setup_task = None
                 if q.get("setup_turns"):
                     setup_task = agent_db.execute("INSERT INTO tasks (user_id,question,status) VALUES (%s,%s,'running') RETURNING task_id", (user_id, "\n".join(q["setup_turns"]))).fetchone()[0]

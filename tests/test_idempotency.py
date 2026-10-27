@@ -17,7 +17,7 @@ integration=pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local DB r
 @pytest.fixture
 def task():
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('idempotency-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('idempotency-'+uuid4().hex,)).fetchone()[0]
         ident=conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'SQL retry fixture','running') RETURNING task_id",(owner,)).fetchone()[0]
     yield str(ident)
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
@@ -70,7 +70,7 @@ def test_http_connection_retry_preserves_idempotency_header():
 def test_running_expiry_takeover_conflict_and_stale_completion(task):
     from mcp_olist import idempotency
     key=task+':pending'
-    old,_=idempotency.begin(key,task,None,'run_sql',{'sql':'SELECT 42 AS n'})
+    old,_=idempotency.begin(key,task,None,'run_sql',{'sql':'SELECT 42 AS n','_data_scope':['ALL']})
     assert service.run_query('SELECT 42 AS n',task,idempotency_key=key)['error']=='tool_in_progress'
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         conn.execute("UPDATE tool_calls SET updated_at=clock_timestamp()-interval '30 seconds' WHERE key=%s",(key,))

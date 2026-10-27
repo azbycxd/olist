@@ -132,6 +132,10 @@ async def run_loop(question, remote, client, model, emit, *, schema_mode="on_dem
                 emit('no_progress',{'rule':rule,'step':step,'role':role})
                 return finish('repeated_tool_calls' if rule=='consecutive_repeat' else 'no_progress')
             results = await asyncio.gather(*(registry.call(c.function.name, c.function.arguments, c.id) for c in calls))
+            denied=next((r.content for r in results if r.content.get('error')=='forbidden_dimension'),None)
+            if denied:
+                emit('boundary_stop',denied)
+                return finish('final_answer',FinalAnswer(answer='无权限查询该范围，请联系管理员核对数据权限。',claims=[]))
             unknown=next((r.content for r in results if r.content.get('error')=='unknown_dimension'),None)
             if unknown:
                 from agent.boundaries import unknown_dimension_response

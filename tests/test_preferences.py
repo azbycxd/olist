@@ -24,7 +24,7 @@ def test_quote_grounding_and_no_model_invented_value():
 def test_memory_supersession_isolation_and_authenticated_delete(monkeypatch):
     monkeypatch.setenv('MEMORY_API_SECRET','test-only-secret-with-more-than-32-characters')
     with psycopg.connect(**db_kwargs('agent','app'),autocommit=True) as conn:
-        users=[conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('memory-test-'+str(uuid4()),)).fetchone()[0] for _ in range(2)]
+        users=[conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('memory-test-'+str(uuid4()),)).fetchone()[0] for _ in range(2)]
         task=conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'test','running') RETURNING task_id",(users[0],)).fetchone()[0]
         try:
             first=save(task,[{'key':'default_state','source_quote':'以后默认 SP。'}],'以后默认 SP。')[0]

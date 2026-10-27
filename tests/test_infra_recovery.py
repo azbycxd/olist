@@ -49,7 +49,7 @@ def test_bootstrap_failure_recovery_and_shared_limit(monkeypatch,failures,expect
     from scripts import task_worker as worker
     from contracts import FinalAnswer
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('infra-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('infra-'+uuid4().hex,)).fetchone()[0]
     ident=create_task(NewTask(question='infra scripted bootstrap'),owner)['task_id']
     attempts=[]
     def runtime(question,ident,emit,**kwargs):

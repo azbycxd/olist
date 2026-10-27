@@ -405,3 +405,15 @@ B4未增加模型工具返回字段、运行时配置或数据库迁移。B3新�
 失败测试提交1516bb0，7失败；实现后全量354通过，包括过期、错误aud、alg=none、跨用户任务、角色403、伪造头无效、真实MCP跨任务取证据拒绝、释放租约后旧令牌拒绝。没有运行真实模型；性能前后数字未测，留空。XML、日志文件名和SHA256见[收据](../evidence/step12_c1_receipt.json)。无新增迁移或工具返回字段，新增两项配置见PARAMETERS。
 
 已知局限：多智能体的各角色跑在同一个子进程里，按角色分令牌防的是误用和越权调用，不能隔离同进程里的恶意代码。静态CLI令牌是本地运维能力，必须像签名密钥一样保密；其兼容路径不适合暴露给远程租户。
+
+## Step 12.4 C2：州范围权限与RLS
+
+旧问题：只读账号仍能查询全库。新增019给users添加data_scope，020在customers/orders/order_items/order_payments/order_reviews启用RLS。customers按customer_state过滤；orders通过customers、其余三表通过orders的EXISTS继承范围。未设置/空app.allowed_states默认拒绝，ALL放行；迁移验证agent_ro非属主、非超级用户、无BYPASSRLS。MCP从已校验JWT的sub查用户权限，在只读事务中SET LOCAL，不使用会话SET。元数据样例、维度探测也使用该范围。模型SQL中set_config/current_setting原有函数白名单已禁止，本次补验收。
+
+SQL预检在查询及缓存返回之前执行，越权州或未明确州范围的业务查询返回forbidden_dimension/notice；Agent按boundary_stop结束并告诉用户“无权限”。权限范围参与受限用户的SQL内容哈希和所有工具传输请求摘要；get_result、证据页及历史finding导入重新检查权限，防止收窄后读取旧范围结果。ALL的公开SQL、SQL哈希和工具字段保持原样。新增错误码forbidden_dimension，复用已有error/notice字段。
+
+失败测试a4e3fea：3失败、2通过。验收覆盖SP查RJ、全国汇总、OR/UNION范围歧义、空变量五表均0行、事务结束恢复默认拒绝、模型调用SET函数被拦截、跨范围缓存和Agent无权限响应。首次全量旧测试未设置RLS上下文而失败，修正固定ALL夹具及幂等摘要夹具后再验证；题库、gold、评分和核查器未修改，评测入口仅添加ALL用户权限及oracle只读事务上下文。
+
+31条C/D/E dev标准SQL，改前、改后分别只读执行一遍，无模型调用、无评分、无holdout：p50从28.530ms到74.416ms，p95从100.356ms到500.678ms。收据：[改前](../evidence/step12_c2_rls_before.json)、[改后](../evidence/step12_c2_rls_after.json)；逐SQL耗时、日志名和SHA256均保留。RLS增加了可观开销，本批没有调参或改写固定SQL；单次负载有缓存和顺序影响，不宣称统计显著性。参考[PostgreSQL 16 RLS](https://www.postgresql.org/docs/16/ddl-rowsecurity.html)。
+
+局限：受限用户的复杂SQL采用保守预检，每个直接查询受保护表的SELECT需明确customer_state正向WHERE，OR/NOT等不能证明范围时拒绝；可能拒绝实际安全的复杂查询。RLS始终独立生效。products/sellers/geolocation等维表按本批范围不加RLS；业务表原始结果不做脱敏。用户权限需由管理员分配，新注册空权限不会自动升级为ALL。

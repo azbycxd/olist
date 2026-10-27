@@ -79,7 +79,7 @@ def run(label,workers=4,count=20,rpm=0,tpm=0,sql=True):
             else:raise TimeoutError('Private API not ready')
             # Create isolated identities directly, then submit through the real API.
             with psycopg.connect(**db_kwargs('agent','app')) as conn:
-                owners=[conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('load-'+uuid4().hex,)).fetchone()[0] for _ in range(count)]
+                owners=[conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('load-'+uuid4().hex,)).fetchone()[0] for _ in range(count)]
             tokens=[issue(owner) for owner in owners]
             def submit(token):
                 response=client.post('/tasks',headers={'Authorization':'Bearer '+token},json={'question':'工程服务 HTTP 替身任务'})

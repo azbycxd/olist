@@ -102,6 +102,8 @@ docker compose logs init-data
 
 确认 `init-data` 正常退出后，打开 [本机工作台](http://localhost:8000)，注册并提问。默认直接分析；选择多智能体时需确认计划。[默认界面验收](evidence/step9_default_ui.summary.json)记录真实页面选择与控制台检查，日志 `step9_default_ui.json`。可选“压缩旧查询结果”使用 mask。已有 `.env` 升级时需对照下面的最终配置；环境中的显式旧值仍优先。
 
+Step12.4新增任务签名密钥`MCP_TOKEN_SECRET`，与静态MCP令牌分开生成并保存在`.env`。新注册用户默认无业务数据权限；管理员在agent库为指定用户设置`data_scope=ARRAY['SP']`等州范围，或显式授予`ARRAY['ALL']`后才能分析。019迁移保留已有用户权限，本地CLI/评测新用户显式使用ALL。不要将静态CLI令牌提供给远程用户。
+
 ```dotenv
 AGENT_MODE=single
 NUMBER_GATE=true

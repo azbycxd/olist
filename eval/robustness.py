@@ -23,7 +23,7 @@ from scripts.task_worker import claim, process
 
 def create_tasks(questions, settings):
     with psycopg.connect(**db_kwargs('agent','app')) as db:
-        owner=db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('robustness-'+uuid4().hex,)).fetchone()[0]
+        owner=db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('robustness-'+uuid4().hex,)).fetchone()[0]
         return [str(db.execute('INSERT INTO tasks(user_id,question,background,run_config) VALUES(%s,%s,true,%s) RETURNING task_id',
                               (owner,q,Jsonb(settings))).fetchone()[0]) for q in questions]
 

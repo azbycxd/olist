@@ -68,4 +68,5 @@ def test_public_sql_matches_saved_rows_and_hash_but_execution_probes_one_more(ta
     assert digest==sql_fingerprint(sql,True)
     assert api_result(task,result['result_id'],owner)['sql']==sql
     with psycopg.connect(**db_kwargs(role='reader')) as conn:
+        conn.execute("SET LOCAL app.allowed_states='ALL'")
         assert len(conn.execute(sql).fetchall())==result['row_count']==1000

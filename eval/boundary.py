@@ -50,7 +50,7 @@ def execute(suite='step10', *, tag=None, runtime_config=None):
             'negative_price_rows':data.execute('SELECT count(*) FROM order_items WHERE price<0').fetchone()[0],
             'orders_2017':data.execute("SELECT count(*) FROM orders WHERE order_purchase_timestamp>='2017-01-01' AND order_purchase_timestamp<'2018-01-01'").fetchone()[0]}
         for q in questions:
-            uid=db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('boundary-'+uuid4().hex,)).fetchone()[0]
+            uid=db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('boundary-'+uuid4().hex,)).fetchone()[0]
             tid=db.execute("INSERT INTO tasks(user_id,question,status,run_config) VALUES(%s,%s,'running',%s) RETURNING task_id",(uid,q['question'],Jsonb(configuration))).fetchone()[0]
             row={**q,'task_id':str(tid),'events':[]};seq=0;task_calls=[]
             def emit(kind,payload,tokens=0,latency_ms=0):

@@ -1,5 +1,5 @@
-from db_pool import connection
 """Trusted, owner-scoped storage and import of reviewed historical evidence."""
+from db_pool import connection
 import hashlib
 import json
 import os
@@ -53,6 +53,8 @@ def save_reviewed(task_id,lease_token=None):
 
 
 def retrieve(task_id,question,lease_token=None):
+    from mcp_olist.scopes import task_scope,check_sql
+    states=task_scope(task_id,'worker')
     version=current_version();threshold=float(os.getenv('FINDING_MIN_SIMILARITY','0.78'))
     if not 0<=threshold<=1:raise ValueError('Invalid finding similarity threshold')
     with connection('worker') as conn:
@@ -77,6 +79,7 @@ def retrieve(task_id,question,lease_token=None):
             sources=conn.execute('SELECT r.result_id,r.sql,r.columns,r.rows,r.row_count,r.data_version,r.truncated FROM query_results r JOIN tasks t USING(task_id) WHERE r.result_id=ANY(%s) AND r.task_id=%s AND t.user_id=%s',
                 ([UUID(ref) for ref in evidence],source_task,owner[0])).fetchall()
             if len(sources)!=len(evidence) or any(r[5]!=version for r in sources):continue
+            if any(check_sql(r[1],states) for r in sources):continue
             imported=[]
             for ref,sql,columns,result_rows,count,data_version,truncated in sources:
                 prior=conn.execute('SELECT result_id FROM query_results WHERE task_id=%s AND source_result_id=%s',(UUID(str(task_id)),ref)).fetchone()

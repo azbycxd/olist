@@ -48,7 +48,7 @@ def test_cancel_admission_checked_before_retry_without_second_model_call():
 @pytest.fixture
 def owner():
     with psycopg.connect(**db_kwargs('agent','app')) as db:
-        uid=db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('controls-'+uuid4().hex,)).fetchone()[0]
+        uid=db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('controls-'+uuid4().hex,)).fetchone()[0]
     yield uid
     with psycopg.connect(**db_kwargs('agent','app')) as db:
         limits.owner_lock(db,uid)
@@ -89,7 +89,7 @@ def test_per_user_parallel_limit_and_released_slot(owner,monkeypatch):
     jobs=[j or worker.claim(tid) for j,tid in zip(jobs,ids)]
     assert sum(j is not None for j in jobs)==2
     with psycopg.connect(**db_kwargs('agent','app')) as db:
-        other=db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('other-'+uuid4().hex,)).fetchone()[0]
+        other=db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('other-'+uuid4().hex,)).fetchone()[0]
     other_tid=new(other)
     assert worker.claim(other_tid) is not None
     with psycopg.connect(**db_kwargs('agent','app')) as db:

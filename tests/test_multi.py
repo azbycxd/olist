@@ -103,7 +103,7 @@ def test_rejected_subtasks_are_retried_once_then_dropped(monkeypatch):
 @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='requires database')
 def test_persistent_role_boundaries_and_writer_rejection():
     with psycopg.connect(**db_kwargs('agent','app'),autocommit=True) as conn:
-        user=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('board-'+str(uuid4()),)).fetchone()[0]
+        user=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('board-'+str(uuid4()),)).fetchone()[0]
         task=str(conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'test','running') RETURNING task_id",(user,)).fetchone()[0])
         plan={'subtasks':[{'id':'a','question':'q','depends_on':[]}]}
         write_state(task,'planner',plan)

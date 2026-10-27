@@ -63,7 +63,7 @@ def persistent_503(label, recovery_seconds=None):
         os.environ['OPENAI_BASE_URL'] = f'http://127.0.0.1:{server.server_port}/v1'
         os.environ['OPENAI_MODEL'] = 'step12-http-503-' + uuid4().hex
         with psycopg.connect(**db_kwargs('agent', 'app')) as conn:
-            owner = conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id', ('step12-'+uuid4().hex,)).fetchone()[0]
+            owner = conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id", ('step12-'+uuid4().hex,)).fetchone()[0]
         ids = [create_task(NewTask(question='Step12 HTTP 替身故障实验'), owner)['task_id'] for _ in range(10)]
         durations = []
         started = time.perf_counter()
@@ -116,7 +116,7 @@ def duplicate_sql(label):
             executed.append({'at_monotonic':time.monotonic(),'sql':query})
         return original_execute(conn,query,*a,**kw)
     with original_connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('sql-recovery-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('sql-recovery-'+uuid4().hex,)).fetchone()[0]
     ident=create_task(NewTask(question='SQL 结果落库后响应丢失恢复替身'),owner)['task_id']
     first_job=claim(ident)
     psycopg.Connection.execute=counted
@@ -174,7 +174,7 @@ def signal_recovery(label):
     workers=[]
     try:
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
-            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('signal-'+uuid4().hex,)).fetchone()[0]
+            owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('signal-'+uuid4().hex,)).fetchone()[0]
         ident=create_task(NewTask(question='Step12 SIGTERM HTTP替身实验'),owner)['task_id']
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
             conn.execute('UPDATE tasks SET run_config=run_config||%s WHERE task_id=%s',(Jsonb({'RAG_MODE':'off','USE_MEMORY':'false'}),ident))

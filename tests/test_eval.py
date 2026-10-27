@@ -288,7 +288,7 @@ def test_validator_rejects_bad_traps_and_keeps_validating(monkeypatch, tmp_path,
 def test_checker_reads_real_query_results_table():
     conn=psycopg.connect(**db_kwargs("agent","app"))
     try:
-        user=conn.execute("INSERT INTO users(username) VALUES(%s) RETURNING user_id",(f"checker-test-{uuid4()}",)).fetchone()[0]
+        user=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",(f"checker-test-{uuid4()}",)).fetchone()[0]
         task=conn.execute("INSERT INTO tasks(user_id,question) VALUES(%s,'checker test') RETURNING task_id",(user,)).fetchone()[0]
         ref=conn.execute("INSERT INTO query_results(task_id,sql,rows,row_count,data_version) VALUES(%s,'SELECT 42 AS n',%s,1,'test') RETURNING result_id",(task,Jsonb([{"n":42}]))).fetchone()[0]
         verified=check(answer(evidence=[str(ref)]), DatabaseEvidence(conn),str(task),"test")

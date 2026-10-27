@@ -50,7 +50,7 @@ def run():
     ident=None
     try:
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
-            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('trace-real-'+uuid4().hex,)).fetchone()[0]
+            owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('trace-real-'+uuid4().hex,)).fetchone()[0]
         ident=create_task(NewTask(question=question),owner)['task_id']
         job=claim(ident)
         if job is None:raise RuntimeError('Real example could not be claimed; do not resubmit automatically')

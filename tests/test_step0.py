@@ -51,6 +51,7 @@ def test_roles_cannot_connect_to_other_database(database, role):
 
 def test_source_rows_keys_and_timestamps():
     with psycopg.connect(**db_kwargs(role="reader")) as conn:
+        conn.execute("SET LOCAL app.allowed_states='ALL'")
         manifest = conn.execute("SELECT manifest FROM data_imports ORDER BY import_id DESC LIMIT 1").fetchone()[0]
         for table in TABLES:
             count = conn.execute(sql.SQL("SELECT count(*) FROM {}").format(sql.Identifier(table))).fetchone()[0]
@@ -65,7 +66,7 @@ def test_core_tables_and_evidence_roundtrip():
     try:
         names = {r[0] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")}
         assert {"users", "tasks", "events", "query_results", "memories", "schema_migrations"} <= names
-        user = conn.execute("INSERT INTO users (username) VALUES (%s) RETURNING user_id", (f"test-{uuid4()}",)).fetchone()[0]
+        user = conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id", (f"test-{uuid4()}",)).fetchone()[0]
         task = conn.execute("INSERT INTO tasks (user_id, question) VALUES (%s, 'test') RETURNING task_id", (user,)).fetchone()[0]
         conn.execute("INSERT INTO events (task_id, seq, type, payload, tokens, latency_ms) VALUES (%s, 1, 'tool_result', '{\"output_summary\":\"ok\"}', 0, 1.5)", (task,))
         result = conn.execute("INSERT INTO query_results (task_id, sql, rows, row_count, data_version) VALUES (%s, 'SELECT 42 AS n', '[{\"n\":42}]', 1, 'test') RETURNING result_id", (task,)).fetchone()[0]

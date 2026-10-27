@@ -25,7 +25,7 @@ def test_worker_release_is_atomic_and_does_not_consume_claim_budget():
     from scripts import task_worker as worker
     from test_task_controls import new
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('release-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('release-'+uuid4().hex,)).fetchone()[0]
     ident=new(owner)
     job=worker.claim(ident)
     try:
@@ -122,7 +122,7 @@ def test_mcp_liveness_readiness_and_tool_pool_exhaustion(monkeypatch):
     monkeypatch.setattr(config,'MCP_AGENT_POOL_MAX',1)
     monkeypatch.setattr(config,'DB_POOL_TIMEOUT_SECONDS',.05)
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('mcp-pool-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('mcp-pool-'+uuid4().hex,)).fetchone()[0]
         ident=conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'pool fixture','completed') RETURNING task_id",(owner,)).fetchone()[0]
     with TestClient(create_app(),base_url='http://localhost:8001') as client:
         assert client.get('/healthz').status_code==200

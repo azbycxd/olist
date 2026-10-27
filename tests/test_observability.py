@@ -168,7 +168,7 @@ def test_api_worker_mcp_sql_and_metrics_chain(spans,monkeypatch):
     from fastapi.testclient import TestClient
     import telemetry
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('trace-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('trace-'+uuid4().hex,)).fetchone()[0]
     ident=create_task(NewTask(question='trace fixture'),owner)['task_id']
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         stored=conn.execute('SELECT traceparent FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]

@@ -78,7 +78,7 @@ def rate_job(monkeypatch):
     monkeypatch.setenv('OPENAI_BASE_URL','http://rate-'+uuid4().hex+'/v1')
     monkeypatch.setenv('OPENAI_MODEL','rate-fixture')
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('rate-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('rate-'+uuid4().hex,)).fetchone()[0]
     job=worker.claim(new(owner))
     yield job
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
@@ -100,7 +100,7 @@ def test_atomic_shared_rpm_and_tpm_do_not_over_admit(rate_job,monkeypatch):
     jobs=[rate_job]
     for _ in range(7):
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
-            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('rate-parallel-'+uuid4().hex,)).fetchone()[0]
+            owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('rate-parallel-'+uuid4().hex,)).fetchone()[0]
         jobs.append(worker.claim(new(owner)))
     def attempt(job):
         try:return reserve(job)

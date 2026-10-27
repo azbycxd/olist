@@ -138,7 +138,7 @@ def circuit_job(monkeypatch):
     model = 'circuit-test-' + uuid4().hex
     monkeypatch.setenv('OPENAI_MODEL', model)
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
-        owner = conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id', (model,)).fetchone()[0]
+        owner = conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id", (model,)).fetchone()[0]
     job = worker.claim(new(owner))
     yield job, model
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
@@ -215,7 +215,7 @@ def test_five_concurrent_tasks_open_before_any_backoff_finishes(circuit_job,monk
     jobs=[]
     for _ in range(5):
         with psycopg.connect(**db_kwargs('agent','app')) as conn:
-            owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('parallel-'+uuid4().hex,)).fetchone()[0]
+            owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('parallel-'+uuid4().hex,)).fetchone()[0]
         jobs.append(worker.claim(new(owner)))
     observed=[]
     async def run():

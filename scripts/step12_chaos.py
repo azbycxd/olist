@@ -145,7 +145,7 @@ def run(mode,label=None):
                 time.sleep(.1)
             else:raise TimeoutError('Fixture services did not become ready')
             with psycopg.connect(**db_kwargs('agent','app')) as conn:
-                owners=[conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('chaos-'+uuid4().hex,)).fetchone()[0] for _ in range(count)]
+                owners=[conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('chaos-'+uuid4().hex,)).fetchone()[0] for _ in range(count)]
             tokens=[issue(owner) for owner in owners]
             submitted=time.monotonic()
             def submit(token):

@@ -1,5 +1,5 @@
-from db_pool import connection
 """Read-only dataset coverage and dimension existence checks before aggregation."""
+from db_pool import connection
 import calendar
 from datetime import date
 
@@ -34,8 +34,11 @@ def coverage(start, end):
 
 
 def data_context():
+    from mcp_olist.scopes import current_scope,apply_scope
+    states_allowed=current_scope()
     with connection('mcp','olist','reader') as conn:
         conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        apply_scope(conn,states_allowed)
         version=conn.execute('SELECT data_version FROM data_imports ORDER BY import_id DESC LIMIT 1').fetchone()[0]
         dates=conn.execute('SELECT min(order_purchase_timestamp),max(order_purchase_timestamp) FROM orders').fetchone()
         states=[r[0] for r in conn.execute('SELECT DISTINCT customer_state FROM customers ORDER BY customer_state').fetchall()]
@@ -54,8 +57,12 @@ def check_value(conn, column, value, transform=None):
 def check_dimension(column, value):
     if column not in DIMENSIONS or not isinstance(value,str) or not value or len(value)>300:
         raise ValueError('Choose a supported dimension and a bounded exact value')
+    from mcp_olist.scopes import current_scope,apply_scope,forbidden
+    states=current_scope()
+    if states!=['ALL'] and (not states or column in {'customer_state','seller_state'} and value.upper() not in states):return forbidden()
     with connection('mcp','olist','reader') as conn:
         conn.execute('SET TRANSACTION READ ONLY')
+        apply_scope(conn,states)
         item=check_value(conn,column,value)
     return {**item,**({} if item['exists'] else {'error':'unknown_dimension','missing':[item]}),
             'notice':'值存在仅说明维度字典有此值，不说明指定时间/组合有记录。' if item['exists'] else '未找到该值，请核对名称或代码；不能把未知维度表述为零。'}

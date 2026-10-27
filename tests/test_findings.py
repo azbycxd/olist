@@ -15,8 +15,8 @@ def test_only_approved_findings_cross_sessions_and_old_version_is_clue(monkeypat
     monkeypatch.setattr(findings,'embed',lambda texts,query=False:[[1.,0.,0.] for _ in texts])
     version=findings.current_version()
     with psycopg.connect(**db_kwargs('agent','app'),autocommit=True) as conn:
-        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('finding-test-'+uuid4().hex,)).fetchone()[0]
-        other=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('finding-other-'+uuid4().hex,)).fetchone()[0]
+        owner=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('finding-test-'+uuid4().hex,)).fetchone()[0]
+        other=conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('finding-other-'+uuid4().hex,)).fetchone()[0]
         def task(user):return conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'same question','running') RETURNING task_id",(user,)).fetchone()[0]
         first,second,foreign=task(owner),task(owner),task(other)
         ref=conn.execute("INSERT INTO query_results(task_id,sql,columns,rows,row_count,data_version) VALUES(%s,'SELECT 42 AS n',%s,%s,1,%s) RETURNING result_id",(first,Jsonb(['n']),Jsonb([{'n':42}]),version)).fetchone()[0]

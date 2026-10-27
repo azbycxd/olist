@@ -34,6 +34,8 @@ def idempotent(function):
         request=mcp.get_context().request_context.request
         key=request.headers.get('idempotency-key')
         arguments={k:v for k,v in inspect.signature(function).bind(*args,**kwargs).arguments.items() if not isinstance(v,Context)}
+        from mcp_olist.scopes import current_scope
+        arguments['_data_scope']=sorted(await asyncio.to_thread(current_scope))
         owner=None
         if key:
             owner,cached=await asyncio.to_thread(idempotency.begin,key,request.headers.get('x-task-id',''),request.headers.get('x-lease-token'),function.__name__,arguments)

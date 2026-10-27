@@ -10,12 +10,32 @@ def test_scope_precheck_rejects_foreign_state_and_national_aggregate():
     assert check_sql('SELECT count(*) FROM orders',['SP'])['error']=='forbidden_dimension'
     assert check_sql("SELECT count(*) FROM customers WHERE customer_state='SP'",['SP']) is None
     assert check_sql('SELECT count(*) FROM orders',['ALL']) is None
+    assert check_sql("SELECT count(*) FROM customers WHERE customer_state='SP' OR true",['SP'])
+    assert check_sql("SELECT count(*) FROM customers WHERE customer_state='SP' UNION ALL SELECT count(*) FROM orders",['SP'])
 
 
 @pytest.mark.parametrize('function',["set_config('app.allowed_states','ALL',true)","current_setting('app.allowed_states')"])
 def test_model_cannot_change_or_inspect_scope(function):
     from mcp_olist.sql_guard import guard_sql,UnsafeSQL
     with pytest.raises(UnsafeSQL):guard_sql('SELECT '+function)
+
+
+def test_forbidden_dimension_stops_loop_with_permission_answer():
+    import asyncio
+    from types import SimpleNamespace
+    from test_agent import Remote,completion
+    from agent.loop import run_loop
+    class Denied(Remote):
+        async def call(self,name,args):
+            if name=='run_sql':return {'error':'forbidden_dimension','notice':'无权限'}
+            return await super().call(name,args)
+    calls=[];events=[]
+    async def create(**kw):
+        calls.append(kw)
+        return completion([('run_sql',{'sql':"SELECT count(*) FROM customers WHERE customer_state='RJ'"})])
+    client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+    result=asyncio.run(run_loop('RJ有多少客户',Denied(),client,'scripted',lambda kind,*args:events.append(kind)))
+    assert len(calls)==1 and '无权限' in result.response.answer and 'boundary_stop' in events
 
 
 @pytest.mark.integration
@@ -33,6 +53,8 @@ def test_reader_unset_scope_denies_and_scoped_queries_cannot_escape():
         assert conn.execute('SELECT DISTINCT customer_state FROM customers').fetchall()==[('SP',)]
         assert not conn.execute("SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolbypassrls OR rolsuper)").fetchone()
         assert not conn.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='customers' AND tableowner=current_user").fetchone()
+        conn.commit()
+        assert conn.execute('SELECT count(*) FROM customers').fetchone()[0]==0
 
 
 @pytest.mark.integration

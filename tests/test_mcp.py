@@ -15,7 +15,7 @@ pytestmark = [pytest.mark.integration,
 
 def test_live_protocol_authentication_results_and_errors():
     with psycopg.connect(**db_kwargs("agent","app"), autocommit=True) as conn:
-        user = conn.execute("INSERT INTO users(username) VALUES(%s) RETURNING user_id", ("mcp-test-"+str(uuid4()),)).fetchone()[0]
+        user = conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id", ("mcp-test-"+str(uuid4()),)).fetchone()[0]
         task = conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'MCP integration test','running') RETURNING task_id",(user,)).fetchone()[0]
         try:
             async def exercise():
@@ -48,6 +48,7 @@ def test_live_protocol_authentication_results_and_errors():
                     assert page["preview"] == stored[1][25:28]
                     counts = await client.call("run_sql",{"sql":"SELECT count(*) AS n FROM orders"})
                     with psycopg.connect(**db_kwargs(role="reader")) as reader:
+                        reader.execute("SET LOCAL app.allowed_states='ALL'")
                         actual = reader.execute("SELECT count(*) FROM orders").fetchone()[0]
                     assert counts["preview"][0]["n"] == actual
                     assert counts["statistics"]["n"]["mean"] == str(actual)

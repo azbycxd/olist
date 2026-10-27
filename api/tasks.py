@@ -182,6 +182,9 @@ def result(task_id:UUID,result_id:UUID,owner:UUID=Depends(user)):
         owned(conn,task_id,owner)
         row=conn.execute('SELECT sql,columns,rows,data_version,source_result_id,truncated FROM query_results WHERE result_id=%s AND task_id=%s',(result_id,task_id)).fetchone()
         if not row:raise HTTPException(404,'Result not found')
+        from mcp_olist.scopes import check_sql
+        states=conn.execute('SELECT data_scope FROM users WHERE user_id=%s',(owner,)).fetchone()[0]
+        if check_sql(row[0],states):raise HTTPException(403,'forbidden_dimension: 无权限')
         from mcp_olist.sql_guard import guard_sql
         return dict(zip(['sql','columns','rows','data_version','source_result_id','truncated'],(guard_sql(row[0]).sql,*row[1:])))
 

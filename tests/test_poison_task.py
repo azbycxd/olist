@@ -15,7 +15,7 @@ pytestmark = pytest.mark.skipif(os.getenv('RUN_DB_TESTS') != '1', reason='databa
 @pytest.mark.parametrize('mode', ['single', 'multi'])
 def test_three_leases_then_concurrent_fourth_pickup_fails(mode):
     with psycopg.connect(**db_kwargs('agent', 'app')) as db:
-        owner = db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id', ('poison-'+uuid4().hex,)).fetchone()[0]
+        owner = db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id", ('poison-'+uuid4().hex,)).fetchone()[0]
         ident = db.execute("INSERT INTO tasks(user_id,question,background,run_config) VALUES(%s,'poison fixture',true,%s) RETURNING task_id",
                            (owner, Jsonb({**FINAL_CONFIG, 'AGENT_MODE':mode}))).fetchone()[0]
     try:
@@ -44,7 +44,7 @@ def test_three_leases_then_concurrent_fourth_pickup_fails(mode):
 def test_exhausted_pending_task_is_failed_without_execution():
     # Scoped calls make this safe beside unrelated queued tasks.
     with psycopg.connect(**db_kwargs('agent','app')) as db:
-        owner=db.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('poison-pending-'+uuid4().hex,)).fetchone()[0]
+        owner=db.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) RETURNING user_id",('poison-pending-'+uuid4().hex,)).fetchone()[0]
         ident=db.execute("INSERT INTO tasks(user_id,question,background,claim_count) VALUES(%s,'pending poison fixture',true,3) RETURNING task_id",(owner,)).fetchone()[0]
     assert claim(ident) is None
     with psycopg.connect(**db_kwargs('agent','app')) as db:

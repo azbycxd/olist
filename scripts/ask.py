@@ -25,7 +25,7 @@ def main():
     os.environ["SCHEMA_MODE"] = args.schema_mode
     logger, path = start_log("ask")
     with psycopg.connect(**db_kwargs("agent","app"), autocommit=True) as conn:
-        user = conn.execute("INSERT INTO users(username) VALUES(%s) ON CONFLICT(username) DO UPDATE SET username=excluded.username RETURNING user_id", (args.username,)).fetchone()[0]
+        user = conn.execute("INSERT INTO users(username,data_scope) VALUES(%s,ARRAY['ALL']) ON CONFLICT(username) DO UPDATE SET username=excluded.username RETURNING user_id", (args.username,)).fetchone()[0]
         task = conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,%s,'running') RETURNING task_id",
                             (user,args.question)).fetchone()[0]
         sequence, termination = 0, None
