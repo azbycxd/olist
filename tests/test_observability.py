@@ -128,6 +128,7 @@ def test_service_lifespans_flush_pending_spans_before_process_exit(monkeypatch):
     monkeypatch.setenv('AGENT_DB_PASSWORD','local-scripted-secret')
     monkeypatch.setenv('AGENT_RO_PASSWORD','local-scripted-secret')
     monkeypatch.setenv('MCP_BEARER_TOKEN','scripted-authentication-fixture')
+    monkeypatch.setenv('MCP_TOKEN_SECRET','scripted-mcp-signing-secret-for-unit-test')
     monkeypatch.setenv('MEMORY_API_SECRET','scripted-signing-secret-for-unit-test')
     # SDK session managers have a single lifecycle; do not consume the global
     # production app used by another integration test in this process.

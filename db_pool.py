@@ -16,7 +16,7 @@ request_state = ContextVar('pool_request_state', default=None)
 def validate_settings(component):
     required = ['AGENT_DB_PASSWORD']
     if component in {'mcp', 'worker'}:
-        required += ['AGENT_RO_PASSWORD', 'MCP_BEARER_TOKEN']
+        required += ['AGENT_RO_PASSWORD', 'MCP_BEARER_TOKEN', 'MCP_TOKEN_SECRET']
     if component == 'api':
         required += ['MEMORY_API_SECRET']
     if component == 'worker':
@@ -28,6 +28,7 @@ def validate_settings(component):
         raise ValueError('MEMORY_API_SECRET must contain at least 32 characters')
     if component in {'worker', 'mcp'} and len(os.environ['MCP_BEARER_TOKEN']) < 24:
         raise ValueError('MCP_BEARER_TOKEN must contain at least 24 characters')
+    if component in {'worker','mcp'}:config.mcp_token_secret()
 
 
 def pool(component, database='agent', role='app'):

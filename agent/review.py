@@ -28,6 +28,10 @@ def value_in_rows(value,rows):
     return any(same(value,v) for row in rows for v in row.values())
 
 
+from agent.call_context import role_bound
+
+
+@role_bound('reviewer')
 async def review(question,claims,remote,client,model,emit,knowledge=''):
     references=sorted({r for c in claims for r in c.evidence})
     async def fetch(ref):

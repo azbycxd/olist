@@ -2,6 +2,7 @@
 import asyncio
 import json
 import time
+import os
 from uuid import uuid4
 import jwt
 import pytest
@@ -77,3 +78,33 @@ def test_task_identity_validation_rejects_other_owner_and_lease(monkeypatch):
     def connection(*_):yield Conn()
     monkeypatch.setattr(auth,'connection',connection)
     with pytest.raises(PermissionError):validate_identity(value)
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(os.getenv('RUN_MCP_TESTS')!='1',reason='local MCP required')
+def test_live_jwt_cannot_read_another_task_or_use_a_released_lease():
+    import psycopg
+    from config import db_kwargs,MCP_URL
+    from api.tasks import create_task,NewTask
+    from scripts import task_worker as worker
+    from mcp_olist.service import run_query
+    from agent.mcp_client import MCPClient
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('jwt-'+uuid4().hex,)).fetchone()[0]
+    ids=[create_task(NewTask(question='JWT integration fixture'),owner)['task_id'] for _ in range(2)]
+    jobs=[worker.claim(ident) for ident in ids]
+    foreign=run_query('SELECT 1 AS n',ids[1],str(jobs[1]['token']))
+    async def exercise():
+        token=jobs[0]['mcp_tokens']['agent']
+        async with MCPClient(MCP_URL,token,ids[0],lease_token=str(jobs[0]['token']),role_tokens=jobs[0]['mcp_tokens']) as remote:
+            result=await remote.call('get_result',{'result_id':foreign['result_id']})
+            assert result['error']=='mcp_tool_error'
+            assert (await remote.call('run_sql',{'sql':'SELECT 2 AS n'}))['row_count']==1
+        worker.release(jobs[0])
+        with pytest.raises(Exception):
+            async with MCPClient(MCP_URL,token,ids[0],role_tokens=jobs[0]['mcp_tokens']):
+                pass
+    try:asyncio.run(exercise())
+    finally:
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            conn.execute("UPDATE tasks SET status='canceled',lease_token=NULL,lease_expires_at=NULL WHERE task_id=ANY(%s::uuid[])",(ids,))

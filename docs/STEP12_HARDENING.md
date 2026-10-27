@@ -395,3 +395,13 @@ B4未增加模型工具返回字段、运行时配置或数据库迁移。B3新�
 失败测试0da3b45：5失败/5通过；首次修复全量345通过。唯一一次相同loss_rate=0.1、45秒、2 worker/5任务演练收据为step12_chaos_packet_loss_after.json，开始标记step12_r3_packet_loss_once.json禁止重复：改前1/5成功、69.870秒，改后3/5成功、67.055秒，剩余2个bootstrap_error。发现当前SDK真实超时码为408，先前替身使用-32001，导致漏分类；该问题另补真实SDK失败测试和修复，不重跑演练，不把3/5描述成后续修复的最终成功率。场景仍是TCP数据块丢失，不是内核IP层丢包。
 
 主修复提交ed959d4；SDK真实内存通道超时失败测试f33be49，1失败。随后改为准确识别408，不凭错误文本重排；最终全量346通过，包含两次MCP初始化ConnectError后任务成功、持续失败重排3次后infra_unavailable、SQL语法/权限/unknown_dimension/fatal不重排。第2批两条复核已处理完，可进入12.4。指标修复对为2e77d1d/95e1529；全部日志、XML和唯一演练的哈希见[复核收据](../evidence/step12_r3_receipt.json)。新增工具错误码infra_retryable，仍使用已有error/detail字段；无新增重排额度或运行参数。
+
+## Step 12.4 C1：每次领取的短期任务令牌
+
+旧问题：Agent共享静态令牌，身份依赖可伪造请求头。现在worker领取后签发HS256 JWT，含sub、task_id、lease_token、单角色工具白名单roles、aud=mcp-olist、任务截止exp、iat和随机jti。可信CLI父进程同样签发前台任务令牌。子进程环境移除静态MCP_BEARER_TOKEN，签名密钥不进入环境白名单；角色JWT通过已有运行时输入传入。MCP固定算法、aud和必填声明，容忍30秒时钟偏差，验证用户与任务归属并实时检查数据库租约。JWT身份覆盖X-Task-ID/X-Lease-Token；工具越权及state_write角色不匹配返回403。
+
+多智能体按orchestrator/planner/analyst/reviewer/writer分别签发并在调用时选择令牌；模型无法通过工具参数选择其他角色。静态令牌仅保留给本机CLI/评测前台任务和健康检查兼容，不能访问后台任务；healthz/readyz仍是本机公开探针。参考[PyJWT校验接口](https://pyjwt.readthedocs.io/en/stable/api.html)，算法白名单不从令牌头决定。
+
+失败测试提交1516bb0，7失败；实现后全量354通过，包括过期、错误aud、alg=none、跨用户任务、角色403、伪造头无效、真实MCP跨任务取证据拒绝、释放租约后旧令牌拒绝。没有运行真实模型；性能前后数字未测，留空。XML、日志文件名和SHA256见[收据](../evidence/step12_c1_receipt.json)。无新增迁移或工具返回字段，新增两项配置见PARAMETERS。
+
+已知局限：多智能体的各角色跑在同一个子进程里，按角色分令牌防的是误用和越权调用，不能隔离同进程里的恶意代码。静态CLI令牌是本地运维能力，必须像签名密钥一样保密；其兼容路径不适合暴露给远程租户。

@@ -9,6 +9,15 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent
 if os.getenv("OLIST_LOAD_DOTENV", "1") == "1":
     load_dotenv(ROOT / ".env", override=False)
+MCP_TOKEN_CLOCK_SKEW_SECONDS = int(os.getenv('MCP_TOKEN_CLOCK_SKEW_SECONDS','30'))
+if MCP_TOKEN_CLOCK_SKEW_SECONDS!=30:raise ValueError('MCP_TOKEN_CLOCK_SKEW_SECONDS is fixed at 30')
+
+
+def mcp_token_secret():
+    value=os.getenv('MCP_TOKEN_SECRET','')
+    if len(value)<32:raise ValueError('MCP_TOKEN_SECRET must contain at least 32 characters')
+    return value
+
 # A complete explicit provider selection takes precedence over an unrelated
 # ambient OPENAI_API_KEY. The runtime still uses the OpenAI-compatible SDK.
 if os.getenv("DEEPSEEK_MODEL"):

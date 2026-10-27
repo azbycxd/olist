@@ -4,6 +4,8 @@ import asyncio
 import hmac
 import os
 import inspect
+import json
+import jwt
 from functools import wraps
 
 import uvicorn
@@ -134,11 +136,48 @@ class BearerAuth:
                 return
             headers = dict(scope["headers"])
             actual = headers.get(b"authorization", b"")
-            if not hmac.compare_digest(actual, ("Bearer "+self.token).encode()):
+            from mcp_olist import auth
+            identity=None
+            try:
+                if hmac.compare_digest(actual, ("Bearer "+self.token).encode()):
+                    identity=await asyncio.to_thread(auth.static_identity,headers)
+                else:
+                    if not actual.startswith(b'Bearer '):raise ValueError('Bearer required')
+                    identity=auth.decode(actual[7:].decode())
+                    await asyncio.to_thread(auth.validate_identity,identity)
+                    headers={k:v for k,v in headers.items() if k not in {b'x-task-id',b'x-lease-token'}}
+                    headers[b'x-task-id']=identity['task_id'].encode()
+                    headers[b'x-lease-token']=(identity['lease_token'] or '').encode()
+                    scope={**scope,'headers':list(headers.items())}
+            except PermissionError:
+                await JSONResponse({'error':'forbidden'},status_code=403)(scope,receive,send)
+                return
+            except (jwt.PyJWTError,ValueError,UnicodeError):
                 await JSONResponse({"error":"unauthorized"}, status_code=401,
                                    headers={"WWW-Authenticate":"Bearer"})(scope, receive, send)
                 return
+            except Exception as exc:
+                from mcp_olist.infra import retryable
+                if not retryable(exc):raise
+                await JSONResponse({'error':'infra_retryable'},status_code=503)(scope,receive,send)
+                return
+            if identity and not identity.get('static') and scope.get('method')=='POST':
+                buffered=[];body=b''
+                while True:
+                    item=await receive();buffered.append(item);body+=item.get('body',b'')
+                    if not item.get('more_body'):break
+                try:payload=json.loads(body)
+                except (ValueError,TypeError):payload={}
+                if isinstance(payload,dict) and payload.get('method')=='tools/call':
+                    params=payload.get('params',{})
+                    if not auth.authorize(identity,params.get('name'),params.get('arguments',{})):
+                        await JSONResponse({'error':'forbidden_tool'},status_code=403)(scope,receive,send)
+                        return
+                original_receive=receive
+                async def replay():return buffered.pop(0) if buffered else await original_receive()
+                receive=replay
             state={};token=request_state.set(state)
+            identity_token=auth.IDENTITY.set(identity)
             messages=[]
             async def capture(message):
                 messages.append(message)
@@ -155,6 +194,7 @@ class BearerAuth:
                     await send(message)
             finally:
                 request_state.reset(token)
+                auth.IDENTITY.reset(identity_token)
             return
         await self.app(scope,receive,send)
 

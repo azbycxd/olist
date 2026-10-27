@@ -10,7 +10,7 @@ from contracts import FinalAnswer
 
 RUNTIME_ENV = set("""PATH SYSTEMROOT WINDIR TEMP TMP LANG LC_ALL SSL_CERT_FILE SSL_CERT_DIR
     HTTP_PROXY HTTPS_PROXY NO_PROXY OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL
-    SCHEMA_MODE MAX_STEPS TOKEN_BUDGET MODEL_TIMEOUT MODEL_MAX_OUTPUT_TOKENS MCP_URL MCP_BEARER_TOKEN
+    SCHEMA_MODE MAX_STEPS TOKEN_BUDGET MODEL_TIMEOUT MODEL_MAX_OUTPUT_TOKENS MCP_URL
     MODEL_RETRY_ATTEMPTS MODEL_RETRY_BASE_SECONDS MODEL_RETRY_CAP_SECONDS
     REPEATED_CALL_LIMIT NO_PROGRESS_WINDOW NO_PROGRESS_EMPTY_TURNS
     MCP_RETRY_ATTEMPTS TRACEPARENT OTEL_EXPORTER_OTLP_ENDPOINT TOKEN_PRICE_INPUT TOKEN_PRICE_CACHED_INPUT TOKEN_PRICE_OUTPUT
@@ -22,7 +22,7 @@ def runtime_environment():
             "OLIST_LOAD_DOTENV":"0", "PYTHONUNBUFFERED":"1", "PYTHONIOENCODING":"utf-8"}
 
 
-def run_runtime(question, task_id, emit, *, preference_only=False, user_text=None, phase='execute', resume_board=None, lease_token=None, budget_used=0, on_process=None, control_check=None):
+def run_runtime(question, task_id, emit, *, preference_only=False, user_text=None, phase='execute', resume_board=None, lease_token=None, budget_used=0, on_process=None, control_check=None,mcp_tokens=None):
     user_text=question if user_text is None else user_text
     use_memory=os.getenv('USE_MEMORY','false').lower()=='true'
     from scripts.preferences import for_task,save
@@ -33,13 +33,21 @@ def run_runtime(question, task_id, emit, *, preference_only=False, user_text=Non
         history=retrieve(task_id,question,lease_token=lease_token)
         emit('finding_read',{'findings':history})
     emit('memory_read',{'enabled':use_memory,'count':len(preferences)})
+    if mcp_tokens is None:
+        from datetime import datetime,timedelta,timezone
+        from db_pool import connection
+        from mcp_olist.auth import issue_tokens
+        with connection('worker') as conn:
+            owner,deadline=conn.execute('SELECT user_id,deadline_at FROM tasks WHERE task_id=%s',(task_id,)).fetchone()
+        from scripts.task_limits import settings
+        mcp_tokens=issue_tokens(owner,task_id,lease_token,deadline or datetime.now(timezone.utc)+timedelta(seconds=settings()['TASK_MAX_SECONDS']),os.getenv('AGENT_MODE','single'))
     with subprocess.Popen([sys.executable, "-m", "agent.worker"], cwd=ROOT, env={**runtime_environment(),**({"TRACEPARENT":parent} if (parent:=__import__("telemetry").traceparent()) else {})},
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             text=True, encoding="utf-8") as process:
         try:
             if on_process:on_process(process)
             process.stdin.write(json.dumps({"question":question, "task_id":str(task_id),'user_text':user_text,
-                'preference_only':preference_only,'preferences':preferences,'history':history,'phase':phase,'resume_board':resume_board,'lease_token':lease_token,'budget_used':budget_used,'controlled':control_check is not None}, ensure_ascii=False)+"\n")
+                'preference_only':preference_only,'preferences':preferences,'history':history,'phase':phase,'resume_board':resume_board,'lease_token':lease_token,'budget_used':budget_used,'controlled':control_check is not None,'mcp_tokens':mcp_tokens}, ensure_ascii=False)+"\n")
             process.stdin.flush()
             if control_check is None:process.stdin.close()
             result = None

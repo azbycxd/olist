@@ -12,10 +12,12 @@ from agent.review import review
 from agent.writer import write
 from agent.tools import untrusted
 from config import boundary_guards_enabled
+from agent.call_context import role_scope
 
 
 async def control(remote,name,args):
-    result=await remote.call(name,args)
+    with role_scope(args.get('role','orchestrator')):
+        result=await remote.call(name,args)
     if result.get('error'):raise RuntimeError('Blackboard operation failed: '+str(result.get('detail',''))[:200])
     return Board.model_validate(result)
 

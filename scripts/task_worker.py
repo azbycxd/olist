@@ -44,7 +44,10 @@ def _claim(task_id=None):
                 event(conn,ident,'worker_claimed',{'phase':phase,'recovered':previous in {'planning','running'},'claim_count':count+1,'worker_id':os.getenv('WORKER_ID') or f'{os.getenv("HOSTNAME","local")}:{os.getpid()}'})
                 state=conn.execute('SELECT plan,subtasks,report FROM task_state WHERE task_id=%s',(ident,)).fetchone()
                 budget=conn.execute("SELECT COALESCE(SUM(tokens),0) FROM events WHERE task_id=%s AND type='model_call'",(ident,)).fetchone()[0]
-                return {'task_id':ident,'question':question,'token':token,'phase':phase,'settings':settings,'board':dict(zip(['plan','subtasks','report'],state)) if state else None,'budget_used':budget,'traceparent':parent}
+                from mcp_olist.auth import issue_tokens
+                deadline=conn.execute('SELECT deadline_at FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]
+                tokens=issue_tokens(owner,ident,token,deadline,settings.get('AGENT_MODE','single'))
+                return {'task_id':ident,'question':question,'token':token,'phase':phase,'settings':settings,'board':dict(zip(['plan','subtasks','report'],state)) if state else None,'budget_used':budget,'traceparent':parent,'mcp_tokens':tokens}
         return None
 
 
@@ -167,7 +170,7 @@ def _process(job,shutdown=None):
     try:
         for key,value in job['settings'].items():
             if key not in limits.settings():os.environ[key]=str(value)
-        response=run_runtime(job['question'],ident,emit,phase=job['phase'],resume_board=job['board'],lease_token=str(token),budget_used=job['budget_used'],on_process=attach,control_check=admit)
+        response=run_runtime(job['question'],ident,emit,phase=job['phase'],resume_board=job['board'],lease_token=str(token),budget_used=job['budget_used'],on_process=attach,control_check=admit,mcp_tokens=job['mcp_tokens'])
         if termination in {'provider_unavailable','infra_retryable'} or (termination=='model_error' and last_error=='retryable'):
             release(job,termination)
             return

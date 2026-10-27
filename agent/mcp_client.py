@@ -6,7 +6,7 @@ import json
 import hashlib
 from time import perf_counter
 from uuid import uuid4
-from agent.call_context import TOOL_CALL_ID
+from agent.call_context import TOOL_CALL_ID,MCP_ROLE
 from config import MCP_RETRY_ATTEMPTS
 from agent.infra import InfraRetryable,retryable_exception
 
@@ -51,17 +51,30 @@ async def idempotency_header(request):
 
 
 class MCPClient:
-    def __init__(self, url, token, task_id, emit=None, lease_token=None):
+    def __init__(self, url, token, task_id, emit=None, lease_token=None,role_tokens=None):
         self.url, self.token, self.task_id = url, token, task_id
         self.lease_token = lease_token
         self.emit = emit
         self.stack = AsyncExitStack()
+        self.role_tokens=role_tokens or {}
+        self.default_role='agent' if 'agent' in self.role_tokens else 'orchestrator'
+
+    async def request_headers(self,request):
+        await idempotency_header(request)
+        if not self.role_tokens:return
+        role=self.default_role
+        if request.method=='POST':
+            try:
+                body=json.loads(await request.aread())
+                role=body.get('params',{}).get('_meta',{}).get('mcp_role',role)
+            except (ValueError,TypeError):pass
+        request.headers['Authorization']='Bearer '+self.role_tokens[role]
 
     async def __aenter__(self):
         try:
             http = await self.stack.enter_async_context(httpx.AsyncClient(
                 headers={"Authorization":"Bearer "+self.token, "X-Task-ID":self.task_id, **({"X-Lease-Token":self.lease_token} if self.lease_token else {})}, timeout=30,
-                transport=RetryTransport(),event_hooks={'request':[idempotency_header]}))
+                transport=RetryTransport(),event_hooks={'request':[self.request_headers]}))
             transport = await self.stack.enter_async_context(streamable_http_client(self.url, http_client=http))
             self.session = await self.stack.enter_async_context(ClientSession(transport[0], transport[1],
                                                                  read_timeout_seconds=timedelta(seconds=30)))
@@ -114,7 +127,9 @@ class MCPClient:
 
     async def _call(self, name, arguments, key):
         import telemetry
-        result = await self.session.call_tool(name, arguments,meta={'idempotency_key':key,**({'traceparent':parent} if (parent:=telemetry.traceparent()) else {})})
+        role=MCP_ROLE.get() or self.default_role
+        if self.role_tokens and role not in self.role_tokens:raise PermissionError('MCP role token unavailable')
+        result = await self.session.call_tool(name, arguments,meta={'idempotency_key':key,**({'mcp_role':role} if self.role_tokens else {}),**({'traceparent':parent} if (parent:=telemetry.traceparent()) else {})})
         if result.isError:
             return {"error":"mcp_tool_error", "detail":"\n".join(c.text for c in result.content if c.type == "text")[:2000]}
         if result.structuredContent is not None:

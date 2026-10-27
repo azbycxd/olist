@@ -91,6 +91,8 @@ Copy-Item .env.example .env
 # 或填写全部 DEEPSEEK_* 对应项；它们优先于 OPENAI_*。
 $mcpToken = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
 (Get-Content .env) -replace '^MCP_BEARER_TOKEN=.*', ('MCP_BEARER_TOKEN=' + $mcpToken) | Set-Content .env
+$taskTokenSecret = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
+(Get-Content .env) -replace '^MCP_TOKEN_SECRET=.*', ('MCP_TOKEN_SECRET=' + $taskTokenSecret) | Set-Content .env
 $memorySecret = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
 (Get-Content .env) -replace '^MEMORY_API_SECRET=.*', ('MEMORY_API_SECRET=' + $memorySecret) | Set-Content .env
 docker compose up -d --build

@@ -60,7 +60,6 @@ def test_rate_limited_runtime_does_not_start_another_memory_model_call(monkeypat
     monkeypatch.setattr(runtime,'AsyncOpenAI',Client)
     monkeypatch.setattr(runtime,'MCPClient',Client)
     monkeypatch.setattr(runtime,'OPENAI_MODEL','scripted-client')
-    monkeypatch.setattr(runtime,'MCP_BEARER_TOKEN','unused-by-scripted-client')
     monkeypatch.setenv('OPENAI_API_KEY','unused-by-scripted-client')
     monkeypatch.setenv('USE_MEMORY','true');monkeypatch.setenv('AGENT_MODE','single')
     async def context(*_):return ''
@@ -70,7 +69,7 @@ def test_rate_limited_runtime_does_not_start_another_memory_model_call(monkeypat
     async def extract(*a,**kw):calls.append(True);return []
     monkeypatch.setattr(runtime,'prepare_context',context);monkeypatch.setattr(runtime,'prepare',prepare)
     monkeypatch.setattr(runtime,'run_loop',loop);monkeypatch.setattr(runtime,'extract',extract)
-    asyncio.run(runtime.execute({'question':'fixture','task_id':str(uuid4())}))
+    asyncio.run(runtime.execute({'question':'fixture','task_id':str(uuid4()),'mcp_tokens':{'agent':'scripted-task-token'}}))
     assert calls==[]
 
 
