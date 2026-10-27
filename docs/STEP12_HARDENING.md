@@ -139,3 +139,9 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 本批要求“worker 一个小池”，但已有多智能体历史结论路径在可信 worker 内访问两个数据库/角色：`scripts/runtime.py` 调用 `scripts.findings.retrieve/save_reviewed`；后者通过 `current_version()` 以 agent_ro 连接 olist 库读取 data_imports，同时以 agent_app 访问 agent 库。标准 psycopg_pool.ConnectionPool 不能将两个不同数据库/角色的连接当作一个可互换池。
 
 保留现有路径需要 worker 两个独立小池；保持一个池则需把版本查询转到 MCP 等其他路径。按全局规则11停止，不自行新增第二个池、不保留未池化例外、不改数据版本读取路径。B2 尚未开始，12.2 未完成；待用户明确选择后续实现。
+
+## 12.1 复核1：空行不是新证据
+
+旧实现把任何新的 result_id 视为进展，实际 run_sql 空结果也分配 ID。现仅 row_count>0 的新 ID 算证据；空结果替身已与线上一致。失败测试提交 `76e5461`，修复提交见 Git 历史。
+
+[失败收据](../evidence/step12_review1_red.json)2失败/4通过；[修复收据](../evidence/step12_review1_green.json)6通过。[只读重放收据](../evidence/step12_a2_replay_20261027T150757Z_76c794b1.summary.json)：97运行、0误判、70条结果内容不完整；未调用模型、未重新计分。结果内容不完整的历史轨迹不能证明完整结果下的所有边界情况。阈值未修改。

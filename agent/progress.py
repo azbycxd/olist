@@ -29,7 +29,8 @@ class Progress:
             return 'alternating_window'
 
     def after(self, results):
-        ids = {r['result_id'] for r in results if r.get('result_id')}
+        ids = {r['result_id'] for r in results if r.get('result_id') and
+               isinstance(r.get('row_count'), (int,float)) and r['row_count']>0}
         fresh = ids-self.result_ids
         self.result_ids.update(ids)
         empty = bool(results) and all(r.get('error') or r.get('row_count')==0 or
