@@ -6,6 +6,7 @@ from decimal import Decimal
 from uuid import UUID,uuid4
 
 import psycopg
+import sqlglot
 from psycopg import sql
 from psycopg.types.json import Jsonb
 
@@ -29,6 +30,13 @@ def numeric_stats(rows, columns):
         if values:
             stats[name] = {"min": min(values), "max": max(values), "mean": sum(values)/len(values)}
     return json_value(stats)
+
+
+def result_notice(executable,truncated):
+    notice='row_count and statistics describe the executed, capped query. Compute report numbers in SQL.'
+    if truncated and not sqlglot.parse_one(executable,read='postgres').args.get('order'):
+        notice+=' 无序截断,不代表前 N 名,汇总请在 SQL 中完成'
+    return notice
 
 
 def describe(name):
@@ -82,8 +90,8 @@ def _run_query(statement, task_id, lease_token=None):
             if len(set(columns)) != len(columns):
                 raise ValueError("Duplicate output columns; give each expression a unique SQL alias")
             raw = [dict(zip(columns, row)) for row in cursor.fetchmany(MAX_ROWS+1)]
-            if len(raw) > MAX_ROWS:
-                raise ValueError("Result exceeds enforced row limit")
+            truncated = len(raw)>MAX_ROWS
+            raw=raw[:MAX_ROWS]
             stats, rows = numeric_stats(raw, columns), json_value(raw)
             if len(json.dumps(rows, ensure_ascii=False).encode()) > 2_000_000:
                 raise ValueError("Result exceeds 2 MB; select fewer columns or aggregate in SQL")
@@ -91,10 +99,10 @@ def _run_query(statement, task_id, lease_token=None):
         result_id=uuid4()
         response={"result_id":str(result_id), "sql":executable, "data_version":version, "row_count":len(rows),
             "row_limit":MAX_ROWS, "columns":columns, "preview":rows[:20], "statistics":stats,
-            "notice":"row_count and statistics describe the executed, capped query. Compute report numbers in SQL."}
-        agent_db.execute("""INSERT INTO query_results(result_id,task_id,sql,columns,rows,row_count,data_version,sql_hash,tool_response)
-            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-            (result_id, task_id, executable, Jsonb(columns), Jsonb(rows), len(rows), version,digest,Jsonb(response)))
+            "notice":result_notice(executable,truncated),"truncated":truncated}
+        agent_db.execute("""INSERT INTO query_results(result_id,task_id,sql,columns,rows,row_count,data_version,sql_hash,tool_response,truncated)
+            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (result_id, task_id, executable, Jsonb(columns), Jsonb(rows), len(rows), version,digest,Jsonb(response),truncated))
     return response
 
 
@@ -102,8 +110,9 @@ def get_saved_result(result_id, task_id, offset=0, limit=20):
     if not isinstance(offset,int) or not isinstance(limit,int) or offset<0 or not 1<=limit<=1000:
         raise ValueError("offset must be nonnegative; limit must be 1..1000")
     with psycopg.connect(**db_kwargs("agent","app")) as conn:
-        row = conn.execute("SELECT sql,columns,rows,row_count,data_version FROM query_results WHERE result_id=%s AND task_id=%s",
+        row = conn.execute("SELECT sql,columns,rows,row_count,data_version,truncated FROM query_results WHERE result_id=%s AND task_id=%s",
             (UUID(result_id),UUID(task_id))).fetchone()
     if not row: raise ValueError("Result is unavailable for this task")
     return {"result_id":str(result_id),"sql":row[0],"columns":row[1],"preview":row[2][offset:offset+limit],
-            "row_count":row[3],"data_version":row[4],"offset":offset,"limit":limit}
+            "row_count":row[3],"data_version":row[4],"offset":offset,"limit":limit,
+            "truncated":row[5],"notice":result_notice(row[0],row[5])}

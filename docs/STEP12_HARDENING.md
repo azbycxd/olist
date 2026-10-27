@@ -80,7 +80,7 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 ### 前后对比与收据
 
-失败测试提交：`5998c43`，[旧实现失败 XML](../evidence/step12_a3_red.xml)。[针对性9项通过](../evidence/step12_a3_green.xml)，[同源码私有 MCP 完整277项通过](../evidence/step12_a3_full.xml)，包括真实 HTTP key 重放及所有工具的持久记录。
+失败测试提交：`5998c43`；修复提交：`4dd9dab`。[旧实现失败 XML](../evidence/step12_a3_red.xml)。[针对性9项通过](../evidence/step12_a3_green.xml)，[同源码私有 MCP 完整277项通过](../evidence/step12_a3_full.xml)，包括真实 HTTP key 重放及所有工具的持久记录。
 
 恢复实验是控制流程替身：真实 SQL 已提交后模拟丢失响应，令旧租约过期，再由生产 claim 领取并执行同一 SQL。没有调用真实模型，也不冒充实际 kill worker 演示。
 
@@ -95,3 +95,21 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 ### 已知局限
 
 迁移前结果没有 sql_hash，不回填或修改旧证据，内容去重覆盖迁移后写入的结果。HTTP 自动重试覆盖当前服务使用的 JSON 响应；未来启用 SSE 响应体时需另行处理流中断。running 返回可重试标记，由后续调用/恢复再次提交；不会无限轮询。data_version 的外部写入检测仍是后续 C5 范围。
+
+## 12.1 / A4 结果截断显式化
+
+### 旧问题与改法
+
+原自动 LIMIT 1000 无法区分正好1000行和被截断。现在无 LIMIT 或超过1000的 LIMIT 实际最多取1001行，仅保存1000行；显式 LIMIT≤1000 保留原样。新增迁移 `012_result_truncation.sql` 保存 `truncated`，历史结果为 null（未知），不伪造历史截断结论。无顶层 ORDER BY 且截断时，notice 追加“无序截断,不代表前 N 名,汇总请在 SQL 中完成”。历史结论复制证据时携带原截断状态，网页证据弹层显示已截断/未截断/历史未知。
+
+### 测试与收据
+
+失败测试提交：`4bd76cf`；[改前4项失败 XML](../evidence/step12_a4_red.xml)。改后本地完整测试：[281项通过](../evidence/step12_1_full.xml)；CI 同构离线：[226项通过](../evidence/step12_1_offline.xml)。1000行、1001行、LIMIT500及有序截断均由真实数据库查询验证。A4 未做延迟对比，不填写估算。
+
+### 工具返回变化与局限
+
+`run_sql` 新增 `truncated`，截断且无序时扩展现有 notice；`get_result` 新增 `truncated` 和 notice。证据 API 新增 truncated。显式小 LIMIT 的“不截断”指调用者指定的查询结果，不代表原表只有这么多行。历史工具重放仍可能保留原始旧响应；历史查询分页和证据页显示未知。
+
+## 12.1 验收检查点
+
+新增迁移010–012；没有重跑/重新计分 holdout，没有真实模型调用。现有模型提示、知识库、数字闸门和核查器保持不变；所有数据库/MCP 集成测试通过后进入12.2。完整测试使用 `python -m scripts.local_tests` 启动同源码私有 MCP，避免与旧部署版本混淆。

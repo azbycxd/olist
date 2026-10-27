@@ -170,9 +170,9 @@ def confirm(task_id:UUID,plan:Plan,owner:UUID=Depends(user)):
 def result(task_id:UUID,result_id:UUID,owner:UUID=Depends(user)):
     with psycopg.connect(**db_kwargs('agent','app')) as conn:
         owned(conn,task_id,owner)
-        row=conn.execute('SELECT sql,columns,rows,data_version,source_result_id FROM query_results WHERE result_id=%s AND task_id=%s',(result_id,task_id)).fetchone()
+        row=conn.execute('SELECT sql,columns,rows,data_version,source_result_id,truncated FROM query_results WHERE result_id=%s AND task_id=%s',(result_id,task_id)).fetchone()
         if not row:raise HTTPException(404,'Result not found')
-        return dict(zip(['sql','columns','rows','data_version','source_result_id'],row))
+        return dict(zip(['sql','columns','rows','data_version','source_result_id','truncated'],row))
 
 
 @app.get('/tasks/{task_id}/events')

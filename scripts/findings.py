@@ -72,15 +72,15 @@ def retrieve(task_id,question,lease_token=None):
                 # Do not expose the old conclusion, values, or result IDs to the model.
                 found.append({**item,'status':'stale_clue','question':value['question'],'notice':'历史数据版本已过期，只能作为分析方向，必须重新查询。'})
                 continue
-            sources=conn.execute('SELECT r.result_id,r.sql,r.columns,r.rows,r.row_count,r.data_version FROM query_results r JOIN tasks t USING(task_id) WHERE r.result_id=ANY(%s) AND r.task_id=%s AND t.user_id=%s',
+            sources=conn.execute('SELECT r.result_id,r.sql,r.columns,r.rows,r.row_count,r.data_version,r.truncated FROM query_results r JOIN tasks t USING(task_id) WHERE r.result_id=ANY(%s) AND r.task_id=%s AND t.user_id=%s',
                 ([UUID(ref) for ref in evidence],source_task,owner[0])).fetchall()
             if len(sources)!=len(evidence) or any(r[5]!=version for r in sources):continue
             imported=[]
-            for ref,sql,columns,result_rows,count,data_version in sources:
+            for ref,sql,columns,result_rows,count,data_version,truncated in sources:
                 prior=conn.execute('SELECT result_id FROM query_results WHERE task_id=%s AND source_result_id=%s',(UUID(str(task_id)),ref)).fetchone()
                 if prior:imported.append(str(prior[0]));continue
-                copied=conn.execute('INSERT INTO query_results(task_id,sql,columns,rows,row_count,data_version,source_result_id) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING result_id',
-                    (UUID(str(task_id)),sql,Jsonb(columns),Jsonb(result_rows),count,data_version,ref)).fetchone()[0]
+                copied=conn.execute('INSERT INTO query_results(task_id,sql,columns,rows,row_count,data_version,source_result_id,truncated) VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING result_id',
+                    (UUID(str(task_id)),sql,Jsonb(columns),Jsonb(result_rows),count,data_version,ref,truncated)).fetchone()[0]
                 imported.append(str(copied))
             found.append({**item,'status':'current','claim':{'text':value['text'],'value':value['value'],'evidence':imported},
                 'source_evidence':evidence,'question':value['question']})

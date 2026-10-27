@@ -40,7 +40,7 @@ def test_same_content_in_parallel_reuses_one_result(task,monkeypatch):
     original=psycopg.Connection.execute
     executions=[]
     def counted(conn,query,*args,**kwargs):
-        if isinstance(query,str) and query=='SELECT 42 AS n LIMIT 1000': executions.append(query)
+        if isinstance(query,str) and query.startswith('SELECT 42 AS n LIMIT '): executions.append(query)
         return original(conn,query,*args,**kwargs)
     monkeypatch.setattr(psycopg.Connection,'execute',counted)
     with ThreadPoolExecutor(max_workers=2) as pool:

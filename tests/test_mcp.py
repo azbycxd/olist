@@ -42,7 +42,8 @@ def test_live_protocol_authentication_results_and_errors():
                     assert 'dimension_checks' not in result  # valid SQL keeps Step 9 tool-result shape
                     stored = conn.execute("SELECT task_id,rows,row_count,data_version,sql FROM query_results WHERE result_id=%s",(result["result_id"],)).fetchone()
                     assert stored[0] == task and len(stored[1]) == stored[2] == 1000
-                    assert stored[3] == result["data_version"] and stored[4].endswith("LIMIT 1000")
+                    assert stored[3] == result["data_version"] and stored[4].endswith("LIMIT 1001")
+                    assert result['truncated'] is True
                     page = await client.call("get_result",{"result_id":result["result_id"],"offset":25,"limit":3})
                     assert page["preview"] == stored[1][25:28]
                     counts = await client.call("run_sql",{"sql":"SELECT count(*) AS n FROM orders"})
