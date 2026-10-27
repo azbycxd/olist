@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.223" timestamp="2026-10-27T16:05:20.145283+00:00" hostname="1d9d9b862f5a"><testcase classname="tests.test_readiness" name="test_mcp_readiness_checks_reader_but_worker_does_not" time="0.001"><failure message="AssertionError: assert True is False&#10; +  where True = &lt;function ready at 0x765752dbc040&gt;('mcp')&#10; +    where &lt;function ready at 0x765752dbc040&gt; = db_pool.ready">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x765754cdd8d0&gt;
+
+    def test_mcp_readiness_checks_reader_but_worker_does_not(monkeypatch):
+        calls=[]
+        @contextmanager
+        def connection(component,database='agent',role='app',**kwargs):
+            calls.append((component,database,role))
+            if database=='olist':raise OSError('business database unavailable')
+            yield SimpleNamespace(execute=lambda *_:None)
+        monkeypatch.setattr(db_pool,'connection',connection)
+&gt;       assert db_pool.ready('mcp') is False
+E       AssertionError: assert True is False
+E        +  where True = &lt;function ready at 0x765752dbc040&gt;('mcp')
+E        +    where &lt;function ready at 0x765752dbc040&gt; = db_pool.ready
+
+tests/test_readiness.py:15: AssertionError</failure></testcase></testsuite></testsuites>
