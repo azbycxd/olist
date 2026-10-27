@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.746" timestamp="2026-10-27T14:46:49.804460+00:00" hostname="93eeef2ce338"><testcase classname="tests.test_idempotency" name="test_same_transport_key_reuses_exact_response" time="0.023"><failure message="TypeError: run_query() got an unexpected keyword argument 'idempotency_key'">task = 'ce731ce2-04c0-4c4b-b598-1e2bfe621c96'
+
+    @pytest.mark.integration
+    @integration
+    def test_same_transport_key_reuses_exact_response(task):
+        key=task+':call-1'
+&gt;       first=service.run_query('SELECT 42 AS n',task,idempotency_key=key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: run_query() got an unexpected keyword argument 'idempotency_key'
+
+tests/test_idempotency.py:31: TypeError</failure></testcase><testcase classname="tests.test_idempotency" name="test_same_content_in_parallel_reuses_one_result" time="0.052"><failure message="AssertionError: assert '5d25be09-7df...-c6d1a28bca5f' == 'c80d8989-d47...-8412f320a1b8'&#10;  &#10;  - c80d8989-d47b-44b6-b400-8412f320a1b8&#10;  + 5d25be09-7df5-4201-9aca-c6d1a28bca5f">task = '411ad397-b3ea-40c5-8937-a5bb575e4cc1'
+
+    @pytest.mark.integration
+    @integration
+    def test_same_content_in_parallel_reuses_one_result(task):
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(lambda statement:service.run_query(statement,task),['select 42 as n','SELECT  42 AS n']))
+&gt;       assert results[0]['result_id']==results[1]['result_id']
+E       AssertionError: assert '5d25be09-7df...-c6d1a28bca5f' == 'c80d8989-d47...-8412f320a1b8'
+E         
+E         - c80d8989-d47b-44b6-b400-8412f320a1b8
+E         + 5d25be09-7df5-4201-9aca-c6d1a28bca5f
+
+tests/test_idempotency.py:42: AssertionError</failure></testcase><testcase classname="tests.test_idempotency" name="test_http_connection_retry_preserves_idempotency_header" time="0.329"><failure message="ImportError: cannot import name 'RetryTransport' from 'agent.mcp_client' (/app/agent/mcp_client.py)">def test_http_connection_retry_preserves_idempotency_header():
+&gt;       from agent.mcp_client import RetryTransport
+E       ImportError: cannot import name 'RetryTransport' from 'agent.mcp_client' (/app/agent/mcp_client.py)
+
+tests/test_idempotency.py:48: ImportError</failure></testcase></testsuite></testsuites>

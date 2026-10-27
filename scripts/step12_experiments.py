@@ -82,9 +82,55 @@ def persistent_503(label):
         os.environ.clear(); os.environ.update(previous)
 
 
+def duplicate_sql(label):
+    from mcp_olist import service
+    from mcp_olist.sql_guard import guard_sql
+    from scripts.task_worker import claim
+    from api.tasks import create_task,NewTask
+    from eval.robustness import read_tasks
+    statement='SELECT count(*) AS n FROM orders'
+    executable=guard_sql(statement)
+    original_connect=psycopg.connect
+    executed=[]
+    class CountedConnection:
+        def __init__(self,conn): self.conn=conn
+        def __enter__(self): self.conn.__enter__(); return self
+        def __exit__(self,*a): return self.conn.__exit__(*a)
+        def __getattr__(self,name): return getattr(self.conn,name)
+        def execute(self,query,*a,**kw):
+            if query==executable: executed.append({'at_monotonic':time.monotonic(),'sql':query})
+            return self.conn.execute(query,*a,**kw)
+    def counted(*a,**kw):
+        conn=original_connect(*a,**kw)
+        return CountedConnection(conn) if kw.get('user')=='agent_ro' else conn
+    with original_connect(**db_kwargs('agent','app')) as conn:
+        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('sql-recovery-'+uuid4().hex,)).fetchone()[0]
+    ident=create_task(NewTask(question='SQL 结果落库后响应丢失恢复替身'),owner)['task_id']
+    first_job=claim(ident)
+    psycopg.connect=counted
+    started=time.perf_counter()
+    try:
+        first=service.run_query(statement,ident,str(first_job['token']))
+        # Simulate the old worker disappearing after SQL commit but before the
+        # caller receives its result. The production claim path issues a new fence.
+        with original_connect(**db_kwargs('agent','app')) as conn:
+            conn.execute("UPDATE tasks SET lease_expires_at=clock_timestamp()-interval '1 second' WHERE task_id=%s",(ident,))
+        next_job=claim(ident)
+        second=service.run_query(statement,ident,str(next_job['token']))
+        with original_connect(**db_kwargs('agent','app')) as conn:
+            count=conn.execute('SELECT count(*) FROM query_results WHERE task_id=%s',(ident,)).fetchone()[0]
+            conn.execute("UPDATE tasks SET status='completed',lease_token=NULL,lease_expires_at=NULL WHERE task_id=%s",(ident,))
+        receipt('a3_'+label,{'model_kind':'Recovery control-flow double; no real model call; real PostgreSQL SQL and worker lease recovery',
+            'scenario':'committed SQL response lost; expire old lease; production claim reissues lease; rerun identical SQL',
+            'source_hashes':{'mcp_olist/service.py':hashlib.sha256((ROOT/'mcp_olist/service.py').read_bytes()).hexdigest()},
+            'sql_execution_count':len(executed),'saved_result_count':count,'same_result_id':first['result_id']==second['result_id'],
+            'wall_ms':(time.perf_counter()-started)*1000,'calls':executed,'tasks':read_tasks([ident])})
+    finally: psycopg.connect=original_connect
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('scenario', choices=['a1'])
+    parser.add_argument('scenario', choices=['a1','a3'])
     parser.add_argument('--label', required=True, choices=['before','after'])
     args = parser.parse_args()
-    persistent_503(args.label)
+    {'a1':persistent_503,'a3':duplicate_sql}[args.scenario](args.label)
