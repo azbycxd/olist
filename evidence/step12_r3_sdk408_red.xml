@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.626" timestamp="2026-10-27T17:08:43.606186+00:00" hostname="cfa88dc2e4c5"><testcase classname="tests.test_infra_recovery" name="test_real_sdk_timeout_uses_http_408_and_is_retryable" time="0.390"><failure message="AssertionError: assert False&#10; +  where False = &lt;function retryable_exception at 0x7d80303a7100&gt;(McpError('Timed out while waiting for response to ClientRequest. Waited 0.01 seconds.'))">def test_real_sdk_timeout_uses_http_408_and_is_retryable():
+        import anyio
+        from datetime import timedelta
+        from mcp import ClientSession
+        from mcp.shared.exceptions import McpError
+        from agent.infra import retryable_exception
+        async def expire():
+            server_send,client_read=anyio.create_memory_object_stream(1)
+            client_send,server_read=anyio.create_memory_object_stream(1)
+            async with server_send,client_read,client_send,server_read:
+                async with ClientSession(client_read,client_send,read_timeout_seconds=timedelta(milliseconds=10)) as session:
+                    try:await session.send_ping()
+                    except McpError as exc:return exc
+            raise AssertionError('SDK did not time out')
+        exc=asyncio.run(expire())
+        assert exc.error.code==httpx.codes.REQUEST_TIMEOUT
+&gt;       assert retryable_exception(exc)
+E       AssertionError: assert False
+E        +  where False = &lt;function retryable_exception at 0x7d80303a7100&gt;(McpError('Timed out while waiting for response to ClientRequest. Waited 0.01 seconds.'))
+
+tests/test_infra_recovery.py:122: AssertionError</failure></testcase></testsuite></testsuites>

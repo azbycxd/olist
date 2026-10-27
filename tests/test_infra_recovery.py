@@ -101,3 +101,22 @@ def test_cleanup_error_keeps_the_known_transport_cause():
     original=InfraRetryable('MCP request timed out')
     with pytest.raises(InfraRetryable) as caught:asyncio.run(remote.__aexit__(type(original),original,None))
     assert caught.value is original
+
+
+def test_real_sdk_timeout_uses_http_408_and_is_retryable():
+    import anyio
+    from datetime import timedelta
+    from mcp import ClientSession
+    from mcp.shared.exceptions import McpError
+    from agent.infra import retryable_exception
+    async def expire():
+        server_send,client_read=anyio.create_memory_object_stream(1)
+        client_send,server_read=anyio.create_memory_object_stream(1)
+        async with server_send,client_read,client_send,server_read:
+            async with ClientSession(client_read,client_send,read_timeout_seconds=timedelta(milliseconds=10)) as session:
+                try:await session.send_ping()
+                except McpError as exc:return exc
+        raise AssertionError('SDK did not time out')
+    exc=asyncio.run(expire())
+    assert exc.error.code==httpx.codes.REQUEST_TIMEOUT
+    assert retryable_exception(exc)
