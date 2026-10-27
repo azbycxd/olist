@@ -271,3 +271,8 @@ B2额外失败测试 `2109e73` 复现 rate_limited 后继续提取Memory；现�
 旧问题：预扣大于桶容量仍等满等待上限。现在在扣桶前抛出永久拒绝，外层事务回滚（包括可能的半开席位），记录rate_wait.reason=request_exceeds_tpm并以rate_limited结束。不预扣用户token、不产生模型请求。
 
 改前1失败；改后限流10测试通过。测试容量100、预扣101、等待上限0.3秒，拒绝在0.15秒内完成；[XML、日志及哈希](../evidence/step12_r2_4_receipt.json)。这是本地替身时限断言，不是供应商性能数据。TPM未配置继续不限流。
+
+
+## 第1批第二轮复核5：MCP业务库就绪
+
+旧问题：MCP仅检查agent库。现readyz同时检查agent池和使用agent_ro的olist池，任一失败返回503；worker仍仅检查agent，保持olist懒加载。改前1失败，改后就绪/服务10通过；[XML、日志及哈希](../evidence/step12_r2_5_receipt.json)。健康检查只表示当前连通性，不保证后续业务查询一定成功。

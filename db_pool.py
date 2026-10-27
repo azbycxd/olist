@@ -63,10 +63,13 @@ def connection(component, database='agent', role='app'):
 
 
 def ready(component):
-    # Only agent DB: the worker's olist reader remains completely lazy.
+    # MCP needs both databases; the worker's olist reader remains lazy.
     try:
         with connection(component) as conn:
             conn.execute('SELECT 1')
+        if component=='mcp':
+            with connection(component,'olist','reader') as conn:
+                conn.execute('SELECT 1')
         return True
     except Exception:
         return False
