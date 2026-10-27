@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.187" timestamp="2026-10-27T16:04:02.091739+00:00" hostname="fedaf9a519e4"><testcase classname="tests.test_module_docs" name="test_operational_module_has_docstring[api/tasks.py]" time="0.004"><failure message="AssertionError: api/tasks.py&#10;assert None&#10; +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50c191840&gt;)&#10; +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring&#10; +    and   &lt;ast.Module object at 0x73a50c191840&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n&quot;&quot;&quot;Authenticated task API. Requests only enqueue; a separate process does all model w...nse(stream(),media_type=\'text/event-stream\',headers={\'Cache-Control\':\'no-cache\',\'X-Accel-Buffering\':\'no\'})\n')&#10; +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse&#10; +      and   'from db_pool import connection\n&quot;&quot;&quot;Authenticated task API. Requests only enqueue; a separate process does all model w...nse(stream(),media_type=\'text/event-stream\',headers={\'Cache-Control\':\'no-cache\',\'X-Accel-Buffering\':\'no\'})\n' = read_text(encoding='utf8')&#10; +        where read_text = PosixPath('api/tasks.py').read_text&#10; +          where PosixPath('api/tasks.py') = Path('api/tasks.py')">filename = 'api/tasks.py'
+
+    @pytest.mark.parametrize('filename',[
+        'api/tasks.py','scripts/task_worker.py',
+        'mcp_olist/idempotency.py','mcp_olist/service.py',
+    ])
+    def test_operational_module_has_docstring(filename):
+&gt;       assert ast.get_docstring(ast.parse(Path(filename).read_text(encoding='utf8'))),filename
+E       AssertionError: api/tasks.py
+E       assert None
+E        +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50c191840&gt;)
+E        +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring
+E        +    and   &lt;ast.Module object at 0x73a50c191840&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n"""Authenticated task API. Requests only enqueue; a separate process does all model w...nse(stream(),media_type=\'text/event-stream\',headers={\'Cache-Control\':\'no-cache\',\'X-Accel-Buffering\':\'no\'})\n')
+E        +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse
+E        +      and   'from db_pool import connection\n"""Authenticated task API. Requests only enqueue; a separate process does all model w...nse(stream(),media_type=\'text/event-stream\',headers={\'Cache-Control\':\'no-cache\',\'X-Accel-Buffering\':\'no\'})\n' = read_text(encoding='utf8')
+E        +        where read_text = PosixPath('api/tasks.py').read_text
+E        +          where PosixPath('api/tasks.py') = Path('api/tasks.py')
+
+tests/test_module_docs.py:12: AssertionError</failure></testcase><testcase classname="tests.test_module_docs" name="test_operational_module_has_docstring[scripts/task_worker.py]" time="0.004"><failure message="AssertionError: scripts/task_worker.py&#10;assert None&#10; +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50c25fca0&gt;)&#10; +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring&#10; +    and   &lt;ast.Module object at 0x73a50c25fca0&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n&quot;&quot;&quot;Owner-serialized admission, fenced leases and a cancellable runtime process.&quot;&quot;&quot;\ni...rker\')\n            for sig,handler in old.items():signal.signal(sig,handler)\n\n\nif __name__==\'__main__\':main()\n')&#10; +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse&#10; +      and   'from db_pool import connection\n&quot;&quot;&quot;Owner-serialized admission, fenced leases and a cancellable runtime process.&quot;&quot;&quot;\ni...rker\')\n            for sig,handler in old.items():signal.signal(sig,handler)\n\n\nif __name__==\'__main__\':main()\n' = read_text(encoding='utf8')&#10; +        where read_text = PosixPath('scripts/task_worker.py').read_text&#10; +          where PosixPath('scripts/task_worker.py') = Path('scripts/task_worker.py')">filename = 'scripts/task_worker.py'
+
+    @pytest.mark.parametrize('filename',[
+        'api/tasks.py','scripts/task_worker.py',
+        'mcp_olist/idempotency.py','mcp_olist/service.py',
+    ])
+    def test_operational_module_has_docstring(filename):
+&gt;       assert ast.get_docstring(ast.parse(Path(filename).read_text(encoding='utf8'))),filename
+E       AssertionError: scripts/task_worker.py
+E       assert None
+E        +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50c25fca0&gt;)
+E        +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring
+E        +    and   &lt;ast.Module object at 0x73a50c25fca0&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n"""Owner-serialized admission, fenced leases and a cancellable runtime process."""\ni...rker\')\n            for sig,handler in old.items():signal.signal(sig,handler)\n\n\nif __name__==\'__main__\':main()\n')
+E        +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse
+E        +      and   'from db_pool import connection\n"""Owner-serialized admission, fenced leases and a cancellable runtime process."""\ni...rker\')\n            for sig,handler in old.items():signal.signal(sig,handler)\n\n\nif __name__==\'__main__\':main()\n' = read_text(encoding='utf8')
+E        +        where read_text = PosixPath('scripts/task_worker.py').read_text
+E        +          where PosixPath('scripts/task_worker.py') = Path('scripts/task_worker.py')
+
+tests/test_module_docs.py:12: AssertionError</failure></testcase><testcase classname="tests.test_module_docs" name="test_operational_module_has_docstring[mcp_olist/idempotency.py]" time="0.003"><failure message="AssertionError: mcp_olist/idempotency.py&#10;assert None&#10; +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50afef8e0&gt;)&#10; +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring&#10; +    and   &lt;ast.Module object at 0x73a50afef8e0&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n&quot;&quot;&quot;Short transactions claim/replay transport requests; running claims have fenced own...n cached\n    try: return finish(key,owner,work())\n    except Exception:\n        abandon(key,owner)\n        raise\n')&#10; +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse&#10; +      and   'from db_pool import connection\n&quot;&quot;&quot;Short transactions claim/replay transport requests; running claims have fenced own...n cached\n    try: return finish(key,owner,work())\n    except Exception:\n        abandon(key,owner)\n        raise\n' = read_text(encoding='utf8')&#10; +        where read_text = PosixPath('mcp_olist/idempotency.py').read_text&#10; +          where PosixPath('mcp_olist/idempotency.py') = Path('mcp_olist/idempotency.py')">filename = 'mcp_olist/idempotency.py'
+
+    @pytest.mark.parametrize('filename',[
+        'api/tasks.py','scripts/task_worker.py',
+        'mcp_olist/idempotency.py','mcp_olist/service.py',
+    ])
+    def test_operational_module_has_docstring(filename):
+&gt;       assert ast.get_docstring(ast.parse(Path(filename).read_text(encoding='utf8'))),filename
+E       AssertionError: mcp_olist/idempotency.py
+E       assert None
+E        +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50afef8e0&gt;)
+E        +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring
+E        +    and   &lt;ast.Module object at 0x73a50afef8e0&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n"""Short transactions claim/replay transport requests; running claims have fenced own...n cached\n    try: return finish(key,owner,work())\n    except Exception:\n        abandon(key,owner)\n        raise\n')
+E        +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse
+E        +      and   'from db_pool import connection\n"""Short transactions claim/replay transport requests; running claims have fenced own...n cached\n    try: return finish(key,owner,work())\n    except Exception:\n        abandon(key,owner)\n        raise\n' = read_text(encoding='utf8')
+E        +        where read_text = PosixPath('mcp_olist/idempotency.py').read_text
+E        +          where PosixPath('mcp_olist/idempotency.py') = Path('mcp_olist/idempotency.py')
+
+tests/test_module_docs.py:12: AssertionError</failure></testcase><testcase classname="tests.test_module_docs" name="test_operational_module_has_docstring[mcp_olist/service.py]" time="0.004"><failure message="AssertionError: mcp_olist/service.py&#10;assert None&#10; +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50b926590&gt;)&#10; +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring&#10; +    and   &lt;ast.Module object at 0x73a50b926590&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n&quot;&quot;&quot;Database access is confined to the MCP service and offline evaluator.&quot;&quot;&quot;\n\nimport...ersion&quot;:row[4],&quot;offset&quot;:offset,&quot;limit&quot;:limit,\n            &quot;truncated&quot;:row[5],&quot;notice&quot;:result_notice(row[0],row[5])}\n')&#10; +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse&#10; +      and   'from db_pool import connection\n&quot;&quot;&quot;Database access is confined to the MCP service and offline evaluator.&quot;&quot;&quot;\n\nimport...ersion&quot;:row[4],&quot;offset&quot;:offset,&quot;limit&quot;:limit,\n            &quot;truncated&quot;:row[5],&quot;notice&quot;:result_notice(row[0],row[5])}\n' = read_text(encoding='utf8')&#10; +        where read_text = PosixPath('mcp_olist/service.py').read_text&#10; +          where PosixPath('mcp_olist/service.py') = Path('mcp_olist/service.py')">filename = 'mcp_olist/service.py'
+
+    @pytest.mark.parametrize('filename',[
+        'api/tasks.py','scripts/task_worker.py',
+        'mcp_olist/idempotency.py','mcp_olist/service.py',
+    ])
+    def test_operational_module_has_docstring(filename):
+&gt;       assert ast.get_docstring(ast.parse(Path(filename).read_text(encoding='utf8'))),filename
+E       AssertionError: mcp_olist/service.py
+E       assert None
+E        +  where None = &lt;function get_docstring at 0x73a50c119580&gt;(&lt;ast.Module object at 0x73a50b926590&gt;)
+E        +    where &lt;function get_docstring at 0x73a50c119580&gt; = ast.get_docstring
+E        +    and   &lt;ast.Module object at 0x73a50b926590&gt; = &lt;function parse at 0x73a50c2accc0&gt;('from db_pool import connection\n"""Database access is confined to the MCP service and offline evaluator."""\n\nimport...ersion":row[4],"offset":offset,"limit":limit,\n            "truncated":row[5],"notice":result_notice(row[0],row[5])}\n')
+E        +      where &lt;function parse at 0x73a50c2accc0&gt; = ast.parse
+E        +      and   'from db_pool import connection\n"""Database access is confined to the MCP service and offline evaluator."""\n\nimport...ersion":row[4],"offset":offset,"limit":limit,\n            "truncated":row[5],"notice":result_notice(row[0],row[5])}\n' = read_text(encoding='utf8')
+E        +        where read_text = PosixPath('mcp_olist/service.py').read_text
+E        +          where PosixPath('mcp_olist/service.py') = Path('mcp_olist/service.py')
+
+tests/test_module_docs.py:12: AssertionError</failure></testcase></testsuite></testsuites>
