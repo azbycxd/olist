@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.473" timestamp="2026-10-27T16:01:14.931433+00:00" hostname="4dc03099f2ea"><testcase classname="tests.test_truncation" name="test_explicit_limit_is_not_probed_or_reused_for_guard_cap" time="0.075"><failure message="assert True is False">task = 'bc06df59-5ccd-47f8-86cb-798a911c4d9d'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x70f1b6965b90&gt;
+
+    def test_explicit_limit_is_not_probed_or_reused_for_guard_cap(task,monkeypatch):
+        executed=[];original=psycopg.Connection.execute
+        def observe(conn,query,*args,**kwargs):
+            if isinstance(query,str) and query.startswith('SELECT order_id FROM orders LIMIT '):
+                executed.append(query)
+            return original(conn,query,*args,**kwargs)
+        monkeypatch.setattr(psycopg.Connection,'execute',observe)
+        explicit=run_query('SELECT order_id FROM orders LIMIT 1000',task)
+        capped=run_query('SELECT order_id FROM orders',task)
+        assert explicit['row_count']==capped['row_count']==1000
+&gt;       assert explicit['truncated'] is False
+E       assert True is False
+
+tests/test_truncation.py:44: AssertionError</failure></testcase></testsuite></testsuites>

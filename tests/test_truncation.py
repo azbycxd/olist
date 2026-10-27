@@ -31,6 +31,22 @@ def test_ordered_truncation_has_flag_without_unordered_warning(task):
     assert '无序截断' not in result['notice']
 
 
+def test_explicit_limit_is_not_probed_or_reused_for_guard_cap(task,monkeypatch):
+    executed=[];original=psycopg.Connection.execute
+    def observe(conn,query,*args,**kwargs):
+        if isinstance(query,str) and query.startswith('SELECT order_id FROM orders LIMIT '):
+            executed.append(query)
+        return original(conn,query,*args,**kwargs)
+    monkeypatch.setattr(psycopg.Connection,'execute',observe)
+    explicit=run_query('SELECT order_id FROM orders LIMIT 1000',task)
+    capped=run_query('SELECT order_id FROM orders',task)
+    assert explicit['row_count']==capped['row_count']==1000
+    assert explicit['truncated'] is False
+    assert capped['truncated'] is True
+    assert explicit['result_id']!=capped['result_id']
+    assert executed==['SELECT order_id FROM orders LIMIT 1000','SELECT order_id FROM orders LIMIT 1001']
+
+
 def test_public_sql_matches_saved_rows_and_hash_but_execution_probes_one_more(task,monkeypatch):
     import hashlib
     from agent.sql_normalize import normalize_sql
