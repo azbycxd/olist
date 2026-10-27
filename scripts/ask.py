@@ -31,6 +31,8 @@ def main():
         sequence, termination = 0, None
 
         def emit(kind, payload, tokens=0, latency_ms=0):
+            from privacy import redact
+            payload=redact(payload)
             nonlocal sequence, termination
             sequence += 1
             if kind == "termination":
@@ -40,6 +42,7 @@ def main():
                          (task,sequence,kind,Jsonb(payload),tokens,latency_ms))
         try:
             response = run_runtime(args.question, task, emit,preference_only=args.preference_only)
+            conn.execute('UPDATE tasks SET result=%s WHERE task_id=%s',(Jsonb(response.model_dump()),task))
             if args.preference_only: termination='final_answer'
             record(logger, "answer", task_id=str(task), response=response.model_dump(), schema_mode=args.schema_mode)
             print(json.dumps(response.model_dump(),ensure_ascii=False,indent=2))

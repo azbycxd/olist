@@ -166,7 +166,7 @@ def execute(args):
                     sequence += 1
                     record(logger, kind, question_id=q["id"], task_id=str(task_id), payload=payload, tokens=tokens, latency_ms=latency_ms)
                     agent_db.execute("INSERT INTO events (task_id,seq,type,payload,tokens,latency_ms) VALUES (%s,%s,%s,%s,%s,%s)",
-                        (task_id, sequence, kind, Jsonb(payload, dumps=lambda v: json.dumps(v, default=str)), tokens, latency_ms))
+                        (task_id, sequence, kind, Jsonb(__import__('privacy').redact(payload), dumps=lambda v: json.dumps(v, default=str)), tokens, latency_ms))
                     if kind == "plan":
                         row["plan"] = payload["plan"]
                         row["complex_route"] = not payload["simple_route"]
@@ -210,6 +210,8 @@ def execute(args):
                         "unsupported_claims": 0, "report_number_count": 0, "unsupported_numbers": 0,
                         "unsupported_claim_ratio": None, "unsupported_number_ratio": None}})
                 row["agent_usage"] = usage_summary([c for c in calls[call_start:] if c.get("role")!="eval_judge"],*prices)
+                if row.get('response'):
+                    agent_db.execute('UPDATE tasks SET result=%s WHERE task_id=%s',(Jsonb(row['response']),task_id))
                 row["latency_ms"] = (perf_counter()-started)*1000
                 emit("eval_result", row, latency_ms=row["latency_ms"])
                 for task in (task_id, setup_task):

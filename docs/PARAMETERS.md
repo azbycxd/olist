@@ -220,3 +220,11 @@ Toxiproxy 2.13.0以packet_loss丢弃TCP数据块，loss_rate=0.1、correlation=0
 ## Step 12.4 C2 数据范围
 
 `users.data_scope` 是管理员分配的用户权限，不是模型调参项（来源类型：安全护栏）；`{ALL}`表示不限，否则为巴西州代码数组。019迁移保留已有用户的ALL权限；新注册用户默认空数组，无业务数据权限。本地CLI新建用户、评测和全权限测试夹具显式设置ALL，已有同名CLI用户的限制不会被提升。`app.allowed_states`只在只读事务中SET LOCAL，连接归还后恢复；不提供模型可写的配置入口。
+
+## Step 12.4 C3 保留参数
+
+| 参数 | 默认 | 来源类型 | 用途 |
+| --- | --- | --- | --- |
+| RETENTION_DAYS | 30 | 预先固定 | 本批指定；显式运行保留作业时清理超过该天数的终态任务明细和旧事件，保留最终答案及被引用证据 |
+
+保留期以UTC数据库时钟和终态任务最后更新时间判断，跳过运行中或已被其他事务锁定的任务；每次运行均写maintenance_audit。保留作业不会随服务启动自动执行，管理员运行`python -m scripts.maintenance retain`。用户删除通过`DELETE /me`（已登录的本人）或本机管理员命令`python -m scripts.maintenance delete-user UUID`，级联删除该用户数据并审计。审计与匿名汇总counter不随用户删除回减。

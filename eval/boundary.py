@@ -57,7 +57,7 @@ def execute(suite='step10', *, tag=None, runtime_config=None):
                 nonlocal seq
                 seq+=1
                 record(logger,kind,question_id=q['id'],task_id=str(tid),payload=payload,tokens=tokens,latency_ms=latency_ms)
-                db.execute('INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)',(tid,seq,kind,Jsonb(payload),tokens,latency_ms))
+                db.execute('INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)',(tid,seq,kind,Jsonb(__import__('privacy').redact(payload)),tokens,latency_ms))
                 if kind=='model_call':calls.append(payload);task_calls.append(payload)
                 if kind in {'termination','tool_call','tool_result','number_gate','runtime_error','data_boundary_context','boundary_stop'}:row['events'].append({'type':kind,'payload':payload})
                 if kind=='termination' and payload.get('scope')=='task':row['termination']=payload['reason']

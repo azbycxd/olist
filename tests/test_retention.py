@@ -14,6 +14,8 @@ def test_event_redaction_preserves_business_numbers_and_identifiers():
     assert '52998224725' not in out['nested'][0]
     assert out['order_id']==value['order_id'] and out['amount']=='12345.67' and out['sql_hash']==value['sql_hash']
     assert value['text'].startswith('邮箱 alice')  # no mutation of business objects
+    assert redact('52998224725')=='[CPF]'
+    assert redact('order 12345678901; amount 52998224725.00')=='order 12345678901; amount 52998224725.00'
 
 
 @pytest.fixture
@@ -69,7 +71,23 @@ def test_delete_user_cascades_and_audits(isolated_agent):
     from scripts.maintenance import delete_user
     conn=isolated_agent
     owner,task,refs,_=seed(conn)
+    from psycopg.types.json import Jsonb
+    conn.execute("INSERT INTO memories(user_id,type,key,value,source_quote,evidence,data_version,embedding,embedding_model,embedding_revision,source_task_id) VALUES(%s,'finding','retention-finding','{}','fixture',%s,'fixture','[1,0,0]','fixture','fixture',%s)",(owner,Jsonb([str(refs[0])]),task))
+    conn.execute("INSERT INTO task_state(task_id,plan,subtasks) VALUES(%s,'{}','{}')",(task,))
+    conn.execute("INSERT INTO tool_calls(key,task_id,request_hash,status,owner_token,result_id) VALUES(%s,%s,'fixture','done',%s,%s)",(str(task)+':fixture',task,uuid4(),refs[0]))
     delete_user(conn,owner)
-    for table in ('users','tasks','events','query_results','memories'):
+    for table in ('users','tasks','events','query_results','memories','task_state','tool_calls'):
         assert conn.execute('SELECT count(*) FROM '+table).fetchone()[0]==0
     assert conn.execute("SELECT subject_id FROM maintenance_audit WHERE action='user_delete'").fetchone()[0]==owner
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local disposable database required')
+def test_event_writer_redacts_nested_text_without_changing_query_results(isolated_agent):
+    from api.tasks import event
+    conn=isolated_agent
+    _,task,refs,_=seed(conn)
+    event(conn,task,'tool_result',{'text':'email: alice@example.com; mobile: 13800138000'})
+    payload=conn.execute('SELECT payload FROM events WHERE task_id=%s ORDER BY seq DESC LIMIT 1',(task,)).fetchone()[0]
+    assert payload=={'text':'email: [EMAIL]; mobile: [PHONE]'}
+    assert conn.execute('SELECT rows FROM query_results WHERE result_id=%s',(refs[0],)).fetchone()[0]==[{'n':42}]

@@ -104,6 +104,8 @@ docker compose logs init-data
 
 Step12.4新增任务签名密钥`MCP_TOKEN_SECRET`，与静态MCP令牌分开生成并保存在`.env`。新注册用户默认无业务数据权限；管理员在agent库为指定用户设置`data_scope=ARRAY['SP']`等州范围，或显式授予`ARRAY['ALL']`后才能分析。019迁移保留已有用户权限，本地CLI/评测新用户显式使用ALL。不要将静态CLI令牌提供给远程用户。
 
+数据保留默认30天，通过`docker compose run --rm --no-deps --entrypoint python init-data -m scripts.maintenance retain`显式执行，保留最终答案与引用证据并审计；不会在启动时自动删除数据。登录用户可调用`DELETE /me`删除本人全部任务、偏好和findings。事件文本脱敏规则和保留例外见[工程化记录](docs/STEP12_HARDENING.md)。
+
 ```dotenv
 AGENT_MODE=single
 NUMBER_GATE=true

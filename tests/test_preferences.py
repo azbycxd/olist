@@ -42,6 +42,6 @@ def test_memory_supersession_isolation_and_authenticated_delete(monkeypatch):
             assert client.delete('/memories/'+second,headers=owner).status_code==204
             assert client.get('/memories',headers=owner).json()['memories']==[]
         finally:
-            conn.execute('DELETE FROM memories WHERE user_id=ANY(%s)',(users,))
-            conn.execute('DELETE FROM tasks WHERE task_id=%s',(task,))
-            conn.execute('DELETE FROM users WHERE user_id=ANY(%s)',(users,))
+            from scripts.maintenance import delete_user
+            for owner_id in users:
+                with conn.transaction():delete_user(conn,owner_id)

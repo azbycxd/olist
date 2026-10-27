@@ -53,6 +53,8 @@ def owned(conn,task_id,owner,lock=False):
 
 
 def event(conn,task_id,kind,payload,tokens=0,latency_ms=0):
+    from privacy import redact
+    payload=redact(payload)
     # Every writer holds the task lock; seq is per-task and survives retries.
     conn.execute('SELECT task_id FROM tasks WHERE task_id=%s FOR UPDATE',(task_id,))
     seq=conn.execute('SELECT COALESCE(MAX(seq),0)+1 FROM events WHERE task_id=%s',(task_id,)).fetchone()[0]
@@ -88,6 +90,12 @@ def login(body:Credentials):
         row=conn.execute('SELECT user_id,password_hash FROM users WHERE username=%s',(body.username,)).fetchone()
     if not row or not verify_password(body.password,row[1]):raise HTTPException(401,'Invalid credentials')
     return {'access_token':issue(row[0]),'token_type':'bearer'}
+
+
+@app.delete('/me',status_code=204)
+def delete_me(owner:UUID=Depends(user)):
+    from scripts.maintenance import delete_user
+    with connection('api') as conn:delete_user(conn,owner)
 
 
 @app.post('/tasks',status_code=202)
