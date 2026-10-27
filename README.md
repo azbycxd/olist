@@ -192,3 +192,10 @@ docker compose run --rm --no-deps init-data python -m scripts.step12_chaos load
 容器产物需要挂载工作区或复制出来归档；脚本使用当前镜像源码，修改后先重建。数据库重启场景由`db_restart`模式写出`logs/step12_chaos_db_restart_ready.json`后等待操作者写入信号时间并重启数据库；本次实测命令及时间已保存在收据。演练结束后确认任务已终止，再恢复原worker。已有SIGTERM/503收据在12.3中直接复用，不重跑。
 
 第2批已取得完整[真实任务trace](evidence/step12_b3_real_trace.json)、[Jaeger截图](evidence/step12_b3_jaeger.png)、[/metrics样例](evidence/step12_b3_metrics.prom)和[100任务压测](evidence/step12_chaos_load.json)。压测100/100成功、100个同时SSE、连接峰值24/池上限36；丢失故障仅1/5成功，局限与未修改项完整记录在工程报告，不作为真实模型性能或质量数据。
+
+
+### Step 12.4–12.5 安全、数据与回归状态
+
+已增加短期任务JWT、州范围RLS、事件脱敏及审计保留、数据/黑板版本。`CONTEXT_PREFLIGHT`默认关闭；备用三项配置全空时不切换。本地没有配置备用，只有切换逻辑和替身测试。新迁移执行和权限分配后再恢复服务，参数与局限见[工程报告](docs/STEP12_HARDENING.md)。最终镜像内379项全量测试通过，离线CI287项通过。
+
+唯一一次默认C/D/E dev回归在第19题因事件序号冲突中断：已尝试19题工程失败，12题未运行，**未达到验收标准**。问题已另行测试并修复，未续跑、未重跑；不能据此宣称效果无退化。实际消耗103659 tokens，缓存命中率44.90%，价格未配置故费用留空。[逐题结果](docs/RESULTS.md#step-12-默认配置回归唯一一次中途中断未达标)与[一次性协议](evidence/step12_regression_protocol.json)保留原始结果。README历史成绩仍属于Step9源码，holdout未重跑或重新评分。
