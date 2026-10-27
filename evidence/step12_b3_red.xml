@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="2" skipped="0" tests="5" time="0.288" timestamp="2026-10-27T16:09:31.666215+00:00" hostname="f69819813857"><testcase classname="tests.test_observability" name="test_runtime_propagates_trace_but_not_database_credentials" time="0.088"><failure message="KeyError: 'TRACEPARENT'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cdfc60afa50&gt;
+
+    def test_runtime_propagates_trace_but_not_database_credentials(monkeypatch):
+        from scripts.runtime import runtime_environment
+        parent='00-'+'1'*32+'-'+'2'*16+'-01'
+        monkeypatch.setenv('TRACEPARENT',parent)
+        monkeypatch.setenv('OTEL_EXPORTER_OTLP_ENDPOINT','http://collector:4318')
+        monkeypatch.setenv('AGENT_DB_PASSWORD','must-not-cross-boundary')
+        env=runtime_environment()
+&gt;       assert env['TRACEPARENT']==parent
+               ^^^^^^^^^^^^^^^^^^
+E       KeyError: 'TRACEPARENT'
+
+tests/test_observability.py:16: KeyError</failure></testcase><testcase classname="tests.test_observability" name="test_model_step_and_tool_spans_preserve_trace_without_content" time="0.001"><error message="failed on setup with &quot;ModuleNotFoundError: No module named 'telemetry'&quot;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cdfc511ba90&gt;
+
+    @pytest.fixture
+    def spans(monkeypatch):
+&gt;       import telemetry
+E       ModuleNotFoundError: No module named 'telemetry'
+
+tests/test_observability.py:23: ModuleNotFoundError</error></testcase><testcase classname="tests.test_observability" name="test_retry_span_covers_attempts_and_wait_without_error_text" time="0.001"><error message="failed on setup with &quot;ModuleNotFoundError: No module named 'telemetry'&quot;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cdfc62209d0&gt;
+
+    @pytest.fixture
+    def spans(monkeypatch):
+&gt;       import telemetry
+E       ModuleNotFoundError: No module named 'telemetry'
+
+tests/test_observability.py:23: ModuleNotFoundError</error></testcase><testcase classname="tests.test_observability" name="test_cached_usage_cost_and_missing_cache_are_distinct" time="0.001"><failure message="ModuleNotFoundError: No module named 'telemetry'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cdfc5107890&gt;
+
+    def test_cached_usage_cost_and_missing_cache_are_distinct(monkeypatch):
+&gt;       from telemetry import usage_summary
+E       ModuleNotFoundError: No module named 'telemetry'
+
+tests/test_observability.py:68: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_observability" name="test_api_worker_mcp_sql_and_metrics_chain" time="0.001"><error message="failed on setup with &quot;ModuleNotFoundError: No module named 'telemetry'&quot;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cdfc5123f10&gt;
+
+    @pytest.fixture
+    def spans(monkeypatch):
+&gt;       import telemetry
+E       ModuleNotFoundError: No module named 'telemetry'
+
+tests/test_observability.py:23: ModuleNotFoundError</error></testcase></testsuite></testsuites>
