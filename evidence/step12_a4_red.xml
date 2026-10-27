@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.548" timestamp="2026-10-27T14:52:16.247875+00:00" hostname="51fcb92026cd"><testcase classname="tests.test_truncation" name="test_truncation_boundaries_are_explicit_and_persisted[SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1000) AS exact_rows-1000-False]" time="0.067"><failure message="KeyError: 'truncated'">task = '00fd017e-3cc4-4078-ad7a-2cf430cc9033'
+statement = 'SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1000) AS exact_rows'
+count = 1000, truncated = False
+
+    @pytest.mark.parametrize('statement,count,truncated',[
+        ('SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1000) AS exact_rows',1000,False),
+        ('SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1001) AS extra_row',1000,True),
+        ('SELECT order_id FROM orders LIMIT 500',500,False),
+    ])
+    def test_truncation_boundaries_are_explicit_and_persisted(task,statement,count,truncated):
+        result=run_query(statement,task)
+&gt;       assert result['row_count']==count and result['truncated'] is truncated
+                                              ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'truncated'
+
+tests/test_truncation.py:18: KeyError</failure></testcase><testcase classname="tests.test_truncation" name="test_truncation_boundaries_are_explicit_and_persisted[SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1001) AS extra_row-1000-True]" time="0.037"><failure message="KeyError: 'truncated'">task = '32113ed6-cb7f-4a0f-bf6a-f2e91290cf40'
+statement = 'SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1001) AS extra_row'
+count = 1000, truncated = True
+
+    @pytest.mark.parametrize('statement,count,truncated',[
+        ('SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1000) AS exact_rows',1000,False),
+        ('SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1001) AS extra_row',1000,True),
+        ('SELECT order_id FROM orders LIMIT 500',500,False),
+    ])
+    def test_truncation_boundaries_are_explicit_and_persisted(task,statement,count,truncated):
+        result=run_query(statement,task)
+&gt;       assert result['row_count']==count and result['truncated'] is truncated
+                                              ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'truncated'
+
+tests/test_truncation.py:18: KeyError</failure></testcase><testcase classname="tests.test_truncation" name="test_truncation_boundaries_are_explicit_and_persisted[SELECT order_id FROM orders LIMIT 500-500-False]" time="0.033"><failure message="KeyError: 'truncated'">task = 'b989be65-99b1-417b-a7db-22d5ebda3e5d'
+statement = 'SELECT order_id FROM orders LIMIT 500', count = 500
+truncated = False
+
+    @pytest.mark.parametrize('statement,count,truncated',[
+        ('SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1000) AS exact_rows',1000,False),
+        ('SELECT order_id FROM (SELECT order_id FROM orders LIMIT 1001) AS extra_row',1000,True),
+        ('SELECT order_id FROM orders LIMIT 500',500,False),
+    ])
+    def test_truncation_boundaries_are_explicit_and_persisted(task,statement,count,truncated):
+        result=run_query(statement,task)
+&gt;       assert result['row_count']==count and result['truncated'] is truncated
+                                              ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'truncated'
+
+tests/test_truncation.py:18: KeyError</failure></testcase><testcase classname="tests.test_truncation" name="test_ordered_truncation_has_flag_without_unordered_warning" time="0.036"><failure message="KeyError: 'truncated'">task = '0e573f17-eaf4-4161-9a1f-cb3f7034f400'
+
+    def test_ordered_truncation_has_flag_without_unordered_warning(task):
+        result=run_query('SELECT order_id FROM orders ORDER BY order_id',task)
+&gt;       assert result['truncated'] is True
+               ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'truncated'
+
+tests/test_truncation.py:30: KeyError</failure></testcase></testsuite></testsuites>
