@@ -38,8 +38,8 @@ def main():
             if kind == "termination":
                 termination = payload["reason"]
             record(logger, kind, task_id=str(task), payload=payload, tokens=tokens, latency_ms=latency_ms)
-            conn.execute("INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)",
-                         (task,sequence,kind,Jsonb(payload),tokens,latency_ms))
+            from api.tasks import event
+            event(conn,task,kind,payload,tokens,latency_ms)
         try:
             response = run_runtime(args.question, task, emit,preference_only=args.preference_only)
             conn.execute('UPDATE tasks SET result=%s WHERE task_id=%s',(Jsonb(response.model_dump()),task))

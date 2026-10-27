@@ -165,8 +165,8 @@ def execute(args):
                     nonlocal sequence
                     sequence += 1
                     record(logger, kind, question_id=q["id"], task_id=str(task_id), payload=payload, tokens=tokens, latency_ms=latency_ms)
-                    agent_db.execute("INSERT INTO events (task_id,seq,type,payload,tokens,latency_ms) VALUES (%s,%s,%s,%s,%s,%s)",
-                        (task_id, sequence, kind, Jsonb(__import__('privacy').redact(payload), dumps=lambda v: json.dumps(v, default=str)), tokens, latency_ms))
+                    from api.tasks import event
+                    event(agent_db,task_id,kind,payload,tokens,latency_ms)
                     if kind == "plan":
                         row["plan"] = payload["plan"]
                         row["complex_route"] = not payload["simple_route"]

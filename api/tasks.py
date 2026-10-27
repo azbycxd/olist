@@ -55,11 +55,14 @@ def owned(conn,task_id,owner,lock=False):
 def event(conn,task_id,kind,payload,tokens=0,latency_ms=0):
     from privacy import redact
     payload=redact(payload)
-    # Every writer holds the task lock; seq is per-task and survives retries.
-    conn.execute('SELECT task_id FROM tasks WHERE task_id=%s FOR UPDATE',(task_id,))
-    seq=conn.execute('SELECT COALESCE(MAX(seq),0)+1 FROM events WHERE task_id=%s',(task_id,)).fetchone()[0]
-    conn.execute('INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)',
-        (task_id,seq,kind,Jsonb(payload,dumps=lambda v:json.dumps(v,default=str)),tokens,latency_ms))
+    # Explicit transaction also protects CLI/evaluation autocommit connections.
+    # On a caller-owned transaction this is a savepoint, preserving atomicity
+    # with settlement and the metrics AFTER INSERT trigger.
+    with conn.transaction():
+        conn.execute('SELECT task_id FROM tasks WHERE task_id=%s FOR UPDATE',(task_id,))
+        seq=conn.execute('SELECT COALESCE(MAX(seq),0)+1 FROM events WHERE task_id=%s',(task_id,)).fetchone()[0]
+        conn.execute('INSERT INTO events(task_id,seq,type,payload,tokens,latency_ms) VALUES(%s,%s,%s,%s,%s,%s)',
+            (task_id,seq,kind,Jsonb(payload,dumps=lambda v:json.dumps(v,default=str)),tokens,latency_ms))
     return seq
 
 
