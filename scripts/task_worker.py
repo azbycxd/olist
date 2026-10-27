@@ -124,7 +124,7 @@ def process(job,shutdown=None):
     thread=threading.Thread(target=beat,daemon=True);thread.start()
     termination=None;last_error=None
     def admit(request):
-        from scripts.rate_limits import RateWait
+        from scripts.rate_limits import RateWait,RateRejected
         began=time.monotonic();rate=provider_rate_settings();waited=False
         while True:
             error=None
@@ -138,6 +138,12 @@ def process(job,shutdown=None):
                 if waited:
                     emit('rate_wait',{'control_call_id':request['call_id'],'wait_ms':(time.monotonic()-began)*1000,'outcome':'admitted'})
                 return admission
+            except RateRejected as exc:
+                # Roll back admission (including a half-open probe) before
+                # recording the permanent rejection outside the transaction.
+                emit('rate_wait',{'control_call_id':request['call_id'],'wait_ms':(time.monotonic()-began)*1000,
+                                  'outcome':'rate_limited','reason':str(exc)})
+                raise limits.TaskStopped('rate_limited') from exc
             except RateWait as exc:
                 # The connection context has rolled back and returned the pool
                 # slot before sleeping. Heartbeat/cancel/shutdown remain live.

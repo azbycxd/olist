@@ -2,6 +2,10 @@
 from config import provider_rate_settings,MODEL_TIMEOUT
 
 
+class RateRejected(Exception):
+    """Permanent capacity rejection; retrying cannot make this request fit."""
+
+
 class RateWait(Exception):
     def __init__(self,seconds):
         self.seconds=max(0.001,seconds)
@@ -20,6 +24,7 @@ def refund_amount(reserved,usage):
 def acquire(conn,provider,call,amount,deadline):
     settings=provider_rate_settings()
     rpm,tpm,maximum=(settings[k] for k in ('PROVIDER_RPM','PROVIDER_TPM','PROVIDER_MAX_INFLIGHT'))
+    if tpm and amount>tpm:raise RateRejected('request_exceeds_tpm')
     if not any((rpm,tpm,maximum)):return False
     conn.execute('INSERT INTO rate_buckets(provider,rpm_capacity,tpm_capacity,rpm_tokens,tpm_tokens) VALUES(%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',(provider,rpm,tpm,rpm,tpm))
     # Lock one provider row before expiring its request leases. It never takes
