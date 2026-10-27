@@ -7,7 +7,7 @@ import time
 from uuid import uuid4
 import psycopg
 from psycopg.types.json import Jsonb
-from config import WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS, MAX_SLEEP
+from config import WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS, MAX_SLEEP, provider_rate_settings
 from db_pool import close_all, validate_settings, ready
 from api.tasks import event
 from scripts.runtime import run_runtime
@@ -77,6 +77,8 @@ def release(job,reason='worker_shutdown'):
         else:
             conn.execute("UPDATE tasks SET status='pending',error=NULL,lease_token=NULL,lease_expires_at=NULL,provider_requeues=provider_requeues+1,updated_at=clock_timestamp() WHERE task_id=%s",(ident,))
         conn.execute("UPDATE model_reservations SET status='unknown' WHERE task_id=%s AND status='pending'",(ident,))
+        from scripts.rate_limits import abandon_task
+        abandon_task(conn,ident)
         event(conn,ident,'released' if reason=='worker_shutdown' else 'provider_requeued',{'reason':reason,'worker_id':worker_id()})
         return True
 
@@ -118,14 +120,30 @@ def process(job,shutdown=None):
     thread=threading.Thread(target=beat,daemon=True);thread.start()
     termination=None;last_error=None
     def admit(request):
-        error=None
-        with connection('worker') as conn:
-            try:admission=limits.reserve(conn,ident,token,request)
-            except limits.TaskStopped as exc:
-                error=exc
-                if str(exc) not in {'lease_lost','provider_unavailable'}:limits.stop_task(conn,ident,str(exc))
-        if error:raise error
-        return admission
+        from scripts.rate_limits import RateWait
+        began=time.monotonic();rate=provider_rate_settings();waited=False
+        while True:
+            error=None
+            try:
+                with connection('worker') as conn:
+                    try:admission=limits.reserve(conn,ident,token,request)
+                    except limits.TaskStopped as exc:
+                        error=exc
+                        if str(exc) not in {'lease_lost','provider_unavailable'}:limits.stop_task(conn,ident,str(exc))
+                if error:raise error
+                if waited:
+                    emit('rate_wait',{'control_call_id':request['call_id'],'wait_ms':(time.monotonic()-began)*1000,'outcome':'admitted'})
+                return admission
+            except RateWait as exc:
+                # The connection context has rolled back and returned the pool
+                # slot before sleeping. Heartbeat/cancel/shutdown remain live.
+                remaining=rate['RATE_WAIT_MAX_SECONDS']-(time.monotonic()-began)
+                if remaining<=0:
+                    emit('rate_wait',{'control_call_id':request['call_id'],'wait_ms':(time.monotonic()-began)*1000,'outcome':'rate_limited'})
+                    raise limits.TaskStopped('rate_limited')
+                waited=True
+                if lost.wait(min(exc.seconds,remaining,MAX_SLEEP)):
+                    raise limits.TaskStopped('lease_lost')
     def emit(kind,payload,tokens=0,latency_ms=0):
         nonlocal termination,last_error
         if lost.is_set():raise limits.TaskStopped('lease_lost')

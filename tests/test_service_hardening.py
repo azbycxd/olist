@@ -110,3 +110,30 @@ def test_api_pool_exhaustion_returns_503(monkeypatch):
         assert TestClient(app).get('/readyz').status_code==503
         assert TestClient(app).post('/login',json={'username':'absent','password':'long-enough-password'}).status_code==503
     close_all()
+
+
+@pytest.mark.integration
+@integration
+def test_mcp_liveness_readiness_and_tool_pool_exhaustion(monkeypatch):
+    import config
+    from db_pool import connection,close_all
+    from mcp_olist.server import create_app
+    close_all()
+    monkeypatch.setattr(config,'MCP_AGENT_POOL_MAX',1)
+    monkeypatch.setattr(config,'DB_POOL_TIMEOUT_SECONDS',.05)
+    with psycopg.connect(**db_kwargs('agent','app')) as conn:
+        owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('mcp-pool-'+uuid4().hex,)).fetchone()[0]
+        ident=conn.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,'pool fixture','completed') RETURNING task_id",(owner,)).fetchone()[0]
+    with TestClient(create_app(),base_url='http://localhost:8001') as client:
+        assert client.get('/healthz').status_code==200
+        assert client.get('/readyz').status_code==200
+        with connection('mcp'):
+            assert client.get('/healthz').status_code==200
+            assert client.get('/readyz').status_code==503
+            response=client.post('/mcp',headers={
+                'Authorization':'Bearer '+config.MCP_BEARER_TOKEN,
+                'Accept':'application/json, text/event-stream','x-task-id':str(ident),
+                'Idempotency-Key':str(ident)+':pool'},
+                json={'jsonrpc':'2.0','id':1,'method':'tools/call','params':{'name':'list_tables','arguments':{}}})
+            assert response.status_code==503
+    close_all()

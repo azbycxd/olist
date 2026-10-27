@@ -102,30 +102,24 @@ def persistent_503(label, recovery_seconds=None):
 
 def duplicate_sql(label):
     from mcp_olist import service
-    from mcp_olist.sql_guard import guard_sql
+    from mcp_olist.sql_guard import guard_sql,probe_sql
     from scripts.task_worker import claim
     from api.tasks import create_task,NewTask
     from eval.robustness import read_tasks
     statement='SELECT count(*) AS n FROM orders'
-    executable=guard_sql(statement)
+    executable=probe_sql(guard_sql(statement))
     original_connect=psycopg.connect
     executed=[]
-    class CountedConnection:
-        def __init__(self,conn): self.conn=conn
-        def __enter__(self): self.conn.__enter__(); return self
-        def __exit__(self,*a): return self.conn.__exit__(*a)
-        def __getattr__(self,name): return getattr(self.conn,name)
-        def execute(self,query,*a,**kw):
-            if query==executable: executed.append({'at_monotonic':time.monotonic(),'sql':query})
-            return self.conn.execute(query,*a,**kw)
-    def counted(*a,**kw):
-        conn=original_connect(*a,**kw)
-        return CountedConnection(conn) if kw.get('user')=='agent_ro' else conn
+    original_execute=psycopg.Connection.execute
+    def counted(conn,query,*a,**kw):
+        if query==executable and conn.info.user=='agent_ro':
+            executed.append({'at_monotonic':time.monotonic(),'sql':query})
+        return original_execute(conn,query,*a,**kw)
     with original_connect(**db_kwargs('agent','app')) as conn:
         owner=conn.execute('INSERT INTO users(username) VALUES(%s) RETURNING user_id',('sql-recovery-'+uuid4().hex,)).fetchone()[0]
     ident=create_task(NewTask(question='SQL 结果落库后响应丢失恢复替身'),owner)['task_id']
     first_job=claim(ident)
-    psycopg.connect=counted
+    psycopg.Connection.execute=counted
     started=time.perf_counter()
     try:
         first=service.run_query(statement,ident,str(first_job['token']))
@@ -143,7 +137,7 @@ def duplicate_sql(label):
             'source_hashes':{'mcp_olist/service.py':hashlib.sha256((ROOT/'mcp_olist/service.py').read_bytes()).hexdigest()},
             'sql_execution_count':len(executed),'saved_result_count':count,'same_result_id':first['result_id']==second['result_id'],
             'wall_ms':(time.perf_counter()-started)*1000,'calls':executed,'tasks':read_tasks([ident])})
-    finally: psycopg.connect=original_connect
+    finally: psycopg.Connection.execute=original_execute
 
 
 def scoped_worker(ident):

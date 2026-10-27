@@ -61,6 +61,25 @@ DB_POOL_MAX_LIFETIME_SECONDS = float(os.getenv('DB_POOL_MAX_LIFETIME_SECONDS', '
 WORKER_GRACE_SECONDS = float(os.getenv('WORKER_GRACE_SECONDS', '20'))
 WORKER_HEARTBEAT_SECONDS = float(os.getenv('WORKER_HEARTBEAT_SECONDS', '5'))
 MAX_SLEEP = float(os.getenv('MAX_SLEEP', '5'))
+PROVIDER_RPM = float(os.getenv('PROVIDER_RPM') or '0')
+PROVIDER_TPM = float(os.getenv('PROVIDER_TPM') or '0')
+PROVIDER_MAX_INFLIGHT = int(os.getenv('PROVIDER_MAX_INFLIGHT') or '0')
+RATE_WAIT_MAX_SECONDS = float(os.getenv('RATE_WAIT_MAX_SECONDS', '30'))
+RATE_POLL_SECONDS = float(os.getenv('RATE_POLL_SECONDS', '0.1'))
+
+
+def provider_rate_settings():
+    import math
+    result={key:float(os.getenv(key) or str(default)) for key,default in (
+        ('PROVIDER_RPM',0),('PROVIDER_TPM',0),('PROVIDER_MAX_INFLIGHT',0),
+        ('RATE_WAIT_MAX_SECONDS',30),('RATE_POLL_SECONDS',0.1))}
+    if any(not math.isfinite(v) or v<0 for v in result.values()) or min(result['RATE_WAIT_MAX_SECONDS'],result['RATE_POLL_SECONDS'])<=0:
+        raise ValueError('Provider limits must be finite nonnegative values and waits must be positive')
+    if not result['PROVIDER_MAX_INFLIGHT'].is_integer():raise ValueError('PROVIDER_MAX_INFLIGHT must be an integer')
+    return result
+
+
+provider_rate_settings()
 if min(API_POOL_MAX, MCP_AGENT_POOL_MAX, MCP_OLIST_POOL_MAX,
        WORKER_AGENT_POOL_MAX, WORKER_OLIST_POOL_MAX, DB_POOL_TIMEOUT_SECONDS,
        DB_POOL_MAX_LIFETIME_SECONDS, WORKER_GRACE_SECONDS, WORKER_HEARTBEAT_SECONDS, MAX_SLEEP) <= 0:

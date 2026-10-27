@@ -52,7 +52,7 @@ def run_runtime(question, task_id, emit, *, preference_only=False, user_text=Non
                         admission=control_check(frame['control']) or {}
                         reply={'allowed':True,**admission}
                     except TaskStopped as exc:
-                        if str(exc)!='provider_unavailable':raise
+                        if str(exc) not in {'provider_unavailable','rate_limited'}:raise
                         reply={'allowed':False,'reason':str(exc)}
                     process.stdin.write(json.dumps({'call_id':frame['control']['call_id'],**reply})+'\n')
                     process.stdin.flush()

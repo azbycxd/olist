@@ -69,6 +69,17 @@ flowchart TD
 
 ## 快速启动
 
+供应商限流默认关闭。由你按供应商文档在 `.env` 填写 `PROVIDER_RPM` / `PROVIDER_TPM`；可另设 `PROVIDER_MAX_INFLIGHT`。所有worker需保持一致配置，修改后同时重建worker。桶使用保守预扣，TPM容量必须能容纳单次预扣；等待超过 `RATE_WAIT_MAX_SECONDS` 返回 `rate_limited`。供应商熔断期间后台任务等待或重排，原任务截止时间继续生效。
+
+已有环境升级本批代码：
+
+```sh
+docker compose build init-data
+docker compose run --rm --no-deps --entrypoint python init-data -m scripts.migrate
+docker compose up -d --no-deps api mcp-olist worker
+```
+
+
 Step 12.2 服务启动前会校验 `.env` 中数据库密码、MCP token、API 签名密钥与 worker 模型配置。API/MCP 的 `/healthz` 仅表示进程存活，`/readyz` 仅探测 agent 库；worker 的 olist 只读池按 findings 需求懒加载。修改代码后重建镜像并执行新增迁移，再重建 API/MCP/worker。worker 停止宽限为35秒，`WORKER_GRACE_SECONDS` 默认20秒并必须留足释放租约时间。连接池设置和来源见 [参数表](docs/PARAMETERS.md)。
 
 

@@ -24,11 +24,11 @@
 
 迁移 `010_provider_health.sql` 按 provider+model 保存熔断状态。reserve 在同一事务中锁行检查、取得单个半开探针；settle 根据每个预扣的唯一 call_id 记录事件，重复事件不重复计数。generation 拒绝旧在途结果关闭新一代熔断；探针失联后在模型超时或任务截止时间允许接管。后台拒绝经父子进程协议传回子进程，明确结束为 `provider_unavailable`。
 
-事件新增 `model_call.error_class`（成功为 null）和 `retry_wait_ms`（实测休眠毫秒）；模型请求耗时不包含休眠。A1 没有新增工具返回字段，没有修改系统提示、知识库或数字闸门。
+当前事件新增 `model_call.error_class`（成功为 null）；失败立即上报，实测等待毫秒在独立 `model_retry_wait.retry_wait_ms` 中（复核2修正）。模型请求耗时不包含休眠。A1 没有新增工具返回字段，没有修改系统提示、知识库或数字闸门。
 
 验收：[完整测试 264 项通过](../evidence/step12_a1_full.xml)，[CI 同构离线 218 项通过](../evidence/step12_a1_offline.xml)。包括真实约 2 秒等待的假客户端测试、5 次错误后低于 100ms 的预扣拒绝、并发只放行一个探针及成功/失败转换。原重试测试的假异常改为可重试连接错误，断言改为抖动范围；没有修改核查器。
 
-### 前后对比
+### 初次验收前后对比（复核3之前的失败策略）
 
 HTTP 模型替身持续返回 503，经后台 API 入队并由一个 worker 顺序处理 10 个任务；为隔离模型调用，实验显式关闭 RAG 和 Memory。不是实际模型性能或质量数据。
 
@@ -53,7 +53,7 @@ CLI / 评测路径没有 worker 预扣回调，不经过共享熔断。总任务
 
 ### 改法
 
-`agent/sql_normalize.py` 使用 sqlglot PostgreSQL 解析与标识符标准化，保留字符串和双引号标识符大小写，解析失败保留原文。`agent/progress.py` 被运行循环和只读回放共用：保留连续三次规则，增加六轮窗口和四轮全错/空且无新 result_id 规则。停止事件记录 rule、step、role，旧规则仍用 `repeated_tool_calls`，新规则用 `no_progress`。
+`agent/sql_normalize.py` 使用 sqlglot PostgreSQL 解析与标识符标准化，保留字符串和双引号标识符大小写，解析失败保留原文。`agent/progress.py` 被运行循环和只读回放共用：保留连续三次规则，增加六轮窗口和四轮全错/空且无行数大于0的新 result_id 规则。停止事件记录 rule、step、role，旧规则仍用 `repeated_tool_calls`，新规则用 `no_progress`。
 
 ### 前后对比与收据
 
@@ -63,7 +63,7 @@ CLI / 评测路径没有 worker 预扣回调，不经过共享熔断。总任务
 
 ### 已知局限
 
-历史日志有70条工具结果摘要因长度截断不能完整解析；回放仍使用独立记录的 result_id/error，无法恢复的内容视为未知，不当作空结果。返回新 result_id 的空查询按本批规定属于有进展；因此四轮空结果规则不承诺捕获所有业务上无进展的查询。A2 无新增工具返回字段，无提示词修改。
+历史日志有70条工具结果摘要因长度截断不能完整解析；回放仍使用独立记录的 result_id/error，无法恢复的内容视为未知，不当作空结果。复核1后，row_count=0 即使返回新的 result_id 也不算进展；更新后的97条只读重放仍为0误判。A2 无新增工具返回字段，无提示词修改。
 
 ## 12.1 / A3 工具调用幂等
 
@@ -73,7 +73,7 @@ CLI / 评测路径没有 worker 预扣回调，不经过共享熔断。总任务
 
 ### 改法
 
-迁移 `011_tool_idempotency.sql` 新增 tool_calls 和 query_results 的 SQL 哈希、原始工具响应、内容唯一索引。每个 MCP 工具调用通过独立请求的 `_meta` 生成 `Idempotency-Key=task_id:tool_call_id` HTTP 头，不使用并发共享的可变请求头。所有工具都有传输幂等；SQL 额外按 task_id+标准化后执行 SQL 哈希+data_version 去重，事务级 advisory lock 避免并发重复执行，唯一索引兜底。
+迁移 `011_tool_idempotency.sql` 新增 tool_calls 和 query_results 的 SQL 哈希、原始工具响应、内容唯一索引。每个 MCP 工具调用通过独立请求的 `_meta` 生成 `Idempotency-Key=task_id:tool_call_id` HTTP 头，不使用并发共享的可变请求头。所有工具都有传输幂等；SQL 额外按 task_id+标准化后对外 SQL 哈希+data_version 去重，事务级 advisory lock 避免并发重复执行，唯一索引兜底。
 
 tool_calls 持久记录 running/done、完整响应和所有者 token。running 未超时返回可重试的 `tool_in_progress`；超过两倍 SQL 超时允许接管，旧所有者不能覆盖新结果。同 key 不同参数拒绝。重放 SQL/黑板写入仍先检查任务和租约，SQL 写结果前也保留原有 fencing。
 
@@ -101,7 +101,7 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 ### 旧问题与改法
 
-原自动 LIMIT 1000 无法区分正好1000行和被截断。现在无 LIMIT 或超过1000的 LIMIT 实际最多取1001行，仅保存1000行；显式 LIMIT≤1000 保留原样。新增迁移 `012_result_truncation.sql` 保存 `truncated`，历史结果为 null（未知），不伪造历史截断结论。无顶层 ORDER BY 且截断时，notice 追加“无序截断,不代表前 N 名,汇总请在 SQL 中完成”。历史结论复制证据时携带原截断状态，网页证据弹层显示已截断/未截断/历史未知。
+原自动 LIMIT 1000 无法区分正好1000行和被截断。现在无 LIMIT 或超过1000的 LIMIT 实际最多取1001行，仅保存1000行；显式 LIMIT<1000 保留原样，外层上限1000的查询用内部1001探测；公开SQL仍为1000。新增迁移 `012_result_truncation.sql` 保存 `truncated`，历史结果为 null（未知），不伪造历史截断结论。无顶层 ORDER BY 且截断时，notice 追加“无序截断,不代表前 N 名,汇总请在 SQL 中完成”。历史结论复制证据时携带原截断状态，网页证据弹层显示已截断/未截断/历史未知。
 
 ### 测试与收据
 
@@ -119,7 +119,7 @@ HTTP 传输只对带 key 的请求增加一次连接/超时重试，复用同一
 
 ### 旧问题与已完成的准备
 
-连接仍按请求新建；SIGTERM 不主动释放租约；无 /healthz、/readyz 和统一启动配置校验。[失败测试 XML](../evidence/step12_b1_red.xml)实际复现4项缺失，仅提交测试和改前收据，没有实施连接池或退出逻辑。
+旧实现按请求新建连接；SIGTERM 不主动释放租约；无 /healthz、/readyz 和统一启动配置校验。[失败测试 XML](../evidence/step12_b1_red.xml)实际复现4项缺失，先单独提交测试与改前收据，修复见下文。
 
 ### 改前实测
 
@@ -184,3 +184,43 @@ API 单池，MCP 两池，worker 两个独立小池，checkout 检查失效连�
 失败测试 `fa976f0`，修改 tests/test_sql_guard.py 和 tests/test_mcp.py 的对外断言为 LIMIT 1000；新增真实SQL执行、数据库哈希和证据API联合测试，确认执行1001但公开SQL重跑为1000行。
 
 [失败收据](../evidence/step12_review4_red.json)11失败/39通过；[通过收据](../evidence/step12_review4_green.json)50通过。[复核后全量](../evidence/step12_reviews_full.json)298通过，含本地数据库与私有MCP。局限：历史存储行保持原样，公开读取兼容转换；历史内部探测版哈希不会原地改写，因此已有任务首次改用公开版哈希时可能新增一份结果。
+
+## 12.2 / B2 全局限流
+
+### 旧问题与改法
+
+只有每用户并发和每日额度，跨worker供应商流量要遇到429才反应。新增迁移015：rate_buckets 保存每供应商 RPM/TPM 剩余量、补充时间和在途数；rate_leases 保存 call_id 的在途过期时间；model_reservations.rate_held 将桶预扣与结算关联。单条 UPDATE ... RETURNING 按 clock_timestamp() 补充并扣减 RPM=1、TPM=预扣tokens，行锁保证多个用户/worker共享。
+
+容量不足会回滚整个预扣事务，归还池连接和所有锁后等待，最多 RATE_WAIT_MAX_SECONDS；超时以 rate_limited 结束。实际模型用量返回后，TPM返还预扣与实际差额（超额则补扣）；重复事件不重复返还。未知用量仅释放在途席位，保留TPM预扣；取消/重排释放席位，硬崩溃经在途租约过期回收。租约截止受 MODEL_TIMEOUT 和任务截止限制。配置默认不限制 RPM/TPM/在途；同供应商所有worker应使用一致配置。
+
+### 真实前后对比
+
+固定验收配置：20并发后台任务、20 worker、20 SSE；HTTP模型替身供应商桶10 RPM/16000 TPM，每个成功响应实际usage=1000 tokens，响应约1s。worker配置10 RPM/16000 TPM、最多3在途、等待上限180s；RAG/Memory关闭。该配置是预先固定的故障验收，不是供应商推荐值或参数搜索。
+
+| 指标 | 改前 | 改后 |
+| --- | ---: | ---: |
+| 成功任务 | 20 | 20 |
+| HTTP请求 | 35 | 20 |
+| HTTP 429 | 15 | 0 |
+| 实际tokens总数 | 20000 | 20000 |
+| 实际tokens / 总耗时 × 60（TPM） | 14160.612 | 11463.439 |
+| 滚动60s实际tokens峰值 | 16000 | 12000 |
+| 总耗时ms | 84742.102 | 104680.633 |
+
+[改前收据](../evidence/step12_b2_rate_before_20261027T153652Z_a191b84e.summary.json)、[改后收据](../evidence/step12_b2_rate_after_20261027T154011Z_fdd7de9d.summary.json)，各有同名jsonl、日志哈希和核心源码哈希。减少429以主动等待为代价，不能宣称延迟改善或真实模型吞吐。
+
+### 测试、返回变化与局限
+
+失败测试 `1f84c33`，5失败/1通过；修复后验证跨用户并发不超发、数据库时钟补充、差额仅返还一次、过期席位、等待期间可获取任务/桶锁、rate_limited终止、未知用量不虚构退款。全量308通过，CI离线234通过；XML和哈希见第1批最终清单。B2无工具返回字段变化；新增 rate_wait 事件（control_call_id、wait_ms、outcome）和终止原因 rate_limited。
+
+局限：令牌桶允许初始突发，不等于供应商的严格固定/滚动窗口；未知实际用量保守保留扣额；预扣大于TPM桶容量时无法放行，将在等待上限结束；本机替身压测不能外推到真实供应商。修改同一供应商配置应同时重启所有worker，避免新旧配置交替更新容量。CLI/评测没有可信预扣回调，不走共享桶。
+
+## 第1批最终验收
+
+[最终校验清单](../evidence/step12_batch1_checkpoint.json)：全量308通过（本地数据库和同源码MCP集成）、CI离线234通过；保留各次XML和日志SHA-256。冻结题库、gold、核查器、知识库、数字闸门、旧迁移以及系统提示/工具定义均核对未变；未调用真实模型、未重跑或重计分holdout。README仍注明成绩属于Step9源码。
+
+B2额外失败测试 `2109e73` 复现 rate_limited 后继续提取Memory；现终止后不再发起额外模型请求。MCP健康/池耗尽补充验收9项通过，确认SDK封装后HTTP仍返回503。最终恢复演示[新收据](../evidence/step12_a3_after_20261027T154303Z_682ab6a7.summary.json)再次实测重复SQL仅执行1次、保存1份、复用result_id；脚本已适配连接池和内部探测SQL。
+
+新增迁移：010 provider_health；011 tool_calls/SQL内容去重；012 truncated；013 released_count/worker_heartbeats；014 provider_requeues；015 rate_buckets/rate_leases/model_reservations.rate_held。所有均为新增编号迁移，无旧迁移改写。
+
+工具返回最终新增字段：run_sql.truncated；get_result.truncated/notice；幂等正在执行错误的 error=tool_in_progress、retryable=true、notice。截断时扩展现有notice；外层公开SQL和sql_hash恢复1000版本。证据API另加truncated。其余B1/B2不新增模型工具字段。事件新增/调整：model_call.error_class、独立model_retry_wait.retry_wait_ms、no_progress.rule、released、provider_requeued、rate_wait；终止原因增加model_fatal/provider_unavailable/rate_limited。

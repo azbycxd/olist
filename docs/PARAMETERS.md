@@ -154,3 +154,15 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 池均 min_size=0，按实际需求创建。总上限=API_POOL_MAX+MCP_AGENT_POOL_MAX+MCP_OLIST_POOL_MAX+worker数×(WORKER_AGENT_POOL_MAX+WORKER_OLIST_POOL_MAX)。扩多个 API/MCP 进程时分别累加。readyz 只检查 agent 库，避免探测惰性 olist 连接。
 
 复核3新增 `MAX_SLEEP=5`（秒，来源类型：安全护栏），限制熔断冷却期间每次等待，确保周期性处理取消和截止；不改变30s冷却阈值。
+
+## Step 12.2 B2 供应商共享限额
+
+| 参数 | 默认 | 来源类型 | 用途 |
+| --- | --- | --- | --- |
+| PROVIDER_RPM | 空（不限） | 预先固定：用户按供应商文档填写 | 每分钟请求桶容量及补充速率 |
+| PROVIDER_TPM | 空（不限） | 预先固定：用户按供应商文档填写 | 每分钟token桶容量；先预扣，实际用量结算 |
+| PROVIDER_MAX_INFLIGHT | 0（不限） | 安全护栏 | 同供应商所有worker共享的同时在途上限 |
+| RATE_WAIT_MAX_SECONDS | 30 | 安全护栏 | 等待供应商额度的总时限 |
+| RATE_POLL_SECONDS | 0.1 | 预先固定 | 最小重试间隔；长等待受MAX_SLEEP约束 |
+
+验收预先固定为 RPM=10、TPM=16000、在途=3、等待=180s，仅适用于本次HTTP替身故障压测，不是供应商参数建议。未对参数做搜索。实际TPM由替身返回usage和真实时钟计算，见STEP12_HARDENING收据。
