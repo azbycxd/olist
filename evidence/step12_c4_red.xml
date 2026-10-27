@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="1.254" timestamp="2026-10-27T17:41:56.764635+00:00" hostname="9114977a67b3"><testcase classname="tests.test_context_preflight" name="test_context_preflight_stops_without_any_model_request" time="1.026"><failure message="Failed: DID NOT RAISE &lt;class 'agent.task_control.ModelStopped'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72a8cbb43950&gt;
+
+    def test_context_preflight_stops_without_any_model_request(monkeypatch):
+        import config
+        from agent.model import request
+        from agent.task_control import ModelStopped
+        from test_agent import completion
+        monkeypatch.setattr(config,'CONTEXT_PREFLIGHT',True,raising=False)
+        monkeypatch.setattr(config,'CONTEXT_TOKEN_COEFFICIENT',1.,raising=False)
+        monkeypatch.setattr(config,'CONTEXT_LIMIT',100)
+        called=[]
+        async def create(**kwargs):called.append(kwargs);return completion([])
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+&gt;       with pytest.raises(ModelStopped,match='context_limit_preflight'):
+E       Failed: DID NOT RAISE &lt;class 'agent.task_control.ModelStopped'&gt;
+
+tests/test_context_preflight.py:18: Failed</failure></testcase><testcase classname="tests.test_context_preflight" name="test_context_mask_once_then_send_preserves_original_messages" time="0.001"><failure message="assert (1 == 1 and 8064 &lt; 500)&#10; +  where 1 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 64, 'messages': [{'content': 's', 'role': 'system'},...xx&quot;}\n&lt;/untrusted_tool_result&gt;', 'role': 'tool'}, {'content': 'next', 'role': 'assistant'}], 'model': 'scripted', ...}])&#10; +  and   8064 = len('&lt;untrusted_tool_result&gt;\n{&quot;preview&quot;: &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;}\n&lt;/untrusted_tool_result&gt;')">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72a8c87acb90&gt;
+
+    def test_context_mask_once_then_send_preserves_original_messages(monkeypatch):
+        import config
+        from agent.model import request
+        from agent.tools import untrusted
+        from test_agent import completion
+        monkeypatch.setattr(config,'CONTEXT_PREFLIGHT',True,raising=False)
+        monkeypatch.setattr(config,'CONTEXT_TOKEN_COEFFICIENT',1.,raising=False)
+        monkeypatch.setattr(config,'CONTEXT_LIMIT',2000)
+        monkeypatch.setattr(config,'CONTEXT_KEEP_TURNS',1)
+        messages=[{'role':'system','content':'s'},{'role':'user','content':'q'},
+                  {'role':'assistant','content':'a'},{'role':'tool','content':untrusted({'preview':'x'*8000})},
+                  {'role':'assistant','content':'next'}]
+        calls=[];events=[]
+        async def create(**kwargs):calls.append(kwargs);return completion([])
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+        asyncio.run(request(client,'scripted',messages,lambda kind,*args:events.append(kind),remaining=64))
+&gt;       assert len(calls)==1 and len(calls[0]['messages'][3]['content'])&lt;500
+E       assert (1 == 1 and 8064 &lt; 500)
+E        +  where 1 = len([{'extra_body': {'thinking': {'type': 'disabled'}}, 'max_tokens': 64, 'messages': [{'content': 's', 'role': 'system'},...xx"}\n&lt;/untrusted_tool_result&gt;', 'role': 'tool'}, {'content': 'next', 'role': 'assistant'}], 'model': 'scripted', ...}])
+E        +  and   8064 = len('&lt;untrusted_tool_result&gt;\n{"preview": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}\n&lt;/untrusted_tool_result&gt;')
+
+tests/test_context_preflight.py:39: AssertionError</failure></testcase><testcase classname="tests.test_context_preflight" name="test_conservative_coefficient_uses_95th_quantile_not_mean" time="0.001"><failure message="ModuleNotFoundError: No module named 'scripts.fit_context'">def test_conservative_coefficient_uses_95th_quantile_not_mean():
+&gt;       from scripts.fit_context import fit
+E       ModuleNotFoundError: No module named 'scripts.fit_context'
+
+tests/test_context_preflight.py:44: ModuleNotFoundError</failure></testcase></testsuite></testsuites>
