@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="0.884" timestamp="2026-10-27T15:29:33.942883+00:00" hostname="f143eefb80db"><testcase classname="tests.test_provider_queue" name="test_open_provider_leaves_task_unclaimed_but_deadline_still_expires" time="0.050"><failure message="AssertionError: assert {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...} is None&#10; +  where {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...} = &lt;function claim at 0x7cbc5116b380&gt;(UUID('51dae2bf-6f9f-40c0-b467-a336adc4393d'))&#10; +    where &lt;function claim at 0x7cbc5116b380&gt; = worker.claim">queued = (UUID('51dae2bf-6f9f-40c0-b467-a336adc4393d'), 'queue-dd542c607b3b49bdaac25df0686495e9')
+
+    def test_open_provider_leaves_task_unclaimed_but_deadline_still_expires(queued):
+        ident,model=queued
+        with psycopg.connect(**db_kwargs('agent','app')) as conn:
+            conn.execute("INSERT INTO provider_health(provider,model,state,open_until) VALUES(%s,%s,'open',clock_timestamp()+interval '30 seconds')",(provider_health.provider_key(),model))
+&gt;       assert worker.claim(ident) is None
+E       AssertionError: assert {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...} is None
+E        +  where {'board': None, 'budget_used': 0, 'phase': 'execute', 'question': 'control fixture', ...} = &lt;function claim at 0x7cbc5116b380&gt;(UUID('51dae2bf-6f9f-40c0-b467-a336adc4393d'))
+E        +    where &lt;function claim at 0x7cbc5116b380&gt; = worker.claim
+
+tests/test_provider_queue.py:30: AssertionError</failure></testcase><testcase classname="tests.test_provider_queue" name="test_running_provider_failures_requeue_without_consuming_claim_budget[provider_unavailable]" time="0.043"><failure message="AssertionError: assert 'failed' == 'pending'&#10;  &#10;  - pending&#10;  + failed">queued = (UUID('db6c19cf-7c0e-4361-b731-f49bcb89f99c'), 'queue-c138cbbed0e3415e9cd7e7bb053560ac')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cbc4e20cad0&gt;
+reason = 'provider_unavailable'
+
+    @pytest.mark.parametrize('reason',['provider_unavailable','model_error'])
+    def test_running_provider_failures_requeue_without_consuming_claim_budget(queued,monkeypatch,reason):
+        ident,_=queued
+        def runtime(question,task_id,emit,**kwargs):
+            emit('model_call',{'error_class':'retryable','error':'HTTP503'})
+            emit('termination',{'scope':'task','reason':reason})
+            return FinalAnswer(answer='fixture',claims=[])
+        monkeypatch.setattr(worker,'run_runtime',runtime)
+        for _ in range(5):
+            job=worker.claim(ident)
+            assert job is not None
+            worker.process(job)
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;               assert conn.execute('SELECT status FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]=='pending'
+E               AssertionError: assert 'failed' == 'pending'
+E                 
+E                 - pending
+E                 + failed
+
+tests/test_provider_queue.py:52: AssertionError</failure></testcase><testcase classname="tests.test_provider_queue" name="test_running_provider_failures_requeue_without_consuming_claim_budget[model_error]" time="0.043"><failure message="AssertionError: assert 'failed' == 'pending'&#10;  &#10;  - pending&#10;  + failed">queued = (UUID('7e917959-6889-4808-82e8-b38a39aed0da'), 'queue-647a55b5773e4563a6c5aee050315f78')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cbc4e20ce90&gt;
+reason = 'model_error'
+
+    @pytest.mark.parametrize('reason',['provider_unavailable','model_error'])
+    def test_running_provider_failures_requeue_without_consuming_claim_budget(queued,monkeypatch,reason):
+        ident,_=queued
+        def runtime(question,task_id,emit,**kwargs):
+            emit('model_call',{'error_class':'retryable','error':'HTTP503'})
+            emit('termination',{'scope':'task','reason':reason})
+            return FinalAnswer(answer='fixture',claims=[])
+        monkeypatch.setattr(worker,'run_runtime',runtime)
+        for _ in range(5):
+            job=worker.claim(ident)
+            assert job is not None
+            worker.process(job)
+            with psycopg.connect(**db_kwargs('agent','app')) as conn:
+&gt;               assert conn.execute('SELECT status FROM tasks WHERE task_id=%s',(ident,)).fetchone()[0]=='pending'
+E               AssertionError: assert 'failed' == 'pending'
+E                 
+E                 - pending
+E                 + failed
+
+tests/test_provider_queue.py:52: AssertionError</failure></testcase><testcase classname="tests.test_provider_queue" name="test_unknown_model_error_is_not_requeued" time="0.042" /></testsuite></testsuites>
