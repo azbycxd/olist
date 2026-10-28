@@ -254,3 +254,6 @@ Toxiproxy 2.13.0以packet_loss丢弃TCP数据块，loss_rate=0.1、correlation=0
 
 
 第3批RLS复核：025的order_scope为内部派生权限表，不是可调参数，也不是模型可查表。其写入同样递增C5计数；一条业务写语句可触发派生表写入，因此版本计数不是业务写语句数或修改行数。未更改JIT、planner成本、索引参数或权限阈值。
+
+
+回归v2价格前置条件：TOKEN_PRICE_INPUT、TOKEN_PRICE_CACHED_INPUT、TOKEN_PRICE_OUTPUT三个值必须在.env配置为有限非负数（单位元/百万token），否则在MCP启动、一次性标记和模型调用之前拒绝启动。协议不覆盖这些值，收据记录本次实际价格。缺少缓存usage不能假定零命中；费用未知时如实留空。v1未配置价格的历史记录不回填或重新评分。
