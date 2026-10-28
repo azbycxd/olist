@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.767" timestamp="2026-10-28T00:03:56.813421+00:00" hostname="77eca5cd55e9"><testcase classname="tests.test_rls_flat" name="test_scope_mapping_is_not_a_model_table" time="0.063" /><testcase classname="tests.test_rls_flat" name="test_child_policy_plan_does_not_reenter_orders_or_customers" time="0.131"><failure message="AssertionError: RLS reenters protected parent tables&#10;assert not ({'customers', 'orders'} &amp; {'orders', None, 'order_items', 'customers'})&#10; +  where {'orders', None, 'order_items', 'customers'} = &lt;function test_child_policy_plan_does_not_reenter_orders_or_customers.&lt;locals&gt;.relations at 0x7458d4d5fba0&gt;({'Async Capable': False, 'Node Type': 'Aggregate', 'Parallel Aware': False, 'Partial Mode': 'Simple', ...})">@pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='local database required')
+    def test_child_policy_plan_does_not_reenter_orders_or_customers():
+        import psycopg
+        from config import db_kwargs
+        with psycopg.connect(**db_kwargs('olist','reader')) as conn:
+            conn.execute('SET TRANSACTION READ ONLY')
+            conn.execute("SET LOCAL app.allowed_states='ALL'")
+            plan=conn.execute('EXPLAIN (FORMAT JSON) SELECT count(*) FROM order_items').fetchone()[0][0]['Plan']
+        def relations(node):
+            return {node.get('Relation Name')} | set().union(*(relations(p) for p in node.get('Plans',[])))
+&gt;       assert not ({'orders','customers'} &amp; relations(plan)), 'RLS reenters protected parent tables'
+E       AssertionError: RLS reenters protected parent tables
+E       assert not ({'customers', 'orders'} &amp; {'orders', None, 'order_items', 'customers'})
+E        +  where {'orders', None, 'order_items', 'customers'} = &lt;function test_child_policy_plan_does_not_reenter_orders_or_customers.&lt;locals&gt;.relations at 0x7458d4d5fba0&gt;({'Async Capable': False, 'Node Type': 'Aggregate', 'Parallel Aware': False, 'Partial Mode': 'Simple', ...})
+
+tests/test_rls_flat.py:23: AssertionError</failure></testcase><testcase classname="tests.test_rls_flat" name="test_mapping_tracks_import_updates_deletes_and_scope_changes" time="0.357"><failure message="psycopg.errors.UndefinedTable: relation &quot;order_scope&quot; does not exist&#10;LINE 1: SELECT * FROM order_scope ORDER BY order_id&#10;                      ^">@pytest.mark.integration
+    @pytest.mark.skipif(os.getenv('RUN_DB_TESTS')!='1',reason='isolated database required')
+    def test_mapping_tracks_import_updates_deletes_and_scope_changes():
+        import psycopg
+        from psycopg import sql
+        from config import db_kwargs,ROOT
+        from scripts.migrate import discover,LEDGER,apply_one
+        name='test_scope_map_'+uuid4().hex
+        with psycopg.connect(**db_kwargs('postgres'),autocommit=True) as admin:
+            admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
+            try:
+                with psycopg.connect(**db_kwargs(name)) as conn:
+                    conn.execute(LEDGER);conn.commit()
+                    for m in discover(ROOT/'sql/migrations'):
+                        if m.database=='olist':apply_one(conn,m)
+                    conn.execute("INSERT INTO data_imports(data_version,manifest) VALUES('source','{}')")
+                    conn.execute("INSERT INTO customers VALUES('sp','s','1','city','SP'),('rj','r','2','city','RJ')")
+                    # COPY is the real import path, and must populate the mapping.
+                    with conn.cursor().copy('COPY orders(order_id,customer_id,order_status,order_purchase_timestamp,order_estimated_delivery_date) FROM STDIN') as copy:
+                        copy.write_row(('o-sp','sp','delivered','2018-01-01','2018-01-02'))
+                        copy.write_row(('o-rj','rj','delivered','2018-01-01','2018-01-02'))
+                    conn.execute("INSERT INTO order_payments VALUES('o-sp',1,'credit_card',1,10),('o-rj',1,'credit_card',1,20)")
+&gt;                   assert conn.execute('SELECT * FROM order_scope ORDER BY order_id').fetchall()==[('o-rj','RJ'),('o-sp','SP')]
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_rls_flat.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x7458d457de50&gt;
+query = 'SELECT * FROM order_scope ORDER BY order_id', params = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "order_scope" does not exist
+E           LINE 1: SELECT * FROM order_scope ORDER BY order_id
+E                                 ^
+
+/usr/local/lib/python3.11/site-packages/psycopg/connection.py:304: UndefinedTable</failure></testcase></testsuite></testsuites>
