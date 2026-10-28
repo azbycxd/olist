@@ -86,6 +86,8 @@
 
 ## Step 12 默认配置回归（唯一一次，中途中断，未达标）
 
+**v1 作废。** 按第3批复核授权：19道已执行题全部因事件序号冲突发生工程失败，没有最终答案，未观察到可用于挑选的模型结果。失败测试/修复提交为`17165f0`/`1d97b1e`。以下v1数字和原始收据原样保留，不覆盖；后续v2按独立协议执行。答错或成绩不理想不构成作废理由。
+
 协议 [step12_regression_protocol.json](../evidence/step12_regression_protocol.json) 在独立提交 `91f70b8` 冻结并推送后才启动。C/D/E dev共31题，每题独立用户，single + NUMBER_GATE + RAG inject + vector + Memory + context none，DIMENSION_PRECHECK=true、BOUNDARY_GUARDS=false、SLOT_RESOLUTION=false、CONTEXT_PREFLIGHT=false；没有启用备用模型。只跑一次、不调参、不重跑、不续跑；holdout未运行、未重新评分。原有成绩表仍是其各自历史源码的结果。
 
 本次未完成也未达标：C已尝试17/17、D已尝试2/8，19题均为工程执行失败，没有最终答案；D余6题、E全部6题未运行。不能把未运行题计作模型答错，也不能用本次结果证明模型质量退化或无退化。标准C 17/17、E 6/6、D≥6/8未获得满足。
@@ -129,3 +131,5 @@
 | E07 | 未运行 |  |  |  | D02中断后未启动；不补跑 |
 | E09 | 未运行 |  |  |  | D02中断后未启动；不补跑 |
 | E10 | 未运行 |  |  |  | D02中断后未启动；不补跑 |
+| step12-v2-rehearsal-model-double-not-score | C,D,E | dev | 0 / 31 | 0.00% | 0.00% |  |  |  | 130000 |  | 900 | 0.00% | 4193.55 | 1957.44 |  |  |  | `eval_step12-v2-rehearsal-model-double-not-score_20261028T001024Z_31663e94.jsonl` | [eval_step12-v2-rehearsal-model-double-not-score_20261028T001024Z_31663e94.summary.json](../evidence/eval_step12-v2-rehearsal-model-double-not-score_20261028T001024Z_31663e94.summary.json) |
+| step12-v2-rehearsal-model-double-not-score_attempt2 | C,D,E | dev | 0 / 31 | 0.00% | 0.00% |  |  |  | 99000 |  | 900 | 100.00% | 3193.55 | 1917.25 |  |  |  | `eval_step12-v2-rehearsal-model-double-not-score_attempt2_20261028T001357Z_d2fdac80.jsonl` | [eval_step12-v2-rehearsal-model-double-not-score_attempt2_20261028T001357Z_d2fdac80.summary.json](../evidence/eval_step12-v2-rehearsal-model-double-not-score_attempt2_20261028T001357Z_d2fdac80.summary.json) |

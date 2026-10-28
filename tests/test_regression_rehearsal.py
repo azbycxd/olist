@@ -16,6 +16,6 @@ def test_rehearsal_http_responses_cover_parallel_sql_and_memory():
     from scripts.step12_rehearsal import response_message
     message=response_message({'messages':[]})
     assert [c['function']['name'] for c in message['tool_calls']]==['run_sql','run_sql']
-    final=response_message({'messages':[{'role':'tool','name':'run_sql','content':'{"result_id":"fixture"}'}]})
+    final=response_message({'messages':[{'role':'tool','tool_call_id':'sql-1','content':'{"result_id":"fixture"}'}]})
     assert final['tool_calls'][0]['function']['name']=='final_answer'
     assert response_message({'response_format':{'type':'json_object'}})['content']=='{"preferences": []}'
