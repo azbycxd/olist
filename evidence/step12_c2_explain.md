@@ -27,3 +27,10 @@
 - `evidence/step12_c2_explain_plans.json` SHA256 `50c92a86b4b543336180f426e0b32c268bbfe8d7b0c055fe3c79d9f93dcbcbb5`
 - `logs/step12_c2_explain.txt` SHA256 `fa1844ef32897926db1b771e51222d56d4092345646c5bb1266b29922d8d489b`
 - `logs/step12_c2_diag_setup.txt` SHA256 `8bd57b82fe4beb46c0b9be8495da3d69f2141ed1e1a8ce8cabb4b4d4c6168692`
+
+
+## 唯一一次优化后完整负载
+
+失败测试提交81c0f5e（2失败、1通过），修复提交2707572；新迁移025，所有既有RLS安全测试保持通过，全量382通过。固定31条SQL只读各执行一次，仍用agent_ro、ALL，rolsuper=false、rolbypassrls=false。优化后p50=29.114ms、p95=73.780ms；原RLS后为74.416/500.678ms，RLS前为28.530/100.356ms。各次为单次负载，缓存/时序影响存在，不能把小于原无RLS耗时解释为普遍更快。没有根据该结果再改代码或重测。
+
+[31条逐SQL收据](step12_c2_rls_optimized.json)，日志`logs/step12_c2_rls_optimized.jsonl`，SHA256 `437f71c3795d04a3b865db6df8fb25cdd696f542eef818a9422f902a8f02eafd`。映射维护增加写放大和锁，未测写吞吐；读取没有新账号或安全绕过，模型SQL仍不能查询映射表。
