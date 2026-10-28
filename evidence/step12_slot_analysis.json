@@ -1,0 +1,60 @@
+{
+  "kind": "仅分析保存的槽位一次性结果；无模型调用、无SQL、未重新执行gold或评分",
+  "source_sha256": "3f28f5a59d55575978d10ba623960e3595691f99b30788f61a95b260da1354af",
+  "totals": {
+    "dev": {
+      "tokens": 360617,
+      "input_tokens": 335447,
+      "cached_tokens": 224512,
+      "output_tokens": 25170,
+      "model_calls": 127,
+      "elapsed_ms": 190762.67242102767,
+      "cost_yuan_decimal": "0.43221048",
+      "average_cost_yuan": "0.01394227354838709677419354839",
+      "cache_hit_ratio": 0.6692920193055832
+    },
+    "boundary": {
+      "tokens": 92678,
+      "input_tokens": 84688,
+      "cached_tokens": 51968,
+      "output_tokens": 7990,
+      "model_calls": 34,
+      "elapsed_ms": 57399.225663990364,
+      "cost_yuan_decimal": "0.13143872",
+      "average_cost_yuan": "0.013143872",
+      "cache_hit_ratio": 0.613640657472133
+    },
+    "all": {
+      "tokens": 453295,
+      "input_tokens": 420135,
+      "cached_tokens": 276480,
+      "output_tokens": 33160,
+      "model_calls": 161,
+      "elapsed_ms": 248161.89808501804,
+      "cost_yuan_decimal": "0.56364920",
+      "average_cost_yuan": "0.01374754146341463414634146341",
+      "cache_hit_ratio": 0.6580741904387876
+    }
+  },
+  "dev_delta_vs_v2": {
+    "tokens": 47798,
+    "tokens_pct": 15.27976241852318,
+    "cost_yuan": "0.09048360",
+    "cost_pct": 26.47833849066834
+  },
+  "dev_failure_analysis": {
+    "D01": "事实3/3且claim有证据，但claim.text的简写日期1/1–3/31、4/1–6/30被既有数字核查作为8个未支持数字；原评分不通过。槽位日期本身正确，未改核查器或重测。",
+    "D02": "首个SQL使用保留字both作CTE被拒，模型恢复后继续6次SQL调用；输入上下文逐步为2192/4307/8390/12669/16349 tokens，超过固定16000限制后context_limit，无最终事实。CONTEXT_PREFLIGHT=false，属于保留的执行限制失败，不是基础设施工程故障；v2本题也失败（下降金额符号）。",
+    "D03": "槽位正确区分customers全状态与gmv排除canceled/unavailable。SQL数值与已存oracle一致，但模型使用customer_state/buyers/gmv行结构，没有公共契约要求的sp_buyers/rj_buyers/sp_gmv/rj_gmv四个键，原评分事实0/4。没有改核查器来适配答案。",
+    "D08": "三个要求事实均正确且四个claim有证据，但claim.text的“无3条及以上”中的3不在claim.value数值中（orders_with_3键不算数值，值为0），原核查保留1个未支持数字，整题不通过。"
+  },
+  "pass_to_fail": [
+    "D01",
+    "D03",
+    "D08"
+  ],
+  "fail_to_pass": [],
+  "decision": false,
+  "causality_limit": "同题单次顺序运行不是多轮受控因果实验；槽位注入改变模型上下文，但无法把每次生成差异唯一归因于解析算法。按结果不采用，不调参、不重跑。",
+  "cost_precision_note": "费用汇总按原usage与同样2/0.04/8单价用Decimal计算，消除v2 JSON浮点尾差；没有改变v2原始文件或评分。"
+}

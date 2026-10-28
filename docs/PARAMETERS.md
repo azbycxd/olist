@@ -196,9 +196,9 @@ SQL 耗时是 tool_result 的端到端调用时间，包含 MCP、网络、SQL �
 | `sum(rate(olist_model_calls_total{error_class!="success"}[5m])) / clamp_min(sum(rate(olist_model_calls_total[5m])), 0.001) > 0.10` | 5分钟 | 预先固定：10%错误率；至少20次调用后判断，避免低流量噪声 |
 | `up == 0` | 1分钟 | 安全护栏：抓取失败/进程不可达；按实际Prometheus job限制作用域 |
 
-模型错误率规则部署时同时加 `sum(increase(olist_model_calls_total[5m])) >= 20`。任务计数是当前状态Gauge，model/token/lease/gate为事件累计Counter；删除历史事件会导致累计值重置，保留策略另属后续批次。标签只含固定状态、归一终止原因、错误分类、token种类和直方图le，不含task_id、user_id、SQL或供应商返回文本。
+模型错误率规则部署时同时加 `sum(increase(olist_model_calls_total[5m])) >= 20`。任务计数是当前状态Gauge，model/token/lease/gate为持久汇总Counter；清理历史事件或删除用户不会降低累计值。标签只含固定状态、归一终止原因、错误分类、token种类和直方图le，不含task_id、user_id、SQL或供应商返回文本。
 
-第2批复核后，Counter与直方图改由018迁移的metrics_rollup保存：事件插入和递增属于同一事务，counter只增不减，保留期清理不影响指标；上一段关于删除事件重置计数的描述仅适用于12.3原版本。/metrics不再扫描events。直方图边界由迁移固定为上表默认桶；已有汇总不能在运行中任意重分桶，更改边界需要新增迁移并明确历史数据处理，不能仅改环境变量。任务状态Gauge仍反映当前tasks。
+第2批复核后，Counter与直方图改由018迁移的metrics_rollup保存：事件插入和递增属于同一事务，counter只增不减，保留期清理不影响指标。/metrics不再扫描events。直方图边界由迁移固定为上表默认桶；已有汇总不能在运行中任意重分桶，更改边界需要新增迁移并明确历史数据处理，不能仅改环境变量。任务状态Gauge仍反映当前tasks。
 
 容量说明：100个任务由4个worker各自串行处理时，排队p95约等于“任务数÷worker数×单任务耗时”（忽略启动开销和耗时分布的粗略容量关系，不是新测量数字）。这属于容量问题，不是故障；排队告警应结合worker数和单任务耗时解读。
 
@@ -270,3 +270,54 @@ v2实际运行使用用户随后提供的2/0.04/8元每百万token（未命中�
 解析优先级固定为本次问题 > 已保存偏好 > kb/metrics.md默认，不做参数搜索。GMV、商品销售额、客户、交付与订单量分别保存状态范围；不把一个指标的过滤条件扩散到其他指标。时间只接受能明确解析的日历范围或明确的全部历史，ISO起止默认含末日，右开区间/“不含”保留右开语义；多季度保存独立区间。知识库没有默认时间窗口，无法解析则返回澄清，0模型调用，不拿全库日期补缺。相对日历词按运行当天解释并记录解析值。
 
 只有开启时，偏好提取提示增加time_range，仍须引用用户明确要求长期生效的原话；关闭时不增加提示或模型消息，不解析槽位，不产生slot_resolution事件。新增事件包含slots的value/source（状态另含逐指标sources）、conflicts、clarification，不新增工具返回字段。遇到问题与偏好冲突，最终答案附固定的口径说明；数值型答案在此情况下会转为带说明的文本，claims不改。
+
+
+## Step 12 新增参数总表（最终索引）
+
+以下41项与Step12起点22cb974的.env.example逐项对照；默认值来自当前.env.example/config，来源不是事后参数搜索。运行机器填写的价格和密钥不改变仓库默认值。已有参数与告警规则仍见上文。
+
+| 参数 | 默认值 | 来源类型 | 说明 |
+| --- | --- | --- | --- |
+| MODEL_RETRY_ATTEMPTS | 4 | 安全护栏 | 总尝试次数；仅指定状态/网络错误可重试 |
+| MODEL_RETRY_BASE_SECONDS | 1 | 安全护栏 | 全抖动指数退避基数，秒 |
+| MODEL_RETRY_CAP_SECONDS | 8 | 安全护栏 | 退避/Retry-After上限，秒 |
+| PROVIDER_FAILURE_THRESHOLD | 5 | 预先固定 | 连续可重试错误打开熔断；用户固定5，未调 |
+| PROVIDER_COOLDOWN_SECONDS | 30 | 预先固定 | 熔断冷却秒数；用户固定30，未调 |
+| REPEATED_CALL_LIMIT | 3 | 预先固定 | 原连续相同调用规则 |
+| NO_PROGRESS_WINDOW | 6 | 预先固定 | 签名滑窗轮数；最多两种签名触发 |
+| NO_PROGRESS_EMPTY_TURNS | 4 | 预先固定 | 连续错误/空结果轮数；空行的新ID不算证据 |
+| SQL_TIMEOUT_SECONDS | 10 | 安全护栏 | SQL超时秒数；幂等running接管为两倍 |
+| MCP_RETRY_ATTEMPTS | 1 | 安全护栏 | 有幂等key的连接/超时额外重试次数 |
+| API_POOL_MAX | 8 | 预先固定 | 每个API进程agent池上限 |
+| MCP_AGENT_POOL_MAX | 8 | 预先固定 | 每个MCP进程agent池上限 |
+| MCP_OLIST_POOL_MAX | 8 | 预先固定 | 每个MCP进程agent_ro业务池上限 |
+| WORKER_AGENT_POOL_MAX | 2 | 预先固定 | 每个worker的agent小池 |
+| WORKER_OLIST_POOL_MAX | 1 | 预先固定 | 每个worker的agent_ro懒加载业务小池 |
+| DB_POOL_TIMEOUT_SECONDS | 5 | 安全护栏 | 正常取连接超时秒数；耗尽503 |
+| DB_POOL_MAX_LIFETIME_SECONDS | 1800 | 预先固定 | 连接生命周期秒数；checkout另检查可用性 |
+| WORKER_GRACE_SECONDS | 20 | 安全护栏 | 退出宽限秒数，小于Compose stop_grace_period=35s |
+| WORKER_HEARTBEAT_SECONDS | 5 | 预先固定 | worker健康心跳间隔秒数 |
+| MAX_SLEEP | 5 | 安全护栏 | 队列熔断等待每次最多秒数 |
+| PROVIDER_RPM | 空 | 预先固定 | 供应商文档值；空则不限 |
+| PROVIDER_TPM | 空 | 预先固定 | 供应商文档值；空则不限 |
+| PROVIDER_MAX_INFLIGHT | 0 | 安全护栏 | 同时在途上限；0则不限 |
+| RATE_WAIT_MAX_SECONDS | 30 | 安全护栏 | 限流等待总上限；永久超容量立即拒绝 |
+| RATE_POLL_SECONDS | 0.1 | 预先固定 | 在事务/锁外重试的间隔秒数 |
+| PROVIDER_REQUEUE_MAX | 3 | 预先固定 | 故障重排上限，供应商与基础设施共用，不是各3次 |
+| READY_CONNECTION_TIMEOUT_SECONDS | 1 | 安全护栏 | readyz每池取连接秒数；MCP检查两池 |
+| MCP_TOKEN_SECRET | 空 | 安全护栏 | 独立HS256签名密钥，只填.env；不得复用静态令牌 |
+| MCP_TOKEN_CLOCK_SKEW_SECONDS | 30 | 安全护栏 | JWT时钟偏差容忍秒数，固定30 |
+| RETENTION_DAYS | 30 | 安全护栏 | 过期终态任务明细保留天数；保留答案及被引结果 |
+| CONTEXT_PREFLIGHT | false | 安全护栏 | 会改变调用行为，默认关闭 |
+| CONTEXT_TOKEN_COEFFICIENT | 0.7288973384030418 | 观测数据 | 历史3741个dev样本比值p95，覆盖95.24% |
+| FALLBACK_BASE_URL | 空 | 预先固定 | 用户选择的备用端点，三项全空禁用 |
+| FALLBACK_MODEL | 空 | 预先固定 | 备用模型名，未搜索 |
+| FALLBACK_API_KEY | 空 | 安全护栏 | 备用密钥只填.env；必须与端点/模型一起配置 |
+| OTEL_EXPORTER_OTLP_ENDPOINT | 空 | 预先固定 | OTLP HTTP基础地址，空则不导出 |
+| TOKEN_PRICE_INPUT | 空 | 预先固定 | 未命中输入单价；元/百万tokens，缺失为未知 |
+| TOKEN_PRICE_CACHED_INPUT | 空 | 预先固定 | 命中输入单价；元/百万tokens，缺缓存usage为未知 |
+| TOKEN_PRICE_OUTPUT | 空 | 预先固定 | 输出单价；元/百万tokens |
+| METRIC_DURATION_BUCKETS | .005,.01,.025,.05,.1,.25,.5,1,2.5,5,10,30,60,120,300 | 预先固定 | 模型/SQL/队列耗时桶，秒；既有汇总改桶需新迁移 |
+| SLOT_RESOLUTION | false | 预先固定 | 只按独立提交协议决定默认是否启用，不根据单题结果调参 |
+
+槽位协议2b8dcf1的真实单次结果为C17/17、D4/8、E6/6、边界7/10，未达采用条件；最终默认false。没有看结果改阈值、重跑或调整参数。详见step12_slot_results.json及RESULTS逐题对照。

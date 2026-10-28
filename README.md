@@ -167,41 +167,39 @@ Step 10 补充 [参数依据](docs/PARAMETERS.md)、[独立边界评测](docs/BO
 后台任务新增 `POST /tasks/{id}/cancel` 和 `GET /quota`。默认总时长 300 秒（含排队/确认）、每用户并发 2、UTC 日 token 额度 1000000，均可在 .env 中配置。预留额度与已确认用量分开；中断后未知用量不当作零。配置、限制与真实测试证据见 [任务控制](docs/TASK_CONTROLS.md)。GitHub Actions 在 push/pull_request 时运行离线单元测试，模型评测不自动触发。
 
 
-### Step 12.3 追踪与指标
+## Step 12：工程化加固
 
-先重建镜像并执行新增迁移，再启动API/MCP/worker。可选的Jaeger：
+成绩归属分开保留：
+
+- **holdout 93.94%属于Step 9源码**，上方历史成绩表没有改分；Step 12没有重跑或重新评分holdout。
+- **Step 12加固后的默认配置dev一次通过：C17/17、D7/8、E6/6，共30/31**；每题平均约**0.011元**，输入缓存命中率**73.85%**。[v2原始收据](evidence/step12_regression_results_v2.json)、[逐题结果及唯一失败D02归因](docs/RESULTS.md#step-12-默认配置回归-v2达标)。
+- v1的19道已执行题全部因事件序号冲突而无最终答案，经批准作废；保留原记录，先提交失败测试17165f0、修复1d97b1e，再全流程替身演练及独立提交v2协议后重做。
+- 槽位开启的独立一次实验为C17/17、D4/8、E6/6、边界7/10，未达到采用条件，**SLOT_RESOLUTION默认false**；dev费用0.43221048元、缓存66.93%。[采用判定及41题收据](evidence/step12_slot_results.json)，[与v2逐题对照](docs/RESULTS.md#与v2逐题对照)。它不替换默认成绩。
+
+工程加固覆盖模型错误分类/抖动/共享熔断、有上限的供应商及基础设施故障重排、SQL幂等与截断、连接池/优雅退出/健康检查、PostgreSQL共享限流、跨进程追踪及持久指标汇总、任务JWT、默认拒绝RLS、脱敏/保留/用户删除、数据与黑板版本。上下文预估默认关闭；没有配置备用模型，只有切换逻辑与替身测试。所有默认值和来源见[参数总表](docs/PARAMETERS.md)，边界见[加固定稿](docs/STEP12_HARDENING.md)。
+
+更新已有环境时，在.env补齐独立MCP_TOKEN_SECRET及已有必填凭据，重建镜像、执行新增编号迁移，再重建服务：
+
+```bash
+docker compose build init-data
+docker compose run --rm --no-deps init-data python -m scripts.migrate
+docker compose up -d --no-deps --force-recreate api mcp-olist worker
+```
+
+新环境仍按上方快速启动导入数据和索引。API/MCP的healthz表示进程存活，API readyz探测agent库，MCP readyz探测agent及只读业务库；worker业务池懒加载，ready只探测agent。正常取连接5秒、ready每池1秒。worker优雅退出20秒，Compose给35秒，勿缩短为不足释放租约的时间。
+
+可观测组件按需启动：
 
 ```bash
 docker compose --profile observability up -d jaeger
+# .env填写OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318后：
+docker compose up -d --no-deps --force-recreate api mcp-olist worker
 ```
 
-在`.env`填写`OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318`后重建相关服务；留空不导出。Jaeger界面为 http://localhost:16686 ，本地演示使用内存存储，容器重启后数据不保留。API的`/metrics`提供Prometheus文本，采集端请使用内部网络。三种token单价在`.env`按供应商价格填写，空值保持费用未知。指标、语义约定版本和告警阈值见[参数表](docs/PARAMETERS.md)与[工程化收据](docs/STEP12_HARDENING.md)。历史成绩仍属于Step9源码。
+Jaeger界面为[localhost:16686](http://localhost:16686)，本地内存存储重启会丢数据。OTLP配置留空不导出；API [/metrics](http://localhost:8000/metrics)输出Prometheus文本，仅使用低基数标签，从事务累计汇总读取，清理events不会让counter下降。告警阈值仅写在PARAMETERS中，未接通知系统。三种单价在.env填写TOKEN_PRICE_INPUT、TOKEN_PRICE_CACHED_INPUT、TOKEN_PRICE_OUTPUT（元/百万token）；缺价保留费用未知，不估算。
 
-本地故障演练使用可选的Toxiproxy，模型全部为HTTP替身：
+主要证据：[完整真实trace](evidence/step12_b3_real_trace.json)、[Jaeger截图](evidence/step12_b3_jaeger.png)、[metrics样例](evidence/step12_b3_metrics.prom)、[RLS执行计划](evidence/step12_c2_explain.md)、[100任务/100SSE压测](evidence/step12_chaos_load.json)、[10%网络丢失唯一改后](evidence/step12_chaos_packet_loss_after.json)。故障/压测全部是模型替身；100/100成功、连接峰值24/池上限36不代表真实模型吞吐。丢失改后3/5成功，剩余SDK超时编码问题已单独测试修复，按要求没有第二次演练，未宣称最终代码5/5。
 
-```bash
-docker compose --profile chaos up -d toxiproxy
-# 在独立验收数据库运行，先停常驻worker，避免领取替身任务。
-docker compose stop worker
-docker compose run --rm --no-deps init-data python -m scripts.step12_chaos network_baseline
-docker compose run --rm --no-deps init-data python -m scripts.step12_chaos latency
-docker compose run --rm --no-deps init-data python -m scripts.step12_chaos packet_loss
-docker compose run --rm --no-deps init-data python -m scripts.step12_chaos load
-```
+验收镜像全量414测试通过，离线CI320通过、94项集成测试排除；[XML](evidence/step12_slot_image_full.xml)和[离线XML](evidence/step12_slot_ci.xml)。本地完整验证使用python -m scripts.local_tests；测试说明见[最终检查点](evidence/step12_final_checkpoint.json)。真实评测及故障实验有一次性协议，不作为随意重复的启动命令。保留维护由运维按需调度python -m scripts.maintenance retain，文件日志/evidence不自动删除。
 
-容器产物需要挂载工作区或复制出来归档；脚本使用当前镜像源码，修改后先重建。数据库重启场景由`db_restart`模式写出`logs/step12_chaos_db_restart_ready.json`后等待操作者写入信号时间并重启数据库；本次实测命令及时间已保存在收据。演练结束后确认任务已终止，再恢复原worker。已有SIGTERM/503收据在12.3中直接复用，不重跑。
-
-第2批已取得完整[真实任务trace](evidence/step12_b3_real_trace.json)、[Jaeger截图](evidence/step12_b3_jaeger.png)、[/metrics样例](evidence/step12_b3_metrics.prom)和[100任务压测](evidence/step12_chaos_load.json)。压测100/100成功、100个同时SSE、连接峰值24/池上限36；丢失故障仅1/5成功，局限与未修改项完整记录在工程报告，不作为真实模型性能或质量数据。
-
-
-### Step 12.4–12.5 安全、数据与回归状态
-
-已增加短期任务JWT、州范围RLS、事件脱敏及审计保留、数据/黑板版本。`CONTEXT_PREFLIGHT`默认关闭；备用三项配置全空时不切换。本地没有配置备用，只有切换逻辑和替身测试。新迁移执行和权限分配后再恢复服务，参数与局限见[工程报告](docs/STEP12_HARDENING.md)。最终镜像内379项全量测试通过，离线CI287项通过。
-
-v1默认C/D/E dev回归在第19题因事件序号冲突中断，后经复核授权作废：已尝试19题工程失败，12题未运行，**未达到验收标准**。问题已另行测试并修复，未续跑、未重跑；不能据此宣称效果无退化。实际消耗103659 tokens，缓存命中率44.90%，价格未配置故费用留空。[逐题结果](docs/RESULTS.md#step-12-默认配置回归唯一一次中途中断未达标)与[一次性协议](evidence/step12_regression_protocol.json)保留原始结果。README历史成绩仍属于Step9源码，holdout未重跑或重新评分。
-
-
-第3批复核已完成RLS优化和真实评测全流程替身演练：31题无工程错误，替身结果不算成绩。v1经审查作废，原记录保留；v2协议已独立提交203dd7f。用户补齐价格后，v2已一次完成：C 17/17、D 7/8、E 6/6，达到预定标准。RLS单次重测p50/p95为29.114/73.780ms，详见[执行计划诊断](evidence/step12_c2_explain.md)。全量391项、离线CI297项通过。
-
-
-v2共312819 tokens，输入缓存命中率73.85%；按用户给定2/0.04/8元每百万token计算，总费用0.34172688元、平均每题约0.01102345元。唯一未通过D02为下降金额符号约定不一致，保留失败、不重跑、不改核查器。[逐题结果和归因](docs/RESULTS.md#step-12-默认配置回归-v2达标)及[v2收据](evidence/step12_regression_results_v2.json)来自本次真实运行；v1记录原样保留，holdout未运行或重新评分，历史成绩表仍属于Step9源码。
+尚未实现的五项设计见[STEP12_DESIGN_NOT_DONE](docs/STEP12_DESIGN_NOT_DONE.md)：RAG增量索引、过滤重排、模型路由、MCP2026-07-28迁移、EXISTS白名单误拒。当前SDK实测1.30.0，协议支持列表止于2025-11-25；本批没有升级或放宽SQL护栏。[关键决策](docs/DECISIONS.md)与[Step12提交索引](docs/STEP12_COMMITS.md)保留取舍与完整修改链。
