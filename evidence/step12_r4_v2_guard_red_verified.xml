@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="10" time="0.265" timestamp="2026-10-28T00:16:42.143288+00:00" hostname="7d9f548c67e1"><testcase classname="tests.test_regression_protocol" name="test_regression_marker_is_exclusive" time="0.019" /><testcase classname="tests.test_regression_protocol" name="test_regression_rejects_holdout_and_repeats" time="0.003" /><testcase classname="tests.test_regression_protocol" name="test_host_verified_protocol_ticket_for_images_without_git" time="0.001" /><testcase classname="tests.test_regression_protocol" name="test_v2_paths_cannot_overwrite_v1" time="0.001"><failure message="ImportError: cannot import name 'version_paths' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_v2_paths_cannot_overwrite0')
+
+    def test_v2_paths_cannot_overwrite_v1(tmp_path):
+&gt;       from scripts.step12_regression import version_paths
+E       ImportError: cannot import name 'version_paths' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)
+
+tests/test_regression_protocol.py:43: ImportError</failure></testcase><testcase classname="tests.test_regression_protocol" name="test_v2_requires_all_three_prices_before_start[None]" time="0.001"><failure message="ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ed537988cd0&gt;
+missing_value = None
+
+    @pytest.mark.parametrize('missing_value',[None,'','NaN','Infinity','-1'])
+    def test_v2_requires_all_three_prices_before_start(monkeypatch,missing_value):
+&gt;       from scripts.step12_regression import require_prices
+E       ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)
+
+tests/test_regression_protocol.py:50: ImportError</failure></testcase><testcase classname="tests.test_regression_protocol" name="test_v2_requires_all_three_prices_before_start[]" time="0.001"><failure message="ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ed537c523d0&gt;
+missing_value = ''
+
+    @pytest.mark.parametrize('missing_value',[None,'','NaN','Infinity','-1'])
+    def test_v2_requires_all_three_prices_before_start(monkeypatch,missing_value):
+&gt;       from scripts.step12_regression import require_prices
+E       ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)
+
+tests/test_regression_protocol.py:50: ImportError</failure></testcase><testcase classname="tests.test_regression_protocol" name="test_v2_requires_all_three_prices_before_start[NaN]" time="0.000"><failure message="ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ed537971990&gt;
+missing_value = 'NaN'
+
+    @pytest.mark.parametrize('missing_value',[None,'','NaN','Infinity','-1'])
+    def test_v2_requires_all_three_prices_before_start(monkeypatch,missing_value):
+&gt;       from scripts.step12_regression import require_prices
+E       ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)
+
+tests/test_regression_protocol.py:50: ImportError</failure></testcase><testcase classname="tests.test_regression_protocol" name="test_v2_requires_all_three_prices_before_start[Infinity]" time="0.000"><failure message="ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ed5378fecd0&gt;
+missing_value = 'Infinity'
+
+    @pytest.mark.parametrize('missing_value',[None,'','NaN','Infinity','-1'])
+    def test_v2_requires_all_three_prices_before_start(monkeypatch,missing_value):
+&gt;       from scripts.step12_regression import require_prices
+E       ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)
+
+tests/test_regression_protocol.py:50: ImportError</failure></testcase><testcase classname="tests.test_regression_protocol" name="test_v2_requires_all_three_prices_before_start[-1]" time="0.001"><failure message="ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ed5378e75d0&gt;
+missing_value = '-1'
+
+    @pytest.mark.parametrize('missing_value',[None,'','NaN','Infinity','-1'])
+    def test_v2_requires_all_three_prices_before_start(monkeypatch,missing_value):
+&gt;       from scripts.step12_regression import require_prices
+E       ImportError: cannot import name 'require_prices' from 'scripts.step12_regression' (/app/scripts/step12_regression.py)
+
+tests/test_regression_protocol.py:50: ImportError</failure></testcase><testcase classname="tests.test_regression_protocol" name="test_git_verification_uses_v2_protocol_path" time="0.001"><failure message="AssertionError: assert 'HEAD:evidence/step12_regression_protocol_v2.json' in ['git', '-c', 'safe.directory=/tmp/pytest-of-root/pytest-0/test_git_verification_uses_v2_0', 'show', 'HEAD:evidence/step12_regression_protocol.json']">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_git_verification_uses_v2_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ed5378f14d0&gt;
+
+    def test_git_verification_uses_v2_protocol_path(tmp_path,monkeypatch):
+        from scripts.step12_regression import verify_committed_protocol
+        path=tmp_path/'evidence'/'step12_regression_protocol_v2.json';path.parent.mkdir();path.write_text('{}')
+        monkeypatch.setattr('shutil.which',lambda _:True)
+        calls=[]
+        def output(args,**kw):
+            calls.append(args)
+            return 'a'*40+'\n' if '--format=%H' in args else b'{}'
+        monkeypatch.setattr('subprocess.check_output',output)
+        assert verify_committed_protocol(path,tmp_path)=='a'*40
+&gt;       assert 'HEAD:evidence/step12_regression_protocol_v2.json' in calls[0]
+E       AssertionError: assert 'HEAD:evidence/step12_regression_protocol_v2.json' in ['git', '-c', 'safe.directory=/tmp/pytest-of-root/pytest-0/test_git_verification_uses_v2_0', 'show', 'HEAD:evidence/step12_regression_protocol.json']
+
+tests/test_regression_protocol.py:69: AssertionError</failure></testcase></testsuite></testsuites>
