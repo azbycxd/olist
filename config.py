@@ -122,11 +122,16 @@ def boundary_guards_enabled():
 def dimension_precheck_enabled():
     return os.getenv('DIMENSION_PRECHECK','true').lower()=='true'
 
+
+def slot_resolution_enabled():
+    return os.getenv('SLOT_RESOLUTION','false').lower()=='true'
+
 # Release defaults. Evaluations override each switch explicitly.
 FINAL_CONFIG = {"AGENT_MODE": "single", "NUMBER_GATE": "true", "RAG_MODE": "inject",
     "RETRIEVAL_METHOD": "vector", "USE_MEMORY": "true", "CONTEXT_STRATEGY": "none",
     "CONTEXT_LIMIT": "16000", "CONTEXT_SUMMARY_THRESHOLD": "6000", "TOKEN_BUDGET": "100000",
-    "BOUNDARY_GUARDS": str(boundary_guards_enabled()).lower()}
+    "BOUNDARY_GUARDS": str(boundary_guards_enabled()).lower(),
+    "SLOT_RESOLUTION": str(slot_resolution_enabled()).lower()}
 
 
 def db_kwargs(database: str = "olist", role: str = "admin") -> dict:

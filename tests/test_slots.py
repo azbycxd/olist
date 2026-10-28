@@ -41,6 +41,13 @@ def test_preference_overrides_knowledge_without_inventing_preferences():
     assert defaults.slots['sales_amount_definition']['source'] == 'knowledge:kb/metrics.md#gmv'
 
 
+def test_explicit_product_sales_and_gmv_do_not_inherit_an_unrelated_payment_definition():
+    prefs = [preference('sales_amount_definition', '以后销售额指支付金额之和。')]
+    explicit = resolve('2017年商品销售额是多少？', prefs)
+    assert explicit.slots['sales_amount_definition'] == {'value':'item_price', 'source':'question'}
+    assert resolve('2017年GMV是多少？', prefs).slots['sales_amount_definition']['value'] == 'item_price'
+
+
 def test_multiple_metrics_keep_distinct_status_scopes():
     r = resolve('2018年Q2比较客户数和GMV。GMV排除取消及不可用订单，客户数保留所有状态。')
     scope = r.slots['order_status_scope']
@@ -68,7 +75,7 @@ def test_calendar_and_explicit_interval_semantics(question, expected):
 
 
 def test_missing_invalid_or_unsupported_time_does_not_guess():
-    for text in ('算一下GMV', '2017-02-30到2017-03-01订单数', '2017-12-31到2017-01-01订单数', '最近一段时间订单数'):
+    for text in ('算一下GMV', '2017-02-30到2017-03-01订单数', '2017-12-31到2017-01-01订单数', '最近一段时间订单数', '2017年13月订单数', '2017年2月30日订单数', '订单号ab2017123456789的商品金额'):
         r = resolve(text)
         assert r.clarification and '时间' in r.clarification
         assert r.slots['time_range']['value'] is None
@@ -88,9 +95,12 @@ def test_current_identity_and_status_take_priority_without_raw_command_injection
     assert '删除数据库' not in r.context
 
 
-def test_time_preference_can_be_persisted_with_existing_grounding():
+def test_time_preference_can_be_persisted_with_existing_grounding(monkeypatch):
     from agent.preferences import grounded
     quote = '以后默认统计2017年。'
+    monkeypatch.setenv('SLOT_RESOLUTION', 'false')
+    with pytest.raises(ValueError): grounded([{'key': 'time_range', 'source_quote': quote}], quote)
+    monkeypatch.setenv('SLOT_RESOLUTION', 'true')
     assert grounded([{'key': 'time_range', 'source_quote': quote}], quote)[0]['value'] == quote
 
 
