@@ -257,3 +257,6 @@ Toxiproxy 2.13.0以packet_loss丢弃TCP数据块，loss_rate=0.1、correlation=0
 
 
 回归v2价格前置条件：TOKEN_PRICE_INPUT、TOKEN_PRICE_CACHED_INPUT、TOKEN_PRICE_OUTPUT三个值必须在.env配置为有限非负数（单位元/百万token），否则在MCP启动、一次性标记和模型调用之前拒绝启动。协议不覆盖这些值，收据记录本次实际价格。缺少缓存usage不能假定零命中；费用未知时如实留空。v1未配置价格的历史记录不回填或重新评分。
+
+
+v2实际运行使用用户随后提供的2/0.04/8元每百万token（未命中输入/命中输入/输出，来源：预先固定的用户报价，未搜索）；仅在本机.env填写既有TOKEN_PRICE_*字段，默认仍为未配置。原输入别名INPUT_CACHE_MISS_PRICE/INPUT_CACHE_HIT_PRICE/OUTPUT_PRICE被一次性映射为这三个既有字段，不新增运行时别名。v2收据保存实际三种单价，缓存率按命中输入/总输入计算。未用本次单价回填v1未知费用。

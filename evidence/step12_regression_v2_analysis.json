@@ -1,0 +1,124 @@
+{
+  "kind": "真实模型v2的只读归因与费用核对；不调用模型、不执行gold、不重新评分",
+  "protocol_commit": "203dd7f86bb42b074611ca53afebebf989ee6618",
+  "source_receipt": "evidence/eval_step12-regression-v2-once_20261028T011034Z_c949fe88.summary.json",
+  "source_receipt_sha256": "d01db91f3db5e0161749a23103b37e652911f59eaf317755376335ac1c3e10ed",
+  "source_log": "logs/eval_step12-regression-v2-once_20261028T011034Z_c949fe88.jsonl",
+  "source_log_sha256": "83cd407ae5f2cdfcaf6bc1bc5216f9b7aaddeea8da48a29c4adacafc238d63b1",
+  "status": "completed and passed protocol",
+  "correct": {
+    "C": 17,
+    "D": 7,
+    "E": 6
+  },
+  "pass_threshold": {
+    "C": 17,
+    "D": 6,
+    "E": 6
+  },
+  "independent_users": 31,
+  "engineering_task_errors": 0,
+  "model_calls": 129,
+  "input_tokens": 290142,
+  "cache_hit_tokens": 214272,
+  "cache_miss_tokens": 75870,
+  "output_tokens": 22677,
+  "total_tokens": 312819,
+  "pricing_source": "User-provided .env prices, yuan per million tokens; alias names mapped to existing TOKEN_PRICE_* settings",
+  "pricing_yuan_per_million": {
+    "TOKEN_PRICE_INPUT": "2.0",
+    "TOKEN_PRICE_CACHED_INPUT": "0.04",
+    "TOKEN_PRICE_OUTPUT": "8.0"
+  },
+  "total_cost_yuan_decimal": "0.34172688",
+  "average_cost_yuan_decimal": "0.01102344774193548387096774194",
+  "cache_hit_ratio": 0.7385073515726782,
+  "elapsed_run_log_seconds": 219.507109,
+  "case_cost_yuan_decimal": {
+    "C01": "0.00371872",
+    "C02": "0.00396872",
+    "C03": "0.00349472",
+    "C05": "0.00367672",
+    "C06": "0.00369672",
+    "C08": "0.005546",
+    "C09": "0.00364272",
+    "C11": "0.0105964",
+    "C12": "0.0111564",
+    "C14": "0.00341472",
+    "C15": "0.0035376",
+    "C17": "0.0055732",
+    "C18": "0.00395872",
+    "C20": "0.00394472",
+    "C21": "0.0051988",
+    "C23": "0.00530864",
+    "C24": "0.0123884",
+    "D01": "0.0085304",
+    "D02": "0.05464368",
+    "D03": "0.0328444",
+    "D04": "0.01865152",
+    "D05": "0.01591504",
+    "D06": "0.0300596",
+    "D07": "0.01473376",
+    "D08": "0.02424936",
+    "E01": "0.00697976",
+    "E03": "0.00744864",
+    "E05": "0.00758528",
+    "E07": "0.010066",
+    "E09": "0.00850776",
+    "E10": "0.00868976"
+  },
+  "failed_cases": [
+    {
+      "id": "D02",
+      "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+      "fact_hits": 2,
+      "fact_total": 3,
+      "classification": "signed metric convention mismatch, not infrastructure failure",
+      "expected_largest_drop_amount": "114709.72",
+      "claim_largest_drop_amount": -114709.72,
+      "query_expression": "q2_gmv - q1_gmv AS diff; SELECT diff AS largest_drop_amount",
+      "result_id": "206423ef-85be-46cb-a079-5af6dd60b402",
+      "evidence_supported_claims": 6,
+      "unsupported_claims": 0,
+      "unsupported_numbers": 0,
+      "step12_attribution": "The saved SQL already computes the negative change and the tool returns it unchanged. No evidence of RLS result corruption, truncation or event loss. Exact signed scoring and SQL-sign-preserving prompts predate Step12; no isolated causal comparison was rerun.",
+      "action": "Retain failed score; no prompt/checker change, no invalidation, no rerun."
+    }
+  ],
+  "recovered_tool_errors": [
+    {
+      "question_id": "C11",
+      "error": "mcp_tool_error",
+      "detail": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: Function is not allowed: EXISTS\"}"
+    },
+    {
+      "question_id": "C12",
+      "error": "mcp_tool_error",
+      "detail": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: Function is not allowed: EXISTS\"}"
+    },
+    {
+      "question_id": "C23",
+      "error": "mcp_tool_error",
+      "detail": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: Function is not allowed: EXISTS\"}"
+    },
+    {
+      "question_id": "C24",
+      "error": "mcp_tool_error",
+      "detail": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: Function is not allowed: EXISTS\"}"
+    },
+    {
+      "question_id": "D02",
+      "error": "mcp_tool_error",
+      "detail": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: syntax error at or near \\\"both\\\"\\nLINE 1: ...N gmv ELSE 0 END) AS q2_gmv FROM q GROUP BY cat), both AS (S...\\n                                                             ^\"}"
+    },
+    {
+      "question_id": "D08",
+      "error": "mcp_tool_error",
+      "detail": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: Function is not allowed: EXISTS\"}"
+    }
+  ],
+  "tool_error_note": "Five preexisting EXISTS allowlist rejections and one D02 syntax error at CTE name both; model corrected SQL and all tasks reached final_answer. These are recovered SQL/tool feedback, not failed tasks.",
+  "reruns": 0,
+  "holdout_runs": 0,
+  "holdout_rescores": 0
+}
