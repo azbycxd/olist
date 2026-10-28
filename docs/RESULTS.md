@@ -203,3 +203,11 @@
 已有tool_result证据206423ef-85be-46cb-a079-5af6dd60b402显示该负值直接来自模型SQL，row_count=1、truncated=false。没有RLS错误裁剪、结果截断、事件丢失的证据；有符号核查和保留SQL符号的提示在Step12前已存在。未为因果对照再跑旧代码，不能把单次模型选择归因于工程优化。按协议保留失败，不以成绩为由作废，不改提示词、核查器或结果。
 
 过程另有6次被恢复的工具错误：C11/C12/C23/C24/D08各一次EXISTS被既有函数白名单拒绝，D02首次SQL使用保留字both作为CTE名导致语法错误；模型随后改写继续完成。白名单与Step12起点一致。这些是SQL反馈，不是任务工程失败，相关消耗已计入上表。未据此放宽安全白名单。
+
+## Step 12.6 槽位全流程替身演练（不是成绩）
+
+SLOT_RESOLUTION=true；真实eval/run.py执行31题，eval/boundary.py执行原10题，0工程错误。模型响应来自本地HTTP替身，下表token为合成数据，不是实际模型质量、费用或吞吐。完整收据：[41题替身演练](../evidence/step12_slot_rehearsal.json)。
+
+| 标签 | 类别 | 划分 | 正确题数 / 总题数 | 准确率 | D 关键事实命中率 | 无证据结论比例 | D 无证据数字比例 | D 归因评分 | 总 token | 费用 USD | 峰值上下文 token | 完成率 | 平均 token | 平均耗时 ms | BM25 recall@3 | 向量 recall@3 | 混合 recall@3 | 运行日志文件名 | 汇总证据 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| step12-slot-rehearsal-model-double-not-score | C,D,E | dev | 0 / 31 | 0.00% | 0.00% |  |  |  | 99000 |  | 900 | 100.00% | 3193.55 | 1753.29 |  |  |  | `eval_step12-slot-rehearsal-model-double-not-score_20261028T044410Z_8ac2dffb.jsonl` | [eval_step12-slot-rehearsal-model-double-not-score_20261028T044410Z_8ac2dffb.summary.json](../evidence/eval_step12-slot-rehearsal-model-double-not-score_20261028T044410Z_8ac2dffb.summary.json) |
