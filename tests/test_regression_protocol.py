@@ -37,3 +37,33 @@ def test_host_verified_protocol_ticket_for_images_without_git(tmp_path,monkeypat
     with pytest.raises(ValueError):verify_committed_protocol(path,tmp_path)
     monkeypatch.setenv('STEP12_PROTOCOL_SHA256',hashlib.sha256(path.read_bytes()).hexdigest())
     assert verify_committed_protocol(path,tmp_path)=='a'*40
+
+
+def test_v2_paths_cannot_overwrite_v1(tmp_path):
+    from scripts.step12_regression import version_paths
+    paths=version_paths(tmp_path,2)
+    assert [p.name for p in paths]==['step12_regression_protocol_v2.json','step12_regression_started_v2.json','step12_regression_results_v2.json']
+
+
+@pytest.mark.parametrize('missing_value',[None,'','NaN','Infinity','-1'])
+def test_v2_requires_all_three_prices_before_start(monkeypatch,missing_value):
+    from scripts.step12_regression import require_prices
+    for key in ['TOKEN_PRICE_INPUT','TOKEN_PRICE_CACHED_INPUT','TOKEN_PRICE_OUTPUT']:monkeypatch.setenv(key,'1.25')
+    if missing_value is None:monkeypatch.delenv('TOKEN_PRICE_CACHED_INPUT')
+    else:monkeypatch.setenv('TOKEN_PRICE_CACHED_INPUT',missing_value)
+    with pytest.raises(ValueError,match='TOKEN_PRICE_CACHED_INPUT'):require_prices()
+    monkeypatch.setenv('TOKEN_PRICE_CACHED_INPUT','0')
+    assert require_prices()['TOKEN_PRICE_CACHED_INPUT']==0
+
+
+def test_git_verification_uses_v2_protocol_path(tmp_path,monkeypatch):
+    from scripts.step12_regression import verify_committed_protocol
+    path=tmp_path/'evidence'/'step12_regression_protocol_v2.json';path.parent.mkdir();path.write_text('{}')
+    monkeypatch.setattr('shutil.which',lambda _:True)
+    calls=[]
+    def output(args,**kw):
+        calls.append(args)
+        return 'a'*40+'\n' if '--format=%H' in args else b'{}'
+    monkeypatch.setattr('subprocess.check_output',output)
+    assert verify_committed_protocol(path,tmp_path)=='a'*40
+    assert 'HEAD:evidence/step12_regression_protocol_v2.json' in calls[0]
