@@ -199,3 +199,6 @@ docker compose run --rm --no-deps init-data python -m scripts.step12_chaos load
 已增加短期任务JWT、州范围RLS、事件脱敏及审计保留、数据/黑板版本。`CONTEXT_PREFLIGHT`默认关闭；备用三项配置全空时不切换。本地没有配置备用，只有切换逻辑和替身测试。新迁移执行和权限分配后再恢复服务，参数与局限见[工程报告](docs/STEP12_HARDENING.md)。最终镜像内379项全量测试通过，离线CI287项通过。
 
 唯一一次默认C/D/E dev回归在第19题因事件序号冲突中断：已尝试19题工程失败，12题未运行，**未达到验收标准**。问题已另行测试并修复，未续跑、未重跑；不能据此宣称效果无退化。实际消耗103659 tokens，缓存命中率44.90%，价格未配置故费用留空。[逐题结果](docs/RESULTS.md#step-12-默认配置回归唯一一次中途中断未达标)与[一次性协议](evidence/step12_regression_protocol.json)保留原始结果。README历史成绩仍属于Step9源码，holdout未重跑或重新评分。
+
+
+第3批复核已完成RLS优化和真实评测全流程替身演练：31题无工程错误，替身结果不算成绩。v1经审查作废，原记录保留；v2协议已独立提交203dd7f。当前因.env三项token价格未填而停止在v2启动前，未调用真实模型。RLS单次重测p50/p95为29.114/73.780ms，详见[执行计划诊断](evidence/step12_c2_explain.md)。全量391项、离线CI297项通过。
