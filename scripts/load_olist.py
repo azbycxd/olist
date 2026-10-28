@@ -69,7 +69,7 @@ def load(directory: Path, replace: bool, logger):
             raise ValueError("Existing data differs from this import. Inspect it before explicitly using --replace.")
         if replace:
             conn.execute(sql.SQL("TRUNCATE {} RESTART IDENTITY").format(
-                sql.SQL(", ").join(sql.Identifier(table) for table in TABLES)))
+                sql.SQL(", ").join(sql.Identifier(table) for table in [*TABLES, 'order_scope'])))
         for table, columns in TABLES.items():
             statement = sql.SQL("COPY {} ({}) FROM STDIN WITH (FORMAT CSV, HEADER TRUE, ENCODING 'UTF8')").format(
                 sql.Identifier(table), sql.SQL(", ").join(map(sql.Identifier, columns.split())))

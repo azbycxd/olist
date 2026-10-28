@@ -36,4 +36,4 @@ def run(phase):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('phase',choices=['before','after']);run(p.parse_args().phase)
+    p=argparse.ArgumentParser();p.add_argument('phase',choices=['before','after','optimized']);run(p.parse_args().phase)

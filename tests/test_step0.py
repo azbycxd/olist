@@ -57,8 +57,10 @@ def test_source_rows_keys_and_timestamps():
             count = conn.execute(sql.SQL("SELECT count(*) FROM {}").format(sql.Identifier(table))).fetchone()[0]
             assert count == manifest[table]["rows"]
         assert conn.execute("SELECT data_type FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'order_purchase_timestamp'").fetchone()[0] == "timestamp without time zone"
-        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'f' AND connamespace = 'public'::regnamespace").fetchone()[0] == 6
-        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'p' AND connamespace = 'public'::regnamespace").fetchone()[0] == len(TABLES) + 3
+        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'f' AND conrelid::regclass::text=ANY(%s)",(list(TABLES),)).fetchone()[0] == 6
+        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype = 'p' AND conrelid::regclass::text=ANY(%s)",(list(TABLES),)).fetchone()[0] == len(TABLES)
+        assert conn.execute("SELECT confrelid::regclass::text FROM pg_constraint WHERE contype='f' AND conrelid='order_scope'::regclass").fetchall()==[('orders',)]
+        assert conn.execute("SELECT count(*) FROM pg_constraint WHERE contype='p' AND conrelid='order_scope'::regclass").fetchone()[0]==1
 
 
 def test_core_tables_and_evidence_roundtrip():
