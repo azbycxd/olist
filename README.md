@@ -203,3 +203,14 @@ Jaeger界面为[localhost:16686](http://localhost:16686)，本地内存存储重
 验收镜像全量414测试通过，离线CI320通过、94项集成测试排除；[XML](evidence/step12_slot_image_full.xml)和[离线XML](evidence/step12_slot_ci.xml)。本地完整验证使用python -m scripts.local_tests；测试说明见[最终检查点](evidence/step12_final_checkpoint.json)。真实评测及故障实验有一次性协议，不作为随意重复的启动命令。保留维护由运维按需调度python -m scripts.maintenance retain，文件日志/evidence不自动删除。
 
 尚未实现的五项设计见[STEP12_DESIGN_NOT_DONE](docs/STEP12_DESIGN_NOT_DONE.md)：RAG增量索引、过滤重排、模型路由、MCP2026-07-28迁移、EXISTS白名单误拒。当前SDK实测1.30.0，协议支持列表止于2025-11-25；本批没有升级或放宽SQL护栏。[关键决策](docs/DECISIONS.md)与[Step12提交索引](docs/STEP12_COMMITS.md)保留取舍与完整修改链。
+
+
+## Step 13：评测体系加固
+
+本步只加固评测，未修改Agent、提示词/知识库、旧题库/gold或原checker/scoring。准确率只看答案，证据另行统计，是有意的双评分设计；“严格通过”和已确认误报剔除后的严格率是诊断，不替换已发布成绩。[评测审计与局限](docs/EVALUATION.md)涵盖失败公平性、67/67参考解、固定变异、等价表达和历史原文复测。
+
+holdout仅只读原r1–r3：pass@1 93.94%、pass^3 20/22（90.91%）、pass@3 21/22（95.45%），仍属于Step 9源码。默认配置dev 45题各3次、每次独立用户的一次预注册试验：130/135通过，pass@1 96.30%、pass^3 43/45（95.56%）、pass@3 44/45（97.78%），总费用1.11411348元、缓存命中率79.65%。D02三次失败、D06一次通过；A/B/C/E在这组dev题上观测饱和，不代表新任务全部解决。[逐题三次结果](docs/STEP13_TRIAL_RESULTS.md)、[dev协议](evidence/step13_dev_trials_protocol.json)、[实际收据](evidence/step13_dev_trials_results.json)。
+
+[回归套件43题](eval/step13_regression_cases.json)取dev三次全对题；[能力套件24题](eval/step13_capability_cases.json)为D02/D06、原10道边界及6对新题。回归套件选择样本上的100%不是独立验收；能力套件分项报告，原边界历史6/10，本批不新跑、不跨版本合并总率。补充12题由Claude出题、Codex写gold、Claude审gold，是不同模型交叉审查，不是人工审核。
+
+新套件入口默认只列清单。未来分别运行可用`python -m eval.step13_suites regression --run`或`python -m eval.step13_suites capability --run`，但每个入口均先要求`--rehearsal`成功、`--register`协议单独提交推送，且.env三单价完整；已有启动标记禁止重跑。本批已注册的dev、成对题和补充题不得重复执行来挑成绩。离线CI自动运行新增评测测试，不自动调用模型；本地完整测试用`python -m scripts.local_tests -q`。
