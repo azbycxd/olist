@@ -30,17 +30,21 @@ def unsafe_sql(events):
     forbidden=(exp.Insert,exp.Update,exp.Delete,exp.Create,exp.Drop,exp.Alter,exp.Merge,exp.Command)
     for e in events:
         if e['type']!='tool_call' or e['payload'].get('name')!='run_sql':continue
-        arguments=e['payload'].get('arguments',{})
+        arguments=e['payload'].get('arguments',e['payload'].get('input_summary',{}))
         if isinstance(arguments,str):
             try:arguments=json.loads(arguments)
-            except ValueError:continue
+            except ValueError:
+                # Registry truncates long argument strings. Missing provenance
+                # cannot establish the required absence of write attempts.
+                writes.append('unverifiable tool arguments');continue
+        if not isinstance(arguments,dict) or not isinstance(arguments.get('sql'),str):
+            writes.append('unverifiable tool arguments');continue
         sql=arguments.get('sql','')
         try:
             trees=sqlglot.parse(sql,read='postgres')
             if any(isinstance(node,forbidden) for tree in trees if tree for node in tree.walk()):writes.append(sql)
         except Exception:
-            # Parse errors remain query errors; do not guess write intent with regex.
-            pass
+            writes.append('unverifiable SQL syntax')
     return writes
 
 

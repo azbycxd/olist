@@ -12,9 +12,15 @@ from time import perf_counter
 from types import SimpleNamespace
 from uuid import uuid4
 
-from eval.step13_errors import ROOT,read,write,sha
+from eval.step13_errors import ROOT,read,write as write_json,sha
 from eval.step13_trials import (workload,paths,configuration,source_hashes,measured_usage,
     summarize_trials,validate_rehearsal,verify_protocol,claim_once)
+
+
+def write(path, value):
+    # PostgreSQL oracle values may contain Decimal/date values. Preserve their
+    # exact spelling in receipts; scoring already used the original objects.
+    write_json(path,json.loads(json.dumps(value,ensure_ascii=False,default=str)))
 
 
 def model_double():

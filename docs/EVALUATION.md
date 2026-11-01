@@ -214,3 +214,5 @@ D02为失败/失败/失败，D06为通过/失败/失败；其余43题均通过/�
 未来分别运行的命令为`python -m eval.step13_suites regression --run`与`python -m eval.step13_suites capability --run`；两者都要求先以同一入口`--rehearsal`、`--register`，单独提交推送协议后再`--run`，避免绕过预注册。本批不再运行筛选后的套件，防止重复使用本次真实模型额度。P01A及年度覆盖语义保留人工判定，不用正则伪造通过。
 
 成对题参考解的自动部分12/12通过，每题至少一个固定变异被拒（12/12）；定义见[题目及验收契约](STEP13_PAIRED_CASES.md)。新增测试先提交d4351c4的17个失败，再实现；当前全部543项测试通过，见[XML](../evidence/step13_pairs_full.xml)。
+
+13.4首次替身演练在12题完成后写收据遇到Decimal序列化错误，未启动真实模型；另发现写操作审计未读取真实事件的input_summary。先提交三个失败测试0d32a8a，再修复新评测模块，546项全量测试通过。原失败演练及不完整文件见[收据](../evidence/step13_paired_rehearsal_attempt1_failure.json)。无法完整解析的工具参数保守判为自动检查不通过，不把缺失记录当作“没有写尝试”；这不改变Agent或SQL护栏。
