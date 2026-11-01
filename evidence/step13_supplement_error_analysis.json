@@ -1,0 +1,3348 @@
+{
+  "classification": "Codex完成，待人工抽查；只诊断，不修改既有评分或重跑。",
+  "source_open_notes": "evidence/step13_supplement_error_open_notes.json",
+  "source_open_notes_sha256": "428dcbbfd9a3137abbdbc915a4d8b520703fbbf2feb7ebbe7d6f861d1e40cd9a",
+  "source_receipt": "evidence/step13_supplement_results.json",
+  "source_receipt_sha256": "82c1da1aa84c483a75e52ddb0d5ad8fd7bc55dbc2e81dbf1912b0940bc20e4d9",
+  "source_logs": [
+    {
+      "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+      "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+      "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+    },
+    {
+      "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+      "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+      "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+    },
+    {
+      "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+      "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+      "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+    }
+  ],
+  "failed_trials": 20,
+  "category_counts": {
+    "自行计数未保存证据": 3,
+    "公开事实字段契约不符": 12,
+    "定义常量被扫描为业务数字": 5
+  },
+  "fairness_counts": {
+    "agent_error": 15,
+    "grader_issue": 5
+  },
+  "cases": [
+    {
+      "id": "N01",
+      "repeat": 1,
+      "task_id": "bab079ac-b1f4-4196-80b9-53074d41c864",
+      "gold": {
+        "peak_month": "2017-11",
+        "peak_orders": 7544,
+        "low_month": "2017-01",
+        "low_orders": 800
+      },
+      "response": {
+        "answer": "2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。注意 2017-01 处于数据覆盖的起始边界，订单量偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。",
+        "claims": [
+          {
+            "text": "2017 年订单最多的月份为 2017-11，共 7544 单；最少的月份为 2017-01，共 800 单（按下单时间归月，全部状态计入）。",
+            "value": [
+              {
+                "peak_month": "2017-11",
+                "peak_orders": 7544,
+                "low_month": "2017-01",
+                "low_orders": 800
+              }
+            ],
+            "evidence": [
+              "bd6bbd2a-8125-4d11-8b61-0023d0576baa"
+            ]
+          },
+          {
+            "text": "2017 年各月订单量明细（12 个月均有数据）。",
+            "value": [
+              {
+                "month": "2017-01",
+                "orders": 800
+              },
+              {
+                "month": "2017-02",
+                "orders": 1780
+              },
+              {
+                "month": "2017-03",
+                "orders": 2682
+              },
+              {
+                "month": "2017-04",
+                "orders": 2404
+              },
+              {
+                "month": "2017-05",
+                "orders": 3700
+              },
+              {
+                "month": "2017-06",
+                "orders": 3245
+              },
+              {
+                "month": "2017-07",
+                "orders": 4026
+              },
+              {
+                "month": "2017-08",
+                "orders": 4331
+              },
+              {
+                "month": "2017-09",
+                "orders": 4285
+              },
+              {
+                "month": "2017-10",
+                "orders": 4631
+              },
+              {
+                "month": "2017-11",
+                "orders": 7544
+              },
+              {
+                "month": "2017-12",
+                "orders": 5673
+              }
+            ],
+            "evidence": [
+              "9e4df7d2-f97a-417b-b235-8229172a4d1f"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 5,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.2
+      },
+      "saved_results": [
+        {
+          "result_id": "9e4df7d2-f97a-417b-b235-8229172a4d1f",
+          "sql": "SELECT TO_CHAR(order_purchase_timestamp, 'YYYY-MM') AS month, COUNT(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1 LIMIT 1000",
+          "rows": [
+            {
+              "month": "2017-01",
+              "orders": 800
+            },
+            {
+              "month": "2017-02",
+              "orders": 1780
+            },
+            {
+              "month": "2017-03",
+              "orders": 2682
+            },
+            {
+              "month": "2017-04",
+              "orders": 2404
+            },
+            {
+              "month": "2017-05",
+              "orders": 3700
+            },
+            {
+              "month": "2017-06",
+              "orders": 3245
+            },
+            {
+              "month": "2017-07",
+              "orders": 4026
+            },
+            {
+              "month": "2017-08",
+              "orders": 4331
+            },
+            {
+              "month": "2017-09",
+              "orders": 4285
+            },
+            {
+              "month": "2017-10",
+              "orders": 4631
+            },
+            {
+              "month": "2017-11",
+              "orders": 7544
+            },
+            {
+              "month": "2017-12",
+              "orders": 5673
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "bd6bbd2a-8125-4d11-8b61-0023d0576baa",
+          "sql": "WITH m AS (SELECT TO_CHAR(order_purchase_timestamp, 'YYYY-MM') AS month, COUNT(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01' GROUP BY 1) SELECT (SELECT month FROM m ORDER BY orders DESC, month LIMIT 1) AS peak_month, (SELECT orders FROM m ORDER BY orders DESC, month LIMIT 1) AS peak_orders, (SELECT month FROM m ORDER BY orders ASC, month LIMIT 1) AS low_month, (SELECT orders FROM m ORDER BY orders ASC, month LIMIT 1) AS low_orders LIMIT 1000",
+          "rows": [
+            {
+              "low_month": "2017-01",
+              "low_orders": 800,
+              "peak_month": "2017-11",
+              "peak_orders": 7544
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r1",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+        "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+        "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+      },
+      "category": "自行计数未保存证据",
+      "fairness": "agent_error",
+      "reason": "四个必需事实与gold一致，但claim.text写“12个月均有数据/订单”，SQL只返回12行月明细，没有计算或返回月份数量12；另将2017年1月误说成数据起始边界。",
+      "evidence_issue_type": "real_unsupported",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 23,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_0b60PUWGIGpeXuss5ifL7276",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。注意 2017-01 处于数据覆盖的起始边界，订单量偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。\", \"claims\": [{\"text\": \"2017 年订单最多的月份为 2017-11，共 7544 单；最少的月份为 2017-01，共 800 单（按下单时间归月，全部状态计入）。\", \"value\": [{\"peak_month\": \"2017-11\", \"peak_orders\": 7544, \"low_month\": \"2017-01\", \"low_orders\": 800}], \"evidence\": [\"bd6bbd2a-8125-4d11-8b61-0023d0576baa\"]}, {\"text\": \"2017 年各月订单量明细（12 个月均有数据）。\", \"value\": [{\"month\": \"2017-01\", \"orders\": 800}, {\"month\": \"2017-02\", \"orders\": 1780}, {\"month\": \"2017-03\", \"orders\": 2682}, {\"month\": \"2017-04\", \"orders\": 2404}, {\"month\": \"2017-05\", \"orders\": 3700}, {\"month\": \"2017-06\", \"orders\": 3245}, {\"month\": \"2017-07\", \"orders\": 4026}, {\"month\": \"2017-08\", \"orders\": 4331}, {\"month\": \"2017-09\", \"orders\": 4285}, {\"month\": \"2017-10\", \"orders\": 4631}, {\"month\": \"2017-11\", \"orders\": 7544}, {\"month\": \"2017-12\", \"orders\": 5673}], \"evidence\": [\"9e4df7d2-f97a-417b-b235-8229172a4d1f\"]}]}"
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 23,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_0b60PUWGIGpeXuss5ifL7276",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。注意 2017-01 处于数据覆盖的起始边界，订单量偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。\", \"claims\": [{\"text\": \"2017 年订单最多的月份为 2017-11，共 7544 单；最少的月份为 2017-01，共 800 单（按下单时间归月，全部状态计入）。\", \"value\": [{\"peak_month\": \"2017-11\", \"peak_orders\": 7544, \"low_month\": \"2017-01\", \"low_orders\": 800}], \"evidence\": [\"bd6bbd2a-8125-4d11-8b61-0023d0576baa\"]}, {\"text\": \"2017 年各月订单量明细（12 个月均有数据）。\", \"value\": [{\"month\": \"2017-01\", \"orders\": 800}, {\"month\": \"2017-02\", \"orders\": 1780}, {\"month\": \"2017-03\", \"orders\": 2682}, {\"month\": \"2017-04\", \"orders\": 2404}, {\"month\": \"2017-05\", \"orders\": 3700}, {\"month\": \"2017-06\", \"orders\": 3245}, {\"month\": \"2017-07\", \"orders\": 4026}, {\"month\": \"2017-08\", \"orders\": 4331}, {\"month\": \"2017-09\", \"orders\": 4285}, {\"month\": \"2017-10\", \"orders\": 4631}, {\"month\": \"2017-11\", \"orders\": 7544}, {\"month\": \"2017-12\", \"orders\": 5673}], \"evidence\": [\"9e4df7d2-f97a-417b-b235-8229172a4d1f\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N03",
+      "repeat": 1,
+      "task_id": "1e74d697-119e-4e4d-9145-eba2a3a2a743",
+      "gold": {
+        "rio_gmv": 187039.25,
+        "sao_paulo_gmv": 432735.87
+      },
+      "response": {
+        "answer": "2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，按客户所在城市归属，GMV = order_items.price 之和、不含运费、排除 canceled 与 unavailable 订单）：\n- 圣保罗市（sao paulo）：GMV 432,735.87 BRL，涉及 3,415 个订单\n- 里约热内卢市（rio de janeiro）：GMV 187,039.25 BRL，涉及 1,204 个订单\n两城市 GMV 的倍数关系未验证。",
+        "claims": [
+          {
+            "text": "2018 Q2 圣保罗市 GMV 为 432735.87 BRL（3415 个订单）",
+            "value": [
+              {
+                "customer_city": "sao paulo",
+                "gmv": 432735.87,
+                "orders": 3415
+              }
+            ],
+            "evidence": [
+              "cd76eb36-5fd8-4fcf-8a4c-926141a988ab"
+            ]
+          },
+          {
+            "text": "2018 Q2 里约热内卢市 GMV 为 187039.25 BRL（1204 个订单）",
+            "value": [
+              {
+                "customer_city": "rio de janeiro",
+                "gmv": 187039.25,
+                "orders": 1204
+              }
+            ],
+            "evidence": [
+              "cd76eb36-5fd8-4fcf-8a4c-926141a988ab"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 8,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "cd76eb36-5fd8-4fcf-8a4c-926141a988ab",
+          "sql": "SELECT c.customer_city, SUM(i.price) AS gmv, COUNT(DISTINCT o.order_id) AS orders FROM orders AS o JOIN customers AS c ON c.customer_id = o.customer_id JOIN order_items AS i ON i.order_id = o.order_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_city IN ('rio de janeiro', 'sao paulo') GROUP BY c.customer_city ORDER BY gmv DESC LIMIT 1000",
+          "rows": [
+            {
+              "gmv": "432735.87",
+              "orders": 3415,
+              "customer_city": "sao paulo"
+            },
+            {
+              "gmv": "187039.25",
+              "orders": 1204,
+              "customer_city": "rio de janeiro"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r1",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+        "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+        "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "两市GMV分别187039.25、432735.87，与gold相同；三轮均只提交customer_city/gmv行，没有公开要求的rio_gmv、sao_paulo_gmv。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 25,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_hdmjZOIWQ3dNXaE2ppzH8563",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT c.customer_city, sum(i.price) AS gmv, count(DISTINCT o.order_id) AS orders\\nFROM orders o\\nJOIN customers c ON c.customer_id = o.customer_id\\nJOIN order_items i ON i.order_id = o.order_id\\nWHERE o.order_status NOT IN ('canceled','unavailable')\\n  AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  AND c.customer_city IN ('rio de janeiro','sao paulo')\\nGROUP BY c.customer_city ORDER BY gmv DESC;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 31,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_KPqIbs8oZaHuXFfQLxfe9082",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，按客户所在城市归属，GMV = order_items.price 之和、不含运费、排除 canceled 与 unavailable 订单）：\\n- 圣保罗市（sao paulo）：GMV 432,735.87 BRL，涉及 3,415 个订单\\n- 里约热内卢市（rio de janeiro）：GMV 187,039.25 BRL，涉及 1,204 个订单\\n圣保罗市 GMV 约为里约热内卢市的 2.3 倍。\", \"claims\": [{\"text\": \"2018 Q2 圣保罗市 GMV 为 432735.87 BRL（3415 个订单）\", \"value\": [{\"customer_city\": \"sao paulo\", \"gmv\": 432735.87, \"orders\": 3415}], \"evidence\": [\"cd76eb36-5fd8-4fcf-8a4c-926141a988ab\"]}, {\"text\": \"2018 Q2 里约热内卢市 GMV 为 187039.25 BRL（1204 个订单）\", \"value\": [{\"customer_city\": \"rio de janeiro\", \"gmv\": 187039.25, \"orders\": 1204}], \"evidence\": [\"cd76eb36-5fd8-4fcf-8a4c-926141a988ab\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N05",
+      "repeat": 1,
+      "task_id": "e1fdc566-8d5d-4058-93f6-6a0ae62c2638",
+      "gold": {
+        "mode_installments": 1,
+        "share_pct": 35.959875145941055
+      },
+      "response": {
+        "answer": "2018 年（按订单下单时间归年）信用卡（credit_card）支付记录共 41,969 条。按支付记录计，最常见的是分 1 期（一次性付清），共 15,092 条，占信用卡支付记录的 35.9599%。其后依次为 2 期（7,020 条，16.7266%）、3 期（5,507 条，13.1216%）、4 期（3,697 条，8.8089%）、5 期（2,654 条，6.3237%）。",
+        "claims": [
+          {
+            "text": "2018 年信用卡支付记录中，最常见的分期期数为 1 期，共 15,092 条支付记录，占信用卡支付记录的 35.9599%。",
+            "value": [
+              {
+                "mode_installments": 1,
+                "payment_records": 15092,
+                "share_pct": "35.9599"
+              }
+            ],
+            "evidence": [
+              "c0ce3fe7-bea6-4da8-bb53-2a64e2370f08"
+            ]
+          },
+          {
+            "text": "2018 年信用卡支付记录的分期分布前五名（按记录数降序）：1 期 15,092 条/35.9599%，2 期 7,020 条/16.7266%，3 期 5,507 条/13.1216%，4 期 3,697 条/8.8089%，5 期 2,654 条/6.3237%。",
+            "value": [
+              {
+                "mode_installments": 1,
+                "payment_records": 15092,
+                "share_pct": "35.9599"
+              },
+              {
+                "mode_installments": 2,
+                "payment_records": 7020,
+                "share_pct": "16.7266"
+              },
+              {
+                "mode_installments": 3,
+                "payment_records": 5507,
+                "share_pct": "13.1216"
+              },
+              {
+                "mode_installments": 4,
+                "payment_records": 3697,
+                "share_pct": "8.8089"
+              },
+              {
+                "mode_installments": 5,
+                "payment_records": 2654,
+                "share_pct": "6.3237"
+              }
+            ],
+            "evidence": [
+              "c0ce3fe7-bea6-4da8-bb53-2a64e2370f08"
+            ]
+          },
+          {
+            "text": "2018 年信用卡支付记录总数为 41,969 条（分母，按订单下单时间归年）。",
+            "value": {
+              "total_credit_card_records": 41969
+            },
+            "evidence": [
+              "db86b4fe-4132-4c3d-8421-9944ebb6b7af"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 35,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "c0ce3fe7-bea6-4da8-bb53-2a64e2370f08",
+          "sql": "SELECT p.payment_installments AS mode_installments, COUNT(*) AS payment_records, ROUND(CAST(100.0 * COUNT(*) / SUM(COUNT(*)) OVER () AS DECIMAL), 4) AS share_pct FROM order_payments AS p JOIN orders AS o ON o.order_id = p.order_id WHERE p.payment_type = 'credit_card' AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2019-01-01' GROUP BY p.payment_installments ORDER BY payment_records DESC, mode_installments LIMIT 5",
+          "rows": [
+            {
+              "share_pct": "35.9599",
+              "payment_records": 15092,
+              "mode_installments": 1
+            },
+            {
+              "share_pct": "16.7266",
+              "payment_records": 7020,
+              "mode_installments": 2
+            },
+            {
+              "share_pct": "13.1216",
+              "payment_records": 5507,
+              "mode_installments": 3
+            },
+            {
+              "share_pct": "8.8089",
+              "payment_records": 3697,
+              "mode_installments": 4
+            },
+            {
+              "share_pct": "6.3237",
+              "payment_records": 2654,
+              "mode_installments": 5
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "db86b4fe-4132-4c3d-8421-9944ebb6b7af",
+          "sql": "SELECT COUNT(*) AS total_credit_card_records FROM order_payments AS p JOIN orders AS o ON o.order_id = p.order_id WHERE p.payment_type = 'credit_card' AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2019-01-01' LIMIT 1000",
+          "rows": [
+            {
+              "total_credit_card_records": 41969
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r1",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+        "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+        "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "众数1期及占比35.9599%正确，但把前五名都标成mode_installments/share_pct，使非众数2至5期也成为同名事实的候选值；矛盾重复使事实0/2。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_9jfYQVxl02RUObAe8acr4360",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT p.payment_installments AS mode_installments,\\n       COUNT(*) AS payment_records,\\n       ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 4) AS share_pct\\nFROM order_payments p\\nJOIN orders o ON o.order_id = p.order_id\\nWHERE p.payment_type = 'credit_card'\\n  AND o.order_purchase_timestamp >= '2018-01-01'\\n  AND o.order_purchase_timestamp < '2019-01-01'\\nGROUP BY p.payment_installments\\nORDER BY payment_records DESC, mode_installments\\nLIMIT 5\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 33,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_aq4KQSu5nL5a8CGczMo99497",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年（按订单下单时间归年）信用卡（credit_card）支付记录共 41,969 条。按支付记录计，最常见的是分 1 期（一次性付清），共 15,092 条，占信用卡支付记录的 35.9599%。其后依次为 2 期（7,020 条，16.7266%）、3 期（5,507 条，13.1216%）、4 期（3,697 条，8.8089%）、5 期（2,654 条，6.3237%）。\", \"claims\": [{\"text\": \"2018 年信用卡支付记录中，最常见的分期期数为 1 期，共 15,092 条支付记录，占信用卡支付记录的 35.9599%。\", \"value\": [{\"mode_installments\": 1, \"payment_records\": 15092, \"share_pct\": \"35.9599\"}], \"evidence\": [\"c0ce3fe7-bea6-4da8-bb53-2a64e2370f08\"]}, {\"text\": \"2018 年信用卡支付记录的分期分布前五名（按记录数降序）：1 期 15,092 条/35.9599%，2 期 7,020 条/16.7266%，3 期 5,507 条/13.1216%，4 期 3,697 条/8.8089%，5 期 2,654 条/6.3237%。\", \"value\": [{\"mode_installments\": 1, \"payment_records\": 15092, \"share_pct\": \"35.9599\"}, {\"mode_installments\": 2, \"payment_records\": 7020, \"share_pct\": \"16.7266\"}, {\"mode_installments\": 3, \"payment_records\": 5507, \"share_pct\": \"13.1216\"}, {\"mode_installments\": 4, \"payment_records\": 3697, \"share_pct\": \"8.8089\"}, {\"mode_installments\": 5, \"payment_records\": 2654, \"share_pct\": \"6.3237\"}], \"evidence\": [\"c0ce3fe7-bea6-4da8-bb53-2a64e2370f08\"]}, {\"text\": \"2018 年信用卡支付记录总数为 41,969 条（分母，按订单下单时间归年）。\", \"value\": {\"total_credit_card_records\": 41969}, \"evidence\": [\"db86b4fe-4132-4c3d-8421-9944ebb6b7af\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N06",
+      "repeat": 1,
+      "task_id": "219b6a9e-e96c-44bb-9afb-2b7a47f349f7",
+      "gold": {
+        "freight_pct": 14.221035631463664,
+        "top_state": "AP",
+        "top_state_pct": 21.55846249974805
+      },
+      "response": {
+        "answer": "2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp，全部订单状态计入）运费占（商品金额 + 运费）的比例为 14.2210%。按客户所在州拆分后，该比例最高的州是 AP（阿马帕州），为 21.5585%（该州 Q2 仅 13 个订单，样本量小，需谨慎解读）；其后为 MA 21.0109%、AM 20.5792%。整体呈北部/东北部州运费占比高、东南部与南部低的格局。",
+        "claims": [
+          {
+            "text": "2018 Q2 全部状态订单的运费占（商品金额+运费）比例为 14.2210%",
+            "value": {
+              "freight_pct": "14.2210"
+            },
+            "evidence": [
+              "ea47b4cf-f253-4ad6-bc29-11e17686417c"
+            ]
+          },
+          {
+            "text": "按客户州拆分，运费占比最高的州为 AP，比例 21.5585%（Q2 订单数 13）",
+            "value": {
+              "customer_state": "AP",
+              "freight_pct": "21.5585",
+              "orders_cnt": 13
+            },
+            "evidence": [
+              "9177f1c6-6dd5-44b9-aede-ece32d0efefb"
+            ]
+          },
+          {
+            "text": "各州运费占比排名前五：AP 21.5585%、MA 21.0109%、AM 20.5792%、RO 20.5504%、PA 20.0464%",
+            "value": [
+              {
+                "customer_state": "AP",
+                "freight_pct": "21.5585",
+                "orders_cnt": 13
+              },
+              {
+                "customer_state": "MA",
+                "freight_pct": "21.0109",
+                "orders_cnt": 120
+              },
+              {
+                "customer_state": "AM",
+                "freight_pct": "20.5792",
+                "orders_cnt": 22
+              },
+              {
+                "customer_state": "RO",
+                "freight_pct": "20.5504",
+                "orders_cnt": 39
+              },
+              {
+                "customer_state": "PA",
+                "freight_pct": "20.0464",
+                "orders_cnt": 165
+              }
+            ],
+            "evidence": [
+              "9177f1c6-6dd5-44b9-aede-ece32d0efefb"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 13,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "ea47b4cf-f253-4ad6-bc29-11e17686417c",
+          "sql": "SELECT ROUND(100.0 * SUM(oi.freight_value) / SUM(oi.price + oi.freight_value), 4) AS freight_pct FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "rows": [
+            {
+              "freight_pct": "14.2210"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "9177f1c6-6dd5-44b9-aede-ece32d0efefb",
+          "sql": "SELECT c.customer_state, ROUND(100.0 * SUM(oi.freight_value) / SUM(oi.price + oi.freight_value), 4) AS freight_pct, COUNT(DISTINCT o.order_id) AS orders_cnt FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN customers AS c ON c.customer_id = o.customer_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state ORDER BY freight_pct DESC LIMIT 1000",
+          "rows": [
+            {
+              "orders_cnt": 13,
+              "freight_pct": "21.5585",
+              "customer_state": "AP"
+            },
+            {
+              "orders_cnt": 120,
+              "freight_pct": "21.0109",
+              "customer_state": "MA"
+            },
+            {
+              "orders_cnt": 22,
+              "freight_pct": "20.5792",
+              "customer_state": "AM"
+            },
+            {
+              "orders_cnt": 39,
+              "freight_pct": "20.5504",
+              "customer_state": "RO"
+            },
+            {
+              "orders_cnt": 165,
+              "freight_pct": "20.0464",
+              "customer_state": "PA"
+            },
+            {
+              "orders_cnt": 90,
+              "freight_pct": "20.0410",
+              "customer_state": "RN"
+            },
+            {
+              "orders_cnt": 314,
+              "freight_pct": "19.6908",
+              "customer_state": "PE"
+            },
+            {
+              "orders_cnt": 50,
+              "freight_pct": "19.5886",
+              "customer_state": "SE"
+            },
+            {
+              "orders_cnt": 53,
+              "freight_pct": "18.9487",
+              "customer_state": "TO"
+            },
+            {
+              "orders_cnt": 97,
+              "freight_pct": "18.4802",
+              "customer_state": "PI"
+            },
+            {
+              "orders_cnt": 71,
+              "freight_pct": "17.9563",
+              "customer_state": "AL"
+            },
+            {
+              "orders_cnt": 189,
+              "freight_pct": "17.8319",
+              "customer_state": "MT"
+            },
+            {
+              "orders_cnt": 247,
+              "freight_pct": "17.5457",
+              "customer_state": "CE"
+            },
+            {
+              "orders_cnt": 9,
+              "freight_pct": "17.5328",
+              "customer_state": "AC"
+            },
+            {
+              "orders_cnt": 8,
+              "freight_pct": "17.4614",
+              "customer_state": "RR"
+            },
+            {
+              "orders_cnt": 666,
+              "freight_pct": "17.4277",
+              "customer_state": "BA"
+            },
+            {
+              "orders_cnt": 400,
+              "freight_pct": "16.7699",
+              "customer_state": "ES"
+            },
+            {
+              "orders_cnt": 1004,
+              "freight_pct": "15.5526",
+              "customer_state": "RS"
+            },
+            {
+              "orders_cnt": 2262,
+              "freight_pct": "15.0216",
+              "customer_state": "MG"
+            },
+            {
+              "orders_cnt": 377,
+              "freight_pct": "14.9569",
+              "customer_state": "GO"
+            },
+            {
+              "orders_cnt": 678,
+              "freight_pct": "14.7686",
+              "customer_state": "SC"
+            },
+            {
+              "orders_cnt": 2380,
+              "freight_pct": "14.6338",
+              "customer_state": "RJ"
+            },
+            {
+              "orders_cnt": 137,
+              "freight_pct": "14.5563",
+              "customer_state": "MS"
+            },
+            {
+              "orders_cnt": 1004,
+              "freight_pct": "14.5335",
+              "customer_state": "PR"
+            },
+            {
+              "orders_cnt": 442,
+              "freight_pct": "14.4029",
+              "customer_state": "DF"
+            },
+            {
+              "orders_cnt": 88,
+              "freight_pct": "14.0724",
+              "customer_state": "PB"
+            },
+            {
+              "orders_cnt": 9022,
+              "freight_pct": "11.9478",
+              "customer_state": "SP"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r1",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+        "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+        "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "整体14.2210%、AP最高21.5585%均与gold一致，但州行仍用customer_state/freight_pct，缺top_state/top_state_pct；州占比还与整体freight_pct构成矛盾重复，事实0/3。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_01_1B0qJJoZNTQEebn6eNvU6547",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT c.customer_state,\\n       round(100.0 * sum(oi.freight_value) / sum(oi.price + oi.freight_value), 4) AS freight_pct,\\n       count(DISTINCT o.order_id) AS orders_cnt\\nFROM order_items oi\\nJOIN orders o ON o.order_id = oi.order_id\\nJOIN customers c ON c.customer_id = o.customer_id\\nWHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\nGROUP BY c.customer_state\\nORDER BY freight_pct DESC\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 35,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_dGHSb92zA1gkoxIzThZV3974",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp，全部订单状态计入）运费占（商品金额 + 运费）的比例为 14.2210%。按客户所在州拆分后，该比例最高的州是 AP（阿马帕州），为 21.5585%（该州 Q2 仅 13 个订单，样本量小，需谨慎解读）；其后为 MA 21.0109%、AM 20.5792%。整体呈北部/东北部州运费占比高、东南部与南部低的格局。\", \"claims\": [{\"text\": \"2018 Q2 全部状态订单的运费占（商品金额+运费）比例为 14.2210%\", \"value\": {\"freight_pct\": \"14.2210\"}, \"evidence\": [\"ea47b4cf-f253-4ad6-bc29-11e17686417c\"]}, {\"text\": \"按客户州拆分，运费占比最高的州为 AP，比例 21.5585%（Q2 订单数 13）\", \"value\": {\"customer_state\": \"AP\", \"freight_pct\": \"21.5585\", \"orders_cnt\": 13}, \"evidence\": [\"9177f1c6-6dd5-44b9-aede-ece32d0efefb\"]}, {\"text\": \"各州运费占比排名前五：AP 21.5585%、MA 21.0109%、AM 20.5792%、RO 20.5504%、PA 20.0464%\", \"value\": [{\"customer_state\": \"AP\", \"freight_pct\": \"21.5585\", \"orders_cnt\": 13}, {\"customer_state\": \"MA\", \"freight_pct\": \"21.0109\", \"orders_cnt\": 120}, {\"customer_state\": \"AM\", \"freight_pct\": \"20.5792\", \"orders_cnt\": 22}, {\"customer_state\": \"RO\", \"freight_pct\": \"20.5504\", \"orders_cnt\": 39}, {\"customer_state\": \"PA\", \"freight_pct\": \"20.0464\", \"orders_cnt\": 165}], \"evidence\": [\"9177f1c6-6dd5-44b9-aede-ece32d0efefb\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N07",
+      "repeat": 1,
+      "task_id": "4a56fb87-3ec9-47d8-a524-8960ee32c156",
+      "gold": {
+        "over30_orders": 522,
+        "measured_orders": 19643,
+        "over30_pct": 2.6574352186529553
+      },
+      "response": {
+        "answer": "2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且有实际送达时间的订单共 19,643 单，其中从下单到送达超过 未验证 天的有 522 单，占比 2.6574%。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达且有实际送达时间的订单中，配送时长超过 30 天的订单数为 522 单",
+            "value": {
+              "measured_orders": 19643,
+              "over30_orders": 522,
+              "over30_pct": "2.6574"
+            },
+            "evidence": [
+              "b10b8d36-eaa6-4d2b-bc7a-c4491d7db179"
+            ]
+          },
+          {
+            "text": "2018 Q2 已送达且有实际送达时间的订单总数为 19,643 单",
+            "value": {
+              "measured_orders": 19643,
+              "over30_orders": 522,
+              "over30_pct": "2.6574"
+            },
+            "evidence": [
+              "b10b8d36-eaa6-4d2b-bc7a-c4491d7db179"
+            ]
+          },
+          {
+            "text": "超过 30 天订单占比为 2.6574%",
+            "value": {
+              "measured_orders": 19643,
+              "over30_orders": 522,
+              "over30_pct": "2.6574"
+            },
+            "evidence": [
+              "b10b8d36-eaa6-4d2b-bc7a-c4491d7db179"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 8,
+        "unsupported_numbers": 2,
+        "unsupported_number_ratio": 0.25
+      },
+      "saved_results": [
+        {
+          "result_id": "b10b8d36-eaa6-4d2b-bc7a-c4491d7db179",
+          "sql": "SELECT COUNT(*) AS measured_orders, COUNT(*) FILTER(WHERE EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 > 30) AS over30_orders, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 > 30) / NULLIF(COUNT(*), 0) AS DECIMAL), 4) AS over30_pct FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "rows": [
+            {
+              "over30_pct": "2.6574",
+              "over30_orders": 522,
+              "measured_orders": 19643
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r1",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+        "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+        "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+      },
+      "category": "定义常量被扫描为业务数字",
+      "fairness": "grader_issue",
+      "reason": "522/19643/2.6574%三个必需事实均命中且claim有证据；题干和SQL筛选条件中的30天被计为未支持数字，导致key_facts整题失败。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 23,
+        "type": "number_gate",
+        "payload": {
+          "before": [
+            "30"
+          ],
+          "after_rewrite": [
+            "30"
+          ],
+          "replaced": [
+            "30"
+          ],
+          "rewrites": 1
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 17,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_mdHaf7NOmSSvRfmytomC7037",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且有实际送达时间的订单共 19,643 单，其中从下单到送达超过 30 天的有 522 单，占比 2.6574%。\", \"claims\": [{\"text\": \"2018 Q2 已送达且有实际送达时间的订单中，配送时长超过 30 天的订单数为 522 单\", \"value\": {\"measured_orders\": 19643, \"over30_orders\": 522, \"over30_pct\": \"2.6574\"}, \"evidence\": [\"b10b8d36-eaa6-4d2b-bc7a-c4491d7db179\"]}, {\"text\": \"2018 Q2 已送达且有实际送达时间的订单总数为 19,643 单\", \"value\": {\"measured_orders\": 19643, \"over30_orders\": 522, \"over30_pct\": \"2.6574\"}, \"evidence\": [\"b10b8d36-eaa6-4d2b-bc7a-c4491d7db179\"]}, {\"text\": \"超过 30 天订单占比为 2.6574%\", \"value\": {\"measured_orders\": 19643, \"over30_orders\": 522, \"over30_pct\": \"2.6574\"}, \"evidence\": [\"b10b8d36-eaa6-4d2b-bc7a-c4491d7db179\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N08",
+      "repeat": 1,
+      "task_id": "3e62b460-9fe7-423e-95d6-75866f5809fc",
+      "gold": {
+        "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "late_pct": 17.801047120418847
+      },
+      "response": {
+        "answer": "2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且实际送达时间存在的订单中，按卖家去重订单计数（一单多卖家分别计入各卖家），在订单数达到门槛的卖家里，迟到率最高的是卖家 06a2c3af7b3aee5d69171b0e14f0ee87：可衡量订单 191 单，迟到 34 单，迟到率 17.8010471204188482%（约 17.80%）。迟到判定为实际送达时间戳严格晚于预计送达时间戳（原始时间戳比较，不截断为日期）。卖家订单数门槛的具体数值未验证。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达订单数≥50 的卖家中迟到率最高者为 06a2c3af7b3aee5d69171b0e14f0ee87，迟到率 17.8010471204188482%（191 单中 34 单迟到）",
+            "value": [
+              {
+                "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+                "measured_orders": 191,
+                "late_orders": 34,
+                "late_pct": "17.8010471204188482"
+              }
+            ],
+            "evidence": [
+              "7190ac6d-9e43-4e33-9030-94d2c80a4225"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 8,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.125
+      },
+      "saved_results": [
+        {
+          "result_id": "7190ac6d-9e43-4e33-9030-94d2c80a4225",
+          "sql": "WITH d AS (SELECT DISTINCT oi.seller_id, o.order_id, o.order_delivered_customer_date, o.order_estimated_delivery_date FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'), agg AS (SELECT seller_id, COUNT(*) AS measured_orders, COUNT(*) FILTER(WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders, 100.0 * COUNT(*) FILTER(WHERE order_delivered_customer_date > order_estimated_delivery_date) / NULLIF(COUNT(*), 0) AS late_pct FROM d GROUP BY seller_id) SELECT seller_id, measured_orders, late_orders, late_pct FROM agg WHERE measured_orders >= 50 ORDER BY late_pct DESC, seller_id LIMIT 10",
+          "rows": [
+            {
+              "late_pct": "17.8010471204188482",
+              "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_orders": 34,
+              "measured_orders": 191
+            },
+            {
+              "late_pct": "15.2542372881355932",
+              "seller_id": "ba143b05f0110f0dc71ad71b4466ce92",
+              "late_orders": 9,
+              "measured_orders": 59
+            },
+            {
+              "late_pct": "14.7826086956521739",
+              "seller_id": "2eb70248d66e0e3ef83659f71b244378",
+              "late_orders": 17,
+              "measured_orders": 115
+            },
+            {
+              "late_pct": "14.5161290322580645",
+              "seller_id": "f7ba60f8c3f99e7ee4042fdef03b70c4",
+              "late_orders": 9,
+              "measured_orders": 62
+            },
+            {
+              "late_pct": "12.9411764705882353",
+              "seller_id": "391fc6631aebcf3004804e51b40bcf1e",
+              "late_orders": 11,
+              "measured_orders": 85
+            },
+            {
+              "late_pct": "12.3456790123456790",
+              "seller_id": "7ad32824caee82087b3e2e5f33b1bf32",
+              "late_orders": 10,
+              "measured_orders": 81
+            },
+            {
+              "late_pct": "12.3076923076923077",
+              "seller_id": "c31eff8334d6b3047ed34bebd4d62c36",
+              "late_orders": 8,
+              "measured_orders": 65
+            },
+            {
+              "late_pct": "11.3924050632911392",
+              "seller_id": "8d956fec2e4337affcb520f56fd8cbfd",
+              "late_orders": 9,
+              "measured_orders": 79
+            },
+            {
+              "late_pct": "11.1111111111111111",
+              "seller_id": "c003204e1ab016dfa150abc119207b24",
+              "late_orders": 6,
+              "measured_orders": 54
+            },
+            {
+              "late_pct": "9.6153846153846154",
+              "seller_id": "688756f717c462a206ad854c5027a64a",
+              "late_orders": 5,
+              "measured_orders": 52
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r1",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.summary.json",
+        "log": "logs/eval_step13-supplement-once-r1_20261101T111107Z_105ff9b6.jsonl",
+        "log_sha256": "bc038595baf5f210e43e61d3aefb13611548a43668d58cdb32f686a32de248aa"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "卖家06a2c3af7b3aee5d69171b0e14f0ee87及17.8010%与gold一致，但提交seller_id而非公开要求的worst_seller，事实1/2；另有题干门槛50的证据扫描误报。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [
+        "门槛50是checker_false_positive；即便只诊断剔除该误报，缺worst_seller仍不满足公开契约。"
+      ],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_K01DViRSigE8cAsSWN155727",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"WITH d AS (\\n  SELECT DISTINCT oi.seller_id, o.order_id, o.order_delivered_customer_date, o.order_estimated_delivery_date\\n  FROM orders o\\n  JOIN order_items oi ON oi.order_id = o.order_id\\n  WHERE o.order_status='delivered'\\n    AND o.order_delivered_customer_date IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n), agg AS (\\n  SELECT seller_id,\\n         count(*) AS measured_orders,\\n         count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,\\n         100.0*count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date)/nullif(count(*),0) AS late_pct\\n  FROM d GROUP BY seller_id\\n)\\nSELECT seller_id, measured_orders, late_orders, late_pct\\nFROM agg WHERE measured_orders >= 50\\nORDER BY late_pct DESC, seller_id\\nLIMIT 10;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_7ymf0FhSJCNCI84NpjT55568",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且实际送达时间存在的订单中，按卖家去重订单计数（一单多卖家分别计入各卖家），在订单数 ≥ 50 的卖家里，迟到率最高的是卖家 06a2c3af7b3aee5d69171b0e14f0ee87：可衡量订单 191 单，迟到 34 单，迟到率 17.8010471204188482%（约 17.80%）。迟到判定为实际送达时间戳严格晚于预计送达时间戳（原始时间戳比较，不截断为日期）。\", \"claims\": [{\"text\": \"2018 Q2 已送达订单数≥50 的卖家中迟到率最高者为 06a2c3af7b3aee5d69171b0e14f0ee87，迟到率 17.8010471204188482%（191 单中 34 单迟到）\", \"value\": [{\"seller_id\": \"06a2c3af7b3aee5d69171b0e14f0ee87\", \"measured_orders\": 191, \"late_orders\": 34, \"late_pct\": \"17.8010471204188482\"}], \"evidence\": [\"7190ac6d-9e43-4e33-9030-94d2c80a4225\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N01",
+      "repeat": 2,
+      "task_id": "a46ce9dc-bffc-453c-9a23-359525fda483",
+      "gold": {
+        "peak_month": "2017-11",
+        "peak_orders": 7544,
+        "low_month": "2017-01",
+        "low_orders": 800
+      },
+      "response": {
+        "answer": "2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。全年各月均有订单，未验证 月达到峰值后 未验证 月回落至 5673 单。需注意 2017-01 属于数据覆盖的边界月份（首月），其偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。",
+        "claims": [
+          {
+            "text": "2017 年订单最多的月份为 2017-11，订单数 7544；最少的月份为 2017-01，订单数 800（按下单时间归月，全部状态计入）",
+            "value": [
+              {
+                "peak_month": "2017-11",
+                "peak_orders": 7544,
+                "low_month": "2017-01",
+                "low_orders": 800
+              }
+            ],
+            "evidence": [
+              "0db2875d-a6cd-4fff-828d-317dae0807f0"
+            ]
+          },
+          {
+            "text": "2017 年各月订单量明细（12 个月均有订单，11 月峰值后 12 月回落）",
+            "value": [
+              {
+                "month": "2017-01",
+                "orders": 800
+              },
+              {
+                "month": "2017-02",
+                "orders": 1780
+              },
+              {
+                "month": "2017-03",
+                "orders": 2682
+              },
+              {
+                "month": "2017-04",
+                "orders": 2404
+              },
+              {
+                "month": "2017-05",
+                "orders": 3700
+              },
+              {
+                "month": "2017-06",
+                "orders": 3245
+              },
+              {
+                "month": "2017-07",
+                "orders": 4026
+              },
+              {
+                "month": "2017-08",
+                "orders": 4331
+              },
+              {
+                "month": "2017-09",
+                "orders": 4285
+              },
+              {
+                "month": "2017-10",
+                "orders": 4631
+              },
+              {
+                "month": "2017-11",
+                "orders": 7544
+              },
+              {
+                "month": "2017-12",
+                "orders": 5673
+              }
+            ],
+            "evidence": [
+              "01d4c3e1-1931-46f4-9dec-b654a6d63f46"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 6,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.16666666666666666
+      },
+      "saved_results": [
+        {
+          "result_id": "01d4c3e1-1931-46f4-9dec-b654a6d63f46",
+          "sql": "SELECT TO_CHAR(order_purchase_timestamp, 'YYYY-MM') AS month, COUNT(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1 LIMIT 1000",
+          "rows": [
+            {
+              "month": "2017-01",
+              "orders": 800
+            },
+            {
+              "month": "2017-02",
+              "orders": 1780
+            },
+            {
+              "month": "2017-03",
+              "orders": 2682
+            },
+            {
+              "month": "2017-04",
+              "orders": 2404
+            },
+            {
+              "month": "2017-05",
+              "orders": 3700
+            },
+            {
+              "month": "2017-06",
+              "orders": 3245
+            },
+            {
+              "month": "2017-07",
+              "orders": 4026
+            },
+            {
+              "month": "2017-08",
+              "orders": 4331
+            },
+            {
+              "month": "2017-09",
+              "orders": 4285
+            },
+            {
+              "month": "2017-10",
+              "orders": 4631
+            },
+            {
+              "month": "2017-11",
+              "orders": 7544
+            },
+            {
+              "month": "2017-12",
+              "orders": 5673
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "0db2875d-a6cd-4fff-828d-317dae0807f0",
+          "sql": "WITH m AS (SELECT TO_CHAR(order_purchase_timestamp, 'YYYY-MM') AS month, COUNT(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01' GROUP BY 1) SELECT (SELECT month FROM m ORDER BY orders DESC, month LIMIT 1) AS peak_month, (SELECT orders FROM m ORDER BY orders DESC, month LIMIT 1) AS peak_orders, (SELECT month FROM m ORDER BY orders ASC, month LIMIT 1) AS low_month, (SELECT orders FROM m ORDER BY orders ASC, month LIMIT 1) AS low_orders LIMIT 1000",
+          "rows": [
+            {
+              "low_month": "2017-01",
+              "low_orders": 800,
+              "peak_month": "2017-11",
+              "peak_orders": 7544
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "自行计数未保存证据",
+      "fairness": "agent_error",
+      "reason": "四个必需事实与gold一致，但claim.text写“12个月均有数据/订单”，SQL只返回12行月明细，没有计算或返回月份数量12；另将2017年1月误说成数据起始边界。",
+      "evidence_issue_type": "real_unsupported",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_IKzDu2Swup9sJ2LvjZXT3960",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。全年 12 个月均有订单，月度订单量从 1 月的 800 单逐步攀升，11 月达到峰值后 12 月回落至 5673 单。需注意 2017-01 属于数据覆盖的边界月份（首月），其偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。\", \"claims\": [{\"text\": \"2017 年订单最多的月份为 2017-11，订单数 7544；最少的月份为 2017-01，订单数 800（按下单时间归月，全部状态计入）\", \"value\": [{\"peak_month\": \"2017-11\", \"peak_orders\": 7544, \"low_month\": \"2017-01\", \"low_orders\": 800}], \"evidence\": [\"0db2875d-a6cd-4fff-828d-317dae0807f0\"]}, {\"text\": \"2017 年各月订单量明细（12 个月均有订单，11 月峰值后 12 月回落）\", \"value\": [{\"month\": \"2017-01\", \"orders\": 800}, {\"month\": \"2017-02\", \"orders\": 1780}, {\"month\": \"2017-03\", \"orders\": 2682}, {\"month\": \"2017-04\", \"orders\": 2404}, {\"month\": \"2017-05\", \"orders\": 3700}, {\"month\": \"2017-06\", \"orders\": 3245}, {\"month\": \"2017-07\", \"orders\": 4026}, {\"month\": \"2017-08\", \"orders\": 4331}, {\"month\": \"2017-09\", \"orders\": 4285}, {\"month\": \"2017-10\", \"orders\": 4631}, {\"month\": \"2017-11\", \"orders\": 7544}, {\"month\": \"2017-12\", \"orders\": 5673}], \"evidence\": [\"01d4c3e1-1931-46f4-9dec-b654a6d63f46\"]}]}"
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_IKzDu2Swup9sJ2LvjZXT3960",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。全年 12 个月均有订单，月度订单量从 1 月的 800 单逐步攀升，11 月达到峰值后 12 月回落至 5673 单。需注意 2017-01 属于数据覆盖的边界月份（首月），其偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。\", \"claims\": [{\"text\": \"2017 年订单最多的月份为 2017-11，订单数 7544；最少的月份为 2017-01，订单数 800（按下单时间归月，全部状态计入）\", \"value\": [{\"peak_month\": \"2017-11\", \"peak_orders\": 7544, \"low_month\": \"2017-01\", \"low_orders\": 800}], \"evidence\": [\"0db2875d-a6cd-4fff-828d-317dae0807f0\"]}, {\"text\": \"2017 年各月订单量明细（12 个月均有订单，11 月峰值后 12 月回落）\", \"value\": [{\"month\": \"2017-01\", \"orders\": 800}, {\"month\": \"2017-02\", \"orders\": 1780}, {\"month\": \"2017-03\", \"orders\": 2682}, {\"month\": \"2017-04\", \"orders\": 2404}, {\"month\": \"2017-05\", \"orders\": 3700}, {\"month\": \"2017-06\", \"orders\": 3245}, {\"month\": \"2017-07\", \"orders\": 4026}, {\"month\": \"2017-08\", \"orders\": 4331}, {\"month\": \"2017-09\", \"orders\": 4285}, {\"month\": \"2017-10\", \"orders\": 4631}, {\"month\": \"2017-11\", \"orders\": 7544}, {\"month\": \"2017-12\", \"orders\": 5673}], \"evidence\": [\"01d4c3e1-1931-46f4-9dec-b654a6d63f46\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N03",
+      "repeat": 2,
+      "task_id": "600277ee-ed14-407f-b091-903c5aa37da4",
+      "gold": {
+        "rio_gmv": 187039.25,
+        "sao_paulo_gmv": 432735.87
+      },
+      "response": {
+        "answer": "2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，按客户所在城市归属，GMV = order_items.price 之和、不含运费、排除 canceled/unavailable 订单）：\n- 里约热内卢市（Rio de Janeiro, RJ）：GMV 187,039.25，涉及 1,204 个订单\n- 圣保罗市（São Paulo, SP）：GMV 432,735.87，涉及 3,415 个订单\n两城市 GMV 的倍数关系未验证。",
+        "claims": [
+          {
+            "text": "2018 Q2 里约热内卢市（RJ）GMV 为 187039.25（排除 canceled/unavailable，不含运费）",
+            "value": [
+              {
+                "customer_city": "rio de janeiro",
+                "customer_state": "RJ",
+                "gmv": 187039.25,
+                "orders": 1204
+              }
+            ],
+            "evidence": [
+              "e99d0014-306e-43ac-9370-29eb85688b28"
+            ]
+          },
+          {
+            "text": "2018 Q2 圣保罗市（SP）GMV 为 432735.87（排除 canceled/unavailable，不含运费）",
+            "value": [
+              {
+                "customer_city": "sao paulo",
+                "customer_state": "SP",
+                "gmv": 432735.87,
+                "orders": 3415
+              }
+            ],
+            "evidence": [
+              "e99d0014-306e-43ac-9370-29eb85688b28"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 6,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "e99d0014-306e-43ac-9370-29eb85688b28",
+          "sql": "SELECT c.customer_city, c.customer_state, SUM(i.price) AS gmv, COUNT(DISTINCT o.order_id) AS orders FROM orders AS o JOIN customers AS c USING (customer_id) JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND ((c.customer_city = 'rio de janeiro' AND c.customer_state = 'RJ') OR (c.customer_city = 'sao paulo' AND c.customer_state = 'SP')) GROUP BY 1, 2 ORDER BY 1 LIMIT 1000",
+          "rows": [
+            {
+              "gmv": "187039.25",
+              "orders": 1204,
+              "customer_city": "rio de janeiro",
+              "customer_state": "RJ"
+            },
+            {
+              "gmv": "432735.87",
+              "orders": 3415,
+              "customer_city": "sao paulo",
+              "customer_state": "SP"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "两市GMV分别187039.25、432735.87，与gold相同；三轮均只提交customer_city/gmv行，没有公开要求的rio_gmv、sao_paulo_gmv。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_LplgBLwPNeSSFqSwu1nq7212",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT c.customer_city, c.customer_state, sum(i.price) AS gmv, count(DISTINCT o.order_id) AS orders\\nFROM orders o\\nJOIN customers c USING(customer_id)\\nJOIN order_items i USING(order_id)\\nWHERE o.order_status NOT IN ('canceled','unavailable')\\n  AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  AND ((c.customer_city = 'rio de janeiro' AND c.customer_state = 'RJ') OR (c.customer_city = 'sao paulo' AND c.customer_state = 'SP'))\\nGROUP BY 1,2 ORDER BY 1;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_lreqPJbhN3bKsUDT7qta0134",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，按客户所在城市归属，GMV = order_items.price 之和、不含运费、排除 canceled/unavailable 订单）：\\n- 里约热内卢市（Rio de Janeiro, RJ）：GMV 187,039.25，涉及 1,204 个订单\\n- 圣保罗市（São Paulo, SP）：GMV 432,735.87，涉及 3,415 个订单\\n圣保罗市 GMV 约为里约热内卢市的 2.3 倍。\", \"claims\": [{\"text\": \"2018 Q2 里约热内卢市（RJ）GMV 为 187039.25（排除 canceled/unavailable，不含运费）\", \"value\": [{\"customer_city\": \"rio de janeiro\", \"customer_state\": \"RJ\", \"gmv\": 187039.25, \"orders\": 1204}], \"evidence\": [\"e99d0014-306e-43ac-9370-29eb85688b28\"]}, {\"text\": \"2018 Q2 圣保罗市（SP）GMV 为 432735.87（排除 canceled/unavailable，不含运费）\", \"value\": [{\"customer_city\": \"sao paulo\", \"customer_state\": \"SP\", \"gmv\": 432735.87, \"orders\": 3415}], \"evidence\": [\"e99d0014-306e-43ac-9370-29eb85688b28\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N05",
+      "repeat": 2,
+      "task_id": "5bbe737f-1a3c-44d4-8754-f7cc9be7c639",
+      "gold": {
+        "mode_installments": 1,
+        "share_pct": 35.959875145941055
+      },
+      "response": {
+        "answer": "2018 年信用卡支付记录中，最常见的是分 1 期（一次性付清），共 15,092 条，占当年信用卡支付记录的 35.9599%。",
+        "claims": [
+          {
+            "text": "2018 年信用卡支付记录按分期期数分布，1 期最多，为 15,092 条，占 35.9599%",
+            "value": [
+              {
+                "payment_installments": 1,
+                "cnt": 15092,
+                "share_pct": "35.9599"
+              }
+            ],
+            "evidence": [
+              "6cc307b2-2114-4d36-9405-e2a83fab81a6"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 6,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "6cc307b2-2114-4d36-9405-e2a83fab81a6",
+          "sql": "SELECT payment_installments, COUNT(*) AS cnt, ROUND(CAST(100.0 * COUNT(*) / SUM(COUNT(*)) OVER () AS DECIMAL), 4) AS share_pct FROM order_payments AS p JOIN orders AS o ON o.order_id = p.order_id WHERE p.payment_type = 'credit_card' AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2019-01-01' GROUP BY payment_installments ORDER BY cnt DESC LIMIT 1000",
+          "rows": [
+            {
+              "cnt": 15092,
+              "share_pct": "35.9599",
+              "payment_installments": 1
+            },
+            {
+              "cnt": 7020,
+              "share_pct": "16.7266",
+              "payment_installments": 2
+            },
+            {
+              "cnt": 5507,
+              "share_pct": "13.1216",
+              "payment_installments": 3
+            },
+            {
+              "cnt": 3697,
+              "share_pct": "8.8089",
+              "payment_installments": 4
+            },
+            {
+              "cnt": 2654,
+              "share_pct": "6.3237",
+              "payment_installments": 5
+            },
+            {
+              "cnt": 2545,
+              "share_pct": "6.0640",
+              "payment_installments": 8
+            },
+            {
+              "cnt": 2248,
+              "share_pct": "5.3563",
+              "payment_installments": 10
+            },
+            {
+              "cnt": 2020,
+              "share_pct": "4.8131",
+              "payment_installments": 6
+            },
+            {
+              "cnt": 765,
+              "share_pct": "1.8228",
+              "payment_installments": 7
+            },
+            {
+              "cnt": 262,
+              "share_pct": "0.6243",
+              "payment_installments": 9
+            },
+            {
+              "cnt": 58,
+              "share_pct": "0.1382",
+              "payment_installments": 12
+            },
+            {
+              "cnt": 48,
+              "share_pct": "0.1144",
+              "payment_installments": 15
+            },
+            {
+              "cnt": 11,
+              "share_pct": "0.0262",
+              "payment_installments": 18
+            },
+            {
+              "cnt": 9,
+              "share_pct": "0.0214",
+              "payment_installments": 13
+            },
+            {
+              "cnt": 9,
+              "share_pct": "0.0214",
+              "payment_installments": 11
+            },
+            {
+              "cnt": 6,
+              "share_pct": "0.0143",
+              "payment_installments": 14
+            },
+            {
+              "cnt": 5,
+              "share_pct": "0.0119",
+              "payment_installments": 17
+            },
+            {
+              "cnt": 5,
+              "share_pct": "0.0119",
+              "payment_installments": 20
+            },
+            {
+              "cnt": 3,
+              "share_pct": "0.0071",
+              "payment_installments": 16
+            },
+            {
+              "cnt": 2,
+              "share_pct": "0.0048",
+              "payment_installments": 24
+            },
+            {
+              "cnt": 2,
+              "share_pct": "0.0048",
+              "payment_installments": 0
+            },
+            {
+              "cnt": 1,
+              "share_pct": "0.0024",
+              "payment_installments": 23
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "众数1期及占比35.9599%正确，但提交payment_installments而不是公开要求的mode_installments，事实仅命中1/2。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 11,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_fKTHlrvqKU20WEtXPnOu0498",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT payment_installments, COUNT(*) AS cnt, ROUND(100.0*COUNT(*)/SUM(COUNT(*)) OVER (), 4) AS share_pct FROM order_payments p JOIN orders o ON o.order_id = p.order_id WHERE p.payment_type = 'credit_card' AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2019-01-01' GROUP BY payment_installments ORDER BY cnt DESC\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 17,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_bBzm3oVEsozs8LRfYdBb7960",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年信用卡支付记录中，最常见的是分 1 期（一次性付清），共 15,092 条，占当年信用卡支付记录的 35.9599%。\", \"claims\": [{\"text\": \"2018 年信用卡支付记录按分期期数分布，1 期最多，为 15,092 条，占 35.9599%\", \"value\": [{\"payment_installments\": 1, \"cnt\": 15092, \"share_pct\": \"35.9599\"}], \"evidence\": [\"6cc307b2-2114-4d36-9405-e2a83fab81a6\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N06",
+      "repeat": 2,
+      "task_id": "4c6a7462-fa56-4231-a5d1-fa3af25b854a",
+      "gold": {
+        "freight_pct": 14.221035631463664,
+        "top_state": "AP",
+        "top_state_pct": 21.55846249974805
+      },
+      "response": {
+        "answer": "2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp，全部订单状态计入，商品明细粒度汇总）：整体运费占（商品金额+运费）比例为 14.2210%（运费合计 473,867.23，商品金额合计 2,858,289.74，明细行 22,978）。按客户所在州看，该比例最高的是 AP（阿马帕州），为 21.5585%（运费 534.79，商品+运费合计 2,480.65，明细行 15）；其后为 MA 21.0109%、AM 20.5792%。注意 AP 样本量很小（仅 15 行明细），比例波动性较大。",
+        "claims": [
+          {
+            "text": "2018 Q2 整体运费占（商品金额+运费）比例为 14.2210%",
+            "value": {
+              "freight_pct": "14.2210",
+              "freight_total": "473867.23",
+              "sales_total": "2858289.74",
+              "item_rows": 22978
+            },
+            "evidence": [
+              "f1952442-3162-41bd-b313-15ecdb8fc1bb"
+            ]
+          },
+          {
+            "text": "按客户州分组，运费占比最高的州为 AP，比例 21.5585%",
+            "value": {
+              "customer_state": "AP",
+              "freight_pct": "21.5585",
+              "freight_total": "534.79",
+              "gross_total": "2480.65",
+              "item_rows": 15
+            },
+            "evidence": [
+              "01b1ac0f-8e92-4778-b3b9-b17b05aa5602"
+            ]
+          },
+          {
+            "text": "运费占比第二、第三高的州为 MA 21.0109% 与 AM 20.5792%",
+            "value": [
+              {
+                "customer_state": "MA",
+                "freight_pct": "21.0109",
+                "freight_total": "5584.20",
+                "gross_total": "26577.65",
+                "item_rows": 133
+              },
+              {
+                "customer_state": "AM",
+                "freight_pct": "20.5792",
+                "freight_total": "882.11",
+                "gross_total": "4286.42",
+                "item_rows": 25
+              }
+            ],
+            "evidence": [
+              "01b1ac0f-8e92-4778-b3b9-b17b05aa5602"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 15,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "f1952442-3162-41bd-b313-15ecdb8fc1bb",
+          "sql": "SELECT ROUND(100.0 * SUM(oi.freight_value) / SUM(oi.price + oi.freight_value), 4) AS freight_pct, SUM(oi.freight_value) AS freight_total, SUM(oi.price) AS sales_total, COUNT(*) AS item_rows FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "rows": [
+            {
+              "item_rows": 22978,
+              "freight_pct": "14.2210",
+              "sales_total": "2858289.74",
+              "freight_total": "473867.23"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "01b1ac0f-8e92-4778-b3b9-b17b05aa5602",
+          "sql": "SELECT c.customer_state, ROUND(100.0 * SUM(oi.freight_value) / SUM(oi.price + oi.freight_value), 4) AS freight_pct, SUM(oi.freight_value) AS freight_total, SUM(oi.price + oi.freight_value) AS gross_total, COUNT(*) AS item_rows FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN customers AS c ON c.customer_id = o.customer_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state ORDER BY freight_pct DESC LIMIT 1000",
+          "rows": [
+            {
+              "item_rows": 15,
+              "freight_pct": "21.5585",
+              "gross_total": "2480.65",
+              "freight_total": "534.79",
+              "customer_state": "AP"
+            },
+            {
+              "item_rows": 133,
+              "freight_pct": "21.0109",
+              "gross_total": "26577.65",
+              "freight_total": "5584.20",
+              "customer_state": "MA"
+            },
+            {
+              "item_rows": 25,
+              "freight_pct": "20.5792",
+              "gross_total": "4286.42",
+              "freight_total": "882.11",
+              "customer_state": "AM"
+            },
+            {
+              "item_rows": 43,
+              "freight_pct": "20.5504",
+              "gross_total": "9662.20",
+              "freight_total": "1985.62",
+              "customer_state": "RO"
+            },
+            {
+              "item_rows": 186,
+              "freight_pct": "20.0464",
+              "gross_total": "35600.15",
+              "freight_total": "7136.54",
+              "customer_state": "PA"
+            },
+            {
+              "item_rows": 97,
+              "freight_pct": "20.0410",
+              "gross_total": "21008.53",
+              "freight_total": "4210.32",
+              "customer_state": "RN"
+            },
+            {
+              "item_rows": 345,
+              "freight_pct": "19.6908",
+              "gross_total": "57562.88",
+              "freight_total": "11334.61",
+              "customer_state": "PE"
+            },
+            {
+              "item_rows": 56,
+              "freight_pct": "19.5886",
+              "gross_total": "10126.29",
+              "freight_total": "1983.60",
+              "customer_state": "SE"
+            },
+            {
+              "item_rows": 61,
+              "freight_pct": "18.9487",
+              "gross_total": "13671.87",
+              "freight_total": "2590.64",
+              "customer_state": "TO"
+            },
+            {
+              "item_rows": 111,
+              "freight_pct": "18.4802",
+              "gross_total": "27559.36",
+              "freight_total": "5093.03",
+              "customer_state": "PI"
+            },
+            {
+              "item_rows": 75,
+              "freight_pct": "17.9563",
+              "gross_total": "16447.24",
+              "freight_total": "2953.32",
+              "customer_state": "AL"
+            },
+            {
+              "item_rows": 218,
+              "freight_pct": "17.8319",
+              "gross_total": "41550.81",
+              "freight_total": "7409.28",
+              "customer_state": "MT"
+            },
+            {
+              "item_rows": 263,
+              "freight_pct": "17.5457",
+              "gross_total": "55600.36",
+              "freight_total": "9755.50",
+              "customer_state": "CE"
+            },
+            {
+              "item_rows": 9,
+              "freight_pct": "17.5328",
+              "gross_total": "2686.85",
+              "freight_total": "471.08",
+              "customer_state": "AC"
+            },
+            {
+              "item_rows": 10,
+              "freight_pct": "17.4614",
+              "gross_total": "2586.11",
+              "freight_total": "451.57",
+              "customer_state": "RR"
+            },
+            {
+              "item_rows": 747,
+              "freight_pct": "17.4277",
+              "gross_total": "123784.02",
+              "freight_total": "21572.76",
+              "customer_state": "BA"
+            },
+            {
+              "item_rows": 455,
+              "freight_pct": "16.7699",
+              "gross_total": "63318.89",
+              "freight_total": "10618.53",
+              "customer_state": "ES"
+            },
+            {
+              "item_rows": 1150,
+              "freight_pct": "15.5526",
+              "gross_total": "174588.50",
+              "freight_total": "27152.98",
+              "customer_state": "RS"
+            },
+            {
+              "item_rows": 2608,
+              "freight_pct": "15.0216",
+              "gross_total": "377892.39",
+              "freight_total": "56765.43",
+              "customer_state": "MG"
+            },
+            {
+              "item_rows": 418,
+              "freight_pct": "14.9569",
+              "gross_total": "67777.09",
+              "freight_total": "10137.35",
+              "customer_state": "GO"
+            },
+            {
+              "item_rows": 822,
+              "freight_pct": "14.7686",
+              "gross_total": "132679.74",
+              "freight_total": "19594.96",
+              "customer_state": "SC"
+            },
+            {
+              "item_rows": 2753,
+              "freight_pct": "14.6338",
+              "gross_total": "413573.57",
+              "freight_total": "60521.47",
+              "customer_state": "RJ"
+            },
+            {
+              "item_rows": 162,
+              "freight_pct": "14.5563",
+              "gross_total": "28959.60",
+              "freight_total": "4215.45",
+              "customer_state": "MS"
+            },
+            {
+              "item_rows": 1161,
+              "freight_pct": "14.5335",
+              "gross_total": "181930.10",
+              "freight_total": "26440.80",
+              "customer_state": "PR"
+            },
+            {
+              "item_rows": 493,
+              "freight_pct": "14.4029",
+              "gross_total": "75072.34",
+              "freight_total": "10812.63",
+              "customer_state": "DF"
+            },
+            {
+              "item_rows": 91,
+              "freight_pct": "14.0724",
+              "gross_total": "25914.16",
+              "freight_total": "3646.75",
+              "customer_state": "PB"
+            },
+            {
+              "item_rows": 10471,
+              "freight_pct": "11.9478",
+              "gross_total": "1339259.20",
+              "freight_total": "160011.91",
+              "customer_state": "SP"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "整体14.2210%、AP最高21.5585%均与gold一致，但州行仍用customer_state/freight_pct，缺top_state/top_state_pct；州占比还与整体freight_pct构成矛盾重复，事实0/3。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_01_CvoP433MG0USGn0GpiGH5984",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT c.customer_state, round(100.0 * sum(oi.freight_value) / sum(oi.price + oi.freight_value), 4) AS freight_pct, sum(oi.freight_value) AS freight_total, sum(oi.price + oi.freight_value) AS gross_total, count(*) AS item_rows FROM order_items oi JOIN orders o ON o.order_id = oi.order_id JOIN customers c ON c.customer_id = o.customer_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state ORDER BY freight_pct DESC\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 35,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_vN4IpAQ2su42xfFGgGma6874",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp，全部订单状态计入，商品明细粒度汇总）：整体运费占（商品金额+运费）比例为 14.2210%（运费合计 473,867.23，商品金额合计 2,858,289.74，明细行 22,978）。按客户所在州看，该比例最高的是 AP（阿马帕州），为 21.5585%（运费 534.79，商品+运费合计 2,480.65，明细行 15）；其后为 MA 21.0109%、AM 20.5792%。注意 AP 样本量很小（仅 15 行明细），比例波动性较大。\", \"claims\": [{\"text\": \"2018 Q2 整体运费占（商品金额+运费）比例为 14.2210%\", \"value\": {\"freight_pct\": \"14.2210\", \"freight_total\": \"473867.23\", \"sales_total\": \"2858289.74\", \"item_rows\": 22978}, \"evidence\": [\"f1952442-3162-41bd-b313-15ecdb8fc1bb\"]}, {\"text\": \"按客户州分组，运费占比最高的州为 AP，比例 21.5585%\", \"value\": {\"customer_state\": \"AP\", \"freight_pct\": \"21.5585\", \"freight_total\": \"534.79\", \"gross_total\": \"2480.65\", \"item_rows\": 15}, \"evidence\": [\"01b1ac0f-8e92-4778-b3b9-b17b05aa5602\"]}, {\"text\": \"运费占比第二、第三高的州为 MA 21.0109% 与 AM 20.5792%\", \"value\": [{\"customer_state\": \"MA\", \"freight_pct\": \"21.0109\", \"freight_total\": \"5584.20\", \"gross_total\": \"26577.65\", \"item_rows\": 133}, {\"customer_state\": \"AM\", \"freight_pct\": \"20.5792\", \"freight_total\": \"882.11\", \"gross_total\": \"4286.42\", \"item_rows\": 25}], \"evidence\": [\"01b1ac0f-8e92-4778-b3b9-b17b05aa5602\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N07",
+      "repeat": 2,
+      "task_id": "0d6ba271-48c3-48c7-8244-eb085a3187f0",
+      "gold": {
+        "over30_orders": 522,
+        "measured_orders": 19643,
+        "over30_pct": 2.6574352186529553
+      },
+      "response": {
+        "answer": "2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且有实际送达时间的订单共 19,643 单，其中从下单到送达超过 未验证 天的有 522 单，占比 2.6574%。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达且有实际送达时间的订单中，配送时长超过 30 天的订单数、可衡量订单总数及占比",
+            "value": [
+              {
+                "measured_orders": 19643,
+                "over30_orders": 522,
+                "over30_pct": "2.6574"
+              }
+            ],
+            "evidence": [
+              "4116aefd-1ad4-4217-8a01-a0974cd2d7be"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      },
+      "saved_results": [
+        {
+          "result_id": "4116aefd-1ad4-4217-8a01-a0974cd2d7be",
+          "sql": "SELECT COUNT(*) AS measured_orders, COUNT(*) FILTER(WHERE EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 > 30) AS over30_orders, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 > 30) / NULLIF(COUNT(*), 0) AS DECIMAL), 4) AS over30_pct FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "rows": [
+            {
+              "over30_pct": "2.6574",
+              "over30_orders": 522,
+              "measured_orders": 19643
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "定义常量被扫描为业务数字",
+      "fairness": "grader_issue",
+      "reason": "522/19643/2.6574%三个必需事实均命中且claim有证据；题干和SQL筛选条件中的30天被计为未支持数字，导致key_facts整题失败。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 23,
+        "type": "number_gate",
+        "payload": {
+          "before": [
+            "30"
+          ],
+          "after_rewrite": [
+            "30"
+          ],
+          "replaced": [
+            "30"
+          ],
+          "rewrites": 1
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 17,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_LWee1WXLuWSRkXxDFAQQ4945",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且有实际送达时间的订单共 19,643 单，其中从下单到送达超过 30 天的有 522 单，占比 2.6574%。\", \"claims\": [{\"text\": \"2018 Q2 已送达且有实际送达时间的订单中，配送时长超过 30 天的订单数、可衡量订单总数及占比\", \"value\": [{\"measured_orders\": 19643, \"over30_orders\": 522, \"over30_pct\": \"2.6574\"}], \"evidence\": [\"4116aefd-1ad4-4217-8a01-a0974cd2d7be\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N08",
+      "repeat": 2,
+      "task_id": "d3a29c2d-1dfd-41ae-88a3-b3ce608e28c0",
+      "gold": {
+        "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "late_pct": 17.801047120418847
+      },
+      "response": {
+        "answer": "2018 年 Q2（按 order_purchase_timestamp 落在 2018-04-01 至 2018-06-30）已送达且实际送达时间存在的订单中，按卖家去重统计（一单多卖家分别计入），在订单数达到门槛的卖家里，迟到率最高的是卖家 06a2c3af7b3aee5d69171b0e14f0ee87：可衡量订单 191 单，迟到 34 单，迟到率 17.8010%。迟到判定为 order_delivered_customer_date > order_estimated_delivery_date，按完整原始时间戳比较，未截断为日期。订单数门槛的具体数值未验证。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达订单数≥50 的卖家中迟到率最高者为 06a2c3af7b3aee5d69171b0e14f0ee87，迟到率 17.8010%（191 单中 34 单迟到）",
+            "value": [
+              {
+                "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+                "measured_orders": 191,
+                "late_orders": 34,
+                "late_pct": "17.8010"
+              }
+            ],
+            "evidence": [
+              "fc587830-6ab7-4564-97f8-042b5335ee50"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 7,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.14285714285714285
+      },
+      "saved_results": [
+        {
+          "result_id": "fc587830-6ab7-4564-97f8-042b5335ee50",
+          "sql": "WITH q2 AS (SELECT o.order_id, o.order_delivered_customer_date, o.order_estimated_delivery_date FROM orders AS o WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL AND o.order_purchase_timestamp >= '2018-04-01 00:00:00' AND o.order_purchase_timestamp < '2018-07-01 00:00:00'), seller_orders AS (SELECT DISTINCT oi.seller_id, q2.order_id, q2.order_delivered_customer_date, q2.order_estimated_delivery_date FROM q2 JOIN order_items AS oi ON oi.order_id = q2.order_id) SELECT seller_id, COUNT(*) AS measured_orders, COUNT(*) FILTER(WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE order_delivered_customer_date > order_estimated_delivery_date) / COUNT(*) AS DECIMAL), 4) AS late_pct FROM seller_orders GROUP BY seller_id HAVING COUNT(*) >= 50 ORDER BY late_pct DESC, seller_id LIMIT 10",
+          "rows": [
+            {
+              "late_pct": "17.8010",
+              "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_orders": 34,
+              "measured_orders": 191
+            },
+            {
+              "late_pct": "15.2542",
+              "seller_id": "ba143b05f0110f0dc71ad71b4466ce92",
+              "late_orders": 9,
+              "measured_orders": 59
+            },
+            {
+              "late_pct": "14.7826",
+              "seller_id": "2eb70248d66e0e3ef83659f71b244378",
+              "late_orders": 17,
+              "measured_orders": 115
+            },
+            {
+              "late_pct": "14.5161",
+              "seller_id": "f7ba60f8c3f99e7ee4042fdef03b70c4",
+              "late_orders": 9,
+              "measured_orders": 62
+            },
+            {
+              "late_pct": "12.9412",
+              "seller_id": "391fc6631aebcf3004804e51b40bcf1e",
+              "late_orders": 11,
+              "measured_orders": 85
+            },
+            {
+              "late_pct": "12.3457",
+              "seller_id": "7ad32824caee82087b3e2e5f33b1bf32",
+              "late_orders": 10,
+              "measured_orders": 81
+            },
+            {
+              "late_pct": "12.3077",
+              "seller_id": "c31eff8334d6b3047ed34bebd4d62c36",
+              "late_orders": 8,
+              "measured_orders": 65
+            },
+            {
+              "late_pct": "11.3924",
+              "seller_id": "8d956fec2e4337affcb520f56fd8cbfd",
+              "late_orders": 9,
+              "measured_orders": 79
+            },
+            {
+              "late_pct": "11.1111",
+              "seller_id": "c003204e1ab016dfa150abc119207b24",
+              "late_orders": 6,
+              "measured_orders": 54
+            },
+            {
+              "late_pct": "9.6154",
+              "seller_id": "688756f717c462a206ad854c5027a64a",
+              "late_orders": 5,
+              "measured_orders": 52
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "卖家06a2c3af7b3aee5d69171b0e14f0ee87及17.8010%与gold一致，但提交seller_id而非公开要求的worst_seller，事实1/2；另有题干门槛50的证据扫描误报。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [
+        "门槛50是checker_false_positive；即便只诊断剔除该误报，缺worst_seller仍不满足公开契约。"
+      ],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_4fADzlRFqleCHngBWYsM2880",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id, o.order_delivered_customer_date, o.order_estimated_delivery_date\\n  FROM orders o\\n  WHERE o.order_status='delivered'\\n    AND o.order_delivered_customer_date IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-04-01 00:00:00'\\n    AND o.order_purchase_timestamp < '2018-07-01 00:00:00'\\n), seller_orders AS (\\n  SELECT DISTINCT oi.seller_id, q2.order_id, q2.order_delivered_customer_date, q2.order_estimated_delivery_date\\n  FROM q2 JOIN order_items oi ON oi.order_id = q2.order_id\\n)\\nSELECT seller_id,\\n       count(*) AS measured_orders,\\n       count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,\\n       round(100.0*count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date)/count(*), 4) AS late_pct\\nFROM seller_orders\\nGROUP BY seller_id\\nHAVING count(*) >= 50\\nORDER BY late_pct DESC, seller_id\\nLIMIT 10;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_dfJTpatuHMKUIxHuEffW2504",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按 order_purchase_timestamp 落在 2018-04-01 至 2018-06-30）已送达且实际送达时间存在的订单中，按卖家去重统计（一单多卖家分别计入），在订单数 ≥ 50 的卖家里，迟到率最高的是卖家 06a2c3af7b3aee5d69171b0e14f0ee87：可衡量订单 191 单，迟到 34 单，迟到率 17.8010%。迟到判定为 order_delivered_customer_date > order_estimated_delivery_date，按完整原始时间戳比较，未截断为日期。\", \"claims\": [{\"text\": \"2018 Q2 已送达订单数≥50 的卖家中迟到率最高者为 06a2c3af7b3aee5d69171b0e14f0ee87，迟到率 17.8010%（191 单中 34 单迟到）\", \"value\": [{\"seller_id\": \"06a2c3af7b3aee5d69171b0e14f0ee87\", \"measured_orders\": 191, \"late_orders\": 34, \"late_pct\": \"17.8010\"}], \"evidence\": [\"fc587830-6ab7-4564-97f8-042b5335ee50\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N10",
+      "repeat": 2,
+      "task_id": "c94648e0-2ce4-4b7f-ab06-c0871c3e4adf",
+      "gold": {
+        "nov_orders": 7544,
+        "monthly_avg": 3758.42,
+        "ratio": 2.01
+      },
+      "response": {
+        "answer": "2017 年 未验证 月订单量为 7544 单，2017 年月均订单量为 3758.42 单，未验证 月约为月均的 2.01 倍（按下单时间归月，所有订单状态计入）。",
+        "claims": [
+          {
+            "text": "2017年11月订单量（按下单时间归月，所有状态计入）",
+            "value": {
+              "nov_orders": 7544
+            },
+            "evidence": [
+              "e4fdf877-7919-4b3c-b207-9bdface1db05"
+            ]
+          },
+          {
+            "text": "2017年月均订单量（2017年全年订单数/12）",
+            "value": {
+              "monthly_avg": 3758.4166666666665
+            },
+            "evidence": [
+              "e4fdf877-7919-4b3c-b207-9bdface1db05"
+            ]
+          },
+          {
+            "text": "11月订单量相对2017年月均订单量的倍数（保留两位小数）",
+            "value": {
+              "ratio": 2.01
+            },
+            "evidence": [
+              "e4fdf877-7919-4b3c-b207-9bdface1db05"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      },
+      "saved_results": [
+        {
+          "result_id": "e4fdf877-7919-4b3c-b207-9bdface1db05",
+          "sql": "SELECT (SELECT COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2017-11-01' AND order_purchase_timestamp < '2017-12-01') AS nov_orders, (SELECT CAST(COUNT(*) AS DECIMAL) / 12 FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01') AS monthly_avg, ROUND(CAST((SELECT COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2017-11-01' AND order_purchase_timestamp < '2017-12-01') AS DECIMAL) / ((SELECT CAST(COUNT(*) AS DECIMAL) / 12 FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01')), 2) AS ratio LIMIT 1000",
+          "rows": [
+            {
+              "ratio": "2.01",
+              "nov_orders": 7544,
+              "monthly_avg": "3758.4166666666666667"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r2",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.summary.json",
+        "log": "logs/eval_step13-supplement-once-r2_20261101T111233Z_f4a48a45.jsonl",
+        "log_sha256": "9a9f42b1e7322aefdbdab1fa578e92ac814b78f2d702677d65210a50c5e6e2f4"
+      },
+      "category": "定义常量被扫描为业务数字",
+      "fairness": "grader_issue",
+      "reason": "7544、3758.4167（与两位小数gold在容差内）、2.01均命中；文字“全年订单数/12”的12是月均定义常量，被扫描为未支持业务数字，整题失败。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 23,
+        "type": "number_gate",
+        "payload": {
+          "before": [
+            "11",
+            "11"
+          ],
+          "after_rewrite": [
+            "11",
+            "11"
+          ],
+          "replaced": [
+            "11",
+            "11"
+          ],
+          "rewrites": 1
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 17,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_82jkVg5L21foQqN3ZfXf5583",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年 11 月订单量为 7544 单，2017 年月均订单量为 3758.42 单，11 月约为月均的 2.01 倍（按下单时间归月，所有订单状态计入）。\", \"claims\": [{\"text\": \"2017年11月订单量（按下单时间归月，所有状态计入）\", \"value\": {\"nov_orders\": 7544}, \"evidence\": [\"e4fdf877-7919-4b3c-b207-9bdface1db05\"]}, {\"text\": \"2017年月均订单量（2017年全年订单数/12）\", \"value\": {\"monthly_avg\": 3758.4166666666666667}, \"evidence\": [\"e4fdf877-7919-4b3c-b207-9bdface1db05\"]}, {\"text\": \"11月订单量相对2017年月均订单量的倍数（保留两位小数）\", \"value\": {\"ratio\": 2.01}, \"evidence\": [\"e4fdf877-7919-4b3c-b207-9bdface1db05\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N01",
+      "repeat": 3,
+      "task_id": "1d759cb4-5eae-4fc0-92c9-ea456fe825fc",
+      "gold": {
+        "peak_month": "2017-11",
+        "peak_orders": 7544,
+        "low_month": "2017-01",
+        "low_orders": 800
+      },
+      "response": {
+        "answer": "2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。全年各月均有订单，月度订单量整体呈上升趋势，未验证 月回落至 5673 单。需注意 2017-01 处于数据覆盖的起始边界，其偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。",
+        "claims": [
+          {
+            "text": "2017 年订单最多的月份为 2017-11，共 7544 单；最少的月份为 2017-01，共 800 单（按下单时间归月，全部状态计入）",
+            "value": [
+              {
+                "peak_month": "2017-11",
+                "peak_orders": 7544,
+                "low_month": "2017-01",
+                "low_orders": 800
+              }
+            ],
+            "evidence": [
+              "78374f3f-1813-437a-a32f-8c6c46dff11c"
+            ]
+          },
+          {
+            "text": "2017 年各月订单量明细（12 个月均有订单）",
+            "value": [
+              {
+                "month": "2017-01",
+                "orders": 800
+              },
+              {
+                "month": "2017-02",
+                "orders": 1780
+              },
+              {
+                "month": "2017-03",
+                "orders": 2682
+              },
+              {
+                "month": "2017-04",
+                "orders": 2404
+              },
+              {
+                "month": "2017-05",
+                "orders": 3700
+              },
+              {
+                "month": "2017-06",
+                "orders": 3245
+              },
+              {
+                "month": "2017-07",
+                "orders": 4026
+              },
+              {
+                "month": "2017-08",
+                "orders": 4331
+              },
+              {
+                "month": "2017-09",
+                "orders": 4285
+              },
+              {
+                "month": "2017-10",
+                "orders": 4631
+              },
+              {
+                "month": "2017-11",
+                "orders": 7544
+              },
+              {
+                "month": "2017-12",
+                "orders": 5673
+              }
+            ],
+            "evidence": [
+              "5a661801-9315-4ecb-b5d1-4b75837721a8"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 6,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.16666666666666666
+      },
+      "saved_results": [
+        {
+          "result_id": "5a661801-9315-4ecb-b5d1-4b75837721a8",
+          "sql": "SELECT TO_CHAR(order_purchase_timestamp, 'YYYY-MM') AS month, COUNT(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1 LIMIT 1000",
+          "rows": [
+            {
+              "month": "2017-01",
+              "orders": 800
+            },
+            {
+              "month": "2017-02",
+              "orders": 1780
+            },
+            {
+              "month": "2017-03",
+              "orders": 2682
+            },
+            {
+              "month": "2017-04",
+              "orders": 2404
+            },
+            {
+              "month": "2017-05",
+              "orders": 3700
+            },
+            {
+              "month": "2017-06",
+              "orders": 3245
+            },
+            {
+              "month": "2017-07",
+              "orders": 4026
+            },
+            {
+              "month": "2017-08",
+              "orders": 4331
+            },
+            {
+              "month": "2017-09",
+              "orders": 4285
+            },
+            {
+              "month": "2017-10",
+              "orders": 4631
+            },
+            {
+              "month": "2017-11",
+              "orders": 7544
+            },
+            {
+              "month": "2017-12",
+              "orders": 5673
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "78374f3f-1813-437a-a32f-8c6c46dff11c",
+          "sql": "WITH m AS (SELECT TO_CHAR(order_purchase_timestamp, 'YYYY-MM') AS month, COUNT(*) AS orders FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01' GROUP BY 1) SELECT (SELECT month FROM m ORDER BY orders DESC, month LIMIT 1) AS peak_month, (SELECT orders FROM m ORDER BY orders DESC, month LIMIT 1) AS peak_orders, (SELECT month FROM m ORDER BY orders ASC, month LIMIT 1) AS low_month, (SELECT orders FROM m ORDER BY orders ASC, month LIMIT 1) AS low_orders LIMIT 1000",
+          "rows": [
+            {
+              "low_month": "2017-01",
+              "low_orders": 800,
+              "peak_month": "2017-11",
+              "peak_orders": 7544
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "自行计数未保存证据",
+      "fairness": "agent_error",
+      "reason": "四个必需事实与gold一致，但claim.text写“12个月均有数据/订单”，SQL只返回12行月明细，没有计算或返回月份数量12；另将2017年1月误说成数据起始边界。",
+      "evidence_issue_type": "real_unsupported",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_lVuFhygWN5iM8JCyRhYt8475",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。全年 12 个月均有订单，月度订单量整体呈上升趋势（1 月 800 单 → 11 月 7544 单），12 月回落至 5673 单。需注意 2017-01 处于数据覆盖的起始边界，其偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。\", \"claims\": [{\"text\": \"2017 年订单最多的月份为 2017-11，共 7544 单；最少的月份为 2017-01，共 800 单（按下单时间归月，全部状态计入）\", \"value\": [{\"peak_month\": \"2017-11\", \"peak_orders\": 7544, \"low_month\": \"2017-01\", \"low_orders\": 800}], \"evidence\": [\"78374f3f-1813-437a-a32f-8c6c46dff11c\"]}, {\"text\": \"2017 年各月订单量明细（12 个月均有订单）\", \"value\": [{\"month\": \"2017-01\", \"orders\": 800}, {\"month\": \"2017-02\", \"orders\": 1780}, {\"month\": \"2017-03\", \"orders\": 2682}, {\"month\": \"2017-04\", \"orders\": 2404}, {\"month\": \"2017-05\", \"orders\": 3700}, {\"month\": \"2017-06\", \"orders\": 3245}, {\"month\": \"2017-07\", \"orders\": 4026}, {\"month\": \"2017-08\", \"orders\": 4331}, {\"month\": \"2017-09\", \"orders\": 4285}, {\"month\": \"2017-10\", \"orders\": 4631}, {\"month\": \"2017-11\", \"orders\": 7544}, {\"month\": \"2017-12\", \"orders\": 5673}], \"evidence\": [\"5a661801-9315-4ecb-b5d1-4b75837721a8\"]}]}"
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_lVuFhygWN5iM8JCyRhYt8475",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年按下单时间（order_purchase_timestamp）归月、计入全部订单状态：订单最多的月份是 2017-11，共 7544 单；订单最少的月份是 2017-01，共 800 单。全年 12 个月均有订单，月度订单量整体呈上升趋势（1 月 800 单 → 11 月 7544 单），12 月回落至 5673 单。需注意 2017-01 处于数据覆盖的起始边界，其偏低可能部分源于数据覆盖不完整，不宜直接解读为业务骤降。\", \"claims\": [{\"text\": \"2017 年订单最多的月份为 2017-11，共 7544 单；最少的月份为 2017-01，共 800 单（按下单时间归月，全部状态计入）\", \"value\": [{\"peak_month\": \"2017-11\", \"peak_orders\": 7544, \"low_month\": \"2017-01\", \"low_orders\": 800}], \"evidence\": [\"78374f3f-1813-437a-a32f-8c6c46dff11c\"]}, {\"text\": \"2017 年各月订单量明细（12 个月均有订单）\", \"value\": [{\"month\": \"2017-01\", \"orders\": 800}, {\"month\": \"2017-02\", \"orders\": 1780}, {\"month\": \"2017-03\", \"orders\": 2682}, {\"month\": \"2017-04\", \"orders\": 2404}, {\"month\": \"2017-05\", \"orders\": 3700}, {\"month\": \"2017-06\", \"orders\": 3245}, {\"month\": \"2017-07\", \"orders\": 4026}, {\"month\": \"2017-08\", \"orders\": 4331}, {\"month\": \"2017-09\", \"orders\": 4285}, {\"month\": \"2017-10\", \"orders\": 4631}, {\"month\": \"2017-11\", \"orders\": 7544}, {\"month\": \"2017-12\", \"orders\": 5673}], \"evidence\": [\"5a661801-9315-4ecb-b5d1-4b75837721a8\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N03",
+      "repeat": 3,
+      "task_id": "06b48849-752f-4736-9712-ac7b9d3c7eee",
+      "gold": {
+        "rio_gmv": 187039.25,
+        "sao_paulo_gmv": 432735.87
+      },
+      "response": {
+        "answer": "2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，客户所在城市口径，GMV = order_items.price 之和、不含运费、排除 canceled/unavailable 订单）：\n- 里约热内卢市（Rio de Janeiro, RJ）：GMV 187,039.25，涉及 1,204 个订单\n- 圣保罗市（São Paulo, SP）：GMV 432,735.87，涉及 3,415 个订单\n圣保罗市 GMV 与里约热内卢市的倍数关系：未验证。",
+        "claims": [
+          {
+            "text": "里约热内卢市 2018 Q2 GMV（排除 canceled/unavailable，不含运费）",
+            "value": [
+              {
+                "customer_city": "rio de janeiro",
+                "customer_state": "RJ",
+                "gmv": 187039.25,
+                "orders": 1204
+              }
+            ],
+            "evidence": [
+              "5c2acd9a-93d6-41ae-b3c7-52b4e7cc21bc"
+            ]
+          },
+          {
+            "text": "圣保罗市 2018 Q2 GMV（排除 canceled/unavailable，不含运费）",
+            "value": [
+              {
+                "customer_city": "sao paulo",
+                "customer_state": "SP",
+                "gmv": 432735.87,
+                "orders": 3415
+              }
+            ],
+            "evidence": [
+              "5c2acd9a-93d6-41ae-b3c7-52b4e7cc21bc"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "5c2acd9a-93d6-41ae-b3c7-52b4e7cc21bc",
+          "sql": "SELECT c.customer_city, c.customer_state, SUM(i.price) AS gmv, COUNT(DISTINCT o.order_id) AS orders FROM orders AS o JOIN customers AS c USING (customer_id) JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND ((c.customer_city = 'rio de janeiro' AND c.customer_state = 'RJ') OR (c.customer_city = 'sao paulo' AND c.customer_state = 'SP')) GROUP BY 1, 2 ORDER BY gmv DESC LIMIT 1000",
+          "rows": [
+            {
+              "gmv": "432735.87",
+              "orders": 3415,
+              "customer_city": "sao paulo",
+              "customer_state": "SP"
+            },
+            {
+              "gmv": "187039.25",
+              "orders": 1204,
+              "customer_city": "rio de janeiro",
+              "customer_state": "RJ"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "两市GMV分别187039.25、432735.87，与gold相同；三轮均只提交customer_city/gmv行，没有公开要求的rio_gmv、sao_paulo_gmv。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_RUFynJJTKZXldL3rxSfS1661",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT c.customer_city, c.customer_state, sum(i.price) AS gmv, count(DISTINCT o.order_id) AS orders\\nFROM orders o\\nJOIN customers c USING(customer_id)\\nJOIN order_items i USING(order_id)\\nWHERE o.order_status NOT IN ('canceled','unavailable')\\n  AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n  AND ((c.customer_city = 'rio de janeiro' AND c.customer_state = 'RJ') OR (c.customer_city = 'sao paulo' AND c.customer_state = 'SP'))\\nGROUP BY 1,2 ORDER BY gmv DESC;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_iq5fRXv3m3hW2lc8kBdp8787",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按订单购买时间 2018-04-01 至 2018-06-30，客户所在城市口径，GMV = order_items.price 之和、不含运费、排除 canceled/unavailable 订单）：\\n- 里约热内卢市（Rio de Janeiro, RJ）：GMV 187,039.25，涉及 1,204 个订单\\n- 圣保罗市（São Paulo, SP）：GMV 432,735.87，涉及 3,415 个订单\\n圣保罗市 GMV 约为里约热内卢市的 2.3 倍。\", \"claims\": [{\"text\": \"里约热内卢市 2018 Q2 GMV（排除 canceled/unavailable，不含运费）\", \"value\": [{\"customer_city\": \"rio de janeiro\", \"customer_state\": \"RJ\", \"gmv\": 187039.25, \"orders\": 1204}], \"evidence\": [\"5c2acd9a-93d6-41ae-b3c7-52b4e7cc21bc\"]}, {\"text\": \"圣保罗市 2018 Q2 GMV（排除 canceled/unavailable，不含运费）\", \"value\": [{\"customer_city\": \"sao paulo\", \"customer_state\": \"SP\", \"gmv\": 432735.87, \"orders\": 3415}], \"evidence\": [\"5c2acd9a-93d6-41ae-b3c7-52b4e7cc21bc\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N05",
+      "repeat": 3,
+      "task_id": "8fc0a128-0f87-46f5-9f46-2be3308b142f",
+      "gold": {
+        "mode_installments": 1,
+        "share_pct": 35.959875145941055
+      },
+      "response": {
+        "answer": "2018 年（按订单下单时间归年）的信用卡支付记录共 41,969 条。其中最常见的是分 1 期（一次性付清），共 15,092 条，占信用卡支付记录的 35.9599%。其后依次为 2 期（7,020 条，16.7266%）、3 期（5,507 条，13.1216%）、4 期（3,697 条，8.8089%）、5 期（2,654 条，6.3237%）。",
+        "claims": [
+          {
+            "text": "2018 年信用卡支付记录中最常见的分期期数为 1 期，共 15,092 条，占全部 41,969 条信用卡支付记录的 35.9599%。",
+            "value": [
+              {
+                "mode_installments": 1,
+                "cnt": 15092,
+                "total_cc_records": 41969,
+                "share_pct": "35.9599"
+              }
+            ],
+            "evidence": [
+              "30a1fe9a-2166-4688-8116-e77349911098"
+            ]
+          },
+          {
+            "text": "分期期数分布前五名（按支付记录数降序）：1 期 15,092 条/35.9599%，2 期 7,020 条/16.7266%，3 期 5,507 条/13.1216%，4 期 3,697 条/8.8089%，5 期 2,654 条/6.3237%。",
+            "value": [
+              {
+                "mode_installments": 1,
+                "cnt": 15092,
+                "total_cc_records": 41969,
+                "share_pct": "35.9599"
+              },
+              {
+                "mode_installments": 2,
+                "cnt": 7020,
+                "total_cc_records": 41969,
+                "share_pct": "16.7266"
+              },
+              {
+                "mode_installments": 3,
+                "cnt": 5507,
+                "total_cc_records": 41969,
+                "share_pct": "13.1216"
+              },
+              {
+                "mode_installments": 4,
+                "cnt": 3697,
+                "total_cc_records": 41969,
+                "share_pct": "8.8089"
+              },
+              {
+                "mode_installments": 5,
+                "cnt": 2654,
+                "total_cc_records": 41969,
+                "share_pct": "6.3237"
+              }
+            ],
+            "evidence": [
+              "30a1fe9a-2166-4688-8116-e77349911098"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 35,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "30a1fe9a-2166-4688-8116-e77349911098",
+          "sql": "WITH cc AS (SELECT p.payment_installments AS inst FROM order_payments AS p JOIN orders AS o ON o.order_id = p.order_id WHERE p.payment_type = 'credit_card' AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2019-01-01') SELECT inst AS mode_installments, COUNT(*) AS cnt, (SELECT COUNT(*) FROM cc) AS total_cc_records, ROUND(CAST(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM cc) AS DECIMAL), 4) AS share_pct FROM cc GROUP BY inst ORDER BY cnt DESC, inst LIMIT 5",
+          "rows": [
+            {
+              "cnt": 15092,
+              "share_pct": "35.9599",
+              "total_cc_records": 41969,
+              "mode_installments": 1
+            },
+            {
+              "cnt": 7020,
+              "share_pct": "16.7266",
+              "total_cc_records": 41969,
+              "mode_installments": 2
+            },
+            {
+              "cnt": 5507,
+              "share_pct": "13.1216",
+              "total_cc_records": 41969,
+              "mode_installments": 3
+            },
+            {
+              "cnt": 3697,
+              "share_pct": "8.8089",
+              "total_cc_records": 41969,
+              "mode_installments": 4
+            },
+            {
+              "cnt": 2654,
+              "share_pct": "6.3237",
+              "total_cc_records": 41969,
+              "mode_installments": 5
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "众数1期及占比35.9599%正确，但把前五名都标成mode_installments/share_pct，使非众数2至5期也成为同名事实的候选值；矛盾重复使事实0/2。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_Qvt028usjHhfNKoB901K2424",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"WITH cc AS (\\n  SELECT p.payment_installments AS inst\\n  FROM order_payments p\\n  JOIN orders o ON o.order_id = p.order_id\\n  WHERE p.payment_type = 'credit_card'\\n    AND o.order_purchase_timestamp >= '2018-01-01'\\n    AND o.order_purchase_timestamp < '2019-01-01'\\n)\\nSELECT inst AS mode_installments,\\n       COUNT(*) AS cnt,\\n       (SELECT COUNT(*) FROM cc) AS total_cc_records,\\n       ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM cc), 4) AS share_pct\\nFROM cc\\nGROUP BY inst\\nORDER BY cnt DESC, inst\\nLIMIT 5;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_CJaeWAhFX90lu6qgniG67971",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年（按订单下单时间归年）的信用卡支付记录共 41,969 条。其中最常见的是分 1 期（一次性付清），共 15,092 条，占信用卡支付记录的 35.9599%。其后依次为 2 期（7,020 条，16.7266%）、3 期（5,507 条，13.1216%）、4 期（3,697 条，8.8089%）、5 期（2,654 条，6.3237%）。\", \"claims\": [{\"text\": \"2018 年信用卡支付记录中最常见的分期期数为 1 期，共 15,092 条，占全部 41,969 条信用卡支付记录的 35.9599%。\", \"value\": [{\"mode_installments\": 1, \"cnt\": 15092, \"total_cc_records\": 41969, \"share_pct\": \"35.9599\"}], \"evidence\": [\"30a1fe9a-2166-4688-8116-e77349911098\"]}, {\"text\": \"分期期数分布前五名（按支付记录数降序）：1 期 15,092 条/35.9599%，2 期 7,020 条/16.7266%，3 期 5,507 条/13.1216%，4 期 3,697 条/8.8089%，5 期 2,654 条/6.3237%。\", \"value\": [{\"mode_installments\": 1, \"cnt\": 15092, \"total_cc_records\": 41969, \"share_pct\": \"35.9599\"}, {\"mode_installments\": 2, \"cnt\": 7020, \"total_cc_records\": 41969, \"share_pct\": \"16.7266\"}, {\"mode_installments\": 3, \"cnt\": 5507, \"total_cc_records\": 41969, \"share_pct\": \"13.1216\"}, {\"mode_installments\": 4, \"cnt\": 3697, \"total_cc_records\": 41969, \"share_pct\": \"8.8089\"}, {\"mode_installments\": 5, \"cnt\": 2654, \"total_cc_records\": 41969, \"share_pct\": \"6.3237\"}], \"evidence\": [\"30a1fe9a-2166-4688-8116-e77349911098\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N06",
+      "repeat": 3,
+      "task_id": "105f620c-61e4-4cc1-8910-4bb1c5170023",
+      "gold": {
+        "freight_pct": 14.221035631463664,
+        "top_state": "AP",
+        "top_state_pct": 21.55846249974805
+      },
+      "response": {
+        "answer": "2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp，所有订单状态计入）整体运费占（商品金额+运费）比例为 14.2210%。按客户所在州分组，该比例最高的州是 AP（阿马帕州），为 21.5585%（该季度 13 个订单）。",
+        "claims": [
+          {
+            "text": "2018 Q2 整体运费占（商品金额+运费）比例为 14.2210%（所有订单状态计入）",
+            "value": {
+              "freight_pct": "14.2210"
+            },
+            "evidence": [
+              "963d3b44-b6d6-4f8f-8e77-adceb6c669a8"
+            ]
+          },
+          {
+            "text": "按客户所在州看，运费占比最高的州是 AP，为 21.5585%（13 个订单）",
+            "value": {
+              "customer_state": "AP",
+              "freight_pct": "21.5585",
+              "orders_cnt": 13
+            },
+            "evidence": [
+              "6688f6b5-c6d5-4262-a86e-33e156dcf125"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 2,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 6,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      },
+      "saved_results": [
+        {
+          "result_id": "963d3b44-b6d6-4f8f-8e77-adceb6c669a8",
+          "sql": "SELECT ROUND(100.0 * SUM(oi.freight_value) / SUM(oi.price + oi.freight_value), 4) AS freight_pct FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "rows": [
+            {
+              "freight_pct": "14.2210"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        },
+        {
+          "result_id": "6688f6b5-c6d5-4262-a86e-33e156dcf125",
+          "sql": "SELECT c.customer_state, ROUND(100.0 * SUM(oi.freight_value) / SUM(oi.price + oi.freight_value), 4) AS freight_pct, COUNT(DISTINCT o.order_id) AS orders_cnt FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN customers AS c ON c.customer_id = o.customer_id WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state ORDER BY freight_pct DESC LIMIT 1000",
+          "rows": [
+            {
+              "orders_cnt": 13,
+              "freight_pct": "21.5585",
+              "customer_state": "AP"
+            },
+            {
+              "orders_cnt": 120,
+              "freight_pct": "21.0109",
+              "customer_state": "MA"
+            },
+            {
+              "orders_cnt": 22,
+              "freight_pct": "20.5792",
+              "customer_state": "AM"
+            },
+            {
+              "orders_cnt": 39,
+              "freight_pct": "20.5504",
+              "customer_state": "RO"
+            },
+            {
+              "orders_cnt": 165,
+              "freight_pct": "20.0464",
+              "customer_state": "PA"
+            },
+            {
+              "orders_cnt": 90,
+              "freight_pct": "20.0410",
+              "customer_state": "RN"
+            },
+            {
+              "orders_cnt": 314,
+              "freight_pct": "19.6908",
+              "customer_state": "PE"
+            },
+            {
+              "orders_cnt": 50,
+              "freight_pct": "19.5886",
+              "customer_state": "SE"
+            },
+            {
+              "orders_cnt": 53,
+              "freight_pct": "18.9487",
+              "customer_state": "TO"
+            },
+            {
+              "orders_cnt": 97,
+              "freight_pct": "18.4802",
+              "customer_state": "PI"
+            },
+            {
+              "orders_cnt": 71,
+              "freight_pct": "17.9563",
+              "customer_state": "AL"
+            },
+            {
+              "orders_cnt": 189,
+              "freight_pct": "17.8319",
+              "customer_state": "MT"
+            },
+            {
+              "orders_cnt": 247,
+              "freight_pct": "17.5457",
+              "customer_state": "CE"
+            },
+            {
+              "orders_cnt": 9,
+              "freight_pct": "17.5328",
+              "customer_state": "AC"
+            },
+            {
+              "orders_cnt": 8,
+              "freight_pct": "17.4614",
+              "customer_state": "RR"
+            },
+            {
+              "orders_cnt": 666,
+              "freight_pct": "17.4277",
+              "customer_state": "BA"
+            },
+            {
+              "orders_cnt": 400,
+              "freight_pct": "16.7699",
+              "customer_state": "ES"
+            },
+            {
+              "orders_cnt": 1004,
+              "freight_pct": "15.5526",
+              "customer_state": "RS"
+            },
+            {
+              "orders_cnt": 2262,
+              "freight_pct": "15.0216",
+              "customer_state": "MG"
+            },
+            {
+              "orders_cnt": 377,
+              "freight_pct": "14.9569",
+              "customer_state": "GO"
+            },
+            {
+              "orders_cnt": 678,
+              "freight_pct": "14.7686",
+              "customer_state": "SC"
+            },
+            {
+              "orders_cnt": 2380,
+              "freight_pct": "14.6338",
+              "customer_state": "RJ"
+            },
+            {
+              "orders_cnt": 137,
+              "freight_pct": "14.5563",
+              "customer_state": "MS"
+            },
+            {
+              "orders_cnt": 1004,
+              "freight_pct": "14.5335",
+              "customer_state": "PR"
+            },
+            {
+              "orders_cnt": 442,
+              "freight_pct": "14.4029",
+              "customer_state": "DF"
+            },
+            {
+              "orders_cnt": 88,
+              "freight_pct": "14.0724",
+              "customer_state": "PB"
+            },
+            {
+              "orders_cnt": 9022,
+              "freight_pct": "11.9478",
+              "customer_state": "SP"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "整体14.2210%、AP最高21.5585%均与gold一致，但州行仍用customer_state/freight_pct，缺top_state/top_state_pct；州占比还与整体freight_pct构成矛盾重复，事实0/3。",
+      "evidence_issue_type": null,
+      "secondary": [],
+      "first_observed": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_01_n6YLq72KHT9kQHpYLe8w6864",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"SELECT c.customer_state,\\n       round(100.0 * sum(oi.freight_value) / sum(oi.price + oi.freight_value), 4) AS freight_pct,\\n       count(DISTINCT o.order_id) AS orders_cnt\\nFROM order_items oi\\nJOIN orders o ON o.order_id = oi.order_id\\nJOIN customers c ON c.customer_id = o.customer_id\\nWHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\nGROUP BY c.customer_state\\nORDER BY freight_pct DESC\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 35,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_hZyswUYkkhPOrWaSKEGh7094",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（2018-04-01 至 2018-06-30，按 order_purchase_timestamp，所有订单状态计入）整体运费占（商品金额+运费）比例为 14.2210%。按客户所在州分组，该比例最高的州是 AP（阿马帕州），为 21.5585%（该季度 13 个订单）。\", \"claims\": [{\"text\": \"2018 Q2 整体运费占（商品金额+运费）比例为 14.2210%（所有订单状态计入）\", \"value\": {\"freight_pct\": \"14.2210\"}, \"evidence\": [\"963d3b44-b6d6-4f8f-8e77-adceb6c669a8\"]}, {\"text\": \"按客户所在州看，运费占比最高的州是 AP，为 21.5585%（13 个订单）\", \"value\": {\"customer_state\": \"AP\", \"freight_pct\": \"21.5585\", \"orders_cnt\": 13}, \"evidence\": [\"6688f6b5-c6d5-4262-a86e-33e156dcf125\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N07",
+      "repeat": 3,
+      "task_id": "f83fa478-2930-4a0f-a4d0-fbf81b668ad1",
+      "gold": {
+        "over30_orders": 522,
+        "measured_orders": 19643,
+        "over30_pct": 2.6574352186529553
+      },
+      "response": {
+        "answer": "2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且有实际送达时间的订单共 19,643 单，其中从下单到送达超过 未验证 天的有 522 单，占比 2.6574352186529553%。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达且有实际送达时间的订单中，下单到送达超过 30 天的订单数为 522 单，分母 19,643 单，占比 2.6574352186529553%。",
+            "value": [
+              {
+                "measured_orders": 19643,
+                "over30_orders": 522,
+                "over30_pct": "2.6574352186529553"
+              }
+            ],
+            "evidence": [
+              "8b7af9c9-b9b6-497a-924d-87c901e3b76b"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 7,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.14285714285714285
+      },
+      "saved_results": [
+        {
+          "result_id": "8b7af9c9-b9b6-497a-924d-87c901e3b76b",
+          "sql": "SELECT COUNT(*) AS measured_orders, COUNT(*) FILTER(WHERE EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 > 30) AS over30_orders, 100.0 * COUNT(*) FILTER(WHERE EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400.0 > 30) / NULLIF(COUNT(*), 0) AS over30_pct FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL AND order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+          "rows": [
+            {
+              "over30_pct": "2.6574352186529553",
+              "over30_orders": 522,
+              "measured_orders": 19643
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "定义常量被扫描为业务数字",
+      "fairness": "grader_issue",
+      "reason": "522/19643/2.6574%三个必需事实均命中且claim有证据；题干和SQL筛选条件中的30天被计为未支持数字，导致key_facts整题失败。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 23,
+        "type": "number_gate",
+        "payload": {
+          "before": [
+            "30"
+          ],
+          "after_rewrite": [
+            "30"
+          ],
+          "replaced": [
+            "30"
+          ],
+          "rewrites": 1
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 17,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_ZmvfJsFQZ9i5ktjTWd9X4460",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按购买时间 2018-04-01 至 2018-06-30）已送达且有实际送达时间的订单共 19,643 单，其中从下单到送达超过 30 天的有 522 单，占比 2.6574%（约 2.66%）。\", \"claims\": [{\"text\": \"2018 Q2 已送达且有实际送达时间的订单中，下单到送达超过 30 天的订单数为 522 单，分母 19,643 单，占比 2.6574352186529553%。\", \"value\": [{\"measured_orders\": 19643, \"over30_orders\": 522, \"over30_pct\": \"2.6574352186529553\"}], \"evidence\": [\"8b7af9c9-b9b6-497a-924d-87c901e3b76b\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N08",
+      "repeat": 3,
+      "task_id": "d7c0da28-641a-4900-b4a9-8ca0594b43b4",
+      "gold": {
+        "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "late_pct": 17.801047120418847
+      },
+      "response": {
+        "answer": "2018 年 Q2（按 order_purchase_timestamp 落在 2018-04-01 至 2018-06-30 之间）已送达且实际送达时间存在的订单中，按卖家去重统计（一单多卖家分别计入各卖家），在订单数达到门槛的卖家里，迟到率最高的是卖家 06a2c3af7b3aee5d69171b0e14f0ee87：可测订单 191 单，迟到 34 单，迟到率 17.8010471204188482%（约 17.80%）。订单数门槛的具体数值未验证。迟到判定为 order_delivered_customer_date > order_estimated_delivery_date，按完整原始时间戳比较，未截断为日期。",
+        "claims": [
+          {
+            "text": "2018 Q2 已送达订单数≥50 的卖家中迟到率最高者为 06a2c3af7b3aee5d69171b0e14f0ee87，可测订单 191 单、迟到 34 单、迟到率 17.8010471204188482%",
+            "value": [
+              {
+                "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+                "measured_orders": 191,
+                "late_orders": 34,
+                "late_pct": "17.8010471204188482"
+              }
+            ],
+            "evidence": [
+              "33ef83ad-4d98-411d-a681-94a9496a8583"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 8,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.125
+      },
+      "saved_results": [
+        {
+          "result_id": "33ef83ad-4d98-411d-a681-94a9496a8583",
+          "sql": "WITH q2 AS (SELECT o.order_id, o.order_delivered_customer_date, o.order_estimated_delivery_date FROM orders AS o WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'), seller_orders AS (SELECT DISTINCT oi.seller_id, q2.order_id, q2.order_delivered_customer_date, q2.order_estimated_delivery_date FROM q2 JOIN order_items AS oi ON oi.order_id = q2.order_id), agg AS (SELECT seller_id, COUNT(*) AS measured_orders, COUNT(*) FILTER(WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders, 100.0 * COUNT(*) FILTER(WHERE order_delivered_customer_date > order_estimated_delivery_date) / NULLIF(COUNT(*), 0) AS late_pct FROM seller_orders GROUP BY seller_id) SELECT seller_id, measured_orders, late_orders, late_pct FROM agg WHERE measured_orders >= 50 ORDER BY late_pct DESC, seller_id LIMIT 10",
+          "rows": [
+            {
+              "late_pct": "17.8010471204188482",
+              "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_orders": 34,
+              "measured_orders": 191
+            },
+            {
+              "late_pct": "15.2542372881355932",
+              "seller_id": "ba143b05f0110f0dc71ad71b4466ce92",
+              "late_orders": 9,
+              "measured_orders": 59
+            },
+            {
+              "late_pct": "14.7826086956521739",
+              "seller_id": "2eb70248d66e0e3ef83659f71b244378",
+              "late_orders": 17,
+              "measured_orders": 115
+            },
+            {
+              "late_pct": "14.5161290322580645",
+              "seller_id": "f7ba60f8c3f99e7ee4042fdef03b70c4",
+              "late_orders": 9,
+              "measured_orders": 62
+            },
+            {
+              "late_pct": "12.9411764705882353",
+              "seller_id": "391fc6631aebcf3004804e51b40bcf1e",
+              "late_orders": 11,
+              "measured_orders": 85
+            },
+            {
+              "late_pct": "12.3456790123456790",
+              "seller_id": "7ad32824caee82087b3e2e5f33b1bf32",
+              "late_orders": 10,
+              "measured_orders": 81
+            },
+            {
+              "late_pct": "12.3076923076923077",
+              "seller_id": "c31eff8334d6b3047ed34bebd4d62c36",
+              "late_orders": 8,
+              "measured_orders": 65
+            },
+            {
+              "late_pct": "11.3924050632911392",
+              "seller_id": "8d956fec2e4337affcb520f56fd8cbfd",
+              "late_orders": 9,
+              "measured_orders": 79
+            },
+            {
+              "late_pct": "11.1111111111111111",
+              "seller_id": "c003204e1ab016dfa150abc119207b24",
+              "late_orders": 6,
+              "measured_orders": 54
+            },
+            {
+              "late_pct": "9.6153846153846154",
+              "seller_id": "688756f717c462a206ad854c5027a64a",
+              "late_orders": 5,
+              "measured_orders": 52
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "公开事实字段契约不符",
+      "fairness": "agent_error",
+      "reason": "卖家06a2c3af7b3aee5d69171b0e14f0ee87及17.8010%与gold一致，但提交seller_id而非公开要求的worst_seller，事实1/2；另有题干门槛50的证据扫描误报。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [
+        "门槛50是checker_false_positive；即便只诊断剔除该误报，缺worst_seller仍不满足公开契约。"
+      ],
+      "first_observed": {
+        "event_index": 21,
+        "type": "tool_call",
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_efwfh2zFHBEzZNPAfCpM7225",
+          "phase": "agent",
+          "input_summary": "{\"sql\": \"WITH q2 AS (\\n  SELECT o.order_id, o.order_delivered_customer_date, o.order_estimated_delivery_date\\n  FROM orders o\\n  WHERE o.order_status='delivered'\\n    AND o.order_delivered_customer_date IS NOT NULL\\n    AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\\n), seller_orders AS (\\n  SELECT DISTINCT oi.seller_id, q2.order_id, q2.order_delivered_customer_date, q2.order_estimated_delivery_date\\n  FROM q2 JOIN order_items oi ON oi.order_id=q2.order_id\\n), agg AS (\\n  SELECT seller_id,\\n         count(*) AS measured_orders,\\n         count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,\\n         100.0*count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date)/nullif(count(*),0) AS late_pct\\n  FROM seller_orders GROUP BY seller_id\\n)\\nSELECT seller_id, measured_orders, late_orders, late_pct\\nFROM agg WHERE measured_orders >= 50\\nORDER BY late_pct DESC, seller_id\\nLIMIT 10;\"}"
+        }
+      },
+      "first_observed_caveat": "SQL使用通用字段是最早可见表示选择，当时仍可补查修复；最终失败依据是保存的final claim及原score输出。",
+      "final_failure_observation": {
+        "event_index": 27,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_XaSv3TkaX0lo1qxyDCpD8840",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2018 年 Q2（按 order_purchase_timestamp 落在 2018-04-01 至 2018-06-30 之间）已送达且实际送达时间存在的订单中，按卖家去重统计（一单多卖家分别计入各卖家），在订单数 ≥ 50 的卖家里，迟到率最高的是卖家 06a2c3af7b3aee5d69171b0e14f0ee87：可测订单 191 单，迟到 34 单，迟到率 17.8010471204188482%（约 17.80%）。迟到判定为 order_delivered_customer_date > order_estimated_delivery_date，按完整原始时间戳比较，未截断为日期。\", \"claims\": [{\"text\": \"2018 Q2 已送达订单数≥50 的卖家中迟到率最高者为 06a2c3af7b3aee5d69171b0e14f0ee87，可测订单 191 单、迟到 34 单、迟到率 17.8010471204188482%\", \"value\": [{\"seller_id\": \"06a2c3af7b3aee5d69171b0e14f0ee87\", \"measured_orders\": 191, \"late_orders\": 34, \"late_pct\": \"17.8010471204188482\"}], \"evidence\": [\"33ef83ad-4d98-411d-a681-94a9496a8583\"]}]}"
+        }
+      }
+    },
+    {
+      "id": "N10",
+      "repeat": 3,
+      "task_id": "3fafb05b-9ee8-4b49-bafb-f61abe8e1581",
+      "gold": {
+        "nov_orders": 7544,
+        "monthly_avg": 3758.42,
+        "ratio": 2.01
+      },
+      "response": {
+        "answer": "2017 年 未验证 月订单量为 7544 单，2017 年月均订单量为 3758.42 单，未验证 月是月均的 2.01 倍（按下单时间归月，所有订单状态计入）。",
+        "claims": [
+          {
+            "text": "2017年11月订单量（按下单时间归月，所有状态计入）",
+            "value": {
+              "nov_orders": 7544
+            },
+            "evidence": [
+              "c8a9c4c3-69ef-4781-b88b-5ec49cfbd569"
+            ]
+          },
+          {
+            "text": "2017年月均订单量（2017年全年订单数/12）",
+            "value": {
+              "monthly_avg": "3758.4166666666666667"
+            },
+            "evidence": [
+              "c8a9c4c3-69ef-4781-b88b-5ec49cfbd569"
+            ]
+          },
+          {
+            "text": "2017年11月订单量相对2017年月均订单量的倍数",
+            "value": {
+              "ratio": "2.01"
+            },
+            "evidence": [
+              "c8a9c4c3-69ef-4781-b88b-5ec49cfbd569"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 3,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      },
+      "saved_results": [
+        {
+          "result_id": "c8a9c4c3-69ef-4781-b88b-5ec49cfbd569",
+          "sql": "SELECT (SELECT COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2017-11-01' AND order_purchase_timestamp < '2017-12-01') AS nov_orders, (SELECT CAST(COUNT(*) AS DECIMAL) / 12 FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01') AS monthly_avg, ROUND(CAST((SELECT COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2017-11-01' AND order_purchase_timestamp < '2017-12-01') AS DECIMAL) / ((SELECT CAST(COUNT(*) AS DECIMAL) / 12 FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01')), 2) AS ratio LIMIT 1000",
+          "rows": [
+            {
+              "ratio": "2.01",
+              "nov_orders": 7544,
+              "monthly_avg": "3758.4166666666666667"
+            }
+          ],
+          "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+        }
+      ],
+      "tool_or_model_errors": [],
+      "run": "step13-supplement-once-r3",
+      "source": {
+        "receipt": "evidence/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.summary.json",
+        "log": "logs/eval_step13-supplement-once-r3_20261101T111355Z_ad25bc86.jsonl",
+        "log_sha256": "e8e701ae2d99a94dd09b29d64dfe24d020a2400fce1ba5904d1267cefbc9e7c8"
+      },
+      "category": "定义常量被扫描为业务数字",
+      "fairness": "grader_issue",
+      "reason": "7544、3758.4167（与两位小数gold在容差内）、2.01均命中；文字“全年订单数/12”的12是月均定义常量，被扫描为未支持业务数字，整题失败。",
+      "evidence_issue_type": "checker_false_positive",
+      "secondary": [],
+      "first_observed": {
+        "event_index": 23,
+        "type": "number_gate",
+        "payload": {
+          "before": [
+            "11",
+            "11"
+          ],
+          "after_rewrite": [
+            "11",
+            "11"
+          ],
+          "replaced": [
+            "11",
+            "11"
+          ],
+          "rewrites": 1
+        }
+      },
+      "first_observed_caveat": null,
+      "final_failure_observation": {
+        "event_index": 17,
+        "type": "tool_call",
+        "payload": {
+          "name": "final_answer",
+          "call_id": "call_00_IDERp8q9Um5QdLq2xoA91091",
+          "phase": "agent",
+          "input_summary": "{\"answer\": \"2017 年 11 月订单量为 7544 单，2017 年月均订单量为 3758.42 单，11 月是月均的 2.01 倍（按下单时间归月，所有订单状态计入）。\", \"claims\": [{\"text\": \"2017年11月订单量（按下单时间归月，所有状态计入）\", \"value\": {\"nov_orders\": 7544}, \"evidence\": [\"c8a9c4c3-69ef-4781-b88b-5ec49cfbd569\"]}, {\"text\": \"2017年月均订单量（2017年全年订单数/12）\", \"value\": {\"monthly_avg\": \"3758.4166666666666667\"}, \"evidence\": [\"c8a9c4c3-69ef-4781-b88b-5ec49cfbd569\"]}, {\"text\": \"2017年11月订单量相对2017年月均订单量的倍数\", \"value\": {\"ratio\": \"2.01\"}, \"evidence\": [\"c8a9c4c3-69ef-4781-b88b-5ec49cfbd569\"]}]}"
+        }
+      }
+    }
+  ]
+}

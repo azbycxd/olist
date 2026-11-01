@@ -214,3 +214,8 @@ holdout仅只读原r1–r3：pass@1 93.94%、pass^3 20/22（90.91%）、pass@3 2
 [回归套件43题](eval/step13_regression_cases.json)取dev三次全对题；[能力套件24题](eval/step13_capability_cases.json)为D02/D06、原10道边界及6对新题。回归套件选择样本上的100%不是独立验收；能力套件分项报告，原边界历史6/10，本批不新跑、不跨版本合并总率。补充12题由Claude出题、Codex写gold、Claude审gold，是不同模型交叉审查，不是人工审核。
 
 新套件入口默认只列清单。未来分别运行可用`python -m eval.step13_suites regression --run`或`python -m eval.step13_suites capability --run`，但每个入口均先要求`--rehearsal`成功、`--register`协议单独提交推送，且.env三单价完整；已有启动标记禁止重跑。本批已注册的dev、成对题和补充题不得重复执行来挑成绩。离线CI自动运行新增评测测试，不自动调用模型；本地完整测试用`python -m scripts.local_tests -q`。
+
+
+成对题唯一三轮试验按预注册自动规则24/36通过（66.67%，8/12三次全对）；其中澄清/拒绝题附带业务数字、年度总计与月度同名字段冲突造成失败，不能误读为执行了删除或不会判断年度完整性。9份语义输出保留人工判定。补充12题三次试验16/36（44.44%）、5/12三次全对，比旧dev pass@1低51.85个百分点；20次失败中15次为公开字段/未支持计数问题、5次为常量扫描误报，原分不改。[逐题结果和公平性](docs/EVALUATION.md)、[成对收据](evidence/step13_paired_results.json)、[补充收据](evidence/step13_supplement_results.json)。
+
+本批207次真实试验共1,894,117 tokens、1.83764304元；全量546测试、离线452测试通过。只对新评测入口修复替身演练发现的Decimal收据和事件字段问题，未改Agent或旧评分器。新题结果用于暴露能力与评分限制，不用于本步调参。
