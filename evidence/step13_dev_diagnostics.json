@@ -510,7 +510,7 @@
       "correct": false,
       "strict_pass": false,
       "diagnostic_type": "grader_issue",
-      "reason": "三个必需金额字段均有正确SQL证据；说明差异阈值0.01 BRL被当成未支持业务数字，key_facts证据约束使整题失败。",
+      "reason": "三个必需金额字段均命中现有1%容差；说明差异阈值0.01 BRL被当成未支持业务数字，使key_facts整题失败。另有更早的口径偏差：模型排除canceled/unavailable，而gold计所有状态；数值不是与gold精确相等。",
       "claims": [
         {
           "text": "2018 Q2 有效订单（排除 canceled/unavailable）商品金额合计 2,849,730.26 BRL",
@@ -611,6 +611,16 @@
         "report_number_count": 24,
         "unsupported_numbers": 1,
         "unsupported_number_ratio": 0.041666666666666664
+      },
+      "gold": {
+        "item_total": 2858289.74,
+        "freight_total": 473867.23,
+        "payment_total": 3338648.13
+      },
+      "model_facts": {
+        "item_total": 2849730.26,
+        "freight_total": 472586.99,
+        "payment_total": 3322546.83
       }
     },
     {
@@ -942,7 +952,7 @@
       "correct": false,
       "strict_pass": false,
       "diagnostic_type": "grader_issue",
-      "reason": "三个必需金额字段均有正确SQL证据；说明差异阈值0.01 BRL被当成未支持业务数字，key_facts证据约束使整题失败。",
+      "reason": "三个必需金额字段均命中现有1%容差；说明差异阈值0.01 BRL被当成未支持业务数字，使key_facts整题失败。另有更早的口径偏差：模型排除canceled/unavailable，而gold计所有状态；数值不是与gold精确相等。",
       "claims": [
         {
           "text": "2018 Q2 有效订单（排除 canceled/unavailable）商品金额合计 item_total = 2,849,730.26 BRL",
@@ -1051,6 +1061,16 @@
         "report_number_count": 29,
         "unsupported_numbers": 1,
         "unsupported_number_ratio": 0.034482758620689655
+      },
+      "gold": {
+        "item_total": 2858289.74,
+        "freight_total": 473867.23,
+        "payment_total": 3338648.13
+      },
+      "model_facts": {
+        "item_total": 2849730.26,
+        "freight_total": 472586.99,
+        "payment_total": 3322546.83
       }
     },
     {
