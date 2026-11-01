@@ -104,7 +104,11 @@ def mutate(rec,kind,other):
             field=' '.join(str(k) for k in p).lower()
             is_state=len(v)==2 and v in {'SP','RJ','MG','RS','PR','SC','BA','DF','GO','ES','PE','CE','PA','MT','MA','MS','PB','PI','RN','AL','SE','TO','RO','AM','AC','AP','RR'}
             is_category=('category' in field or '品类' in q['question']) and len(v)!=32
-            if is_state or is_category:targets.append((p,v,'RJ' if v=='SP' else 'SP' if is_state else 'health_beauty' if v!='health_beauty' else 'bed_bath_table'))
+            if is_state:
+                targets.append((p,v,'RJ' if v=='SP' else 'SP'))
+            elif is_category:
+                choices=('beleza_saude','cama_mesa_banho') if '原始葡文' in q['question'] else ('health_beauty','bed_bath_table')
+                targets.append((p,v,choices[0] if v!=choices[0] else choices[1]))
         if not targets:return None,'答案中没有可替换的品类/州名；题干标签不当作答案标签'
         path,old,new=targets[0];value=replace(value,path,new)
         response['claims'][0]['value']=value
