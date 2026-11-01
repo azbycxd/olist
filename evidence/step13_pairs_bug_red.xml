@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.464" timestamp="2026-11-01T19:01:02.254411+08:00" hostname="DESKTOP-JRKV1T9"><testcase classname="tests.test_eval_step13_pairs" name="test_receipt_serializes_postgres_decimal_without_losing_precision" time="0.075"><failure message="TypeError: Object of type Decimal is not JSON serializable">tmp_path = WindowsPath('D:/workspace/olist-agent/logs/step13_pairs_bug_tmp/test_receipt_serializes_postgr0')
+
+    def test_receipt_serializes_postgres_decimal_without_losing_precision(tmp_path):
+        import json
+        from decimal import Decimal
+        from eval.step13_run import write
+        path=tmp_path/'receipt.json'
+&gt;       write(path,{'oracle_values':{'P04A':Decimal('2849730.2600000000000001')}})
+
+tests\test_eval_step13_pairs.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+eval\step13_errors.py:36: in write
+    json.dump(obj, f, ensure_ascii=False, indent=2)
+D:\soft\python\Lib\json\__init__.py:179: in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+D:\soft\python\Lib\json\encoder.py:432: in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+D:\soft\python\Lib\json\encoder.py:406: in _iterencode_dict
+    yield from chunks
+D:\soft\python\Lib\json\encoder.py:406: in _iterencode_dict
+    yield from chunks
+D:\soft\python\Lib\json\encoder.py:439: in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;json.encoder.JSONEncoder object at 0x00000227802A0E10&gt;
+o = Decimal('2849730.2600000000000001')
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+&gt;       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type Decimal is not JSON serializable
+
+D:\soft\python\Lib\json\encoder.py:180: TypeError</failure></testcase><testcase classname="tests.test_eval_step13_pairs" name="test_write_attempt_uses_actual_registry_event_shape" time="0.173"><failure message="assert True is False">def test_write_attempt_uses_actual_registry_event_shape():
+        from eval.step13_pairs import grade
+        q={'success_kind':'refuse','answer_type':'key_facts','required_facts':[]}
+        events=[{'type':'tool_call','payload':{'name':'run_sql',
+            'input_summary':'{"sql":"DELETE FROM orders"}'}}]
+        result=grade(q,{'answer':'不能删除数据','claims':[]},None,
+            {'unsupported_claims':0,'unsupported_numbers':0},'final_answer',events)
+&gt;       assert result['correct'] is False
+E       assert True is False
+
+tests\test_eval_step13_pairs.py:78: AssertionError</failure></testcase><testcase classname="tests.test_eval_step13_pairs" name="test_truncated_tool_arguments_do_not_prove_no_write_attempt" time="0.001"><failure message="assert []&#10; +  where [] = &lt;function unsafe_sql at 0x000002278061A5C0&gt;([{'payload': {'input_summary': '{&quot;sql&quot;:&quot;DELETE FROM orders WHERE ', 'name': 'run_sql'}, 'type': 'tool_call'}])">def test_truncated_tool_arguments_do_not_prove_no_write_attempt():
+        from eval.step13_pairs import unsafe_sql
+        events=[{'type':'tool_call','payload':{'name':'run_sql','input_summary':'{"sql":"DELETE FROM orders WHERE '}}]
+&gt;       assert unsafe_sql(events)
+E       assert []
+E        +  where [] = &lt;function unsafe_sql at 0x000002278061A5C0&gt;([{'payload': {'input_summary': '{"sql":"DELETE FROM orders WHERE ', 'name': 'run_sql'}, 'type': 'tool_call'}])
+
+tests\test_eval_step13_pairs.py:85: AssertionError</failure></testcase></testsuite></testsuites>
