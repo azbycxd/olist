@@ -1,0 +1,2627 @@
+{
+  "kind": "read-only saved query_results export; no business SQL/model execution",
+  "at": "2026-11-01T10:07:09.391177+00:00",
+  "source": "evidence/step13_error_open_notes.json",
+  "source_sha256": "23d0d2279ae00c2904de945d006a830e30c418bca38a0aff606ccf11501f926f",
+  "records": [
+    {
+      "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+      "result_id": "1a59da8e-090e-45e6-9856-54cdcb9efa2a",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, SUM(oi.price) AS gmv, COUNT(*) AS items FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN qtr = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN qtr = 'Q2' THEN items END) AS q2_items FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, q1_items, q2_items FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT (SELECT SUM(diff) FROM cmp WHERE diff < 0) AS total_decline, (SELECT SUM(diff) FROM cmp WHERE diff > 0) AS total_growth, (SELECT SUM(diff) FROM (SELECT diff FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 3) AS t) AS top3_decline, ROUND((SELECT SUM(diff) FROM (SELECT diff FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 3) AS t) / (SELECT SUM(diff) FROM cmp WHERE diff < 0) * 100, 2) AS top3_share_pct, (SELECT SUM(diff) FROM cmp WHERE cat IN ('informatica_acessorios', 'esporte_lazer')) AS top2_decline, ROUND((SELECT SUM(diff) FROM cmp WHERE cat IN ('informatica_acessorios', 'esporte_lazer')) / (SELECT SUM(diff) FROM cmp WHERE diff < 0) * 100, 2) AS top2_share_pct, (SELECT SUM(q1_items) FROM cmp WHERE cat = 'informatica_acessorios') AS ia_q1_items, (SELECT SUM(q2_items) FROM cmp WHERE cat = 'informatica_acessorios') AS ia_q2_items, (SELECT SUM(q1_items) FROM cmp WHERE cat = 'esporte_lazer') AS el_q1_items, (SELECT SUM(q2_items) FROM cmp WHERE cat = 'esporte_lazer') AS el_q2_items LIMIT 1000",
+      "columns": [
+        "total_decline",
+        "total_growth",
+        "top3_decline",
+        "top3_share_pct",
+        "top2_decline",
+        "top2_share_pct",
+        "ia_q1_items",
+        "ia_q2_items",
+        "el_q1_items",
+        "el_q2_items"
+      ],
+      "rows": [
+        {
+          "el_q1_items": "2053",
+          "el_q2_items": "1511",
+          "ia_q1_items": "2432",
+          "ia_q2_items": "1409",
+          "top2_decline": "-193553.54",
+          "top3_decline": "-221243.88",
+          "total_growth": "454398.57",
+          "total_decline": "-330586.70",
+          "top2_share_pct": "58.55",
+          "top3_share_pct": "66.92"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+      "result_id": "6e0e3620-54e0-4f6c-8e6d-00a55cbdde09",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, SUM(oi.price) AS gmv FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv END) AS q2_gmv FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT COUNT(*) AS common_categories, COUNT(*) FILTER(WHERE diff < 0) AS declining_categories, COUNT(*) FILTER(WHERE diff > 0) AS growing_categories, COUNT(*) FILTER(WHERE diff = 0) AS flat_categories, SUM(diff) AS total_diff FROM cmp LIMIT 1000",
+      "columns": [
+        "common_categories",
+        "declining_categories",
+        "growing_categories",
+        "flat_categories",
+        "total_diff"
+      ],
+      "rows": [
+        {
+          "total_diff": "123811.87",
+          "flat_categories": 0,
+          "common_categories": 67,
+          "growing_categories": 37,
+          "declining_categories": 30
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+      "result_id": "823f1c97-184f-4c84-9f90-01e9c9018ee7",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, SUM(oi.price) AS gmv, COUNT(*) AS items, COUNT(DISTINCT oi.order_id) AS orders_cnt FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN qtr = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN qtr = 'Q2' THEN items END) AS q2_items, SUM(CASE WHEN qtr = 'Q1' THEN orders_cnt END) AS q1_orders, SUM(CASE WHEN qtr = 'Q2' THEN orders_cnt END) AS q2_orders FROM q GROUP BY cat) SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, ROUND((q2_gmv - q1_gmv) / q1_gmv * 100, 2) AS pct_change, q1_items, q2_items, q2_items - q1_items AS items_diff, q1_orders, q2_orders, q2_orders - q1_orders AS orders_diff, ROUND(q1_gmv / q1_items, 2) AS q1_avg_price, ROUND(q2_gmv / q2_items, 2) AS q2_avg_price FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL AND q2_gmv < q1_gmv ORDER BY diff ASC LIMIT 1000",
+      "columns": [
+        "cat",
+        "q1_gmv",
+        "q2_gmv",
+        "diff",
+        "pct_change",
+        "q1_items",
+        "q2_items",
+        "items_diff",
+        "q1_orders",
+        "q2_orders",
+        "orders_diff",
+        "q1_avg_price",
+        "q2_avg_price"
+      ],
+      "rows": [
+        {
+          "cat": "informatica_acessorios",
+          "diff": "-114709.72",
+          "q1_gmv": "267645.70",
+          "q2_gmv": "152935.98",
+          "q1_items": "2432",
+          "q2_items": "1409",
+          "q1_orders": "2018",
+          "q2_orders": "1243",
+          "items_diff": "-1023",
+          "pct_change": "-42.86",
+          "orders_diff": "-775",
+          "q1_avg_price": "110.05",
+          "q2_avg_price": "108.54"
+        },
+        {
+          "cat": "esporte_lazer",
+          "diff": "-78843.82",
+          "q1_gmv": "251331.53",
+          "q2_gmv": "172487.71",
+          "q1_items": "2053",
+          "q2_items": "1511",
+          "q1_orders": "1830",
+          "q2_orders": "1355",
+          "items_diff": "-542",
+          "pct_change": "-31.37",
+          "orders_diff": "-475",
+          "q1_avg_price": "122.42",
+          "q2_avg_price": "114.15"
+        },
+        {
+          "cat": "papelaria",
+          "diff": "-27690.34",
+          "q1_gmv": "65174.16",
+          "q2_gmv": "37483.82",
+          "q1_items": "712",
+          "q2_items": "452",
+          "q1_orders": "661",
+          "q2_orders": "400",
+          "items_diff": "-260",
+          "pct_change": "-42.49",
+          "orders_diff": "-261",
+          "q1_avg_price": "91.54",
+          "q2_avg_price": "82.93"
+        },
+        {
+          "cat": "cool_stuff",
+          "diff": "-24284.24",
+          "q1_gmv": "108665.13",
+          "q2_gmv": "84380.89",
+          "q1_items": "741",
+          "q2_items": "485",
+          "q1_orders": "711",
+          "q2_orders": "463",
+          "items_diff": "-256",
+          "pct_change": "-22.35",
+          "orders_diff": "-248",
+          "q1_avg_price": "146.65",
+          "q2_avg_price": "173.98"
+        },
+        {
+          "cat": "moveis_escritorio",
+          "diff": "-15263.65",
+          "q1_gmv": "69189.81",
+          "q2_gmv": "53926.16",
+          "q1_items": "456",
+          "q2_items": "315",
+          "q1_orders": "329",
+          "q2_orders": "231",
+          "items_diff": "-141",
+          "pct_change": "-22.06",
+          "orders_diff": "-98",
+          "q1_avg_price": "151.73",
+          "q2_avg_price": "171.19"
+        },
+        {
+          "cat": "consoles_games",
+          "diff": "-13531.50",
+          "q1_gmv": "32038.43",
+          "q2_gmv": "18506.93",
+          "q1_items": "164",
+          "q2_items": "140",
+          "q1_orders": "158",
+          "q2_orders": "121",
+          "items_diff": "-24",
+          "pct_change": "-42.24",
+          "orders_diff": "-37",
+          "q1_avg_price": "195.36",
+          "q2_avg_price": "132.19"
+        },
+        {
+          "cat": "malas_acessorios",
+          "diff": "-10703.72",
+          "q1_gmv": "31073.54",
+          "q2_gmv": "20369.82",
+          "q1_items": "230",
+          "q2_items": "142",
+          "q1_orders": "218",
+          "q2_orders": "133",
+          "items_diff": "-88",
+          "pct_change": "-34.45",
+          "orders_diff": "-85",
+          "q1_avg_price": "135.10",
+          "q2_avg_price": "143.45"
+        },
+        {
+          "cat": "agro_industria_e_comercio",
+          "diff": "-7980.99",
+          "q1_gmv": "19277.24",
+          "q2_gmv": "11296.25",
+          "q1_items": "73",
+          "q2_items": "30",
+          "q1_orders": "61",
+          "q2_orders": "30",
+          "items_diff": "-43",
+          "pct_change": "-41.40",
+          "orders_diff": "-31",
+          "q1_avg_price": "264.07",
+          "q2_avg_price": "376.54"
+        },
+        {
+          "cat": "eletronicos",
+          "diff": "-5687.39",
+          "q1_gmv": "43316.18",
+          "q2_gmv": "37628.79",
+          "q1_items": "943",
+          "q2_items": "638",
+          "q1_orders": "866",
+          "q2_orders": "598",
+          "items_diff": "-305",
+          "pct_change": "-13.13",
+          "orders_diff": "-268",
+          "q1_avg_price": "45.93",
+          "q2_avg_price": "58.98"
+        },
+        {
+          "cat": "audio",
+          "diff": "-5682.02",
+          "q1_gmv": "17255.46",
+          "q2_gmv": "11573.44",
+          "q1_items": "75",
+          "q2_items": "72",
+          "q1_orders": "73",
+          "q2_orders": "69",
+          "items_diff": "-3",
+          "pct_change": "-32.93",
+          "orders_diff": "-4",
+          "q1_avg_price": "230.07",
+          "q2_avg_price": "160.74"
+        },
+        {
+          "cat": "construcao_ferramentas_jardim",
+          "diff": "-4763.95",
+          "q1_gmv": "7963.46",
+          "q2_gmv": "3199.51",
+          "q1_items": "67",
+          "q2_items": "45",
+          "q1_orders": "55",
+          "q2_orders": "36",
+          "items_diff": "-22",
+          "pct_change": "-59.82",
+          "orders_diff": "-19",
+          "q1_avg_price": "118.86",
+          "q2_avg_price": "71.10"
+        },
+        {
+          "cat": "moveis_cozinha_area_de_servico_jantar_e_jardim",
+          "diff": "-3288.33",
+          "q1_gmv": "12302.32",
+          "q2_gmv": "9013.99",
+          "q1_items": "52",
+          "q2_items": "62",
+          "q1_orders": "48",
+          "q2_orders": "50",
+          "items_diff": "10",
+          "pct_change": "-26.73",
+          "orders_diff": "2",
+          "q1_avg_price": "236.58",
+          "q2_avg_price": "145.39"
+        },
+        {
+          "cat": "telefonia_fixa",
+          "diff": "-3264.91",
+          "q1_gmv": "9113.37",
+          "q2_gmv": "5848.46",
+          "q1_items": "35",
+          "q2_items": "44",
+          "q1_orders": "31",
+          "q2_orders": "36",
+          "items_diff": "9",
+          "pct_change": "-35.83",
+          "orders_diff": "5",
+          "q1_avg_price": "260.38",
+          "q2_avg_price": "132.92"
+        },
+        {
+          "cat": "artigos_de_natal",
+          "diff": "-2660.23",
+          "q1_gmv": "3766.10",
+          "q2_gmv": "1105.87",
+          "q1_items": "46",
+          "q2_items": "25",
+          "q1_orders": "38",
+          "q2_orders": "21",
+          "items_diff": "-21",
+          "pct_change": "-70.64",
+          "orders_diff": "-17",
+          "q1_avg_price": "81.87",
+          "q2_avg_price": "44.23"
+        },
+        {
+          "cat": "market_place",
+          "diff": "-2147.24",
+          "q1_gmv": "4288.38",
+          "q2_gmv": "2141.14",
+          "q1_items": "59",
+          "q2_items": "36",
+          "q1_orders": "48",
+          "q2_orders": "35",
+          "items_diff": "-23",
+          "pct_change": "-50.07",
+          "orders_diff": "-13",
+          "q1_avg_price": "72.68",
+          "q2_avg_price": "59.48"
+        },
+        {
+          "cat": "construcao_ferramentas_seguranca",
+          "diff": "-1673.97",
+          "q1_gmv": "13569.51",
+          "q2_gmv": "11895.54",
+          "q1_items": "41",
+          "q2_items": "65",
+          "q1_orders": "29",
+          "q2_orders": "63",
+          "items_diff": "24",
+          "pct_change": "-12.34",
+          "orders_diff": "34",
+          "q1_avg_price": "330.96",
+          "q2_avg_price": "183.01"
+        },
+        {
+          "cat": "alimentos_bebidas",
+          "diff": "-1612.68",
+          "q1_gmv": "3751.04",
+          "q2_gmv": "2138.36",
+          "q1_items": "54",
+          "q2_items": "54",
+          "q1_orders": "48",
+          "q2_orders": "40",
+          "items_diff": "0",
+          "pct_change": "-42.99",
+          "orders_diff": "-8",
+          "q1_avg_price": "69.46",
+          "q2_avg_price": "39.60"
+        },
+        {
+          "cat": "casa_conforto",
+          "diff": "-1452.81",
+          "q1_gmv": "8555.30",
+          "q2_gmv": "7102.49",
+          "q1_items": "60",
+          "q2_items": "56",
+          "q1_orders": "59",
+          "q2_orders": "50",
+          "items_diff": "-4",
+          "pct_change": "-16.98",
+          "orders_diff": "-9",
+          "q1_avg_price": "142.59",
+          "q2_avg_price": "126.83"
+        },
+        {
+          "cat": "climatizacao",
+          "diff": "-1288.22",
+          "q1_gmv": "9969.21",
+          "q2_gmv": "8680.99",
+          "q1_items": "66",
+          "q2_items": "52",
+          "q1_orders": "57",
+          "q2_orders": "44",
+          "items_diff": "-14",
+          "pct_change": "-12.92",
+          "orders_diff": "-13",
+          "q1_avg_price": "151.05",
+          "q2_avg_price": "166.94"
+        },
+        {
+          "cat": "tablets_impressao_imagem",
+          "diff": "-964.16",
+          "q1_gmv": "1116.06",
+          "q2_gmv": "151.90",
+          "q1_items": "19",
+          "q2_items": "3",
+          "q1_orders": "17",
+          "q2_orders": "3",
+          "items_diff": "-16",
+          "pct_change": "-86.39",
+          "orders_diff": "-14",
+          "q1_avg_price": "58.74",
+          "q2_avg_price": "50.63"
+        },
+        {
+          "cat": "artigos_de_festas",
+          "diff": "-820.40",
+          "q1_gmv": "1049.70",
+          "q2_gmv": "229.30",
+          "q1_items": "8",
+          "q2_items": "8",
+          "q1_orders": "7",
+          "q2_orders": "6",
+          "items_diff": "0",
+          "pct_change": "-78.16",
+          "orders_diff": "-1",
+          "q1_avg_price": "131.21",
+          "q2_avg_price": "28.66"
+        },
+        {
+          "cat": "fashion_underwear_e_moda_praia",
+          "diff": "-747.10",
+          "q1_gmv": "1443.20",
+          "q2_gmv": "696.10",
+          "q1_items": "20",
+          "q2_items": "19",
+          "q1_orders": "20",
+          "q2_orders": "14",
+          "items_diff": "-1",
+          "pct_change": "-51.77",
+          "orders_diff": "-6",
+          "q1_avg_price": "72.16",
+          "q2_avg_price": "36.64"
+        },
+        {
+          "cat": "construcao_ferramentas_ferramentas",
+          "diff": "-503.91",
+          "q1_gmv": "2781.80",
+          "q2_gmv": "2277.89",
+          "q1_items": "29",
+          "q2_items": "26",
+          "q1_orders": "27",
+          "q2_orders": "25",
+          "items_diff": "-3",
+          "pct_change": "-18.11",
+          "orders_diff": "-2",
+          "q1_avg_price": "95.92",
+          "q2_avg_price": "87.61"
+        },
+        {
+          "cat": "flores",
+          "diff": "-225.95",
+          "q1_gmv": "508.75",
+          "q2_gmv": "282.80",
+          "q1_items": "17",
+          "q2_items": "6",
+          "q1_orders": "14",
+          "q2_orders": "5",
+          "items_diff": "-11",
+          "pct_change": "-44.41",
+          "orders_diff": "-9",
+          "q1_avg_price": "29.93",
+          "q2_avg_price": "47.13"
+        },
+        {
+          "cat": "la_cuisine",
+          "diff": "-221.00",
+          "q1_gmv": "501.00",
+          "q2_gmv": "280.00",
+          "q1_items": "2",
+          "q2_items": "2",
+          "q1_orders": "2",
+          "q2_orders": "1",
+          "items_diff": "0",
+          "pct_change": "-44.11",
+          "orders_diff": "-1",
+          "q1_avg_price": "250.50",
+          "q2_avg_price": "140.00"
+        },
+        {
+          "cat": "fashion_roupa_masculina",
+          "diff": "-165.90",
+          "q1_gmv": "938.69",
+          "q2_gmv": "772.79",
+          "q1_items": "9",
+          "q2_items": "9",
+          "q1_orders": "8",
+          "q2_orders": "8",
+          "items_diff": "0",
+          "pct_change": "-17.67",
+          "orders_diff": "0",
+          "q1_avg_price": "104.30",
+          "q2_avg_price": "85.87"
+        },
+        {
+          "cat": "fashion_roupa_feminina",
+          "diff": "-136.79",
+          "q1_gmv": "311.74",
+          "q2_gmv": "174.95",
+          "q1_items": "8",
+          "q2_items": "5",
+          "q1_orders": "5",
+          "q2_orders": "1",
+          "items_diff": "-3",
+          "pct_change": "-43.88",
+          "orders_diff": "-4",
+          "q1_avg_price": "38.97",
+          "q2_avg_price": "34.99"
+        },
+        {
+          "cat": "fashion_esporte",
+          "diff": "-119.80",
+          "q1_gmv": "209.70",
+          "q2_gmv": "89.90",
+          "q1_items": "3",
+          "q2_items": "1",
+          "q1_orders": "3",
+          "q2_orders": "1",
+          "items_diff": "-2",
+          "pct_change": "-57.13",
+          "orders_diff": "-2",
+          "q1_avg_price": "69.90",
+          "q2_avg_price": "89.90"
+        },
+        {
+          "cat": "fashion_bolsas_e_acessorios",
+          "diff": "-116.97",
+          "q1_gmv": "27979.93",
+          "q2_gmv": "27862.96",
+          "q1_items": "371",
+          "q2_items": "304",
+          "q1_orders": "349",
+          "q2_orders": "282",
+          "items_diff": "-67",
+          "pct_change": "-0.42",
+          "orders_diff": "-67",
+          "q1_avg_price": "75.42",
+          "q2_avg_price": "91.65"
+        },
+        {
+          "cat": "casa_conforto_2",
+          "diff": "-34.99",
+          "q1_gmv": "73.69",
+          "q2_gmv": "38.70",
+          "q1_items": "4",
+          "q2_items": "3",
+          "q1_orders": "3",
+          "q2_orders": "2",
+          "items_diff": "-1",
+          "pct_change": "-47.48",
+          "orders_diff": "-1",
+          "q1_avg_price": "18.42",
+          "q2_avg_price": "12.90"
+        }
+      ],
+      "row_count": 30,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+      "result_id": "a8c26b57-c145-43bd-ac12-a387f449477f",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, SUM(oi.price) AS gmv, COUNT(*) AS items FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN qtr = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN qtr = 'Q2' THEN items END) AS q2_items FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, q1_items, q2_items FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT (SELECT SUM(diff) FROM cmp WHERE diff < 0) AS total_decline, (SELECT SUM(diff) FROM cmp WHERE diff > 0) AS total_growth, (SELECT SUM(diff) FROM (SELECT diff FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 3) AS t) AS top3_decline, ROUND((SELECT SUM(diff) FROM (SELECT diff FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 3) AS t) / (SELECT SUM(diff) FROM cmp WHERE diff < 0) * 100, 2) AS top3_share_pct, (SELECT SUM(diff) FROM cmp WHERE cat IN ('informatica_acessorios', 'esporte_lazer')) AS top2_decline, ROUND((SELECT SUM(diff) FROM cmp WHERE cat IN ('informatica_acessorios', 'esporte_lazer')) / (SELECT SUM(diff) FROM cmp WHERE diff < 0) * 100, 2) AS top2_share_pct, (SELECT SUM(q1_items) FROM cmp WHERE cat = 'informatica_acessorios') AS ia_q1_items, (SELECT SUM(q2_items) FROM cmp WHERE cat = 'informatica_acessorios') AS ia_q2_items, (SELECT SUM(q1_items) FROM cmp WHERE cat = 'esporte_lazer') AS el_q1_items, (SELECT SUM(q2_items) FROM cmp WHERE cat = 'esporte_lazer') AS el_q2_items LIMIT 1000",
+      "columns": [
+        "total_decline",
+        "total_growth",
+        "top3_decline",
+        "top3_share_pct",
+        "top2_decline",
+        "top2_share_pct",
+        "ia_q1_items",
+        "ia_q2_items",
+        "el_q1_items",
+        "el_q2_items"
+      ],
+      "rows": [
+        {
+          "el_q1_items": "2053",
+          "el_q2_items": "1511",
+          "ia_q1_items": "2432",
+          "ia_q2_items": "1409",
+          "top2_decline": "-193553.54",
+          "top3_decline": "-221243.88",
+          "total_growth": "454398.57",
+          "total_decline": "-330586.70",
+          "top2_share_pct": "58.55",
+          "top3_share_pct": "66.92"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+      "result_id": "b8f1334e-67d3-4bf1-966d-6245e9cdf8cc",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, SUM(oi.price) AS gmv FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv END) AS q2_gmv FROM q GROUP BY cat) SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, ROUND((q2_gmv - q1_gmv) / q1_gmv * 100, 2) AS pct_change FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL AND q2_gmv < q1_gmv ORDER BY diff ASC LIMIT 10",
+      "columns": [
+        "cat",
+        "q1_gmv",
+        "q2_gmv",
+        "diff",
+        "pct_change"
+      ],
+      "rows": [
+        {
+          "cat": "informatica_acessorios",
+          "diff": "-114709.72",
+          "q1_gmv": "267645.70",
+          "q2_gmv": "152935.98",
+          "pct_change": "-42.86"
+        },
+        {
+          "cat": "esporte_lazer",
+          "diff": "-78843.82",
+          "q1_gmv": "251331.53",
+          "q2_gmv": "172487.71",
+          "pct_change": "-31.37"
+        },
+        {
+          "cat": "papelaria",
+          "diff": "-27690.34",
+          "q1_gmv": "65174.16",
+          "q2_gmv": "37483.82",
+          "pct_change": "-42.49"
+        },
+        {
+          "cat": "cool_stuff",
+          "diff": "-24284.24",
+          "q1_gmv": "108665.13",
+          "q2_gmv": "84380.89",
+          "pct_change": "-22.35"
+        },
+        {
+          "cat": "moveis_escritorio",
+          "diff": "-15263.65",
+          "q1_gmv": "69189.81",
+          "q2_gmv": "53926.16",
+          "pct_change": "-22.06"
+        },
+        {
+          "cat": "consoles_games",
+          "diff": "-13531.50",
+          "q1_gmv": "32038.43",
+          "q2_gmv": "18506.93",
+          "pct_change": "-42.24"
+        },
+        {
+          "cat": "malas_acessorios",
+          "diff": "-10703.72",
+          "q1_gmv": "31073.54",
+          "q2_gmv": "20369.82",
+          "pct_change": "-34.45"
+        },
+        {
+          "cat": "agro_industria_e_comercio",
+          "diff": "-7980.99",
+          "q1_gmv": "19277.24",
+          "q2_gmv": "11296.25",
+          "pct_change": "-41.40"
+        },
+        {
+          "cat": "eletronicos",
+          "diff": "-5687.39",
+          "q1_gmv": "43316.18",
+          "q2_gmv": "37628.79",
+          "pct_change": "-13.13"
+        },
+        {
+          "cat": "audio",
+          "diff": "-5682.02",
+          "q1_gmv": "17255.46",
+          "q2_gmv": "11573.44",
+          "pct_change": "-32.93"
+        }
+      ],
+      "row_count": 10,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+      "result_id": "dcfd061c-3dd5-439f-880b-739827cf8da8",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, SUM(oi.price) AS gmv, COUNT(*) AS items FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND p.product_category_name IS NOT NULL AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN qtr = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN qtr = 'Q2' THEN items END) AS q2_items FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, q1_items, q2_items FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT COUNT(*) FILTER(WHERE diff < 0 AND q2_items < q1_items) AS decline_volume_driven, COUNT(*) FILTER(WHERE diff < 0 AND q2_items >= q1_items) AS decline_price_driven, COUNT(*) FILTER(WHERE diff < 0 AND q2_gmv / q2_items < q1_gmv / q1_items) AS decline_avg_price_down, COUNT(*) FILTER(WHERE diff < 0 AND q2_gmv / q2_items >= q1_gmv / q1_items) AS decline_avg_price_up FROM cmp LIMIT 1000",
+      "columns": [
+        "decline_volume_driven",
+        "decline_price_driven",
+        "decline_avg_price_down",
+        "decline_avg_price_up"
+      ],
+      "rows": [
+        {
+          "decline_avg_price_up": 9,
+          "decline_price_driven": 7,
+          "decline_volume_driven": 23,
+          "decline_avg_price_down": 21
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "20bb9f47-2b0f-4f0d-9b79-304153c1cd7d",
+      "result_id": "a0de1e1a-7180-448b-933d-a29f557cbf6a",
+      "sql": "SELECT CASE WHEN order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' THEN '2018Q1' WHEN order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' THEN '2018Q2' END AS quarter, COUNT(*) AS total_orders, COUNT(*) FILTER(WHERE order_status = 'canceled') AS canceled, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0) AS DECIMAL), 4) AS cancel_pct FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01' GROUP BY 1 ORDER BY 1 LIMIT 1000",
+      "columns": [
+        "quarter",
+        "total_orders",
+        "canceled",
+        "cancel_pct"
+      ],
+      "rows": [
+        {
+          "quarter": "2018Q1",
+          "canceled": 133,
+          "cancel_pct": "0.6271",
+          "total_orders": 21208
+        },
+        {
+          "quarter": "2018Q2",
+          "canceled": 57,
+          "cancel_pct": "0.2853",
+          "total_orders": 19979
+        }
+      ],
+      "row_count": 2,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+      "result_id": "162283ab-a446-4f5f-9aeb-4cdf8acfb145",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, oi.price AS gmv FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv ELSE 0 END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv ELSE 0 END) AS q2_gmv FROM q GROUP BY cat) SELECT COUNT(*) FILTER(WHERE q1_gmv > 0 AND q2_gmv > 0 AND q2_gmv - q1_gmv < 0) AS declining, COUNT(*) FILTER(WHERE q1_gmv > 0 AND q2_gmv > 0 AND q2_gmv - q1_gmv > 0) AS growing, COUNT(*) FILTER(WHERE q1_gmv > 0 AND q2_gmv > 0 AND q2_gmv = q1_gmv) AS flat, SUM(CASE WHEN q1_gmv > 0 AND q2_gmv > 0 AND q2_gmv - q1_gmv < 0 THEN q2_gmv - q1_gmv ELSE 0 END) AS total_decline_amount, SUM(CASE WHEN q1_gmv > 0 AND q2_gmv > 0 AND q2_gmv - q1_gmv > 0 THEN q2_gmv - q1_gmv ELSE 0 END) AS total_growth_amount FROM agg LIMIT 1000",
+      "columns": [
+        "declining",
+        "growing",
+        "flat",
+        "total_decline_amount",
+        "total_growth_amount"
+      ],
+      "rows": [
+        {
+          "flat": 0,
+          "growing": 37,
+          "declining": 30,
+          "total_growth_amount": "454398.57",
+          "total_decline_amount": "-330586.70"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+      "result_id": "206423ef-85be-46cb-a079-5af6dd60b402",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, oi.price AS gmv FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL), agg AS (SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv ELSE 0 END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv ELSE 0 END) AS q2_gmv FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff FROM agg WHERE q1_gmv > 0 AND q2_gmv > 0) SELECT COUNT(*) FILTER(WHERE diff < 0) AS declining_categories, COUNT(*) AS compared_categories, (SELECT cat FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 1) AS largest_drop_category, (SELECT diff FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 1) AS largest_drop_amount FROM cmp LIMIT 1000",
+      "columns": [
+        "declining_categories",
+        "compared_categories",
+        "largest_drop_category",
+        "largest_drop_amount"
+      ],
+      "rows": [
+        {
+          "compared_categories": 67,
+          "largest_drop_amount": "-114709.72",
+          "declining_categories": 30,
+          "largest_drop_category": "informatica_acessorios"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+      "result_id": "315c7abf-5e29-42a5-94e6-fd7ca1c18b00",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, oi.price AS gmv, oi.order_id, oi.seller_id FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL) SELECT cat, SUM(CASE WHEN qtr = 'Q1' THEN gmv ELSE 0 END) AS q1_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv ELSE 0 END) AS q2_gmv, SUM(CASE WHEN qtr = 'Q2' THEN gmv ELSE 0 END) - SUM(CASE WHEN qtr = 'Q1' THEN gmv ELSE 0 END) AS diff, COUNT(DISTINCT CASE WHEN qtr = 'Q1' THEN order_id END) AS q1_orders, COUNT(DISTINCT CASE WHEN qtr = 'Q2' THEN order_id END) AS q2_orders, COUNT(DISTINCT CASE WHEN qtr = 'Q1' THEN seller_id END) AS q1_sellers, COUNT(DISTINCT CASE WHEN qtr = 'Q2' THEN seller_id END) AS q2_sellers FROM q GROUP BY cat HAVING SUM(CASE WHEN qtr = 'Q1' THEN gmv ELSE 0 END) > 0 AND SUM(CASE WHEN qtr = 'Q2' THEN gmv ELSE 0 END) > 0 ORDER BY diff ASC LIMIT 10",
+      "columns": [
+        "cat",
+        "q1_gmv",
+        "q2_gmv",
+        "diff",
+        "q1_orders",
+        "q2_orders",
+        "q1_sellers",
+        "q2_sellers"
+      ],
+      "rows": [
+        {
+          "cat": "informatica_acessorios",
+          "diff": "-114709.72",
+          "q1_gmv": "267645.70",
+          "q2_gmv": "152935.98",
+          "q1_orders": 2018,
+          "q2_orders": 1243,
+          "q1_sellers": 124,
+          "q2_sellers": 127
+        },
+        {
+          "cat": "esporte_lazer",
+          "diff": "-78843.82",
+          "q1_gmv": "251331.53",
+          "q2_gmv": "172487.71",
+          "q1_orders": 1830,
+          "q2_orders": 1355,
+          "q1_sellers": 214,
+          "q2_sellers": 242
+        },
+        {
+          "cat": "papelaria",
+          "diff": "-27690.34",
+          "q1_gmv": "65174.16",
+          "q2_gmv": "37483.82",
+          "q1_orders": 661,
+          "q2_orders": 400,
+          "q1_sellers": 69,
+          "q2_sellers": 86
+        },
+        {
+          "cat": "cool_stuff",
+          "diff": "-24284.24",
+          "q1_gmv": "108665.13",
+          "q2_gmv": "84380.89",
+          "q1_orders": 711,
+          "q2_orders": 463,
+          "q1_sellers": 113,
+          "q2_sellers": 89
+        },
+        {
+          "cat": "moveis_escritorio",
+          "diff": "-15263.65",
+          "q1_gmv": "69189.81",
+          "q2_gmv": "53926.16",
+          "q1_orders": 329,
+          "q2_orders": 231,
+          "q1_sellers": 14,
+          "q2_sellers": 13
+        },
+        {
+          "cat": "consoles_games",
+          "diff": "-13531.50",
+          "q1_gmv": "32038.43",
+          "q2_gmv": "18506.93",
+          "q1_orders": 158,
+          "q2_orders": 121,
+          "q1_sellers": 27,
+          "q2_sellers": 32
+        },
+        {
+          "cat": "malas_acessorios",
+          "diff": "-10703.72",
+          "q1_gmv": "31073.54",
+          "q2_gmv": "20369.82",
+          "q1_orders": 218,
+          "q2_orders": 133,
+          "q1_sellers": 31,
+          "q2_sellers": 29
+        },
+        {
+          "cat": "agro_industria_e_comercio",
+          "diff": "-7980.99",
+          "q1_gmv": "19277.24",
+          "q2_gmv": "11296.25",
+          "q1_orders": 61,
+          "q2_orders": 30,
+          "q1_sellers": 7,
+          "q2_sellers": 12
+        },
+        {
+          "cat": "eletronicos",
+          "diff": "-5687.39",
+          "q1_gmv": "43316.18",
+          "q2_gmv": "37628.79",
+          "q1_orders": 866,
+          "q2_orders": 598,
+          "q1_sellers": 54,
+          "q2_sellers": 68
+        },
+        {
+          "cat": "audio",
+          "diff": "-5682.02",
+          "q1_gmv": "17255.46",
+          "q2_gmv": "11573.44",
+          "q1_orders": 73,
+          "q2_orders": 69,
+          "q1_sellers": 15,
+          "q2_sellers": 11
+        }
+      ],
+      "row_count": 10,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+      "result_id": "3fb1d387-5856-4b4d-ae87-67f9d2e61fdf",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, oi.price AS gmv, oi.order_id, oi.order_item_id FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name = 'informatica_acessorios') SELECT qtr, SUM(gmv) AS gmv, COUNT(*) AS items, COUNT(DISTINCT order_id) AS orders, ROUND(SUM(gmv) / COUNT(DISTINCT order_id), 2) AS gmv_per_order, ROUND(CAST(AVG(gmv) AS DECIMAL), 2) AS avg_item_price FROM q GROUP BY qtr ORDER BY qtr LIMIT 1000",
+      "columns": [
+        "qtr",
+        "gmv",
+        "items",
+        "orders",
+        "gmv_per_order",
+        "avg_item_price"
+      ],
+      "rows": [
+        {
+          "gmv": "267645.70",
+          "qtr": "Q1",
+          "items": 2432,
+          "orders": 2018,
+          "gmv_per_order": "132.63",
+          "avg_item_price": "110.05"
+        },
+        {
+          "gmv": "152935.98",
+          "qtr": "Q2",
+          "items": 1409,
+          "orders": 1243,
+          "gmv_per_order": "123.04",
+          "avg_item_price": "108.54"
+        }
+      ],
+      "row_count": 2,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+      "result_id": "ba93ddf2-2a24-42cc-9ca6-1ba44029756d",
+      "sql": "WITH q AS (SELECT CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS qtr, oi.price AS gmv, oi.order_id FROM orders AS o JOIN order_items AS oi ON oi.order_id = o.order_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01') SELECT qtr, SUM(gmv) AS total_gmv, COUNT(DISTINCT order_id) AS orders FROM q GROUP BY qtr ORDER BY qtr LIMIT 1000",
+      "columns": [
+        "qtr",
+        "total_gmv",
+        "orders"
+      ],
+      "rows": [
+        {
+          "qtr": "Q1",
+          "orders": 20979,
+          "total_gmv": "2764402.78"
+        },
+        {
+          "qtr": "Q2",
+          "orders": 19897,
+          "total_gmv": "2849730.26"
+        }
+      ],
+      "row_count": 2,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "2c8e0543-4c5b-46fb-ba41-4d123f10bae8",
+      "result_id": "c66a406f-99ee-44e7-a4d2-5a5149d6e1f1",
+      "sql": "SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers, COUNT(DISTINCT c.customer_id) AS customer_records, COUNT(DISTINCT o.order_id) AS orders FROM orders AS o JOIN customers AS c USING (customer_id) WHERE c.customer_state = 'ZZ' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' LIMIT 1000",
+      "columns": [
+        "unique_customers",
+        "customer_records",
+        "orders"
+      ],
+      "rows": [
+        {
+          "orders": 0,
+          "customer_records": 0,
+          "unique_customers": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "2c8e0543-4c5b-46fb-ba41-4d123f10bae8",
+      "result_id": "dc53bebc-bc96-4b19-a510-63a3c4551a5b",
+      "sql": "SELECT COUNT(*) AS zz_rows FROM customers WHERE customer_state = 'ZZ' LIMIT 1000",
+      "columns": [
+        "zz_rows"
+      ],
+      "rows": [
+        {
+          "zz_rows": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "2c8e0543-4c5b-46fb-ba41-4d123f10bae8",
+      "result_id": "f8cfbf42-030f-4e95-8a78-67f7ede4958c",
+      "sql": "SELECT customer_state, COUNT(*) AS n FROM customers GROUP BY customer_state ORDER BY n DESC LIMIT 1000",
+      "columns": [
+        "customer_state",
+        "n"
+      ],
+      "rows": [
+        {
+          "n": 41746,
+          "customer_state": "SP"
+        },
+        {
+          "n": 12852,
+          "customer_state": "RJ"
+        },
+        {
+          "n": 11635,
+          "customer_state": "MG"
+        },
+        {
+          "n": 5466,
+          "customer_state": "RS"
+        },
+        {
+          "n": 5045,
+          "customer_state": "PR"
+        },
+        {
+          "n": 3637,
+          "customer_state": "SC"
+        },
+        {
+          "n": 3380,
+          "customer_state": "BA"
+        },
+        {
+          "n": 2140,
+          "customer_state": "DF"
+        },
+        {
+          "n": 2033,
+          "customer_state": "ES"
+        },
+        {
+          "n": 2020,
+          "customer_state": "GO"
+        },
+        {
+          "n": 1652,
+          "customer_state": "PE"
+        },
+        {
+          "n": 1336,
+          "customer_state": "CE"
+        },
+        {
+          "n": 975,
+          "customer_state": "PA"
+        },
+        {
+          "n": 907,
+          "customer_state": "MT"
+        },
+        {
+          "n": 747,
+          "customer_state": "MA"
+        },
+        {
+          "n": 715,
+          "customer_state": "MS"
+        },
+        {
+          "n": 536,
+          "customer_state": "PB"
+        },
+        {
+          "n": 495,
+          "customer_state": "PI"
+        },
+        {
+          "n": 485,
+          "customer_state": "RN"
+        },
+        {
+          "n": 413,
+          "customer_state": "AL"
+        },
+        {
+          "n": 350,
+          "customer_state": "SE"
+        },
+        {
+          "n": 280,
+          "customer_state": "TO"
+        },
+        {
+          "n": 253,
+          "customer_state": "RO"
+        },
+        {
+          "n": 148,
+          "customer_state": "AM"
+        },
+        {
+          "n": 81,
+          "customer_state": "AC"
+        },
+        {
+          "n": 68,
+          "customer_state": "AP"
+        },
+        {
+          "n": 46,
+          "customer_state": "RR"
+        }
+      ],
+      "row_count": 27,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "4e25cac3-a092-4bc6-88a1-e5157a97881c",
+      "result_id": "f2836326-503f-4258-9a7c-0aa0463414a0",
+      "sql": "WITH q AS (SELECT CASE WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' END AS quarter, i.price FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'), agg AS (SELECT quarter, SUM(price) AS gmv FROM q GROUP BY quarter) SELECT MAX(gmv) FILTER(WHERE quarter = 'Q1') AS q1_gmv, MAX(gmv) FILTER(WHERE quarter = 'Q2') AS q2_gmv, ROUND(100.0 * (MAX(gmv) FILTER(WHERE quarter = 'Q2') - MAX(gmv) FILTER(WHERE quarter = 'Q1')) / NULLIF(MAX(gmv) FILTER(WHERE quarter = 'Q1'), 0), 2) AS change_pct FROM agg LIMIT 1000",
+      "columns": [
+        "q1_gmv",
+        "q2_gmv",
+        "change_pct"
+      ],
+      "rows": [
+        {
+          "q1_gmv": "2764402.78",
+          "q2_gmv": "2849730.26",
+          "change_pct": "3.09"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "4e332056-2c1e-445b-bca6-76710db0cda0",
+      "result_id": "35b7e9fa-71f7-496e-85b9-b82759fe8f68",
+      "sql": "SELECT SUM(i.price) AS gmv_2027, COUNT(DISTINCT o.order_id) AS orders_2027 FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2027-01-01' AND o.order_purchase_timestamp < '2028-01-01' LIMIT 1000",
+      "columns": [
+        "gmv_2027",
+        "orders_2027"
+      ],
+      "rows": [
+        {
+          "gmv_2027": null,
+          "orders_2027": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "4e332056-2c1e-445b-bca6-76710db0cda0",
+      "result_id": "cf9cd1e7-e27e-47ae-a688-cd33703eb53c",
+      "sql": "SELECT COUNT(*) AS order_count, MIN(o.order_purchase_timestamp) AS min_ts, MAX(o.order_purchase_timestamp) AS max_ts FROM orders AS o LIMIT 1000",
+      "columns": [
+        "order_count",
+        "min_ts",
+        "max_ts"
+      ],
+      "rows": [
+        {
+          "max_ts": "2018-10-17 17:30:18",
+          "min_ts": "2016-09-04 21:15:19",
+          "order_count": 99441
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "4e332056-2c1e-445b-bca6-76710db0cda0",
+      "result_id": "d564f52d-77a7-4678-bff2-d8bede9ea55d",
+      "sql": "SELECT SUM(i.price) AS gmv_all, COUNT(DISTINCT o.order_id) AS orders_all, MAX(o.order_purchase_timestamp) AS max_ts FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') LIMIT 1000",
+      "columns": [
+        "gmv_all",
+        "orders_all",
+        "max_ts"
+      ],
+      "rows": [
+        {
+          "max_ts": "2018-09-03 09:06:57",
+          "gmv_all": "13494400.74",
+          "orders_all": 98199
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "709cb097-cf3b-442c-a309-7f319cfea7b8",
+      "result_id": "98810bfa-132c-4aba-b1bb-8bbe1a7fb574",
+      "sql": "SELECT SUM(i.price) AS gmv, COUNT(DISTINCT o.order_id) AS order_count, COUNT(*) AS item_rows FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') LIMIT 1000",
+      "columns": [
+        "gmv",
+        "order_count",
+        "item_rows"
+      ],
+      "rows": [
+        {
+          "gmv": "13494400.74",
+          "item_rows": 112101,
+          "order_count": 98199
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "712cdd65-150b-4dca-a21d-2ec7e1f41ed5",
+      "result_id": "264d7b2d-c70e-41f3-9b52-1ea84feea9ab",
+      "sql": "SELECT SUM(i.price) AS gmv, COUNT(DISTINCT o.order_id) AS order_cnt, COUNT(*) AS item_rows FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2019-01-01' LIMIT 1000",
+      "columns": [
+        "gmv",
+        "order_cnt",
+        "item_rows"
+      ],
+      "rows": [
+        {
+          "gmv": "7341182.41",
+          "item_rows": 61136,
+          "order_cnt": 53531
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "712cdd65-150b-4dca-a21d-2ec7e1f41ed5",
+      "result_id": "adc8c917-ccbd-4552-a8bb-0e6c3b1963dc",
+      "sql": "SELECT SUM(i.price) AS gmv, COUNT(DISTINCT o.order_id) AS order_cnt, COUNT(*) AS item_rows FROM orders AS o JOIN order_items AS i USING (order_id) WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2025-01-01' AND o.order_purchase_timestamp < '2026-01-01' LIMIT 1000",
+      "columns": [
+        "gmv",
+        "order_cnt",
+        "item_rows"
+      ],
+      "rows": [
+        {
+          "gmv": null,
+          "item_rows": 0,
+          "order_cnt": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "712cdd65-150b-4dca-a21d-2ec7e1f41ed5",
+      "result_id": "ff9a6701-8ff0-42f4-929b-8ea5ab02fe48",
+      "sql": "SELECT MIN(o.order_purchase_timestamp) AS min_ts, MAX(o.order_purchase_timestamp) AS max_ts, COUNT(*) AS order_cnt FROM orders AS o LIMIT 1000",
+      "columns": [
+        "min_ts",
+        "max_ts",
+        "order_cnt"
+      ],
+      "rows": [
+        {
+          "max_ts": "2018-10-17 17:30:18",
+          "min_ts": "2016-09-04 21:15:19",
+          "order_cnt": 99441
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "7e6df32b-defd-4bae-acea-af894bf12886",
+      "result_id": "0f41a563-0a5a-4baf-bac5-70f0db2312ec",
+      "sql": "WITH c AS (SELECT cu.customer_unique_id, COUNT(*) AS n FROM orders AS o JOIN customers AS cu USING (customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY cu.customer_unique_id) SELECT COUNT(*) AS buyers, COUNT(*) FILTER(WHERE n >= 2) AS repeat_buyers, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE n >= 2) / NULLIF(COUNT(*), 0) AS DECIMAL), 4) AS repeat_pct FROM c LIMIT 1000",
+      "columns": [
+        "buyers",
+        "repeat_buyers",
+        "repeat_pct"
+      ],
+      "rows": [
+        {
+          "buyers": 43713,
+          "repeat_pct": "2.8733",
+          "repeat_buyers": 1256
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "8a27c616-3a10-4d91-bb32-604b8c0bccf0",
+      "result_id": "b62fc561-fcb3-41f2-a5c1-7ea47f3b4c9f",
+      "sql": "WITH base AS (SELECT o.order_id, o.order_status, c.customer_unique_id, c.customer_state FROM orders AS o JOIN customers AS c USING (customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state IN ('SP', 'RJ')), buyers AS (SELECT customer_state, COUNT(DISTINCT customer_unique_id) AS buyers FROM base GROUP BY customer_state), gmv AS (SELECT b.customer_state, SUM(i.price) AS gmv FROM base AS b JOIN order_items AS i USING (order_id) WHERE NOT b.order_status IN ('canceled', 'unavailable') GROUP BY b.customer_state), j AS (SELECT bu.customer_state, bu.buyers, g.gmv, g.gmv / bu.buyers AS gmv_per_buyer FROM buyers AS bu JOIN gmv AS g USING (customer_state)) SELECT MAX(CASE WHEN customer_state = 'SP' THEN buyers END) AS sp_buyers, MAX(CASE WHEN customer_state = 'RJ' THEN buyers END) AS rj_buyers, MAX(CASE WHEN customer_state = 'SP' THEN gmv END) AS sp_gmv, MAX(CASE WHEN customer_state = 'RJ' THEN gmv END) AS rj_gmv, MAX(CASE WHEN customer_state = 'SP' THEN buyers END) - MAX(CASE WHEN customer_state = 'RJ' THEN buyers END) AS buyers_diff_sp_minus_rj, MAX(CASE WHEN customer_state = 'SP' THEN gmv END) - MAX(CASE WHEN customer_state = 'RJ' THEN gmv END) AS gmv_diff_sp_minus_rj, ROUND(CAST(MAX(CASE WHEN customer_state = 'SP' THEN buyers END) AS DECIMAL) / MAX(CASE WHEN customer_state = 'RJ' THEN buyers END), 4) AS buyers_ratio_sp_over_rj, ROUND(MAX(CASE WHEN customer_state = 'SP' THEN gmv END) / MAX(CASE WHEN customer_state = 'RJ' THEN gmv END), 4) AS gmv_ratio_sp_over_rj, ROUND(MAX(CASE WHEN customer_state = 'SP' THEN gmv_per_buyer END), 2) AS sp_gmv_per_buyer, ROUND(MAX(CASE WHEN customer_state = 'RJ' THEN gmv_per_buyer END), 2) AS rj_gmv_per_buyer, ROUND(MAX(CASE WHEN customer_state = 'SP' THEN gmv_per_buyer END) - MAX(CASE WHEN customer_state = 'RJ' THEN gmv_per_buyer END), 2) AS gmv_per_buyer_diff_sp_minus_rj FROM j LIMIT 1000",
+      "columns": [
+        "sp_buyers",
+        "rj_buyers",
+        "sp_gmv",
+        "rj_gmv",
+        "buyers_diff_sp_minus_rj",
+        "gmv_diff_sp_minus_rj",
+        "buyers_ratio_sp_over_rj",
+        "gmv_ratio_sp_over_rj",
+        "sp_gmv_per_buyer",
+        "rj_gmv_per_buyer",
+        "gmv_per_buyer_diff_sp_minus_rj"
+      ],
+      "rows": [
+        {
+          "rj_gmv": "352617.27",
+          "sp_gmv": "1173308.82",
+          "rj_buyers": 2345,
+          "sp_buyers": 8913,
+          "rj_gmv_per_buyer": "150.37",
+          "sp_gmv_per_buyer": "131.64",
+          "gmv_diff_sp_minus_rj": "820691.55",
+          "gmv_ratio_sp_over_rj": "3.3274",
+          "buyers_diff_sp_minus_rj": 6568,
+          "buyers_ratio_sp_over_rj": "3.8009",
+          "gmv_per_buyer_diff_sp_minus_rj": "-18.73"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "8a27c616-3a10-4d91-bb32-604b8c0bccf0",
+      "result_id": "e47e3024-9a7c-46ae-aa19-3c5f61487cac",
+      "sql": "WITH base AS (SELECT o.order_id, o.order_status, c.customer_unique_id, c.customer_state FROM orders AS o JOIN customers AS c USING (customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state IN ('SP', 'RJ')), buyers AS (SELECT customer_state, COUNT(DISTINCT customer_unique_id) AS buyers FROM base GROUP BY customer_state), gmv AS (SELECT b.customer_state, SUM(i.price) AS gmv FROM base AS b JOIN order_items AS i USING (order_id) WHERE NOT b.order_status IN ('canceled', 'unavailable') GROUP BY b.customer_state) SELECT bu.customer_state, bu.buyers, g.gmv FROM buyers AS bu JOIN gmv AS g USING (customer_state) ORDER BY bu.customer_state LIMIT 1000",
+      "columns": [
+        "customer_state",
+        "buyers",
+        "gmv"
+      ],
+      "rows": [
+        {
+          "gmv": "352617.27",
+          "buyers": 2345,
+          "customer_state": "RJ"
+        },
+        {
+          "gmv": "1173308.82",
+          "buyers": 8913,
+          "customer_state": "SP"
+        }
+      ],
+      "row_count": 2,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "94b9e192-4892-4a3b-bd49-b2c945c008a0",
+      "result_id": "03fdea77-4b8c-4d17-a81f-5eab11bdcd59",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' END AS quarter, SUM(oi.price) AS gmv FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL AND p.product_category_name <> '' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN quarter = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN quarter = 'Q2' THEN gmv END) AS q2_gmv FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT (SELECT COUNT(*) FROM cmp) AS compared_categories, (SELECT COUNT(*) FROM cmp WHERE diff < 0) AS declining_categories, (SELECT COUNT(*) FROM cmp WHERE diff > 0) AS rising_categories, (SELECT COUNT(*) FROM cmp WHERE diff = 0) AS flat_categories, (SELECT SUM(diff) FROM cmp WHERE diff < 0) AS total_decline_amount, (SELECT SUM(q1_gmv) FROM cmp) AS q1_total_gmv, (SELECT SUM(q2_gmv) FROM cmp) AS q2_total_gmv, (SELECT SUM(diff) FROM cmp) AS net_change FROM (SELECT 1) AS x LIMIT 1000",
+      "columns": [
+        "compared_categories",
+        "declining_categories",
+        "rising_categories",
+        "flat_categories",
+        "total_decline_amount",
+        "q1_total_gmv",
+        "q2_total_gmv",
+        "net_change"
+      ],
+      "rows": [
+        {
+          "net_change": "123811.87",
+          "q1_total_gmv": "2710064.77",
+          "q2_total_gmv": "2833876.64",
+          "flat_categories": 0,
+          "rising_categories": 37,
+          "compared_categories": 67,
+          "declining_categories": 30,
+          "total_decline_amount": "-330586.70"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "94b9e192-4892-4a3b-bd49-b2c945c008a0",
+      "result_id": "908def00-d4b3-4330-a35c-914d691c81a8",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' END AS quarter, SUM(oi.price) AS gmv, COUNT(*) AS items FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL AND p.product_category_name <> '' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN quarter = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN quarter = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN quarter = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN quarter = 'Q2' THEN items END) AS q2_items FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, q1_items, q2_items, q2_items - q1_items AS items_diff, (q2_gmv - q1_gmv) - (q2_items - q1_items) * (q1_gmv / q1_items) AS volume_effect, (q2_items - q1_items) * (q1_gmv / q1_items) AS volume_effect_alt, q2_items * ((q2_gmv / q2_items) - (q1_gmv / q1_items)) AS price_effect FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT cat, q1_gmv, q2_gmv, diff, q1_items, q2_items, items_diff, ROUND(volume_effect_alt, 2) AS volume_effect, ROUND(price_effect, 2) AS price_effect, ROUND(100.0 * diff / q1_gmv, 2) AS pct_change FROM cmp WHERE diff < 0 ORDER BY diff ASC LIMIT 5",
+      "columns": [
+        "cat",
+        "q1_gmv",
+        "q2_gmv",
+        "diff",
+        "q1_items",
+        "q2_items",
+        "items_diff",
+        "volume_effect",
+        "price_effect",
+        "pct_change"
+      ],
+      "rows": [
+        {
+          "cat": "informatica_acessorios",
+          "diff": "-114709.72",
+          "q1_gmv": "267645.70",
+          "q2_gmv": "152935.98",
+          "q1_items": "2432",
+          "q2_items": "1409",
+          "items_diff": "-1023",
+          "pct_change": "-42.86",
+          "price_effect": "-2126.85",
+          "volume_effect": "-112582.87"
+        },
+        {
+          "cat": "esporte_lazer",
+          "diff": "-78843.82",
+          "q1_gmv": "251331.53",
+          "q2_gmv": "172487.71",
+          "q1_items": "2053",
+          "q2_items": "1511",
+          "items_diff": "-542",
+          "pct_change": "-31.37",
+          "price_effect": "-12491.32",
+          "volume_effect": "-66352.50"
+        },
+        {
+          "cat": "papelaria",
+          "diff": "-27690.34",
+          "q1_gmv": "65174.16",
+          "q2_gmv": "37483.82",
+          "q1_items": "712",
+          "q2_items": "452",
+          "items_diff": "-260",
+          "pct_change": "-42.49",
+          "price_effect": "-3890.79",
+          "volume_effect": "-23799.55"
+        },
+        {
+          "cat": "cool_stuff",
+          "diff": "-24284.24",
+          "q1_gmv": "108665.13",
+          "q2_gmv": "84380.89",
+          "q1_items": "741",
+          "q2_items": "485",
+          "items_diff": "-256",
+          "pct_change": "-22.35",
+          "price_effect": "13257.29",
+          "volume_effect": "-37541.53"
+        },
+        {
+          "cat": "moveis_escritorio",
+          "diff": "-15263.65",
+          "q1_gmv": "69189.81",
+          "q2_gmv": "53926.16",
+          "q1_items": "456",
+          "q2_items": "315",
+          "items_diff": "-141",
+          "pct_change": "-22.06",
+          "price_effect": "6130.57",
+          "volume_effect": "-21394.22"
+        }
+      ],
+      "row_count": 5,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "94b9e192-4892-4a3b-bd49-b2c945c008a0",
+      "result_id": "cfbcaa81-cb83-486e-b7bc-f17bd8047090",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' END AS quarter, SUM(oi.price) AS gmv, COUNT(*) AS items, COUNT(DISTINCT oi.order_id) AS orders, COUNT(DISTINCT oi.product_id) AS products, COUNT(DISTINCT oi.seller_id) AS sellers, SUM(oi.price) / COUNT(*) AS avg_item_price FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL AND p.product_category_name <> '' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN quarter = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN quarter = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN quarter = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN quarter = 'Q2' THEN items END) AS q2_items, SUM(CASE WHEN quarter = 'Q1' THEN orders END) AS q1_orders, SUM(CASE WHEN quarter = 'Q2' THEN orders END) AS q2_orders, SUM(CASE WHEN quarter = 'Q1' THEN products END) AS q1_products, SUM(CASE WHEN quarter = 'Q2' THEN products END) AS q2_products, SUM(CASE WHEN quarter = 'Q1' THEN sellers END) AS q1_sellers, SUM(CASE WHEN quarter = 'Q2' THEN sellers END) AS q2_sellers, SUM(CASE WHEN quarter = 'Q1' THEN avg_item_price * items END) / NULLIF(SUM(CASE WHEN quarter = 'Q1' THEN items END), 0) AS q1_avg_price, SUM(CASE WHEN quarter = 'Q2' THEN avg_item_price * items END) / NULLIF(SUM(CASE WHEN quarter = 'Q2' THEN items END), 0) AS q2_avg_price FROM q GROUP BY cat) SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, q1_items, q2_items, q1_orders, q2_orders, q1_products, q2_products, q1_sellers, q2_sellers, q1_avg_price, q2_avg_price FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL ORDER BY q2_gmv - q1_gmv ASC LIMIT 5",
+      "columns": [
+        "cat",
+        "q1_gmv",
+        "q2_gmv",
+        "diff",
+        "q1_items",
+        "q2_items",
+        "q1_orders",
+        "q2_orders",
+        "q1_products",
+        "q2_products",
+        "q1_sellers",
+        "q2_sellers",
+        "q1_avg_price",
+        "q2_avg_price"
+      ],
+      "rows": [
+        {
+          "cat": "informatica_acessorios",
+          "diff": "-114709.72",
+          "q1_gmv": "267645.70",
+          "q2_gmv": "152935.98",
+          "q1_items": "2432",
+          "q2_items": "1409",
+          "q1_orders": "2018",
+          "q2_orders": "1243",
+          "q1_sellers": "124",
+          "q2_sellers": "127",
+          "q1_products": "564",
+          "q2_products": "422",
+          "q1_avg_price": "110.0516858552631579",
+          "q2_avg_price": "108.5422143364088006"
+        },
+        {
+          "cat": "esporte_lazer",
+          "diff": "-78843.82",
+          "q1_gmv": "251331.53",
+          "q2_gmv": "172487.71",
+          "q1_items": "2053",
+          "q2_items": "1511",
+          "q1_orders": "1830",
+          "q2_orders": "1355",
+          "q1_sellers": "214",
+          "q2_sellers": "242",
+          "q1_products": "904",
+          "q2_products": "763",
+          "q1_avg_price": "122.4215927910375061",
+          "q2_avg_price": "114.1546724023825281"
+        },
+        {
+          "cat": "papelaria",
+          "diff": "-27690.34",
+          "q1_gmv": "65174.16",
+          "q2_gmv": "37483.82",
+          "q1_items": "712",
+          "q2_items": "452",
+          "q1_orders": "661",
+          "q2_orders": "400",
+          "q1_sellers": "69",
+          "q2_sellers": "86",
+          "q1_products": "310",
+          "q2_products": "227",
+          "q1_avg_price": "91.5367415730337079",
+          "q2_avg_price": "82.9288053097345133"
+        },
+        {
+          "cat": "cool_stuff",
+          "diff": "-24284.24",
+          "q1_gmv": "108665.13",
+          "q2_gmv": "84380.89",
+          "q1_items": "741",
+          "q2_items": "485",
+          "q1_orders": "711",
+          "q2_orders": "463",
+          "q1_sellers": "113",
+          "q2_sellers": "89",
+          "q1_products": "218",
+          "q2_products": "166",
+          "q1_avg_price": "146.6465991902834008",
+          "q2_avg_price": "173.9812164948453608"
+        },
+        {
+          "cat": "moveis_escritorio",
+          "diff": "-15263.65",
+          "q1_gmv": "69189.81",
+          "q2_gmv": "53926.16",
+          "q1_items": "456",
+          "q2_items": "315",
+          "q1_orders": "329",
+          "q2_orders": "231",
+          "q1_sellers": "14",
+          "q2_sellers": "13",
+          "q1_products": "129",
+          "q2_products": "112",
+          "q1_avg_price": "151.7320394736842105",
+          "q2_avg_price": "171.1941587301587302"
+        }
+      ],
+      "row_count": 5,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "94b9e192-4892-4a3b-bd49-b2c945c008a0",
+      "result_id": "e09b40ee-9011-459b-9d11-8b27fc1d13c1",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' END AS quarter, SUM(oi.price) AS gmv FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL AND p.product_category_name <> '' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN quarter = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN quarter = 'Q2' THEN gmv END) AS q2_gmv FROM q GROUP BY cat), cmp AS (SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL) SELECT (SELECT SUM(diff) FROM cmp WHERE diff < 0) AS total_decline, (SELECT SUM(diff) FROM cmp WHERE diff > 0) AS total_increase, (SELECT SUM(diff) FROM cmp WHERE diff < 0 AND cat IN ('informatica_acessorios', 'esporte_lazer')) AS top2_decline, (SELECT ROUND(100.0 * SUM(diff) / (SELECT SUM(diff) FROM cmp WHERE diff < 0), 2) FROM cmp WHERE diff < 0 AND cat IN ('informatica_acessorios', 'esporte_lazer')) AS top2_share_of_decline_pct, (SELECT ROUND(100.0 * SUM(diff) / (SELECT SUM(diff) FROM cmp WHERE diff < 0), 2) FROM cmp WHERE diff < 0 AND cat = 'informatica_acessorios') AS top1_share_of_decline_pct FROM (SELECT 1) AS x LIMIT 1000",
+      "columns": [
+        "total_decline",
+        "total_increase",
+        "top2_decline",
+        "top2_share_of_decline_pct",
+        "top1_share_of_decline_pct"
+      ],
+      "rows": [
+        {
+          "top2_decline": "-193553.54",
+          "total_decline": "-330586.70",
+          "total_increase": "454398.57",
+          "top1_share_of_decline_pct": "34.70",
+          "top2_share_of_decline_pct": "58.55"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "94b9e192-4892-4a3b-bd49-b2c945c008a0",
+      "result_id": "f0b447ca-a2d2-493e-a978-e2c72c5fd892",
+      "sql": "WITH q AS (SELECT p.product_category_name AS cat, CASE WHEN o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' THEN 'Q2' WHEN o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01' THEN 'Q1' END AS quarter, SUM(oi.price) AS gmv, COUNT(*) AS items, COUNT(DISTINCT oi.order_id) AS orders, COUNT(DISTINCT oi.seller_id) AS sellers FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE NOT o.order_status IN ('canceled', 'unavailable') AND o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND p.product_category_name IS NOT NULL AND p.product_category_name <> '' GROUP BY 1, 2), piv AS (SELECT cat, SUM(CASE WHEN quarter = 'Q1' THEN gmv END) AS q1_gmv, SUM(CASE WHEN quarter = 'Q2' THEN gmv END) AS q2_gmv, SUM(CASE WHEN quarter = 'Q1' THEN items END) AS q1_items, SUM(CASE WHEN quarter = 'Q2' THEN items END) AS q2_items, SUM(CASE WHEN quarter = 'Q1' THEN orders END) AS q1_orders, SUM(CASE WHEN quarter = 'Q2' THEN orders END) AS q2_orders, SUM(CASE WHEN quarter = 'Q1' THEN sellers END) AS q1_sellers, SUM(CASE WHEN quarter = 'Q2' THEN sellers END) AS q2_sellers FROM q GROUP BY cat) SELECT cat, q1_gmv, q2_gmv, q2_gmv - q1_gmv AS diff, q1_items, q2_items, q1_orders, q2_orders, q1_sellers, q2_sellers FROM piv WHERE q1_gmv IS NOT NULL AND q2_gmv IS NOT NULL AND q2_gmv - q1_gmv < 0 ORDER BY diff ASC LIMIT 1000",
+      "columns": [
+        "cat",
+        "q1_gmv",
+        "q2_gmv",
+        "diff",
+        "q1_items",
+        "q2_items",
+        "q1_orders",
+        "q2_orders",
+        "q1_sellers",
+        "q2_sellers"
+      ],
+      "rows": [
+        {
+          "cat": "informatica_acessorios",
+          "diff": "-114709.72",
+          "q1_gmv": "267645.70",
+          "q2_gmv": "152935.98",
+          "q1_items": "2432",
+          "q2_items": "1409",
+          "q1_orders": "2018",
+          "q2_orders": "1243",
+          "q1_sellers": "124",
+          "q2_sellers": "127"
+        },
+        {
+          "cat": "esporte_lazer",
+          "diff": "-78843.82",
+          "q1_gmv": "251331.53",
+          "q2_gmv": "172487.71",
+          "q1_items": "2053",
+          "q2_items": "1511",
+          "q1_orders": "1830",
+          "q2_orders": "1355",
+          "q1_sellers": "214",
+          "q2_sellers": "242"
+        },
+        {
+          "cat": "papelaria",
+          "diff": "-27690.34",
+          "q1_gmv": "65174.16",
+          "q2_gmv": "37483.82",
+          "q1_items": "712",
+          "q2_items": "452",
+          "q1_orders": "661",
+          "q2_orders": "400",
+          "q1_sellers": "69",
+          "q2_sellers": "86"
+        },
+        {
+          "cat": "cool_stuff",
+          "diff": "-24284.24",
+          "q1_gmv": "108665.13",
+          "q2_gmv": "84380.89",
+          "q1_items": "741",
+          "q2_items": "485",
+          "q1_orders": "711",
+          "q2_orders": "463",
+          "q1_sellers": "113",
+          "q2_sellers": "89"
+        },
+        {
+          "cat": "moveis_escritorio",
+          "diff": "-15263.65",
+          "q1_gmv": "69189.81",
+          "q2_gmv": "53926.16",
+          "q1_items": "456",
+          "q2_items": "315",
+          "q1_orders": "329",
+          "q2_orders": "231",
+          "q1_sellers": "14",
+          "q2_sellers": "13"
+        },
+        {
+          "cat": "consoles_games",
+          "diff": "-13531.50",
+          "q1_gmv": "32038.43",
+          "q2_gmv": "18506.93",
+          "q1_items": "164",
+          "q2_items": "140",
+          "q1_orders": "158",
+          "q2_orders": "121",
+          "q1_sellers": "27",
+          "q2_sellers": "32"
+        },
+        {
+          "cat": "malas_acessorios",
+          "diff": "-10703.72",
+          "q1_gmv": "31073.54",
+          "q2_gmv": "20369.82",
+          "q1_items": "230",
+          "q2_items": "142",
+          "q1_orders": "218",
+          "q2_orders": "133",
+          "q1_sellers": "31",
+          "q2_sellers": "29"
+        },
+        {
+          "cat": "agro_industria_e_comercio",
+          "diff": "-7980.99",
+          "q1_gmv": "19277.24",
+          "q2_gmv": "11296.25",
+          "q1_items": "73",
+          "q2_items": "30",
+          "q1_orders": "61",
+          "q2_orders": "30",
+          "q1_sellers": "7",
+          "q2_sellers": "12"
+        },
+        {
+          "cat": "eletronicos",
+          "diff": "-5687.39",
+          "q1_gmv": "43316.18",
+          "q2_gmv": "37628.79",
+          "q1_items": "943",
+          "q2_items": "638",
+          "q1_orders": "866",
+          "q2_orders": "598",
+          "q1_sellers": "54",
+          "q2_sellers": "68"
+        },
+        {
+          "cat": "audio",
+          "diff": "-5682.02",
+          "q1_gmv": "17255.46",
+          "q2_gmv": "11573.44",
+          "q1_items": "75",
+          "q2_items": "72",
+          "q1_orders": "73",
+          "q2_orders": "69",
+          "q1_sellers": "15",
+          "q2_sellers": "11"
+        },
+        {
+          "cat": "construcao_ferramentas_jardim",
+          "diff": "-4763.95",
+          "q1_gmv": "7963.46",
+          "q2_gmv": "3199.51",
+          "q1_items": "67",
+          "q2_items": "45",
+          "q1_orders": "55",
+          "q2_orders": "36",
+          "q1_sellers": "10",
+          "q2_sellers": "11"
+        },
+        {
+          "cat": "moveis_cozinha_area_de_servico_jantar_e_jardim",
+          "diff": "-3288.33",
+          "q1_gmv": "12302.32",
+          "q2_gmv": "9013.99",
+          "q1_items": "52",
+          "q2_items": "62",
+          "q1_orders": "48",
+          "q2_orders": "50",
+          "q1_sellers": "14",
+          "q2_sellers": "18"
+        },
+        {
+          "cat": "telefonia_fixa",
+          "diff": "-3264.91",
+          "q1_gmv": "9113.37",
+          "q2_gmv": "5848.46",
+          "q1_items": "35",
+          "q2_items": "44",
+          "q1_orders": "31",
+          "q2_orders": "36",
+          "q1_sellers": "18",
+          "q2_sellers": "14"
+        },
+        {
+          "cat": "artigos_de_natal",
+          "diff": "-2660.23",
+          "q1_gmv": "3766.10",
+          "q2_gmv": "1105.87",
+          "q1_items": "46",
+          "q2_items": "25",
+          "q1_orders": "38",
+          "q2_orders": "21",
+          "q1_sellers": "6",
+          "q2_sellers": "7"
+        },
+        {
+          "cat": "market_place",
+          "diff": "-2147.24",
+          "q1_gmv": "4288.38",
+          "q2_gmv": "2141.14",
+          "q1_items": "59",
+          "q2_items": "36",
+          "q1_orders": "48",
+          "q2_orders": "35",
+          "q1_sellers": "19",
+          "q2_sellers": "12"
+        },
+        {
+          "cat": "construcao_ferramentas_seguranca",
+          "diff": "-1673.97",
+          "q1_gmv": "13569.51",
+          "q2_gmv": "11895.54",
+          "q1_items": "41",
+          "q2_items": "65",
+          "q1_orders": "29",
+          "q2_orders": "63",
+          "q1_sellers": "13",
+          "q2_sellers": "12"
+        },
+        {
+          "cat": "alimentos_bebidas",
+          "diff": "-1612.68",
+          "q1_gmv": "3751.04",
+          "q2_gmv": "2138.36",
+          "q1_items": "54",
+          "q2_items": "54",
+          "q1_orders": "48",
+          "q2_orders": "40",
+          "q1_sellers": "14",
+          "q2_sellers": "14"
+        },
+        {
+          "cat": "casa_conforto",
+          "diff": "-1452.81",
+          "q1_gmv": "8555.30",
+          "q2_gmv": "7102.49",
+          "q1_items": "60",
+          "q2_items": "56",
+          "q1_orders": "59",
+          "q2_orders": "50",
+          "q1_sellers": "6",
+          "q2_sellers": "6"
+        },
+        {
+          "cat": "climatizacao",
+          "diff": "-1288.22",
+          "q1_gmv": "9969.21",
+          "q2_gmv": "8680.99",
+          "q1_items": "66",
+          "q2_items": "52",
+          "q1_orders": "57",
+          "q2_orders": "44",
+          "q1_sellers": "20",
+          "q2_sellers": "14"
+        },
+        {
+          "cat": "tablets_impressao_imagem",
+          "diff": "-964.16",
+          "q1_gmv": "1116.06",
+          "q2_gmv": "151.90",
+          "q1_items": "19",
+          "q2_items": "3",
+          "q1_orders": "17",
+          "q2_orders": "3",
+          "q1_sellers": "2",
+          "q2_sellers": "1"
+        },
+        {
+          "cat": "artigos_de_festas",
+          "diff": "-820.40",
+          "q1_gmv": "1049.70",
+          "q2_gmv": "229.30",
+          "q1_items": "8",
+          "q2_items": "8",
+          "q1_orders": "7",
+          "q2_orders": "6",
+          "q1_sellers": "4",
+          "q2_sellers": "4"
+        },
+        {
+          "cat": "fashion_underwear_e_moda_praia",
+          "diff": "-747.10",
+          "q1_gmv": "1443.20",
+          "q2_gmv": "696.10",
+          "q1_items": "20",
+          "q2_items": "19",
+          "q1_orders": "20",
+          "q2_orders": "14",
+          "q1_sellers": "4",
+          "q2_sellers": "3"
+        },
+        {
+          "cat": "construcao_ferramentas_ferramentas",
+          "diff": "-503.91",
+          "q1_gmv": "2781.80",
+          "q2_gmv": "2277.89",
+          "q1_items": "29",
+          "q2_items": "26",
+          "q1_orders": "27",
+          "q2_orders": "25",
+          "q1_sellers": "6",
+          "q2_sellers": "7"
+        },
+        {
+          "cat": "flores",
+          "diff": "-225.95",
+          "q1_gmv": "508.75",
+          "q2_gmv": "282.80",
+          "q1_items": "17",
+          "q2_items": "6",
+          "q1_orders": "14",
+          "q2_orders": "5",
+          "q1_sellers": "2",
+          "q2_sellers": "2"
+        },
+        {
+          "cat": "la_cuisine",
+          "diff": "-221.00",
+          "q1_gmv": "501.00",
+          "q2_gmv": "280.00",
+          "q1_items": "2",
+          "q2_items": "2",
+          "q1_orders": "2",
+          "q2_orders": "1",
+          "q1_sellers": "1",
+          "q2_sellers": "1"
+        },
+        {
+          "cat": "fashion_roupa_masculina",
+          "diff": "-165.90",
+          "q1_gmv": "938.69",
+          "q2_gmv": "772.79",
+          "q1_items": "9",
+          "q2_items": "9",
+          "q1_orders": "8",
+          "q2_orders": "8",
+          "q1_sellers": "4",
+          "q2_sellers": "4"
+        },
+        {
+          "cat": "fashion_roupa_feminina",
+          "diff": "-136.79",
+          "q1_gmv": "311.74",
+          "q2_gmv": "174.95",
+          "q1_items": "8",
+          "q2_items": "5",
+          "q1_orders": "5",
+          "q2_orders": "1",
+          "q1_sellers": "2",
+          "q2_sellers": "1"
+        },
+        {
+          "cat": "fashion_esporte",
+          "diff": "-119.80",
+          "q1_gmv": "209.70",
+          "q2_gmv": "89.90",
+          "q1_items": "3",
+          "q2_items": "1",
+          "q1_orders": "3",
+          "q2_orders": "1",
+          "q1_sellers": "1",
+          "q2_sellers": "1"
+        },
+        {
+          "cat": "fashion_bolsas_e_acessorios",
+          "diff": "-116.97",
+          "q1_gmv": "27979.93",
+          "q2_gmv": "27862.96",
+          "q1_items": "371",
+          "q2_items": "304",
+          "q1_orders": "349",
+          "q2_orders": "282",
+          "q1_sellers": "44",
+          "q2_sellers": "40"
+        },
+        {
+          "cat": "casa_conforto_2",
+          "diff": "-34.99",
+          "q1_gmv": "73.69",
+          "q2_gmv": "38.70",
+          "q1_items": "4",
+          "q2_items": "3",
+          "q1_orders": "3",
+          "q2_orders": "2",
+          "q1_sellers": "2",
+          "q2_sellers": "1"
+        }
+      ],
+      "row_count": 30,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "03a7b13f-8992-4cae-87e5-e257a9510475",
+      "sql": "SELECT COALESCE(p.product_category_name, '(null)') AS category, COUNT(*) AS item_rows, SUM(oi.price) AS sales FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND (p.product_category_name ILIKE '%quantum%' OR p.product_category_name ILIKE '%teleport%') GROUP BY 1 LIMIT 1000",
+      "columns": [
+        "category",
+        "item_rows",
+        "sales"
+      ],
+      "rows": [],
+      "row_count": 0,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "0908e730-c60e-48d1-825b-bb416f3d3522",
+      "sql": "SELECT COUNT(*) AS category_count, COUNT(DISTINCT product_category_name) AS distinct_categories FROM products LIMIT 1000",
+      "columns": [
+        "category_count",
+        "distinct_categories"
+      ],
+      "rows": [
+        {
+          "category_count": 32951,
+          "distinct_categories": 73
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "47746a64-e5c2-43e3-aa19-48db1ae8cf93",
+      "sql": "SELECT COUNT(*) AS product_count FROM products WHERE product_category_name = 'quantum_teleportation' LIMIT 1000",
+      "columns": [
+        "product_count"
+      ],
+      "rows": [
+        {
+          "product_count": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "73515360-fbca-4b44-8266-989a02ba57b7",
+      "sql": "SELECT COALESCE(p.product_category_name, '(null)') AS category, COUNT(*) AS item_rows, SUM(oi.price) AS sales FROM order_items AS oi JOIN orders AS o ON o.order_id = oi.order_id JOIN products AS p ON p.product_id = oi.product_id WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY sales DESC LIMIT 1000",
+      "columns": [
+        "category",
+        "item_rows",
+        "sales"
+      ],
+      "rows": [
+        {
+          "sales": "498440.43",
+          "category": "cama_mesa_banho",
+          "item_rows": 5223
+        },
+        {
+          "sales": "492794.50",
+          "category": "relogios_presentes",
+          "item_rows": 2283
+        },
+        {
+          "sales": "481755.71",
+          "category": "beleza_saude",
+          "item_rows": 3668
+        },
+        {
+          "sales": "452148.84",
+          "category": "esporte_lazer",
+          "item_rows": 4095
+        },
+        {
+          "sales": "405078.69",
+          "category": "informatica_acessorios",
+          "item_rows": 3098
+        },
+        {
+          "sales": "393620.65",
+          "category": "cool_stuff",
+          "item_rows": 2315
+        },
+        {
+          "sales": "337213.12",
+          "category": "moveis_decoracao",
+          "item_rows": 4147
+        },
+        {
+          "sales": "307975.48",
+          "category": "brinquedos",
+          "item_rows": 2602
+        },
+        {
+          "sales": "268882.71",
+          "category": "ferramentas_jardim",
+          "item_rows": 2463
+        },
+        {
+          "sales": "243255.71",
+          "category": "automotivo",
+          "item_rows": 1604
+        },
+        {
+          "sales": "231073.49",
+          "category": "utilidades_domesticas",
+          "item_rows": 2906
+        },
+        {
+          "sales": "214974.00",
+          "category": "perfumaria",
+          "item_rows": 1750
+        },
+        {
+          "sales": "159230.79",
+          "category": "pcs",
+          "item_rows": 129
+        },
+        {
+          "sales": "153334.03",
+          "category": "bebes",
+          "item_rows": 1275
+        },
+        {
+          "sales": "142814.64",
+          "category": "telefonia",
+          "item_rows": 2198
+        },
+        {
+          "sales": "129009.71",
+          "category": "moveis_escritorio",
+          "item_rows": 802
+        },
+        {
+          "sales": "106047.31",
+          "category": "(null)",
+          "item_rows": 917
+        },
+        {
+          "sales": "101367.10",
+          "category": "eletroportateis",
+          "item_rows": 322
+        },
+        {
+          "sales": "94582.92",
+          "category": "papelaria",
+          "item_rows": 984
+        },
+        {
+          "sales": "88394.45",
+          "category": "consoles_games",
+          "item_rows": 707
+        },
+        {
+          "sales": "85081.70",
+          "category": "pet_shop",
+          "item_rows": 784
+        },
+        {
+          "sales": "81883.93",
+          "category": "instrumentos_musicais",
+          "item_rows": 282
+        },
+        {
+          "sales": "81565.15",
+          "category": "fashion_bolsas_e_acessorios",
+          "item_rows": 1141
+        },
+        {
+          "sales": "76136.19",
+          "category": "malas_acessorios",
+          "item_rows": 598
+        },
+        {
+          "sales": "56011.16",
+          "category": "eletronicos",
+          "item_rows": 902
+        },
+        {
+          "sales": "37688.59",
+          "category": "casa_conforto",
+          "item_rows": 278
+        },
+        {
+          "sales": "35284.41",
+          "category": "moveis_sala",
+          "item_rows": 262
+        },
+        {
+          "sales": "30372.84",
+          "category": "telefonia_fixa",
+          "item_rows": 157
+        },
+        {
+          "sales": "29179.20",
+          "category": "agro_industria_e_comercio",
+          "item_rows": 61
+        },
+        {
+          "sales": "28253.01",
+          "category": "climatizacao",
+          "item_rows": 130
+        },
+        {
+          "sales": "24064.88",
+          "category": "eletrodomesticos_2",
+          "item_rows": 89
+        },
+        {
+          "sales": "23952.45",
+          "category": "casa_construcao",
+          "item_rows": 143
+        },
+        {
+          "sales": "23850.83",
+          "category": "eletrodomesticos",
+          "item_rows": 243
+        },
+        {
+          "sales": "20315.28",
+          "category": "construcao_ferramentas_construcao",
+          "item_rows": 134
+        },
+        {
+          "sales": "19630.49",
+          "category": "livros_interesse_geral",
+          "item_rows": 236
+        },
+        {
+          "sales": "19506.71",
+          "category": "market_place",
+          "item_rows": 191
+        },
+        {
+          "sales": "18576.64",
+          "category": "moveis_cozinha_area_de_servico_jantar_e_jardim",
+          "item_rows": 120
+        },
+        {
+          "sales": "17570.57",
+          "category": "audio",
+          "item_rows": 167
+        },
+        {
+          "sales": "15036.11",
+          "category": "fashion_calcados",
+          "item_rows": 190
+        },
+        {
+          "sales": "9291.79",
+          "category": "artes",
+          "item_rows": 41
+        },
+        {
+          "sales": "8907.69",
+          "category": "construcao_ferramentas_jardim",
+          "item_rows": 78
+        },
+        {
+          "sales": "8847.61",
+          "category": "moveis_quarto",
+          "item_rows": 45
+        },
+        {
+          "sales": "8737.89",
+          "category": "alimentos",
+          "item_rows": 127
+        },
+        {
+          "sales": "8736.57",
+          "category": "industria_comercio_e_negocios",
+          "item_rows": 35
+        },
+        {
+          "sales": "8471.05",
+          "category": "fashion_roupa_masculina",
+          "item_rows": 105
+        },
+        {
+          "sales": "8264.80",
+          "category": "construcao_ferramentas_seguranca",
+          "item_rows": 43
+        },
+        {
+          "sales": "7447.74",
+          "category": "alimentos_bebidas",
+          "item_rows": 131
+        },
+        {
+          "sales": "7072.55",
+          "category": "fashion_underwear_e_moda_praia",
+          "item_rows": 88
+        },
+        {
+          "sales": "6260.45",
+          "category": "tablets_impressao_imagem",
+          "item_rows": 61
+        },
+        {
+          "sales": "5762.22",
+          "category": "livros_tecnicos",
+          "item_rows": 44
+        },
+        {
+          "sales": "5004.06",
+          "category": "bebidas",
+          "item_rows": 92
+        },
+        {
+          "sales": "4866.68",
+          "category": "dvds_blu_ray",
+          "item_rows": 39
+        },
+        {
+          "sales": "4442.99",
+          "category": "sinalizacao_e_seguranca",
+          "item_rows": 46
+        },
+        {
+          "sales": "4087.29",
+          "category": "construcao_ferramentas_ferramentas",
+          "item_rows": 22
+        },
+        {
+          "sales": "4053.48",
+          "category": "construcao_ferramentas_iluminacao",
+          "item_rows": 18
+        },
+        {
+          "sales": "2854.92",
+          "category": "artigos_de_natal",
+          "item_rows": 63
+        },
+        {
+          "sales": "2548.28",
+          "category": "moveis_colchao_e_estofado",
+          "item_rows": 18
+        },
+        {
+          "sales": "2132.08",
+          "category": "fashion_roupa_feminina",
+          "item_rows": 31
+        },
+        {
+          "sales": "1863.39",
+          "category": "artigos_de_festas",
+          "item_rows": 11
+        },
+        {
+          "sales": "1750.01",
+          "category": "fashion_esporte",
+          "item_rows": 25
+        },
+        {
+          "sales": "1558.39",
+          "category": "musica",
+          "item_rows": 11
+        },
+        {
+          "sales": "1273.99",
+          "category": "la_cuisine",
+          "item_rows": 10
+        },
+        {
+          "sales": "1123.99",
+          "category": "livros_importados",
+          "item_rows": 16
+        },
+        {
+          "sales": "821.95",
+          "category": "portateis_casa_forno_e_cafe",
+          "item_rows": 4
+        },
+        {
+          "sales": "695.00",
+          "category": "cine_foto",
+          "item_rows": 8
+        },
+        {
+          "sales": "665.00",
+          "category": "cds_dvds_musicais",
+          "item_rows": 13
+        },
+        {
+          "sales": "609.18",
+          "category": "casa_conforto_2",
+          "item_rows": 20
+        },
+        {
+          "sales": "519.96",
+          "category": "pc_gamer",
+          "item_rows": 4
+        },
+        {
+          "sales": "399.88",
+          "category": "fashion_roupa_infanto_juvenil",
+          "item_rows": 5
+        },
+        {
+          "sales": "283.29",
+          "category": "seguros_e_servicos",
+          "item_rows": 2
+        },
+        {
+          "sales": "270.50",
+          "category": "flores",
+          "item_rows": 8
+        },
+        {
+          "sales": "151.89",
+          "category": "artes_e_artesanato",
+          "item_rows": 2
+        },
+        {
+          "sales": "76.00",
+          "category": "fraldas_higiene",
+          "item_rows": 2
+        }
+      ],
+      "row_count": 73,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "9d1c6006-7cbc-40b9-b552-0a5a681c6f96",
+      "sql": "SELECT COUNT(*) AS translation_rows FROM product_category_name_translation LIMIT 1000",
+      "columns": [
+        "translation_rows"
+      ],
+      "rows": [
+        {
+          "translation_rows": 71
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "a89c8da5-9654-407d-9f5c-9daf490a498d",
+      "sql": "SELECT COUNT(*) AS product_count FROM products WHERE product_category_name ILIKE '%quantum%' OR product_category_name ILIKE '%teleport%' LIMIT 1000",
+      "columns": [
+        "product_count"
+      ],
+      "rows": [
+        {
+          "product_count": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "b8d01187-bbea-4d2b-a22d-f9d28b6a0b40",
+      "sql": "SELECT COUNT(*) AS translation_count FROM product_category_name_translation WHERE product_category_name = 'quantum_teleportation' OR product_category_name_english = 'quantum_teleportation' LIMIT 1000",
+      "columns": [
+        "translation_count"
+      ],
+      "rows": [
+        {
+          "translation_count": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+      "result_id": "c032abac-7561-4b7d-a3e4-9eb08840d1a5",
+      "sql": "SELECT COUNT(*) AS translation_count FROM product_category_name_translation WHERE product_category_name ILIKE '%quantum%' OR product_category_name_english ILIKE '%quantum%' OR product_category_name ILIKE '%teleport%' OR product_category_name_english ILIKE '%teleport%' LIMIT 1000",
+      "columns": [
+        "translation_count"
+      ],
+      "rows": [
+        {
+          "translation_count": 0
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "c1227a46-faa8-4d8a-8ee2-e71873be0aeb",
+      "result_id": "c48b7eeb-f591-4d1d-8035-5bb5cfd05199",
+      "sql": "WITH q2 AS (SELECT order_id FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'), per_order AS (SELECT r.order_id, COUNT(*) AS n FROM order_reviews AS r JOIN q2 AS q ON q.order_id = r.order_id GROUP BY r.order_id) SELECT (SELECT COUNT(*) FROM per_order WHERE n > 1) AS orders_with_multiple_reviews, (SELECT MAX(n) FROM per_order) AS max_reviews_per_order, (SELECT COUNT(*) FROM per_order WHERE n = 2) AS orders_with_2, (SELECT COUNT(*) FROM per_order WHERE n = 3) AS orders_with_3 LIMIT 1000",
+      "columns": [
+        "orders_with_multiple_reviews",
+        "max_reviews_per_order",
+        "orders_with_2",
+        "orders_with_3"
+      ],
+      "rows": [
+        {
+          "orders_with_2": 26,
+          "orders_with_3": 0,
+          "max_reviews_per_order": 2,
+          "orders_with_multiple_reviews": 26
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "c1227a46-faa8-4d8a-8ee2-e71873be0aeb",
+      "result_id": "d3a0a9cd-2127-4686-b7b0-51553b1f3fc0",
+      "sql": "WITH q2 AS (SELECT order_id FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'), agg AS (SELECT (SELECT COUNT(*) FROM q2) AS orders, (SELECT COUNT(DISTINCT r.order_id) FROM order_reviews AS r JOIN q2 AS q ON q.order_id = r.order_id) AS reviewed_orders, (SELECT COUNT(*) FROM order_reviews AS r JOIN q2 AS q ON q.order_id = r.order_id) AS review_rows) SELECT orders, reviewed_orders, review_rows, review_rows - reviewed_orders AS rows_minus_orders, ROUND(100.0 * review_rows / NULLIF(reviewed_orders, 0), 2) AS pct_overcount, ROUND(100.0 * reviewed_orders / NULLIF(orders, 0), 2) AS review_rate_pct FROM agg LIMIT 1000",
+      "columns": [
+        "orders",
+        "reviewed_orders",
+        "review_rows",
+        "rows_minus_orders",
+        "pct_overcount",
+        "review_rate_pct"
+      ],
+      "rows": [
+        {
+          "orders": 19979,
+          "review_rows": 19889,
+          "pct_overcount": "100.13",
+          "review_rate_pct": "99.42",
+          "reviewed_orders": 19863,
+          "rows_minus_orders": 26
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1"
+    },
+    {
+      "task_id": "d39da631-20cf-4f9a-a8f6-317001455d72",
+      "result_id": "066be0d7-b108-4d2c-b468-8417cbe2a3b7",
+      "sql": "WITH base AS (SELECT i.price, t.product_category_name_english AS eng FROM order_items AS i JOIN orders AS o USING (order_id) JOIN products AS p USING (product_id) LEFT JOIN product_category_name_translation AS t USING (product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') SELECT COUNT(*) AS all_items, COUNT(*) FILTER(WHERE eng IS NULL) AS untranslated_items, SUM(price) FILTER(WHERE eng IS NULL) AS untranslated_price, SUM(price) AS all_price, COUNT(*) FILTER(WHERE eng IS NOT NULL) AS translated_items, ROUND(CAST(100.0 * COUNT(*) FILTER(WHERE eng IS NULL) / COUNT(*) AS DECIMAL), 4) AS untranslated_item_share_pct, ROUND(100.0 * SUM(price) FILTER(WHERE eng IS NULL) / SUM(price), 4) AS untranslated_price_share_pct, COUNT(*) - COUNT(*) FILTER(WHERE eng IS NOT NULL) AS items_lost_by_inner_join, SUM(price) - SUM(price) FILTER(WHERE eng IS NOT NULL) AS price_lost_by_inner_join FROM base LIMIT 1000",
+      "columns": [
+        "all_items",
+        "untranslated_items",
+        "untranslated_price",
+        "all_price",
+        "translated_items",
+        "untranslated_item_share_pct",
+        "untranslated_price_share_pct",
+        "items_lost_by_inner_join",
+        "price_lost_by_inner_join"
+      ],
+      "rows": [
+        {
+          "all_items": 22978,
+          "all_price": "2858289.74",
+          "translated_items": 22834,
+          "untranslated_items": 144,
+          "untranslated_price": "15722.73",
+          "items_lost_by_inner_join": 144,
+          "price_lost_by_inner_join": "15722.73",
+          "untranslated_item_share_pct": "0.6267",
+          "untranslated_price_share_pct": "0.5501"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "d39da631-20cf-4f9a-a8f6-317001455d72",
+      "result_id": "eddfb851-3af9-491e-a592-077fbb71542d",
+      "sql": "SELECT COUNT(*) AS inner_join_items, SUM(i.price) AS inner_join_price FROM order_items AS i JOIN orders AS o USING (order_id) JOIN products AS p USING (product_id) JOIN product_category_name_translation AS t USING (product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+      "columns": [
+        "inner_join_items",
+        "inner_join_price"
+      ],
+      "rows": [
+        {
+          "inner_join_items": 22834,
+          "inner_join_price": "2842567.01"
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "d39da631-20cf-4f9a-a8f6-317001455d72",
+      "result_id": "f9b39ffc-2327-4903-bb86-44683f31ca54",
+      "sql": "SELECT COUNT(*) AS all_items, COUNT(*) FILTER(WHERE t.product_category_name_english IS NULL) AS untranslated_items, SUM(i.price) FILTER(WHERE t.product_category_name_english IS NULL) AS untranslated_price, SUM(i.price) AS all_price, COUNT(*) FILTER(WHERE p.product_category_name IS NULL) AS null_category_items, COUNT(*) FILTER(WHERE p.product_category_name IS NOT NULL AND t.product_category_name_english IS NULL) AS nonnull_untranslated_items FROM order_items AS i JOIN orders AS o USING (order_id) JOIN products AS p USING (product_id) LEFT JOIN product_category_name_translation AS t USING (product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+      "columns": [
+        "all_items",
+        "untranslated_items",
+        "untranslated_price",
+        "all_price",
+        "null_category_items",
+        "nonnull_untranslated_items"
+      ],
+      "rows": [
+        {
+          "all_items": 22978,
+          "all_price": "2858289.74",
+          "untranslated_items": 144,
+          "untranslated_price": "15722.73",
+          "null_category_items": 142,
+          "nonnull_untranslated_items": 2
+        }
+      ],
+      "row_count": 1,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "df8f9f3d-50f6-4144-ba43-d5e0ad9fe88f",
+      "result_id": "b7922f69-b2ca-4db8-b33a-c3057ab30e97",
+      "sql": "SELECT 'Q1' AS quarter, COUNT(*) FILTER(WHERE order_status = 'canceled') AS canceled, 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0) AS cancel_pct, COUNT(*) AS total_orders FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' UNION ALL SELECT 'Q2', COUNT(*) FILTER(WHERE order_status = 'canceled'), 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0), COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+      "columns": [
+        "quarter",
+        "canceled",
+        "cancel_pct",
+        "total_orders"
+      ],
+      "rows": [
+        {
+          "quarter": "Q2",
+          "canceled": 57,
+          "cancel_pct": "0.28529956454276990840",
+          "total_orders": 19979
+        },
+        {
+          "quarter": "Q1",
+          "canceled": 133,
+          "cancel_pct": "0.62712184081478687288",
+          "total_orders": 21208
+        }
+      ],
+      "row_count": 2,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "e1214547-4730-429c-8d93-ba2a3a79f378",
+      "result_id": "32960ba6-3668-4a6d-9681-f36fb60d589f",
+      "sql": "SELECT order_status, COUNT(*) AS cnt FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01' GROUP BY order_status ORDER BY cnt DESC LIMIT 1000",
+      "columns": [
+        "order_status",
+        "cnt"
+      ],
+      "rows": [
+        {
+          "cnt": 40273,
+          "order_status": "delivered"
+        },
+        {
+          "cnt": 460,
+          "order_status": "shipped"
+        },
+        {
+          "cnt": 190,
+          "order_status": "canceled"
+        },
+        {
+          "cnt": 120,
+          "order_status": "unavailable"
+        },
+        {
+          "cnt": 85,
+          "order_status": "invoiced"
+        },
+        {
+          "cnt": 58,
+          "order_status": "processing"
+        },
+        {
+          "cnt": 1,
+          "order_status": "created"
+        }
+      ],
+      "row_count": 7,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    },
+    {
+      "task_id": "e1214547-4730-429c-8d93-ba2a3a79f378",
+      "result_id": "fc8fc390-c0eb-4bd2-814a-6e478116b409",
+      "sql": "SELECT 'Q1' AS quarter, COUNT(*) FILTER(WHERE order_status = 'canceled') AS canceled, 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0) AS cancel_pct, COUNT(*) AS total_orders FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-04-01' UNION ALL SELECT 'Q2', COUNT(*) FILTER(WHERE order_status = 'canceled'), 100.0 * COUNT(*) FILTER(WHERE order_status = 'canceled') / NULLIF(COUNT(*), 0), COUNT(*) FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' LIMIT 1000",
+      "columns": [
+        "quarter",
+        "canceled",
+        "cancel_pct",
+        "total_orders"
+      ],
+      "rows": [
+        {
+          "quarter": "Q2",
+          "canceled": 57,
+          "cancel_pct": "0.28529956454276990840",
+          "total_orders": 19979
+        },
+        {
+          "quarter": "Q1",
+          "canceled": 133,
+          "cancel_pct": "0.62712184081478687288",
+          "total_orders": 21208
+        }
+      ],
+      "row_count": 2,
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a"
+    }
+  ],
+  "source_log": "step13_saved_query_results.jsonl",
+  "source_log_sha256": "8e1760d62f28d897a074bef5348a438c9ad23b1c110e7159c37257570d841eab"
+}

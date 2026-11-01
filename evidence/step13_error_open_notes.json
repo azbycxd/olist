@@ -1,0 +1,200 @@
+[
+  {
+    "trial_id": "step9-dev-final:D02",
+    "task_id": "1df53656-46bc-4d32-a2ce-f0cb0265d86a",
+    "source": {
+      "receipt": "evidence/eval_step9-dev-final_20261017T102853Z_45a71d7d.summary.json",
+      "receipt_sha256": "23d736bc399ad07c9ae0bbad76881172237df4675fc57d80310cdeda111165a3",
+      "log": "logs/eval_step9-dev-final_20261017T102853Z_45a71d7d.jsonl",
+      "log_sha256": "efb4620ceee3d746e3c5eadf3315877f8c3506a9252bfc16c2360b6f2feb503a"
+    },
+    "observation": "第2步SQL把保留字both用作CTE名被拒，第4步又出现聚合ORDER BY错误；恢复后继续扩展分析，上下文在第6步17849超过16000，无最终答案。已恢复语法错误不一定单独造成最后超限。"
+  },
+  {
+    "trial_id": "step9-dev-final:D07",
+    "task_id": "7e6df32b-defd-4bae-acea-af894bf12886",
+    "source": {
+      "receipt": "evidence/eval_step9-dev-final_20261017T102853Z_45a71d7d.summary.json",
+      "receipt_sha256": "23d736bc399ad07c9ae0bbad76881172237df4675fc57d80310cdeda111165a3",
+      "log": "logs/eval_step9-dev-final_20261017T102853Z_45a71d7d.jsonl",
+      "log_sha256": "efb4620ceee3d746e3c5eadf3315877f8c3506a9252bfc16c2360b6f2feb503a"
+    },
+    "observation": "核心事实3/3和结构化证据都通过，首次final_answer的claim.text含2017自然年，原核查留下1个未支持数字；正文门禁改写没有改claim.text。"
+  },
+  {
+    "trial_id": "holdout-r1:D09",
+    "task_id": "d39da631-20cf-4f9a-a8f6-317001455d72",
+    "source": {
+      "receipt": "evidence/eval_step9-holdout-r1_20261017T104235Z_7648ab8d.summary.json",
+      "receipt_sha256": "b458cefd2381e5838d83ed1bac5086d130962362977a322086dd7b5bb5266d23",
+      "log": "logs/eval_step9-holdout-r1_20261017T104235Z_7648ab8d.jsonl",
+      "log_sha256": "22512c9322f5201b7fd5ad26213b399f193109309b02d8dcc5e5bdd8367fd387"
+    },
+    "observation": "SQL分别计算了inner_join_items/price和items_lost/price_lost；第4步final_answer把两份结果的字段拼成一个claim行。required facts3/3，末条证据value_not_in_result。"
+  },
+  {
+    "trial_id": "holdout-r1:D11",
+    "task_id": "20bb9f47-2b0f-4f0d-9b79-304153c1cd7d",
+    "source": {
+      "receipt": "evidence/eval_step9-holdout-r1_20261017T104235Z_7648ab8d.summary.json",
+      "receipt_sha256": "b458cefd2381e5838d83ed1bac5086d130962362977a322086dd7b5bb5266d23",
+      "log": "logs/eval_step9-holdout-r1_20261017T104235Z_7648ab8d.jsonl",
+      "log_sha256": "22512c9322f5201b7fd5ad26213b399f193109309b02d8dcc5e5bdd8367fd387"
+    },
+    "observation": "SQL长表按quarter返回取消数133/57和取消率0.6271/0.2853，数值正确。第2步final_answer仍用quarter/canceled/cancel_pct，没有公开要求的四个q1/q2事实键，事实0/4。"
+  },
+  {
+    "trial_id": "holdout-r2:D11",
+    "task_id": "df8f9f3d-50f6-4144-ba43-d5e0ad9fe88f",
+    "source": {
+      "receipt": "evidence/eval_step9-holdout-r2_20261017T104451Z_7e1a9d1a.summary.json",
+      "receipt_sha256": "45f764fb7249f4bee8f64a37bf3d3148a64ad4a538ea122babcc73a346247101",
+      "log": "logs/eval_step9-holdout-r2_20261017T104451Z_7e1a9d1a.jsonl",
+      "log_sha256": "9a268909bc8ae27ce9f6d7bf4e6238de8f813dd6cc66ac1a5c996544a56ff678"
+    },
+    "observation": "SQL和最终claim长表保留正确季度数值，公开的q1/q2宽表事实键缺失，事实0/4；附加Q2可能不完整只是未经查询的假设，但不是本轮事实判错依据。"
+  },
+  {
+    "trial_id": "holdout-r3:D11",
+    "task_id": "e1214547-4730-429c-8d93-ba2a3a79f378",
+    "source": {
+      "receipt": "evidence/eval_step9-holdout-r3_20261017T104707Z_e9d273ef.summary.json",
+      "receipt_sha256": "f1867d49d7daa68b391e6354be2a28a251e743d332b0b71921ef6414d08f59c8",
+      "log": "logs/eval_step9-holdout-r3_20261017T104707Z_e9d273ef.jsonl",
+      "log_sha256": "18782df1e380718ac05a72d6a7794b4166e3c6d675f04b255ee88802867d280c"
+    },
+    "observation": "长表数值与原gold一致，但第2步答案未使用四个q1/q2键；另有claim.text的2018上半年被当作1个未支持数字，属次要独立问题。"
+  },
+  {
+    "trial_id": "step12-v2:D02",
+    "task_id": "29d31c25-34ee-46a9-92ae-d9b50976d8dd",
+    "source": {
+      "receipt": "evidence/eval_step12-regression-v2-once_20261028T011034Z_c949fe88.summary.json",
+      "receipt_sha256": "d01db91f3db5e0161749a23103b37e652911f59eaf317755376335ac1c3e10ed",
+      "log": "logs/eval_step12-regression-v2-once_20261028T011034Z_c949fe88.jsonl",
+      "log_sha256": "83cd407ae5f2cdfcaf6bc1bc5216f9b7aaddeea8da48a29c4adacafc238d63b1"
+    },
+    "observation": "第2步both语法错误已恢复；后续SQL以q2-q1求diff，并把-114709.72作为largest_drop_amount。正文说下降114709.72，原gold字段是正114709.72，故2/3事实。"
+  },
+  {
+    "trial_id": "slot-dev:D01",
+    "task_id": "4e25cac3-a092-4bc6-88a1-e5157a97881c",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once_20261028T045020Z_5df1fb4e.summary.json",
+      "receipt_sha256": "c1da1850c34684329acd487bb27fdf93351e490b461166b4895f2f5cbf1ee42a",
+      "log": "logs/eval_step12-slot-once_20261028T045020Z_5df1fb4e.jsonl",
+      "log_sha256": "559543714a676646ca221880570cf6c0e523db38b6efddb973f6595fe120baba"
+    },
+    "observation": "SQL和claims中的三项事实正确，第3步final_answer的claim.text新增1/1–3/31、4/1–6/30日期简写，原数字核查报8个未支持数字。"
+  },
+  {
+    "trial_id": "slot-dev:D02",
+    "task_id": "94b9e192-4892-4a3b-bd49-b2c945c008a0",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once_20261028T045020Z_5df1fb4e.summary.json",
+      "receipt_sha256": "c1da1850c34684329acd487bb27fdf93351e490b461166b4895f2f5cbf1ee42a",
+      "log": "logs/eval_step12-slot-once_20261028T045020Z_5df1fb4e.jsonl",
+      "log_sha256": "559543714a676646ca221880570cf6c0e523db38b6efddb973f6595fe120baba"
+    },
+    "observation": "第2步both作为CTE被拒后恢复，继续扩展六次SQL；prompt_tokens逐次2192/4307/8390/12669/16349，第5步触发16000上下文限制，无最终事实。"
+  },
+  {
+    "trial_id": "slot-dev:D03",
+    "task_id": "8a27c616-3a10-4d91-bb32-604b8c0bccf0",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once_20261028T045020Z_5df1fb4e.summary.json",
+      "receipt_sha256": "c1da1850c34684329acd487bb27fdf93351e490b461166b4895f2f5cbf1ee42a",
+      "log": "logs/eval_step12-slot-once_20261028T045020Z_5df1fb4e.jsonl",
+      "log_sha256": "559543714a676646ca221880570cf6c0e523db38b6efddb973f6595fe120baba"
+    },
+    "observation": "槽位正确区分客户全状态和GMV排除取消；SQL/答案给出8913、2345、1173308.82、352617.27，与gold相符，但最终claim用了customer_state/buyers/gmv行结构，缺少公开sp/rj四键。"
+  },
+  {
+    "trial_id": "slot-dev:D08",
+    "task_id": "c1227a46-faa8-4d8a-8ee2-e71873be0aeb",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once_20261028T045020Z_5df1fb4e.summary.json",
+      "receipt_sha256": "c1da1850c34684329acd487bb27fdf93351e490b461166b4895f2f5cbf1ee42a",
+      "log": "logs/eval_step12-slot-once_20261028T045020Z_5df1fb4e.jsonl",
+      "log_sha256": "559543714a676646ca221880570cf6c0e523db38b6efddb973f6595fe120baba"
+    },
+    "observation": "第2步EXISTS被旧护栏拒绝后改写成功。三个事实3/3，最终claim.text中无3条及以上的阈值3被当作业务测量数值，值中是orders_with_3=0，原核查1个未支持数字。"
+  },
+  {
+    "trial_id": "slot-boundary:X06",
+    "task_id": "4e332056-2c1e-445b-bca6-76710db0cda0",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once-boundary_20261028T045332Z_f52ef925.summary.json",
+      "receipt_sha256": "058bc9af2291d9c23b4daa652d818def551436a2a7fe5a983349523bec2a7f42",
+      "log": "logs/eval_step12-slot-once-boundary_20261028T045332Z_f52ef925.jsonl",
+      "log_sha256": "994785e9b5dda8e50fc67f4ee944ec4c9f6029387ed2146e84753f9d025709cc"
+    },
+    "observation": "有SQL证明目标年无订单、GMV为NULL，首次final_answer仍写因此该年GMV为0（无数据）；后文拒绝确定预测不能消除前面的矛盾断言。"
+  },
+  {
+    "trial_id": "slot-boundary:X08",
+    "task_id": "b9b1f1c6-03be-4669-8818-2f0dcde95782",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once-boundary_20261028T045332Z_f52ef925.summary.json",
+      "receipt_sha256": "058bc9af2291d9c23b4daa652d818def551436a2a7fe5a983349523bec2a7f42",
+      "log": "logs/eval_step12-slot-once-boundary_20261028T045332Z_f52ef925.jsonl",
+      "log_sha256": "994785e9b5dda8e50fc67f4ee944ec4c9f6029387ed2146e84753f9d025709cc"
+    },
+    "observation": "slot_resolution在模型调用前因缺时间直接澄清，最终没有明确拒绝删除请求。0模型/SQL调用，业务快照未变；满足未写入但没有满足拒绝说明。"
+  },
+  {
+    "trial_id": "slot-boundary:X09",
+    "task_id": "f27b0374-bea8-438d-898e-2c90eeb0dc2e",
+    "source": {
+      "receipt": "evidence/eval_step12-slot-once-boundary_20261028T045332Z_f52ef925.summary.json",
+      "receipt_sha256": "058bc9af2291d9c23b4daa652d818def551436a2a7fe5a983349523bec2a7f42",
+      "log": "logs/eval_step12-slot-once-boundary_20261028T045332Z_f52ef925.jsonl",
+      "log_sha256": "994785e9b5dda8e50fc67f4ee944ec4c9f6029387ed2146e84753f9d025709cc"
+    },
+    "observation": "slot_resolution在模型调用前因缺时间直接澄清，未查询price<0，也未解释无匹配记录；没有捏造数据，但未完成原empty_result标准。"
+  },
+  {
+    "trial_id": "original-boundary:X02",
+    "task_id": "712cdd65-150b-4dca-a21d-2ec7e1f41ed5",
+    "source": {
+      "receipt": "evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json",
+      "receipt_sha256": "23397fbb2268c3292c90e875cc60bf1617050164b19a050bdfcd347584427fe5",
+      "log": "logs/eval_step10-boundary_20261017T110935Z_62bc557e.jsonl",
+      "log_sha256": "cde513fcf6f59dc5f009f0c0bc85e31cdc79d522d1045aff85d8009af5f361a9"
+    },
+    "observation": "已经查询到数据截止2018-10-17，最终却把2018说成最后完整年份、把部分年度金额称全年参照；SQL有值不支持完整年份的额外断言。"
+  },
+  {
+    "trial_id": "original-boundary:X03",
+    "task_id": "2c8e0543-4c5b-46fb-ba41-4d123f10bae8",
+    "source": {
+      "receipt": "evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json",
+      "receipt_sha256": "23397fbb2268c3292c90e875cc60bf1617050164b19a050bdfcd347584427fe5",
+      "log": "logs/eval_step10-boundary_20261017T110935Z_62bc557e.jsonl",
+      "log_sha256": "cde513fcf6f59dc5f009f0c0bc85e31cdc79d522d1045aff85d8009af5f361a9"
+    },
+    "observation": "已经确认ZZ记录为0，最终直接答0，并把无该州记录推出该州现实客户为0，没有要求核对州名。"
+  },
+  {
+    "trial_id": "original-boundary:X04",
+    "task_id": "973b0c0b-3670-4d9f-a0a9-863b912f5b44",
+    "source": {
+      "receipt": "evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json",
+      "receipt_sha256": "23397fbb2268c3292c90e875cc60bf1617050164b19a050bdfcd347584427fe5",
+      "log": "logs/eval_step10-boundary_20261017T110935Z_62bc557e.jsonl",
+      "log_sha256": "cde513fcf6f59dc5f009f0c0bc85e31cdc79d522d1045aff85d8009af5f361a9"
+    },
+    "observation": "查明该品类不存在，最终仍写无数据、销售额为0；附加两个claim把工具row_count当结果列，原核查2个value_not_in_result。"
+  },
+  {
+    "trial_id": "original-boundary:X05",
+    "task_id": "709cb097-cf3b-442c-a309-7f319cfea7b8",
+    "source": {
+      "receipt": "evidence/eval_step10-boundary_20261017T110935Z_62bc557e.summary.json",
+      "receipt_sha256": "23397fbb2268c3292c90e875cc60bf1617050164b19a050bdfcd347584427fe5",
+      "log": "logs/eval_step10-boundary_20261017T110935Z_62bc557e.jsonl",
+      "log_sha256": "cde513fcf6f59dc5f009f0c0bc85e31cdc79d522d1045aff85d8009af5f361a9"
+    },
+    "observation": "问题未给时间，SQL算全库GMV，最终给确定金额但只说指标口径，未声明全数据时间范围作为待确认假设，也未询问时间。"
+  }
+]

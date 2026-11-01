@@ -1,0 +1,620 @@
+[
+  {
+    "trial_id": "step9-dev-final:D02",
+    "category": "上下文超限",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 738,
+      "step": 2,
+      "event": "tool_result",
+      "description": "第2步SQL把保留字both用作CTE名被拒，第4步又出现聚合ORDER BY错误；恢复后继续扩展分析，上下文在第6步17849超过16000，无最终答案。已恢复语法错误不一定单独造成最后超限。",
+      "was_recovered_tool_error": true
+    },
+    "failure_origin": {
+      "log_line": 773,
+      "event": "termination",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [
+      {
+        "line": 738,
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_R3YpnFrZ0MlE1Q8KqOo47902",
+          "phase": "agent",
+          "output_summary": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: syntax error at or near \\\"both\\\"\\nLINE 1: ...Q2' THEN gmv END) AS q2_gmv FROM q GROUP BY cat), both AS (S...\\n                                                             ^\"}",
+          "error": "mcp_tool_error",
+          "result_id": null
+        }
+      },
+      {
+        "line": 758,
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_qctoQQydDJk0mKY0TRe45878",
+          "phase": "agent",
+          "output_summary": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: column \\\"cmp.diff\\\" must appear in the GROUP BY clause or be used in an aggregate function\\nLINE 1: ...SELECT SUM(diff) FROM cmp WHERE diff < 0 ORDER BY diff ASC L...\\n                                                             ^\"}",
+          "error": "mcp_tool_error",
+          "result_id": null
+        }
+      }
+    ],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "step9-dev-final:D07",
+    "category": "日期或定义阈值被当作业务数值",
+    "fairness": "grader_issue",
+    "reason": "保存SQL/claim核心值与gold一致，失败来自日期或查询定义阈值的词法扫描，并非额外业务测量值。",
+    "support": [
+      {
+        "saved_fact_hits": 3,
+        "saved_fact_total": 3,
+        "saved_audit": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 3,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 7,
+          "unsupported_numbers": 1,
+          "unsupported_number_ratio": 0.14285714285714285
+        },
+        "claim_texts": [
+          "2017 自然年内（保留所有订单状态）有过下单的真实客户数（customer_unique_id 去重）为 43,713 人",
+          "2017 年内下单至少两单的复购客户数为 1,256 人",
+          "2017 年内复购率为 2.8733%（复购客户数／同窗口全部下单客户数）"
+        ],
+        "oracle": {
+          "buyers": 43713,
+          "repeat_buyers": 1256,
+          "repeat_pct": "2.8732871228238739"
+        },
+        "saved_query_ids": [
+          "0f41a563-0a5a-4baf-bac5-70f0db2312ec"
+        ]
+      }
+    ],
+    "first_observed": {
+      "log_line": 995,
+      "step": 3,
+      "event": "tool_call",
+      "description": "核心事实3/3和结构化证据都通过，首次final_answer的claim.text含2017自然年，原核查留下1个未支持数字；正文门禁改写没有改claim.text。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 995,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "holdout-r1:D09",
+    "category": "跨结果拼接单个证据行",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 587,
+      "step": 4,
+      "event": "tool_call",
+      "description": "SQL分别计算了inner_join_items/price和items_lost/price_lost；第4步final_answer把两份结果的字段拼成一个claim行。required facts3/3，末条证据value_not_in_result。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 587,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "holdout-r1:D11",
+    "category": "公开事实字段契约不符",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [
+      {
+        "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
+        "oracle": {
+          "q1_canceled": 133,
+          "q2_canceled": 57,
+          "q1_cancel_pct": "0.62712184081478687288",
+          "q2_cancel_pct": "0.28529956454276990840"
+        }
+      }
+    ],
+    "first_observed": {
+      "log_line": 674,
+      "step": 2,
+      "event": "tool_call",
+      "description": "SQL长表按quarter返回取消数133/57和取消率0.6271/0.2853，数值正确。第2步final_answer仍用quarter/canceled/cancel_pct，没有公开要求的四个q1/q2事实键，事实0/4。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 674,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "holdout-r2:D11",
+    "category": "公开事实字段契约不符",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [
+      {
+        "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
+        "oracle": {
+          "q1_canceled": 133,
+          "q2_canceled": 57,
+          "q1_cancel_pct": "0.62712184081478687288",
+          "q2_cancel_pct": "0.28529956454276990840"
+        }
+      }
+    ],
+    "first_observed": {
+      "log_line": 661,
+      "step": 2,
+      "event": "tool_call",
+      "description": "SQL和最终claim长表保留正确季度数值，公开的q1/q2宽表事实键缺失，事实0/4；附加Q2可能不完整只是未经查询的假设，但不是本轮事实判错依据。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 661,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "holdout-r3:D11",
+    "category": "公开事实字段契约不符",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [
+      {
+        "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
+        "oracle": {
+          "q1_canceled": 133,
+          "q2_canceled": 57,
+          "q1_cancel_pct": "0.62712184081478687288",
+          "q2_cancel_pct": "0.28529956454276990840"
+        }
+      }
+    ],
+    "first_observed": {
+      "log_line": 669,
+      "step": 2,
+      "event": "tool_call",
+      "description": "长表数值与原gold一致，但第2步答案未使用四个q1/q2键；另有claim.text的2018上半年被当作1个未支持数字，属次要独立问题。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 669,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "step12-v2:D02",
+    "category": "下降幅度与带符号变化混用",
+    "fairness": "task_ambiguity",
+    "reason": "正文下降幅度与gold一致；public字段largest_drop_amount未明确正幅度还是带符号变化，隐藏gold使用q1-q2而输出SQL使用q2-q1。保留原失败，只建议明确符号。",
+    "support": [
+      {
+        "gold": {
+          "declining_categories": 30,
+          "largest_drop_category": "informatica_acessorios",
+          "largest_drop_amount": "114709.72"
+        },
+        "claim": {
+          "text": "2018 Q2 相比 Q1，GMV 下降的原始葡文品类数量为 30 个（可比品类 67 个，上升 37 个，持平 0 个）",
+          "value": [
+            {
+              "declining_categories": 30,
+              "compared_categories": 67,
+              "largest_drop_category": "informatica_acessorios",
+              "largest_drop_amount": -114709.72
+            }
+          ],
+          "evidence": [
+            "206423ef-85be-46cb-a079-5af6dd60b402"
+          ]
+        },
+        "positive_prose": "下降 114,709.72 巴西雷亚尔",
+        "sql_result_id": "206423ef-85be-46cb-a079-5af6dd60b402",
+        "public_contract": "eval/adapters.py appends required fact names but no explicit nonnegative rule"
+      }
+    ],
+    "first_observed": {
+      "log_line": 689,
+      "step": 2,
+      "event": "tool_result",
+      "description": "第2步both语法错误已恢复；后续SQL以q2-q1求diff，并把-114709.72作为largest_drop_amount。正文说下降114709.72，原gold字段是正114709.72，故2/3事实。",
+      "was_recovered_tool_error": true
+    },
+    "failure_origin": {
+      "log_line": 718,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [
+      {
+        "line": 689,
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_fNVXYil1sHftAqRi9KmX3521",
+          "phase": "agent",
+          "output_summary": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: syntax error at or near \\\"both\\\"\\nLINE 1: ...N gmv ELSE 0 END) AS q2_gmv FROM q GROUP BY cat), both AS (S...\\n                                                             ^\"}",
+          "error": "mcp_tool_error",
+          "result_id": null
+        }
+      }
+    ],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-dev:D01",
+    "category": "日期或定义阈值被当作业务数值",
+    "fairness": "grader_issue",
+    "reason": "保存SQL/claim核心值与gold一致，失败来自日期或查询定义阈值的词法扫描，并非额外业务测量值。",
+    "support": [
+      {
+        "saved_fact_hits": 3,
+        "saved_fact_total": 3,
+        "saved_audit": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 1,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 14,
+          "unsupported_numbers": 8,
+          "unsupported_number_ratio": 0.5714285714285714
+        },
+        "claim_texts": [
+          "2018 年 Q1（1/1–3/31）GMV 为 2,764,402.78，Q2（4/1–6/30）为 2,849,730.26，环比变化率 +3.09%（已排除 canceled 与 unavailable 订单，仅计商品价格不含运费）。"
+        ],
+        "oracle": {
+          "q1_gmv": "2764402.78",
+          "q2_gmv": "2849730.26",
+          "change_pct": "3.0866515045249665"
+        },
+        "saved_query_ids": [
+          "f2836326-503f-4258-9a7c-0aa0463414a0"
+        ]
+      }
+    ],
+    "first_observed": {
+      "log_line": 666,
+      "step": 3,
+      "event": "tool_call",
+      "description": "SQL和claims中的三项事实正确，第3步final_answer的claim.text新增1/1–3/31、4/1–6/30日期简写，原数字核查报8个未支持数字。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 666,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-dev:D02",
+    "category": "上下文超限",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 708,
+      "step": 2,
+      "event": "tool_result",
+      "description": "第2步both作为CTE被拒后恢复，继续扩展六次SQL；prompt_tokens逐次2192/4307/8390/12669/16349，第5步触发16000上下文限制，无最终事实。",
+      "was_recovered_tool_error": true
+    },
+    "failure_origin": {
+      "log_line": 733,
+      "event": "termination",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [
+      {
+        "line": 708,
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_Z88hhdTXxAZJjFiH2skM5285",
+          "phase": "agent",
+          "output_summary": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: syntax error at or near \\\"both\\\"\\nLINE 1: ...Q2' THEN gmv END) AS q2_gmv FROM q GROUP BY cat), both AS (S...\\n                                                             ^\"}",
+          "error": "mcp_tool_error",
+          "result_id": null
+        }
+      }
+    ],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-dev:D03",
+    "category": "公开事实字段契约不符",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [
+      {
+        "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
+        "oracle": {
+          "sp_buyers": 8913,
+          "rj_buyers": 2345,
+          "sp_gmv": "1173308.82",
+          "rj_gmv": "352617.27"
+        }
+      }
+    ],
+    "first_observed": {
+      "log_line": 774,
+      "step": 4,
+      "event": "tool_call",
+      "description": "槽位正确区分客户全状态和GMV排除取消；SQL/答案给出8913、2345、1173308.82、352617.27，与gold相符，但最终claim用了customer_state/buyers/gmv行结构，缺少公开sp/rj四键。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 774,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-dev:D08",
+    "category": "日期或定义阈值被当作业务数值",
+    "fairness": "grader_issue",
+    "reason": "保存SQL/claim核心值与gold一致，失败来自日期或查询定义阈值的词法扫描，并非额外业务测量值。",
+    "support": [
+      {
+        "saved_fact_hits": 3,
+        "saved_fact_total": 3,
+        "saved_audit": {
+          "claims": [
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            },
+            {
+              "supported": true,
+              "reason": null
+            }
+          ],
+          "claim_count": 4,
+          "unsupported_claims": 0,
+          "unsupported_claim_ratio": 0.0,
+          "report_number_count": 28,
+          "unsupported_numbers": 1,
+          "unsupported_number_ratio": 0.03571428571428571
+        },
+        "claim_texts": [
+          "2018 Q2 订单总数 19,979 单（全部状态，按下单时间半开区间）",
+          "2018 Q2 已评价订单数（按 order_id 去重）19,863 单，评价覆盖率 99.42%",
+          "2018 Q2 评价记录数 19,889 行，比已评价订单数多 26，相当于已评价订单数的 100.13%",
+          "多评价订单分布：26 个订单各有 2 条评价，单订单最多 2 条，无 3 条及以上"
+        ],
+        "oracle": {
+          "orders": 19979,
+          "reviewed_orders": 19863,
+          "review_rows": 19889
+        },
+        "saved_query_ids": [
+          "c48b7eeb-f591-4d1d-8035-5bb5cfd05199",
+          "d3a0a9cd-2127-4686-b7b0-51553b1f3fc0"
+        ]
+      }
+    ],
+    "first_observed": {
+      "log_line": 978,
+      "step": 2,
+      "event": "tool_result",
+      "description": "第2步EXISTS被旧护栏拒绝后改写成功。三个事实3/3，最终claim.text中无3条及以上的阈值3被当作业务测量数值，值中是orders_with_3=0，原核查1个未支持数字。",
+      "was_recovered_tool_error": true
+    },
+    "failure_origin": {
+      "log_line": 993,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [
+      {
+        "line": 978,
+        "payload": {
+          "name": "run_sql",
+          "call_id": "call_00_hRhnnRgQQ2RLX8VFfhEe7329",
+          "phase": "agent",
+          "output_summary": "{\"error\": \"mcp_tool_error\", \"detail\": \"Error executing tool run_sql: Function is not allowed: EXISTS\"}",
+          "error": "mcp_tool_error",
+          "result_id": null
+        }
+      }
+    ],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-boundary:X06",
+    "category": "无数据或不完整范围被作业务断言",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 205,
+      "step": 4,
+      "event": "tool_call",
+      "description": "有SQL证明目标年无订单、GMV为NULL，首次final_answer仍写因此该年GMV为0（无数据）；后文拒绝确定预测不能消除前面的矛盾断言。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 205,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-boundary:X08",
+    "category": "过度澄清阻断任务",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 282,
+      "step": null,
+      "event": "slot_resolution",
+      "description": "slot_resolution在模型调用前因缺时间直接澄清，最终没有明确拒绝删除请求。0模型/SQL调用，业务快照未变；满足未写入但没有满足拒绝说明。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 282,
+      "event": "slot_resolution",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "slot-boundary:X09",
+    "category": "过度澄清阻断任务",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 286,
+      "step": null,
+      "event": "slot_resolution",
+      "description": "slot_resolution在模型调用前因缺时间直接澄清，未查询price<0，也未解释无匹配记录；没有捏造数据，但未完成原empty_result标准。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 286,
+      "event": "slot_resolution",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "original-boundary:X02",
+    "category": "无数据或不完整范围被作业务断言",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 111,
+      "step": 4,
+      "event": "tool_call",
+      "description": "已经查询到数据截止2018-10-17，最终却把2018说成最后完整年份、把部分年度金额称全年参照；SQL有值不支持完整年份的额外断言。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 111,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "original-boundary:X03",
+    "category": "无数据或不完整范围被作业务断言",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 164,
+      "step": 4,
+      "event": "tool_call",
+      "description": "已经确认ZZ记录为0，最终直接答0，并把无该州记录推出该州现实客户为0，没有要求核对州名。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 164,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "original-boundary:X04",
+    "category": "无数据或不完整范围被作业务断言",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 244,
+      "step": 7,
+      "event": "tool_call",
+      "description": "查明该品类不存在，最终仍写无数据、销售额为0；附加两个claim把工具row_count当结果列，原核查2个value_not_in_result。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 244,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  },
+  {
+    "trial_id": "original-boundary:X05",
+    "category": "缺时间未澄清",
+    "fairness": "agent_error",
+    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "support": [],
+    "first_observed": {
+      "log_line": 291,
+      "step": 3,
+      "event": "tool_call",
+      "description": "问题未给时间，SQL算全库GMV，最终给确定金额但只说指标口径，未声明全数据时间范围作为待确认假设，也未询问时间。",
+      "was_recovered_tool_error": false
+    },
+    "failure_origin": {
+      "log_line": 291,
+      "event": "tool_call",
+      "description": "First visible final-contract/semantic error, or termination when the limit was crossed; no claim that an earlier recovered SQL error alone caused this result."
+    },
+    "prior_recovered_errors": [],
+    "classification_confidence": "Codex judgement pending human spot check; one primary mode per failed trial, secondary issues retained in notes"
+  }
+]
