@@ -53,6 +53,16 @@ def test_foreign_evidence_is_rejected_even_for_identical_values():
     assert result['audit']['claims'][0]['reason']=='wrong_task'
 
 
+def test_category_mutation_preserves_original_portuguese_label_domain():
+    from eval.step13_grader import load_fixture, mutate
+    fixture=load_fixture()
+    rec=next(r for r in fixture['records'] if r['question']['id']=='D02')
+    response,_=mutate(rec,'replace_label',fixture['records'][0])
+    changed=response['claims'][0]['value']['largest_drop_category']
+    assert changed in {'beleza_saude','cama_mesa_banho'}
+    assert changed != rec['gold']['largest_drop_category']
+
+
 def test_equivalent_variants_and_ambiguity_cover_saved_questions():
     from eval.step13_grader import load_fixture, audit_bundle
     fixture=load_fixture();report=audit_bundle(fixture)

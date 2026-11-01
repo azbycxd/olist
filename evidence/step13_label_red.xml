@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.253" timestamp="2026-11-01T18:20:44.986648+08:00" hostname="DESKTOP-JRKV1T9"><testcase classname="tests.test_eval_step13_grader" name="test_category_mutation_preserves_original_portuguese_label_domain" time="0.004"><failure message="AssertionError: assert 'health_beauty' in {'beleza_saude', 'cama_mesa_banho'}">def test_category_mutation_preserves_original_portuguese_label_domain():
+        from eval.step13_grader import load_fixture, mutate
+        fixture=load_fixture()
+        rec=next(r for r in fixture['records'] if r['question']['id']=='D02')
+        response,_=mutate(rec,'replace_label',fixture['records'][0])
+        changed=response['claims'][0]['value']['largest_drop_category']
+&gt;       assert changed in {'beleza_saude','cama_mesa_banho'}
+E       AssertionError: assert 'health_beauty' in {'beleza_saude', 'cama_mesa_banho'}
+
+tests\test_eval_step13_grader.py:62: AssertionError</failure></testcase></testsuite></testsuites>
