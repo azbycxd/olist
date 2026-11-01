@@ -152,7 +152,7 @@ JSON的67条ambiguity逐题列出原题、公开answer_type/required_facts/setup
 
 ## 测试、提交与局限
 
-13.1：失败测试bf6593a → 实现557dab5，已推送。13.2和补充A：失败测试af44c2e（90个目标失败）→ 本实现提交。新增离线测试共98个（13.1为8个、13.2/补充为90个），已有CI自动发现`tests/test_eval_*.py`，CI_OFFLINE拦截数据库/网络调用，无xfail。最终执行计数与源日志SHA见step13_2_checkpoint.json。
+13.1：失败测试bf6593a → 实现557dab5，已推送。13.2和补充A：失败测试af44c2e（90个目标失败）→ 实现7c01ab8，已推送。新增离线测试共98个（13.1为8个、13.2/补充为90个），已有CI自动发现`tests/test_eval_*.py`，CI_OFFLINE拦截数据库/网络调用，无xfail。最终全量512项通过（含94项本地集成），离线CI418项通过；源日志SHA见[最终收据](../evidence/step13_2_checkpoint.json)。
 
 本地Windows旧venv缺项目依赖导致一次全套离线收集错误，原XML留存；使用已有容器完整依赖后13.1全量422通过、离线328通过。不是通过删测试绕开错误。
 
