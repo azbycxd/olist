@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.155" timestamp="2026-11-01T18:27:39.402279+08:00" hostname="DESKTOP-JRKV1T9"><testcase classname="tests.test_eval_step13_review" name="test_confirmed_evidence_types_and_adjusted_strict_counts" time="0.001"><failure message="ModuleNotFoundError: No module named 'eval.step13_review'">def test_confirmed_evidence_types_and_adjusted_strict_counts():
+&gt;       from eval.step13_review import adjusted_diagnostics
+E       ModuleNotFoundError: No module named 'eval.step13_review'
+
+tests\test_eval_step13_review.py:8: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_eval_step13_review" name="test_historical_replay_keeps_every_claim_text_verbatim" time="0.001"><failure message="ModuleNotFoundError: No module named 'eval.step13_review'">def test_historical_replay_keeps_every_claim_text_verbatim():
+&gt;       from eval.step13_review import historical_cases, replay
+E       ModuleNotFoundError: No module named 'eval.step13_review'
+
+tests\test_eval_step13_review.py:20: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_eval_step13_review" name="test_agent_error_reasons_are_specific_not_shared_boilerplate" time="0.001"><failure message="AssertionError: assert 1 &gt;= 12&#10; +  where 1 = len({'按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。'})&#10; +    where {'按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。'} = set(['按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', '按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', '...按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', '按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', ...])">def test_agent_error_reasons_are_specific_not_shared_boilerplate():
+        rows=read(ROOT/'eval/step13_error_annotations.json')
+        reasons=[r['reason'] for r in rows if r['fairness']=='agent_error']
+&gt;       assert len(set(reasons))&gt;=12
+E       AssertionError: assert 1 &gt;= 12
+E        +  where 1 = len({'按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。'})
+E        +    where {'按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。'} = set(['按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', '按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', '...按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', '按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。', ...])
+
+tests\test_eval_step13_review.py:33: AssertionError</failure></testcase><testcase classname="tests.test_eval_step13_review" name="test_n08_public_timestamp_requirement_matches_approved_gold" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = &lt;built-in method endswith of str object at 0x000001A94B9CE6B0&gt;('按原始时间戳比较,不截断为日期。')&#10; +    where &lt;built-in method endswith of str object at 0x000001A94B9CE6B0&gt; = '2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。'.endswith">def test_n08_public_timestamp_requirement_matches_approved_gold():
+        rows=read(ROOT/'eval/step13_supplement_cases.json')
+        n08=next(q for q in rows if q['id']=='N08')
+&gt;       assert n08['question'].endswith('按原始时间戳比较,不截断为日期。')
+E       AssertionError: assert False
+E        +  where False = &lt;built-in method endswith of str object at 0x000001A94B9CE6B0&gt;('按原始时间戳比较,不截断为日期。')
+E        +    where &lt;built-in method endswith of str object at 0x000001A94B9CE6B0&gt; = '2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。'.endswith
+
+tests\test_eval_step13_review.py:40: AssertionError</failure></testcase></testsuite></testsuites>
