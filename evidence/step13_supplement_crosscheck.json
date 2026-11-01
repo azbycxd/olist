@@ -1,0 +1,286 @@
+{
+  "answers": {
+    "N01": {
+      "peak_month": "2017-11",
+      "peak_orders": 7544,
+      "low_month": "2017-01",
+      "low_orders": 800
+    },
+    "N02": 3286,
+    "N03": {
+      "rio_gmv": 187039.25,
+      "sao_paulo_gmv": 432735.87
+    },
+    "N04": {
+      "gmv_2017": 3080850.81,
+      "gmv_2018": 7341037.41,
+      "growth_pct": 138.2795488237225
+    },
+    "N05": {
+      "mode_installments": 1,
+      "share_pct": 35.959875145941055
+    },
+    "N06": {
+      "freight_pct": 14.221035631463664,
+      "top_state": "AP",
+      "top_state_pct": 21.55846249974805
+    },
+    "N07": {
+      "over30_orders": 522,
+      "measured_orders": 19643,
+      "over30_pct": 2.6574352186529553
+    },
+    "N08": {
+      "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+      "late_pct": 17.801047120418847
+    },
+    "N09": [
+      "computers_accessories",
+      "sports_leisure",
+      "health_beauty"
+    ],
+    "N10": {
+      "nov_orders": 7544,
+      "monthly_avg": 3758.42,
+      "ratio": 2.01
+    },
+    "N11": 2,
+    "N12": {
+      "avg_items": 1.1519526745876574,
+      "multi_item_pct": 10.482779365318093
+    }
+  },
+  "sources": [
+    {
+      "file": "data/raw/olist_orders_dataset.csv",
+      "sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+      "rows": 99441
+    },
+    {
+      "file": "data/raw/olist_customers_dataset.csv",
+      "sha256": "983a422239e1712ded753b3bf9ecf47dc73f144d306029dcfa99e70a226883d2",
+      "rows": 99441
+    },
+    {
+      "file": "data/raw/olist_order_items_dataset.csv",
+      "sha256": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279",
+      "rows": 112650
+    },
+    {
+      "file": "data/raw/olist_order_payments_dataset.csv",
+      "sha256": "4f713964f2815dbbaa40b9488268c55aac3627bfce5aa96cf58d1f3616de3cc0",
+      "rows": 103886
+    },
+    {
+      "file": "data/raw/olist_products_dataset.csv",
+      "sha256": "3e6569628a17fbc75fd206ee357b59e20364b9afa90f5b6cd5b4d624c58aa9cc",
+      "rows": 32951
+    },
+    {
+      "file": "data/raw/product_category_name_translation.csv",
+      "sha256": "a81f0d1f27b27e7293f761bc79e3ce8f348ee39c4b3ed3e49bde38f478586278",
+      "rows": 71
+    }
+  ],
+  "cities": [
+    {
+      "city": "sao paulo",
+      "customer_rows": 15540,
+      "q1_all_status_orders": 3286,
+      "q2_all_status_orders": 3442,
+      "q2_gmv_eligible_orders": 3415,
+      "q2_gmv_item_rows": 3994
+    },
+    {
+      "city": "rio de janeiro",
+      "customer_rows": 6882,
+      "q1_all_status_orders": 1440,
+      "q2_all_status_orders": 1204,
+      "q2_gmv_eligible_orders": 1204,
+      "q2_gmv_item_rows": 1394
+    }
+  ],
+  "pending": [],
+  "checks": {
+    "N01_months": 12,
+    "N01_peak_ties": 1,
+    "N01_low_ties": 1,
+    "N05_mode_ties": 1,
+    "N06_top_ties": 1,
+    "N08_top_ties": 1,
+    "N08_eligible_seller_order_pairs": 8236,
+    "N08_missing": {
+      "actual": 0,
+      "estimated": 0
+    },
+    "N09_top_count": 3,
+    "N09_unknown_amount": 52756.299999999996,
+    "N09_third_amount": 249500.96
+  },
+  "cases": [
+    {
+      "id": "N01",
+      "sql": "WITH m AS (\n  SELECT to_char(order_purchase_timestamp, 'YYYY-MM') AS month, count(*) AS orders\n  FROM orders WHERE order_purchase_timestamp >= '2017-01-01'\n    AND order_purchase_timestamp < '2018-01-01' GROUP BY 1\n), hi AS (SELECT * FROM m WHERE orders = (SELECT max(orders) FROM m)),\nlo AS (SELECT * FROM m WHERE orders = (SELECT min(orders) FROM m))\nSELECT hi.month AS peak_month, hi.orders AS peak_orders,\n       lo.month AS low_month, lo.orders AS low_orders FROM hi CROSS JOIN lo",
+      "gold": {
+        "peak_month": "2017-11",
+        "peak_orders": 7544,
+        "low_month": "2017-01",
+        "low_orders": 800
+      },
+      "pandas": {
+        "peak_month": "2017-11",
+        "peak_orders": 7544,
+        "low_month": "2017-01",
+        "low_orders": 800
+      },
+      "consistent": true
+    },
+    {
+      "id": "N02",
+      "sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING (customer_id)\nWHERE c.customer_city = 'sao paulo' AND o.order_purchase_timestamp >= '2018-01-01'\n  AND o.order_purchase_timestamp < '2018-04-01'",
+      "gold": 3286,
+      "pandas": 3286,
+      "consistent": true
+    },
+    {
+      "id": "N03",
+      "sql": "SELECT sum(i.price) FILTER (WHERE c.customer_city = 'rio de janeiro') AS rio_gmv,\n       sum(i.price) FILTER (WHERE c.customer_city = 'sao paulo') AS sao_paulo_gmv\nFROM orders o JOIN customers c USING (customer_id) JOIN order_items i USING (order_id)\nWHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n  AND o.order_status NOT IN ('canceled','unavailable')\n  AND c.customer_city IN ('rio de janeiro','sao paulo')",
+      "gold": {
+        "rio_gmv": 187039.25,
+        "sao_paulo_gmv": 432735.87
+      },
+      "pandas": {
+        "rio_gmv": 187039.25,
+        "sao_paulo_gmv": 432735.87
+      },
+      "consistent": true
+    },
+    {
+      "id": "N04",
+      "sql": "WITH g AS (\n SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2017-01-01'\n   AND o.order_purchase_timestamp < '2017-09-01') AS gmv_2017,\n sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2018-01-01'\n   AND o.order_purchase_timestamp < '2018-09-01') AS gmv_2018\n FROM orders o JOIN order_items i USING (order_id)\n WHERE o.order_status NOT IN ('canceled','unavailable')\n)\nSELECT gmv_2017, gmv_2018, 100.0*(gmv_2018-gmv_2017)/nullif(gmv_2017,0) AS growth_pct FROM g",
+      "gold": {
+        "gmv_2017": 3080850.81,
+        "gmv_2018": 7341037.41,
+        "growth_pct": 138.2795488237225
+      },
+      "pandas": {
+        "gmv_2017": 3080850.81,
+        "gmv_2018": 7341037.41,
+        "growth_pct": 138.2795488237225
+      },
+      "consistent": true
+    },
+    {
+      "id": "N05",
+      "sql": "WITH counts AS (\n SELECT p.payment_installments, count(*) AS n FROM order_payments p JOIN orders o USING (order_id)\n WHERE p.payment_type = 'credit_card' AND o.order_purchase_timestamp >= '2018-01-01'\n   AND o.order_purchase_timestamp < '2019-01-01' GROUP BY p.payment_installments\n)\nSELECT payment_installments AS mode_installments,\n  100.0*n/(SELECT sum(n) FROM counts) AS share_pct\nFROM counts WHERE n = (SELECT max(n) FROM counts)",
+      "gold": {
+        "mode_installments": 1,
+        "share_pct": 35.959875145941055
+      },
+      "pandas": {
+        "mode_installments": 1,
+        "share_pct": 35.959875145941055
+      },
+      "consistent": true
+    },
+    {
+      "id": "N06",
+      "sql": "WITH s AS (\n SELECT c.customer_state, sum(i.freight_value) AS freight, sum(i.price+i.freight_value) AS total\n FROM orders o JOIN customers c USING (customer_id) JOIN order_items i USING (order_id)\n WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n GROUP BY c.customer_state\n), r AS (SELECT *, 100.0*freight/nullif(total,0) AS pct FROM s)\nSELECT (SELECT 100.0*sum(freight)/sum(total) FROM s) AS freight_pct,\n customer_state AS top_state, pct AS top_state_pct FROM r WHERE pct = (SELECT max(pct) FROM r)",
+      "gold": {
+        "freight_pct": 14.221035631463664,
+        "top_state": "AP",
+        "top_state_pct": 21.55846249974805
+      },
+      "pandas": {
+        "freight_pct": 14.221035631463664,
+        "top_state": "AP",
+        "top_state_pct": 21.55846249974805
+      },
+      "consistent": true
+    },
+    {
+      "id": "N07",
+      "sql": "WITH m AS (\n SELECT count(*) AS measured_orders,\n count(*) FILTER (WHERE order_delivered_customer_date-order_purchase_timestamp > interval '30 days') AS over30_orders\n FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\n AND order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL\n)\nSELECT over30_orders, measured_orders, 100.0*over30_orders/nullif(measured_orders,0) AS over30_pct FROM m",
+      "gold": {
+        "over30_orders": 522,
+        "measured_orders": 19643,
+        "over30_pct": 2.6574352186529553
+      },
+      "pandas": {
+        "over30_orders": 522,
+        "measured_orders": 19643,
+        "over30_pct": 2.6574352186529553
+      },
+      "consistent": true
+    },
+    {
+      "id": "N08",
+      "sql": "WITH pairs AS (\n SELECT DISTINCT i.seller_id, o.order_id, o.order_delivered_customer_date AS actual,\n o.order_estimated_delivery_date AS expected FROM orders o JOIN order_items i USING (order_id)\n WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n AND o.order_status = 'delivered'\n), rates AS (\n SELECT seller_id, 100.0*count(*) FILTER (WHERE actual > expected)\n /nullif(count(*) FILTER (WHERE actual IS NOT NULL),0) AS late_pct\n FROM pairs GROUP BY seller_id HAVING count(*) >= 50\n)\nSELECT seller_id AS worst_seller, late_pct FROM rates WHERE late_pct = (SELECT max(late_pct) FROM rates)",
+      "gold": {
+        "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "late_pct": 17.801047120418847
+      },
+      "pandas": {
+        "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "late_pct": 17.801047120418847
+      },
+      "consistent": true
+    },
+    {
+      "id": "N09",
+      "sql": "WITH amounts AS (\n SELECT t.product_category_name_english AS category, sum(i.price) AS amount\n FROM orders o JOIN order_items i USING (order_id) JOIN products p USING (product_id)\n JOIN product_category_name_translation t USING (product_category_name)\n WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01'\n GROUP BY t.product_category_name_english\n), ranked AS (SELECT *, dense_rank() OVER (ORDER BY amount DESC) AS rank FROM amounts)\nSELECT category FROM ranked WHERE rank <= 3 ORDER BY amount DESC",
+      "gold": [
+        "computers_accessories",
+        "sports_leisure",
+        "health_beauty"
+      ],
+      "pandas": [
+        "computers_accessories",
+        "sports_leisure",
+        "health_beauty"
+      ],
+      "consistent": true
+    },
+    {
+      "id": "N10",
+      "sql": "WITH n AS (\n SELECT count(*) FILTER (WHERE order_purchase_timestamp >= '2017-11-01'\n   AND order_purchase_timestamp < '2017-12-01') AS nov_orders, count(*)/12.0 AS monthly_avg\n FROM orders WHERE order_purchase_timestamp >= '2017-01-01' AND order_purchase_timestamp < '2018-01-01'\n)\nSELECT nov_orders, round(monthly_avg,2) AS monthly_avg,\n round(nov_orders/nullif(monthly_avg,0),2) AS ratio FROM n",
+      "gold": {
+        "nov_orders": 7544,
+        "monthly_avg": 3758.42,
+        "ratio": 2.01
+      },
+      "pandas": {
+        "nov_orders": 7544,
+        "monthly_avg": 3758.42,
+        "ratio": 2.01
+      },
+      "consistent": true
+    },
+    {
+      "id": "N11",
+      "sql": "SELECT count(*) AS value FROM (\n SELECT c.customer_unique_id FROM orders o JOIN customers c USING (customer_id)\n WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n GROUP BY c.customer_unique_id HAVING count(DISTINCT c.customer_state) >= 2\n) AS multi_state",
+      "gold": 2,
+      "pandas": 2,
+      "consistent": true
+    },
+    {
+      "id": "N12",
+      "sql": "WITH n AS (\n SELECT o.order_id, count(*) AS items FROM orders o JOIN order_items i USING (order_id)\n WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n GROUP BY o.order_id\n)\nSELECT avg(items) AS avg_items, 100.0*count(*) FILTER (WHERE items>=2)/count(*) AS multi_item_pct FROM n",
+      "gold": {
+        "avg_items": 1.1519526745876574,
+        "multi_item_pct": 10.482779365318093
+      },
+      "pandas": {
+        "avg_items": 1.1519526745876574,
+        "multi_item_pct": 10.482779365318093
+      },
+      "consistent": true
+    }
+  ],
+  "model_calls": 0,
+  "source_log": "logs/step13_supplement_pandas.jsonl",
+  "source_log_sha256": "9b8821ad7fa45a81bd2b8db162e35f80bd5799fdfe4f4094d40ff7c5a296080c",
+  "sql_fixture_sha256": "a3bf494daedcc8a9adfbd2ffd5d066a6cf931ddd4224cc5b39727a8cfd047c4b",
+  "calculator_sha256": "a760ab6b644e31cd0291be211e4eae0a4200314372ad9a0fa574bb13216a4de5",
+  "policy": "Independent raw CSV pandas calculations, relative tolerance <=1%; original questions unchanged; not authorized for model evaluation"
+}

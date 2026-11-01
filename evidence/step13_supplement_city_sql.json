@@ -1,0 +1,40 @@
+{
+  "source_log": "logs/step13_supplement_city_sql.jsonl",
+  "source_log_sha256": "b7215066234a2fd32451b3a13a8233ef477dd52b283d48b94429660e5c0639ce",
+  "read_only": true,
+  "role": "agent_ro",
+  "queries": [
+    {
+      "sql": "SELECT c.customer_city AS city, count(*) AS customer_rows,\n count(*) FILTER (WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01') AS q1_all_status_orders,\n count(*) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') AS q2_all_status_orders,\n count(*) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND o.order_status NOT IN ('canceled','unavailable')) AS q2_gmv_eligible_orders\n FROM customers c LEFT JOIN orders o USING(customer_id)\n WHERE c.customer_city IN ('sao paulo','rio de janeiro') GROUP BY c.customer_city ORDER BY c.customer_city",
+      "rows": [
+        {
+          "city": "rio de janeiro",
+          "customer_rows": 6882,
+          "q1_all_status_orders": 1440,
+          "q2_all_status_orders": 1204,
+          "q2_gmv_eligible_orders": 1204
+        },
+        {
+          "city": "sao paulo",
+          "customer_rows": 15540,
+          "q1_all_status_orders": 3286,
+          "q2_all_status_orders": 3442,
+          "q2_gmv_eligible_orders": 3415
+        }
+      ]
+    },
+    {
+      "sql": "SELECT c.customer_city AS city, count(*) AS q2_gmv_item_rows\n FROM customers c JOIN orders o USING(customer_id) JOIN order_items i USING(order_id)\n WHERE c.customer_city IN ('sao paulo','rio de janeiro') AND o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND o.order_status NOT IN ('canceled','unavailable') GROUP BY c.customer_city ORDER BY c.customer_city",
+      "rows": [
+        {
+          "city": "rio de janeiro",
+          "q2_gmv_item_rows": 1394
+        },
+        {
+          "city": "sao paulo",
+          "q2_gmv_item_rows": 3994
+        }
+      ]
+    }
+  ]
+}

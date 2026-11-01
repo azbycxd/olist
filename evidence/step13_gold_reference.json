@@ -1,0 +1,2950 @@
+{
+  "created_at": "2026-11-01T10:14:27.566140+00:00",
+  "database_role": "agent_ro",
+  "transaction_read_only": "on",
+  "question_file": "eval/questions.jsonl",
+  "question_file_sha256": "78bf8cba03b97e06e44dcae3990f9ef44454131bf2ae2eb749a7b594fb61e80a",
+  "source_log": "logs/step13_gold_reference_capture.jsonl",
+  "source_log_sha256": "09663aa7c7484f2ae67ebd2279dc3fba7db8f42928a0c519564fded4cfc14d19",
+  "model_calls": 0,
+  "records": [
+    {
+      "question": {
+        "id": "A01",
+        "category": "A",
+        "question": "订单表共有多少订单？",
+        "gold_sql": "SELECT count(*) AS value FROM orders",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 99441
+        }
+      ],
+      "gold": 99441,
+      "task_id": "430d50d5-633c-5dea-8e5f-5a7e98cad845",
+      "result_id": "434d99c9-356f-5d8c-9fc0-86c5682bbc6e",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 99441,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 99441,
+            "evidence": [
+              "434d99c9-356f-5d8c-9fc0-86c5682bbc6e"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "ea3945709413c8950da113e82f9fe101d21d359cc897281ddc82047f4ba301e8",
+      "duration_ms": 16.956168999968213
+    },
+    {
+      "question": {
+        "id": "A02",
+        "category": "A",
+        "question": "状态为 delivered 的订单数是多少？",
+        "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_status='delivered'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 96478
+        }
+      ],
+      "gold": 96478,
+      "task_id": "1e2034a4-138f-5fb2-9bed-3a2ae2b782f6",
+      "result_id": "1a15aa6a-3ff9-59f7-b93f-c7a4fecd5499",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 96478,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 96478,
+            "evidence": [
+              "1a15aa6a-3ff9-59f7-b93f-c7a4fecd5499"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "7b708d2c4649d4d1caac6e631e5c86bdb72a03e3647f294ef17861235309bac9",
+      "duration_ms": 15.92461499996034
+    },
+    {
+      "question": {
+        "id": "A03",
+        "category": "A",
+        "question": "商品表共有多少种商品？",
+        "gold_sql": "SELECT count(*) AS value FROM products",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 32951
+        }
+      ],
+      "gold": 32951,
+      "task_id": "b683d2a7-6a24-5e8c-b5ba-3a5977cb8ea8",
+      "result_id": "9a20e7bb-9058-51c8-a851-cae58869a6ba",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 32951,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 32951,
+            "evidence": [
+              "9a20e7bb-9058-51c8-a851-cae58869a6ba"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "c6e8528678bde9774b6f8470eb5fffc648864f269d531142f107ffe77ac63e0e",
+      "duration_ms": 2.9675289999886445
+    },
+    {
+      "question": {
+        "id": "A04",
+        "category": "A",
+        "question": "卖家表共有多少卖家？",
+        "gold_sql": "SELECT count(*) AS value FROM sellers",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 3095
+        }
+      ],
+      "gold": 3095,
+      "task_id": "258e3d37-90dd-56e9-b499-9ac35a1ea41a",
+      "result_id": "50975f7c-ddd3-5517-accd-59213e6ce3a4",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 3095,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 3095,
+            "evidence": [
+              "50975f7c-ddd3-5517-accd-59213e6ce3a4"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "491dc7b4d8aeba90108119408b5fa61a8370932dd2b80d931a1e5cf2b49c1010",
+      "duration_ms": 0.612050000029285
+    },
+    {
+      "question": {
+        "id": "A05",
+        "category": "A",
+        "question": "订单状态有哪些？列出全部状态。",
+        "gold_sql": "SELECT DISTINCT order_status FROM orders ORDER BY order_status",
+        "answer_type": "list",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "order_status": "approved"
+        },
+        {
+          "order_status": "canceled"
+        },
+        {
+          "order_status": "created"
+        },
+        {
+          "order_status": "delivered"
+        },
+        {
+          "order_status": "invoiced"
+        },
+        {
+          "order_status": "processing"
+        },
+        {
+          "order_status": "shipped"
+        },
+        {
+          "order_status": "unavailable"
+        }
+      ],
+      "gold": [
+        "approved",
+        "canceled",
+        "created",
+        "delivered",
+        "invoiced",
+        "processing",
+        "shipped",
+        "unavailable"
+      ],
+      "task_id": "d719cb82-0417-5da9-a6ec-96c8a86eb80f",
+      "result_id": "db28f0f1-7811-5199-a072-486815f2cd6b",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": [
+          "approved",
+          "canceled",
+          "created",
+          "delivered",
+          "invoiced",
+          "processing",
+          "shipped",
+          "unavailable"
+        ],
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": [
+              "approved",
+              "canceled",
+              "created",
+              "delivered",
+              "invoiced",
+              "processing",
+              "shipped",
+              "unavailable"
+            ],
+            "evidence": [
+              "db28f0f1-7811-5199-a072-486815f2cd6b"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "02190781b4f6630218bc0a55408051838ed8f92cf4adc26b697d0830cd58d2df",
+      "duration_ms": 21.82236499999135
+    },
+    {
+      "question": {
+        "id": "A06",
+        "category": "A",
+        "question": "2017 年 11 月购买的订单有多少？",
+        "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_purchase_timestamp >= '2017-11-01' AND order_purchase_timestamp < '2017-12-01'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 7544
+        }
+      ],
+      "gold": 7544,
+      "task_id": "63f48fed-8dcd-59b3-9d1d-7e16d912b6dc",
+      "result_id": "c1f68721-c1c5-561c-820b-e168fd3f2748",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 7544,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 7544,
+            "evidence": [
+              "c1f68721-c1c5-561c-820b-e168fd3f2748"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "15af06f98fda5d241c8b95aadc93f4549e1fa1147aec364bb4f452c14be9cae2",
+      "duration_ms": 7.896840999990218
+    },
+    {
+      "question": {
+        "id": "A07",
+        "category": "A",
+        "question": "全部订单商品明细的运费合计是多少？",
+        "gold_sql": "SELECT sum(freight_value) AS value FROM order_items",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 2251909.54
+        }
+      ],
+      "gold": 2251909.54,
+      "task_id": "51c02ac3-1865-5c2b-b269-d3e741e9eaec",
+      "result_id": "60dd08cb-b0cb-562d-b2b2-63739fccc2e2",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 2251909.54,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 2251909.54,
+            "evidence": [
+              "60dd08cb-b0cb-562d-b2b2-63739fccc2e2"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "60af4c370449770a0e7136330a2c417afbb47b8455bed7a0ac89c9e1e96e67da",
+      "duration_ms": 25.45575899995356
+    },
+    {
+      "question": {
+        "id": "A08",
+        "category": "A",
+        "question": "支付方式有哪些？列出所有支付方式。",
+        "gold_sql": "SELECT DISTINCT payment_type FROM order_payments ORDER BY payment_type",
+        "answer_type": "list",
+        "split": "holdout",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "payment_type": "boleto"
+        },
+        {
+          "payment_type": "credit_card"
+        },
+        {
+          "payment_type": "debit_card"
+        },
+        {
+          "payment_type": "not_defined"
+        },
+        {
+          "payment_type": "voucher"
+        }
+      ],
+      "gold": [
+        "boleto",
+        "credit_card",
+        "debit_card",
+        "not_defined",
+        "voucher"
+      ],
+      "task_id": "5e90b9cd-44fe-5d65-8a22-fefbcbd85736",
+      "result_id": "76180e39-dee3-5875-879c-0849d80b6f1e",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": [
+          "boleto",
+          "credit_card",
+          "debit_card",
+          "not_defined",
+          "voucher"
+        ],
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": [
+              "boleto",
+              "credit_card",
+              "debit_card",
+              "not_defined",
+              "voucher"
+            ],
+            "evidence": [
+              "76180e39-dee3-5875-879c-0849d80b6f1e"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "bfc23e48ef5c8801ad6e1006b951e1f0348e84076f8749e92d55d5a4104edadc",
+      "duration_ms": 22.894828999994843
+    },
+    {
+      "question": {
+        "id": "A09",
+        "category": "A",
+        "question": "评价得分为 1 的评价记录有多少条？",
+        "gold_sql": "SELECT count(*) AS value FROM order_reviews WHERE review_score=1",
+        "answer_type": "number",
+        "split": "holdout",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 11424
+        }
+      ],
+      "gold": 11424,
+      "task_id": "f30de19d-f8fc-58e9-8622-59496c1c14d4",
+      "result_id": "c8e97bfd-767a-5143-9f88-c3b6831da7a9",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 11424,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 11424,
+            "evidence": [
+              "c8e97bfd-767a-5143-9f88-c3b6831da7a9"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "15d29d478556ebd400b5a9677fa1bfc70c08d332c21d604f3b2c1b62198e6025",
+      "duration_ms": 7.620072999998229
+    },
+    {
+      "question": {
+        "id": "A10",
+        "category": "A",
+        "question": "2018 年 5 月购买的订单有多少？",
+        "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_purchase_timestamp >= '2018-05-01' AND order_purchase_timestamp < '2018-06-01'",
+        "answer_type": "number",
+        "split": "holdout",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 6873
+        }
+      ],
+      "gold": 6873,
+      "task_id": "c5f99b80-074d-53fa-afc7-3966924177d9",
+      "result_id": "00bda0eb-9dde-5c3d-b02b-ef813744c764",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 6873,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 6873,
+            "evidence": [
+              "00bda0eb-9dde-5c3d-b02b-ef813744c764"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "bcc9147c177d52c867c2b0e257d00a98f9a0fa08541471fb2ce51d76ac634ef1",
+      "duration_ms": 7.232678000036685
+    },
+    {
+      "question": {
+        "id": "B01",
+        "category": "B",
+        "question": "客户在 SP 州的订单有多少？所有状态都计入。",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE c.customer_state='SP'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 41746
+        }
+      ],
+      "gold": 41746,
+      "task_id": "edc58af2-15f1-5b3d-945a-f774850a2537",
+      "result_id": "6ce13339-9eda-56e7-ae4a-bbedac57fb91",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 41746,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 41746,
+            "evidence": [
+              "6ce13339-9eda-56e7-ae4a-bbedac57fb91"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "54f421300ba0776b6c807899d9d3d8da6246ffd2436aaae1fd4f9422cf74a853",
+      "duration_ms": 90.72520500001247
+    },
+    {
+      "question": {
+        "id": "B02",
+        "category": "B",
+        "question": "英文品类为 health_beauty 的商品明细价格合计是多少？不含运费，保留所有订单状态。",
+        "gold_sql": "SELECT sum(i.price) AS value FROM order_items i JOIN products p USING(product_id) JOIN product_category_name_translation t USING(product_category_name) WHERE t.product_category_name_english='health_beauty'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 1258681.34
+        }
+      ],
+      "gold": 1258681.34,
+      "task_id": "4b9c6870-6893-5f3b-924c-9ce8ba366bfb",
+      "result_id": "605009cd-bbb0-5261-bb74-3b0b02eda09c",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 1258681.34,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 1258681.34,
+            "evidence": [
+              "605009cd-bbb0-5261-bb74-3b0b02eda09c"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "e9470dfcf6df6f9620907eaddbbfa93bf9d7e35ca346cd2cad118fa7473040ba",
+      "duration_ms": 31.49584400000549
+    },
+    {
+      "question": {
+        "id": "B03",
+        "category": "B",
+        "question": "2018 年 Q1 所有购买订单的支付总额是多少？",
+        "gold_sql": "SELECT sum(p.payment_value) AS value FROM order_payments p JOIN orders o USING(order_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 3267119.64
+        }
+      ],
+      "gold": 3267119.64,
+      "task_id": "76c62695-92da-510c-a41c-31bc46f7f7e5",
+      "result_id": "6c168599-d557-5d61-9c12-dbf04030948b",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 3267119.64,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 3267119.64,
+            "evidence": [
+              "6c168599-d557-5d61-9c12-dbf04030948b"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "46f92d20fe0c758d3d21611997db70223798f225bf696bc7fe615bc2030cab79",
+      "duration_ms": 47.496176999970885
+    },
+    {
+      "question": {
+        "id": "B04",
+        "category": "B",
+        "question": "向 RJ 州客户卖过商品的不同卖家数是多少？",
+        "gold_sql": "SELECT count(DISTINCT i.seller_id) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE c.customer_state='RJ'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 1751
+        }
+      ],
+      "gold": 1751,
+      "task_id": "0517efd9-20cd-5ce7-b5c0-0d15c2df8657",
+      "result_id": "4783e297-78fb-5fa9-8501-45c3917208d0",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 1751,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 1751,
+            "evidence": [
+              "4783e297-78fb-5fa9-8501-45c3917208d0"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "6fb1588855f57ffd4188aeb6d4938eb51d8131136f6b352b1871d92c6a4b1db9",
+      "duration_ms": 41.3802740000051
+    },
+    {
+      "question": {
+        "id": "B05",
+        "category": "B",
+        "question": "2017 年至少有一条评价的订单数是多少？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 44714
+        }
+      ],
+      "gold": 44714,
+      "task_id": "ba902535-ff92-5093-8c89-c5c303ab9ff4",
+      "result_id": "0607d8ce-91fb-5235-992e-b222f702567b",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 44714,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 44714,
+            "evidence": [
+              "0607d8ce-91fb-5235-992e-b222f702567b"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "404a5a1df9bb68b8adfb576660d502379b9a352239eed3586fe7245e4042af72",
+      "duration_ms": 38.04635299997017
+    },
+    {
+      "question": {
+        "id": "B06",
+        "category": "B",
+        "question": "按所有状态商品金额排序，客户州排名前五的州代码有哪些？金额并列按州代码升序。",
+        "gold_sql": "SELECT c.customer_state FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) GROUP BY c.customer_state ORDER BY sum(i.price) DESC, c.customer_state LIMIT 5",
+        "answer_type": "list",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "customer_state": "SP"
+        },
+        {
+          "customer_state": "RJ"
+        },
+        {
+          "customer_state": "MG"
+        },
+        {
+          "customer_state": "RS"
+        },
+        {
+          "customer_state": "PR"
+        }
+      ],
+      "gold": [
+        "SP",
+        "RJ",
+        "MG",
+        "RS",
+        "PR"
+      ],
+      "task_id": "0c88a89a-edef-5f5c-8ac5-36b3934b5652",
+      "result_id": "da2fda50-adf1-541f-8703-b0b8deb2b674",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": [
+          "SP",
+          "RJ",
+          "MG",
+          "RS",
+          "PR"
+        ],
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": [
+              "SP",
+              "RJ",
+              "MG",
+              "RS",
+              "PR"
+            ],
+            "evidence": [
+              "da2fda50-adf1-541f-8703-b0b8deb2b674"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "39733e6aef515d71c2b6c1eaa718e3c6160d3c4993c4d64b7a8533eb584d0d99",
+      "duration_ms": 90.1333589999922
+    },
+    {
+      "question": {
+        "id": "B07",
+        "category": "B",
+        "question": "英文品类 computers_accessories 的全部商品明细有多少行？",
+        "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN products p USING(product_id) JOIN product_category_name_translation t USING(product_category_name) WHERE t.product_category_name_english='computers_accessories'",
+        "answer_type": "number",
+        "split": "dev",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 7827
+        }
+      ],
+      "gold": 7827,
+      "task_id": "266ad5ee-a4e1-552e-ae9b-02f39dac4b6e",
+      "result_id": "f9dd5e8f-4aaa-50ee-a3bd-439236c6e215",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 7827,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 7827,
+            "evidence": [
+              "f9dd5e8f-4aaa-50ee-a3bd-439236c6e215"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "54b2eb9ca8b93a926724c2a571bdb436902a60c2bc5ff89fa8da1e9eb05ee845",
+      "duration_ms": 23.12928600002806
+    },
+    {
+      "question": {
+        "id": "B08",
+        "category": "B",
+        "question": "客户在 MG 州的全部订单商品运费总额是多少？",
+        "gold_sql": "SELECT sum(i.freight_value) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE c.customer_state='MG'",
+        "answer_type": "number",
+        "split": "holdout",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 270853.46
+        }
+      ],
+      "gold": 270853.46,
+      "task_id": "98a07f2f-83dd-5ebd-bdf8-c1c0b5a37736",
+      "result_id": "b7fd3b54-f90c-5e08-b6f9-373358574c41",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 270853.46,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 270853.46,
+            "evidence": [
+              "b7fd3b54-f90c-5e08-b6f9-373358574c41"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "beea2a0359cf9495f14495989bb862df43258aaf7a616884b031745590f8a730",
+      "duration_ms": 37.290067000014915
+    },
+    {
+      "question": {
+        "id": "B09",
+        "category": "B",
+        "question": "按全部商品金额排名，2018 年 Q2 前三个卖家 ID 是哪些？并列时 ID 升序。",
+        "gold_sql": "SELECT i.seller_id FROM order_items i JOIN orders o USING(order_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY i.seller_id ORDER BY sum(i.price) DESC, i.seller_id LIMIT 3",
+        "answer_type": "list",
+        "split": "holdout",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "seller_id": "955fee9216a65b617aa5c0531780ce60"
+        },
+        {
+          "seller_id": "7d13fca15225358621be4086e1eb0964"
+        },
+        {
+          "seller_id": "4869f7a5dfa277a7dca6462dcf3b52b2"
+        }
+      ],
+      "gold": [
+        "955fee9216a65b617aa5c0531780ce60",
+        "7d13fca15225358621be4086e1eb0964",
+        "4869f7a5dfa277a7dca6462dcf3b52b2"
+      ],
+      "task_id": "45f95588-0b75-5526-9699-74e070b65d6c",
+      "result_id": "11ca7c51-052b-548a-933d-dc5c36b34606",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": [
+          "955fee9216a65b617aa5c0531780ce60",
+          "7d13fca15225358621be4086e1eb0964",
+          "4869f7a5dfa277a7dca6462dcf3b52b2"
+        ],
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": [
+              "955fee9216a65b617aa5c0531780ce60",
+              "7d13fca15225358621be4086e1eb0964",
+              "4869f7a5dfa277a7dca6462dcf3b52b2"
+            ],
+            "evidence": [
+              "11ca7c51-052b-548a-933d-dc5c36b34606"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "a135c14d3da9ee3c6c080dfceed84fc3fe123da774b605ff9c52517bab7c9a04",
+      "duration_ms": 43.86038300003747
+    },
+    {
+      "question": {
+        "id": "B10",
+        "category": "B",
+        "question": "2018 年 1 月购买的订单中，有至少两个不同商品 ID 的订单数是多少？",
+        "gold_sql": "SELECT count(*) AS value FROM (SELECT o.order_id FROM orders o JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-02-01' GROUP BY o.order_id HAVING count(DISTINCT i.product_id)>=2) s",
+        "answer_type": "number",
+        "split": "holdout",
+        "required_facts": [],
+        "rubric_focus": null
+      },
+      "rows": [
+        {
+          "value": 264
+        }
+      ],
+      "gold": 264,
+      "task_id": "10e8ed4f-139f-5178-92e5-397b41322831",
+      "result_id": "f4316d1b-1ecf-586c-b826-fd3204ddacfd",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 264,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 264,
+            "evidence": [
+              "f4316d1b-1ecf-586c-b826-fd3204ddacfd"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "58567d44921a86e390e655aef1bf73d4f324c135f36c1238a557cbb4f7675376",
+      "duration_ms": 33.009214999992764
+    },
+    {
+      "question": {
+        "id": "C01",
+        "category": "C",
+        "split": "dev",
+        "question": "SP 州从 2017-01-01 到 2017-12-31 有多少客户？",
+        "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+        "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "C_unique_customer",
+        "parameters": {
+          "start": "2017-01-01",
+          "end": "2018-01-01",
+          "state": "SP"
+        },
+        "profile_section": "客户标识与复购",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 17203
+        }
+      ],
+      "gold": 17203,
+      "task_id": "07e3e06f-4b9e-566f-bedd-d0c796ffd1c1",
+      "result_id": "f38a3195-5cc5-5d00-9cfa-1708681a0475",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 17203,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 17203,
+            "evidence": [
+              "f38a3195-5cc5-5d00-9cfa-1708681a0475"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "99c6c28b7fb84d5e1fe5374a1cd042da4fd0e5c09c51cf57c463e4786cf8c86e",
+      "duration_ms": 34.83726500002149
+    },
+    {
+      "question": {
+        "id": "C02",
+        "category": "C",
+        "split": "dev",
+        "question": "RJ 州从 2018-01-01 到 2018-06-30 有多少客户？",
+        "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+        "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+        "answer_type": "number",
+        "template_id": "C_unique_customer",
+        "parameters": {
+          "start": "2018-01-01",
+          "end": "2018-07-01",
+          "state": "RJ"
+        },
+        "profile_section": "客户标识与复购",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 4979
+        }
+      ],
+      "gold": 4979,
+      "task_id": "82077659-f2a4-5cd9-b985-f9a7c92d1102",
+      "result_id": "897a0ad3-326d-5a4c-b678-75a1404a1a4b",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 4979,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 4979,
+            "evidence": [
+              "897a0ad3-326d-5a4c-b678-75a1404a1a4b"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "b76b7133f8a58def9d4b7f395bc82ab772175ddaec15623fca7c9dce71b44431",
+      "duration_ms": 23.37744700002986
+    },
+    {
+      "question": {
+        "id": "C03",
+        "category": "C",
+        "split": "dev",
+        "question": "MG 州从 2017-07-01 到 2017-12-31 有多少客户？",
+        "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='MG'",
+        "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='MG'",
+        "answer_type": "number",
+        "template_id": "C_unique_customer",
+        "parameters": {
+          "start": "2017-07-01",
+          "end": "2018-01-01",
+          "state": "MG"
+        },
+        "profile_section": "客户标识与复购",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 3537
+        }
+      ],
+      "gold": 3537,
+      "task_id": "d6341f03-b467-54a0-989a-e0e73b956550",
+      "result_id": "ecdcbc51-10f4-5dc5-a022-6fbba1de075f",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 3537,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 3537,
+            "evidence": [
+              "ecdcbc51-10f4-5dc5-a022-6fbba1de075f"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "379f89f30ffb6aa858aa8b39dc001b737160aa2dea74db2bbd11de3f4a4a8d8e",
+      "duration_ms": 30.167817000005925
+    },
+    {
+      "question": {
+        "id": "C04",
+        "category": "C",
+        "split": "holdout",
+        "question": "帮我看一下 2018-04-01 至 2018-06-30 这段时间，SP 州的买家规模有多大？",
+        "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='SP'",
+        "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "C_unique_customer",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01",
+          "state": "SP"
+        },
+        "profile_section": "客户标识与复购",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 8913
+        }
+      ],
+      "gold": 8913,
+      "task_id": "f1eb934c-267e-50a8-9276-6feb448c19e6",
+      "result_id": "a6054384-ef76-548f-a8e7-66a6e9a7445f",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 8913,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 8913,
+            "evidence": [
+              "a6054384-ef76-548f-a8e7-66a6e9a7445f"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "d5017e4fbcd6cceaf47a6363841be2c07b3715d81f677b998afae99e4bdd5472",
+      "duration_ms": 29.1348620000349
+    },
+    {
+      "question": {
+        "id": "C05",
+        "category": "C",
+        "split": "dev",
+        "question": "SP 州从 2017-07-01 到 2017-07-31 的 GMV 是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2017-08-01' AND c.customer_state='SP' AND o.order_status NOT IN ('canceled','unavailable')",
+        "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2017-08-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "C_gmv_status",
+        "parameters": {
+          "start": "2017-07-01",
+          "end": "2017-08-01",
+          "state": "SP"
+        },
+        "profile_section": "金额口径与关联膨胀",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 181968.09
+        }
+      ],
+      "gold": 181968.09,
+      "task_id": "2e31827d-c6af-5b20-89fe-1ead72030892",
+      "result_id": "8969d309-1518-52c2-98ea-3dfd93986336",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 181968.09,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 181968.09,
+            "evidence": [
+              "8969d309-1518-52c2-98ea-3dfd93986336"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "eb1eec4214f90e5fcb65125e2693d113701c8448c9c94714f5d311ff7c3b13cc",
+      "duration_ms": 31.928149000009398
+    },
+    {
+      "question": {
+        "id": "C06",
+        "category": "C",
+        "split": "dev",
+        "question": "RJ 州从 2018-02-01 到 2018-02-28 的 GMV 是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RJ' AND o.order_status NOT IN ('canceled','unavailable')",
+        "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RJ'",
+        "answer_type": "number",
+        "template_id": "C_gmv_status",
+        "parameters": {
+          "start": "2018-02-01",
+          "end": "2018-03-01",
+          "state": "RJ"
+        },
+        "profile_section": "金额口径与关联膨胀",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 115509.79
+        }
+      ],
+      "gold": 115509.79,
+      "task_id": "68620469-7dd9-5323-9854-45224db13852",
+      "result_id": "f5f63f48-31fc-526c-9fdb-a5fb82b41d38",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 115509.79,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 115509.79,
+            "evidence": [
+              "f5f63f48-31fc-526c-9fdb-a5fb82b41d38"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "173e99030eecb9a9b2b6a4d1a0c0c8f4be9111ad48299a6c4099840632549e01",
+      "duration_ms": 24.71617700001616
+    },
+    {
+      "question": {
+        "id": "C07",
+        "category": "C",
+        "split": "holdout",
+        "question": "我要做 MG 州的经营汇报，2018-07-01 至 2018-07-31 这段时间的 GMV 总共有多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-07-01' AND o.order_purchase_timestamp < '2018-08-01' AND c.customer_state='MG' AND o.order_status NOT IN ('canceled','unavailable')",
+        "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-07-01' AND o.order_purchase_timestamp < '2018-08-01' AND c.customer_state='MG'",
+        "answer_type": "number",
+        "template_id": "C_gmv_status",
+        "parameters": {
+          "start": "2018-07-01",
+          "end": "2018-08-01",
+          "state": "MG"
+        },
+        "profile_section": "金额口径与关联膨胀",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 93592.96
+        }
+      ],
+      "gold": 93592.96,
+      "task_id": "100dd787-6a8f-502f-816d-e92f57dd47a4",
+      "result_id": "0254e975-6037-5c24-9c19-a0319012c3fa",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 93592.96,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 93592.96,
+            "evidence": [
+              "0254e975-6037-5c24-9c19-a0319012c3fa"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "182fd16b0d7bebd067b9637c00adec856eda2788772f74fc3a20f1ade2776198",
+      "duration_ms": 26.107118000027185
+    },
+    {
+      "question": {
+        "id": "C08",
+        "category": "C",
+        "split": "dev",
+        "question": "SP 州从 2017-01-01 到 2017-12-31 的商品销售额是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+        "naive_sql": "SELECT coalesce(sum(i.price+i.freight_value),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "C_freight",
+        "parameters": {
+          "start": "2017-01-01",
+          "end": "2018-01-01",
+          "state": "SP"
+        },
+        "profile_section": "金额口径与关联膨胀",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 2212487.0
+        }
+      ],
+      "gold": 2212487.0,
+      "task_id": "2bfd2915-b40d-5f0b-b654-7a54d077081c",
+      "result_id": "b8d7d152-617b-50d6-891a-250ce753dc25",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 2212487.0,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 2212487.0,
+            "evidence": [
+              "b8d7d152-617b-50d6-891a-250ce753dc25"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "85746a31816d87b0484d94d065872c907bf6f766b840ae9c9c220b3114eddfab",
+      "duration_ms": 54.63403100003461
+    },
+    {
+      "question": {
+        "id": "C09",
+        "category": "C",
+        "split": "dev",
+        "question": "RJ 州从 2018-01-01 到 2018-06-30 的商品销售额是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+        "naive_sql": "SELECT coalesce(sum(i.price+i.freight_value),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+        "answer_type": "number",
+        "template_id": "C_freight",
+        "parameters": {
+          "start": "2018-01-01",
+          "end": "2018-07-01",
+          "state": "RJ"
+        },
+        "profile_section": "金额口径与关联膨胀",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 710909.79
+        }
+      ],
+      "gold": 710909.79,
+      "task_id": "795d823e-b203-5a69-b047-770024e466e7",
+      "result_id": "afe88458-895c-579a-a2d4-6964e577a666",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 710909.79,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 710909.79,
+            "evidence": [
+              "afe88458-895c-579a-a2d4-6964e577a666"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "8a7c37d586623a883d505207d3e3024006ad2e6f519ab650aa8847c3353f530c",
+      "duration_ms": 34.09638199997289
+    },
+    {
+      "question": {
+        "id": "C10",
+        "category": "C",
+        "split": "holdout",
+        "question": "2018-04-01 至 2018-06-30，MG 州的商品一共卖了多少钱？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='MG'",
+        "naive_sql": "SELECT coalesce(sum(i.price+i.freight_value),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='MG'",
+        "answer_type": "number",
+        "template_id": "C_freight",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01",
+          "state": "MG"
+        },
+        "profile_section": "金额口径与关联膨胀",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 321126.96
+        }
+      ],
+      "gold": 321126.96,
+      "task_id": "ebec4a2a-0547-5467-8386-17c72873c543",
+      "result_id": "d1a94d86-ee0b-5e93-86ab-50a3b279188d",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 321126.96,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 321126.96,
+            "evidence": [
+              "d1a94d86-ee0b-5e93-86ab-50a3b279188d"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "c246f45d97c907b39d208f28f4db3972b58dc641b174d7e47c3493e389e8120f",
+      "duration_ms": 25.86645900004214
+    },
+    {
+      "question": {
+        "id": "C11",
+        "category": "C",
+        "split": "dev",
+        "question": "SP 州从 2017-01-01 到 2017-12-31 的已付款订单，商品销售额是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=o.order_id)",
+        "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN order_payments p USING(order_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "C_join_grain",
+        "parameters": {
+          "start": "2017-01-01",
+          "end": "2018-01-01",
+          "state": "SP"
+        },
+        "profile_section": "子表粒度与订单缺失关联",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 2212487.0
+        }
+      ],
+      "gold": 2212487.0,
+      "task_id": "df447ace-7aa2-59e2-a1a4-3e38ebbb1245",
+      "result_id": "6376d3a5-c97e-503c-98dc-d9eee8e29cda",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 2212487.0,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 2212487.0,
+            "evidence": [
+              "6376d3a5-c97e-503c-98dc-d9eee8e29cda"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "bb1d7862e6b20effaf5e2fe270eb0a1b886f5529a1d5ec626e582709f09b7974",
+      "duration_ms": 63.14602400004787
+    },
+    {
+      "question": {
+        "id": "C12",
+        "category": "C",
+        "split": "dev",
+        "question": "RJ 州从 2018-01-01 到 2018-06-30 的已付款订单，商品销售额是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ' AND EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=o.order_id)",
+        "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN order_payments p USING(order_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+        "answer_type": "number",
+        "template_id": "C_join_grain",
+        "parameters": {
+          "start": "2018-01-01",
+          "end": "2018-07-01",
+          "state": "RJ"
+        },
+        "profile_section": "子表粒度与订单缺失关联",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 710909.79
+        }
+      ],
+      "gold": 710909.79,
+      "task_id": "48e14b9d-a250-5ecc-8024-eddf65be3fab",
+      "result_id": "0fb2d9df-c5c6-5c87-88ea-0cb7c352adaf",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 710909.79,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 710909.79,
+            "evidence": [
+              "0fb2d9df-c5c6-5c87-88ea-0cb7c352adaf"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "f550caf62ffa856c36e407c630291c34cb99bfb25fa9fd984af05eed9182bfbb",
+      "duration_ms": 45.70683700001155
+    },
+    {
+      "question": {
+        "id": "C13",
+        "category": "C",
+        "split": "holdout",
+        "question": "帮我核对 MG 州 2018-04-01 至 2018-06-30 这段时间收到付款的订单，商品总共卖了多少钱？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='MG' AND EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=o.order_id)",
+        "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN order_payments p USING(order_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='MG'",
+        "answer_type": "number",
+        "template_id": "C_join_grain",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01",
+          "state": "MG"
+        },
+        "profile_section": "子表粒度与订单缺失关联",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 321126.96
+        }
+      ],
+      "gold": 321126.96,
+      "task_id": "3e42dd2d-4841-586a-963b-8c01fa84007a",
+      "result_id": "b653d22d-56b8-5d2c-93e2-b00ec755618f",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 321126.96,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 321126.96,
+            "evidence": [
+              "b653d22d-56b8-5d2c-93e2-b00ec755618f"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "73395161af4ec530491e6cb424be482a3b0e8eb1ceee86f8526826664a599991",
+      "duration_ms": 42.70249900002909
+    },
+    {
+      "question": {
+        "id": "C14",
+        "category": "C",
+        "split": "dev",
+        "question": "2016-09-01 至 2016-09-30 这段时间，成交记录覆盖了多少天？",
+        "gold_sql": "SELECT count(DISTINCT order_purchase_timestamp::date) AS value FROM orders WHERE order_purchase_timestamp >= '2016-09-01' AND order_purchase_timestamp < '2016-10-01'",
+        "naive_sql": "SELECT '2016-10-01'::date - '2016-09-01'::date AS value",
+        "answer_type": "number",
+        "template_id": "C_boundary_month",
+        "parameters": {
+          "start": "2016-09-01",
+          "end": "2016-10-01",
+          "state": "SP"
+        },
+        "profile_section": "每月订单数",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 4
+        }
+      ],
+      "gold": 4,
+      "task_id": "8aae5402-7d8e-509f-a787-690d61c1466a",
+      "result_id": "1ae10b49-2b7e-5d99-ba15-3c0ef0a49e2d",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 4,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 4,
+            "evidence": [
+              "1ae10b49-2b7e-5d99-ba15-3c0ef0a49e2d"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "f3cfff29a40d836e1d85be654478770048a9eef1fd4ddfcac69183d75f96e24c",
+      "duration_ms": 0.6869689999575712
+    },
+    {
+      "question": {
+        "id": "C15",
+        "category": "C",
+        "split": "dev",
+        "question": "2018-10-01 至 2018-10-31 这段时间，成交记录覆盖了多少天？",
+        "gold_sql": "SELECT count(DISTINCT order_purchase_timestamp::date) AS value FROM orders WHERE order_purchase_timestamp >= '2018-10-01' AND order_purchase_timestamp < '2018-11-01'",
+        "naive_sql": "SELECT '2018-11-01'::date - '2018-10-01'::date AS value",
+        "answer_type": "number",
+        "template_id": "C_boundary_month",
+        "parameters": {
+          "start": "2018-10-01",
+          "end": "2018-11-01",
+          "state": "SP"
+        },
+        "profile_section": "每月订单数",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 4
+        }
+      ],
+      "gold": 4,
+      "task_id": "58ddf024-391f-5787-9696-8a0a227d972d",
+      "result_id": "e1abc882-27d6-53ee-94f9-0c436406c3ec",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 4,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 4,
+            "evidence": [
+              "e1abc882-27d6-53ee-94f9-0c436406c3ec"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "0fcd922da12f17791aa5a3959ce6aa6fd88f2402fbb4e69ea0e2aed5b3a498f3",
+      "duration_ms": 1.688515000012103
+    },
+    {
+      "question": {
+        "id": "C16",
+        "category": "C",
+        "split": "holdout",
+        "question": "我想了解 2018-09-01 到 2018-09-30 这份数据的覆盖情况：有多少天的成交数据？",
+        "gold_sql": "SELECT count(DISTINCT order_purchase_timestamp::date) AS value FROM orders WHERE order_purchase_timestamp >= '2018-09-01' AND order_purchase_timestamp < '2018-10-01'",
+        "naive_sql": "SELECT '2018-10-01'::date - '2018-09-01'::date AS value",
+        "answer_type": "number",
+        "template_id": "C_boundary_month",
+        "parameters": {
+          "start": "2018-09-01",
+          "end": "2018-10-01",
+          "state": "SP"
+        },
+        "profile_section": "每月订单数",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 11
+        }
+      ],
+      "gold": 11,
+      "task_id": "b854c25a-4adf-5255-b1f8-dd47698c7095",
+      "result_id": "d73883df-fecb-58c1-b543-42a45b759de8",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 11,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 11,
+            "evidence": [
+              "d73883df-fecb-58c1-b543-42a45b759de8"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "fa02c26b8a4e5d740ceaa506893d6227ee3d5b4baf35a1ff7576a533a654b5df",
+      "duration_ms": 0.4239040000015848
+    },
+    {
+      "question": {
+        "id": "C17",
+        "category": "C",
+        "split": "dev",
+        "question": "SP 州 2017-01-01 至 2017-12-31 的英文品类报表里，待归类的商品明细有多少？",
+        "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) LEFT JOIN product_category_name_translation t USING(product_category_name) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND t.product_category_name IS NULL",
+        "naive_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND p.product_category_name NOT IN (SELECT product_category_name FROM product_category_name_translation)",
+        "answer_type": "number",
+        "template_id": "C_category_coverage",
+        "parameters": {
+          "start": "2017-01-01",
+          "end": "2018-01-01",
+          "state": "SP"
+        },
+        "profile_section": "品类翻译覆盖率",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 390
+        }
+      ],
+      "gold": 390,
+      "task_id": "61c2e9b5-b177-57b3-8053-19833e0e0b02",
+      "result_id": "bb5ecc49-8313-5f91-82eb-58ad1dc53e79",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 390,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 390,
+            "evidence": [
+              "bb5ecc49-8313-5f91-82eb-58ad1dc53e79"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "d2a6b4cc3fbbec3b3e7c49b3ac72e3f9485a4184c2b6edec830a2b15feb0ef12",
+      "duration_ms": 96.16054099996063
+    },
+    {
+      "question": {
+        "id": "C18",
+        "category": "C",
+        "split": "dev",
+        "question": "RJ 州 2018-01-01 至 2018-06-30 的英文品类报表里，待归类的商品明细有多少？",
+        "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) LEFT JOIN product_category_name_translation t USING(product_category_name) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ' AND t.product_category_name IS NULL",
+        "naive_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ' AND p.product_category_name NOT IN (SELECT product_category_name FROM product_category_name_translation)",
+        "answer_type": "number",
+        "template_id": "C_category_coverage",
+        "parameters": {
+          "start": "2018-01-01",
+          "end": "2018-07-01",
+          "state": "RJ"
+        },
+        "profile_section": "品类翻译覆盖率",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 65
+        }
+      ],
+      "gold": 65,
+      "task_id": "2285e9a1-c326-5d6c-9a32-ab33a1d8f7f9",
+      "result_id": "7813d8c8-e8f2-56cb-8653-c0b863c17a4c",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 65,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 65,
+            "evidence": [
+              "7813d8c8-e8f2-56cb-8653-c0b863c17a4c"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "e8156165e2d5104061ae2609673e7e7f7338412c1a33e7a9b2e1216e61fe7f4c",
+      "duration_ms": 48.55893799998512
+    },
+    {
+      "question": {
+        "id": "C19",
+        "category": "C",
+        "split": "holdout",
+        "question": "帮我核对 MG 州 2018-04-01 到 2018-06-30 的英文品类报表，未知品类这一栏有多少条商品明细？",
+        "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) LEFT JOIN product_category_name_translation t USING(product_category_name) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='MG' AND t.product_category_name IS NULL",
+        "naive_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='MG' AND p.product_category_name NOT IN (SELECT product_category_name FROM product_category_name_translation)",
+        "answer_type": "number",
+        "template_id": "C_category_coverage",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01",
+          "state": "MG"
+        },
+        "profile_section": "品类翻译覆盖率",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 13
+        }
+      ],
+      "gold": 13,
+      "task_id": "14ecb764-9e55-5e45-b35f-e2a1e37a7e13",
+      "result_id": "517aaeee-82d2-5c45-aabf-d38a0100dc26",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 13,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 13,
+            "evidence": [
+              "517aaeee-82d2-5c45-aabf-d38a0100dc26"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "b0d9e968ccebc7fce0c7e35ec96bfb32662210812be5adedbbace5f262ba34fa",
+      "duration_ms": 33.3281930000453
+    },
+    {
+      "question": {
+        "id": "C20",
+        "category": "C",
+        "split": "dev",
+        "question": "SP 州从 2017-01-01 到 2017-12-31 下的订单，有多少笔需要补录签收时间？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND o.order_status='delivered' AND o.order_delivered_customer_date IS NULL",
+        "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND o.order_delivered_customer_date IS NULL",
+        "answer_type": "number",
+        "template_id": "C_delivery_null",
+        "parameters": {
+          "start": "2017-01-01",
+          "end": "2018-01-01",
+          "state": "SP"
+        },
+        "profile_section": "交付时间缺失",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 1
+        }
+      ],
+      "gold": 1,
+      "task_id": "ab04e957-90fa-5d53-83de-63e4d48cb574",
+      "result_id": "3af82981-8c19-58e6-8c40-062a2eb3f806",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 1,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 1,
+            "evidence": [
+              "3af82981-8c19-58e6-8c40-062a2eb3f806"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "41687aa6af4424aa8b2d633900daaad7567bdccdc572d21ede6670f376342e9e",
+      "duration_ms": 6.432982000035281
+    },
+    {
+      "question": {
+        "id": "C21",
+        "category": "C",
+        "split": "dev",
+        "question": "RS 州从 2017-01-01 到 2017-12-31 下的订单，有多少笔需要补录签收时间？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='RS' AND o.order_status='delivered' AND o.order_delivered_customer_date IS NULL",
+        "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='RS' AND o.order_delivered_customer_date IS NULL",
+        "answer_type": "number",
+        "template_id": "C_delivery_null",
+        "parameters": {
+          "start": "2017-01-01",
+          "end": "2018-01-01",
+          "state": "RS"
+        },
+        "profile_section": "交付时间缺失",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 1
+        }
+      ],
+      "gold": 1,
+      "task_id": "8f778f45-e38b-5d87-a06b-dd364ee4acb8",
+      "result_id": "44d1861f-8a1c-577a-826f-bdc2554c06c9",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 1,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 1,
+            "evidence": [
+              "44d1861f-8a1c-577a-826f-bdc2554c06c9"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "984aa5e4c3c8a8090df78ed7180fcf651c7545df703ff9baad2ab7a7b4ddf836",
+      "duration_ms": 9.672777999981008
+    },
+    {
+      "question": {
+        "id": "C22",
+        "category": "C",
+        "split": "holdout",
+        "question": "物流正在核对签收信息，SP 州 2018-01-01 至 2018-07-31 的订单里有多少笔待补签收记录？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-08-01' AND c.customer_state='SP' AND o.order_status='delivered' AND o.order_delivered_customer_date IS NULL",
+        "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-08-01' AND c.customer_state='SP' AND o.order_delivered_customer_date IS NULL",
+        "answer_type": "number",
+        "template_id": "C_delivery_null",
+        "parameters": {
+          "start": "2018-01-01",
+          "end": "2018-08-01",
+          "state": "SP"
+        },
+        "profile_section": "交付时间缺失",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 6
+        }
+      ],
+      "gold": 6,
+      "task_id": "0233d2b0-e6f8-5f1b-b667-1dae1f2741f6",
+      "result_id": "1be6c75a-4902-52de-9aae-b65223f5b87d",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 6,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 6,
+            "evidence": [
+              "1be6c75a-4902-52de-9aae-b65223f5b87d"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "b116cd950fdb950706524d272a65dad8e694a75543abe2f818dcfcf3765f3c6c",
+      "duration_ms": 6.69754699998748
+    },
+    {
+      "question": {
+        "id": "C23",
+        "category": "C",
+        "split": "dev",
+        "question": "MG 州从 2018-02-01 到 2018-02-28 下的订单，有多少单获得了评价？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='MG' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+        "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_reviews r USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='MG'",
+        "answer_type": "number",
+        "template_id": "C_review_grain",
+        "parameters": {
+          "start": "2018-02-01",
+          "end": "2018-03-01",
+          "state": "MG"
+        },
+        "profile_section": "评价与地理位置键",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 796
+        }
+      ],
+      "gold": 796,
+      "task_id": "6e9baedc-6ad0-51aa-b24a-b7d8e75e1bb9",
+      "result_id": "3844c0ab-694c-56d2-a68f-bc441e2616bf",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 796,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 796,
+            "evidence": [
+              "3844c0ab-694c-56d2-a68f-bc441e2616bf"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "5db98a34cb297b78cdfb0d99890971e249cf1818ca7dc375970dc2d80ea7e08f",
+      "duration_ms": 27.513263999992432
+    },
+    {
+      "question": {
+        "id": "C24",
+        "category": "C",
+        "split": "dev",
+        "question": "RS 州从 2018-02-01 到 2018-02-28 下的订单，有多少单获得了评价？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RS' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+        "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_reviews r USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RS'",
+        "answer_type": "number",
+        "template_id": "C_review_grain",
+        "parameters": {
+          "start": "2018-02-01",
+          "end": "2018-03-01",
+          "state": "RS"
+        },
+        "profile_section": "评价与地理位置键",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 366
+        }
+      ],
+      "gold": 366,
+      "task_id": "d881f21a-bed3-59af-a07d-c44ceeb32cfe",
+      "result_id": "56d73b72-6a51-52d0-9acd-10ad3575e6b3",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 366,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 366,
+            "evidence": [
+              "56d73b72-6a51-52d0-9acd-10ad3575e6b3"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "26c104c595534fc222549f787e320aff1766600cf1c5d1b757455cc3b36a44d5",
+      "duration_ms": 36.98129100001779
+    },
+    {
+      "question": {
+        "id": "C25",
+        "category": "C",
+        "split": "holdout",
+        "question": "看看 BA 州 2017-11-01 至 2017-11-30 的购买情况，买家给多少笔订单留过评价？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-11-01' AND o.order_purchase_timestamp < '2017-12-01' AND c.customer_state='BA' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+        "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_reviews r USING(order_id) WHERE o.order_purchase_timestamp >= '2017-11-01' AND o.order_purchase_timestamp < '2017-12-01' AND c.customer_state='BA'",
+        "answer_type": "number",
+        "template_id": "C_review_grain",
+        "parameters": {
+          "start": "2017-11-01",
+          "end": "2017-12-01",
+          "state": "BA"
+        },
+        "profile_section": "评价与地理位置键",
+        "profile_source": "docs/data_profile.md",
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 248
+        }
+      ],
+      "gold": 248,
+      "task_id": "e797fff0-237c-5dcd-ab49-beae9b1eeb87",
+      "result_id": "748ba988-24df-58c8-b903-a2173d906f24",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 248,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 248,
+            "evidence": [
+              "748ba988-24df-58c8-b903-a2173d906f24"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "764dc5a89865a9af674e9b8c34759d74f2842bd87c98c36fe4f7bfb864445ae5",
+      "duration_ms": 34.57009900000685
+    },
+    {
+      "question": {
+        "id": "D01",
+        "category": "D",
+        "question": "比较 2018 年 Q1、Q2 的 GMV 和变化率（百分数）。先排除取消及不可用订单，再分析变化；不要把统计相关写成确定原因。",
+        "gold_sql": "WITH x AS (\n        SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp < '2018-04-01') AS q1_gmv,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01') AS q2_gmv\n        FROM orders o JOIN order_items i USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND o.order_status NOT IN ('canceled','unavailable'))\n        SELECT q1_gmv, q2_gmv, 100.0*(q2_gmv-q1_gmv)/nullif(q1_gmv,0) AS change_pct FROM x",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "q1_gmv",
+          "q2_gmv",
+          "change_pct"
+        ],
+        "rubric_focus": "比较季度变化；区分变化描述与因果假设。"
+      },
+      "rows": [
+        {
+          "q1_gmv": 2764402.78,
+          "q2_gmv": 2849730.26,
+          "change_pct": 3.0866515045249665
+        }
+      ],
+      "gold": {
+        "q1_gmv": 2764402.78,
+        "q2_gmv": 2849730.26,
+        "change_pct": 3.0866515045249665
+      },
+      "task_id": "50c00c4a-e1ee-52d6-88ba-fdc66ac8db8d",
+      "result_id": "178c2552-b286-5b70-ae33-f2d85f3c1925",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "q1_gmv": 2764402.78,
+              "q2_gmv": 2849730.26,
+              "change_pct": 3.0866515045249665
+            },
+            "evidence": [
+              "178c2552-b286-5b70-ae33-f2d85f3c1925"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "47837e3d25d8976b63c6bbd533addf5f3bcfd660036f578a54d17bf299caad51",
+      "duration_ms": 32.47398299998849
+    },
+    {
+      "question": {
+        "id": "D02",
+        "category": "D",
+        "question": "2018 年 Q2 相比 Q1，有多少个原始葡文品类 GMV 下降？给出降幅金额最大的品类及下降金额，分析可能原因。只比较两个季度都有商品成交的非空品类，排除取消及不可用订单。",
+        "gold_sql": "WITH c AS (\n        SELECT p.product_category_name AS category,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp < '2018-04-01') AS q1,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01') AS q2\n        FROM orders o JOIN order_items i USING(order_id) JOIN products p USING(product_id)\n        WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND o.order_status NOT IN ('canceled','unavailable') AND p.product_category_name IS NOT NULL\n        GROUP BY p.product_category_name), d AS (SELECT *, q1-q2 AS drop_amount FROM c WHERE q2<q1)\n        SELECT (SELECT count(*) FROM d) AS declining_categories, category AS largest_drop_category,\n        drop_amount AS largest_drop_amount FROM d ORDER BY drop_amount DESC, category LIMIT 1",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "declining_categories",
+          "largest_drop_category",
+          "largest_drop_amount"
+        ],
+        "rubric_focus": "说明比较范围和最大拖累品类，原因不能凭空归咎营销或竞争。"
+      },
+      "rows": [
+        {
+          "declining_categories": 30,
+          "largest_drop_category": "informatica_acessorios",
+          "largest_drop_amount": 114709.72
+        }
+      ],
+      "gold": {
+        "declining_categories": 30,
+        "largest_drop_category": "informatica_acessorios",
+        "largest_drop_amount": 114709.72
+      },
+      "task_id": "a33b1877-ed6b-5bd1-9d46-3af0c66459fb",
+      "result_id": "84372390-fafb-5194-a18f-48172ce5f9fc",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "declining_categories": 30,
+              "largest_drop_category": "informatica_acessorios",
+              "largest_drop_amount": 114709.72
+            },
+            "evidence": [
+              "84372390-fafb-5194-a18f-48172ce5f9fc"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "ca7ae35a5341c7e5810bc762fd75ea228011a9325503a2173cd79c1234aa2d48",
+      "duration_ms": 47.97249300003159
+    },
+    {
+      "question": {
+        "id": "D03",
+        "category": "D",
+        "question": "2018 年 Q2，比较 SP 与 RJ 两州的真实下单客户数和 GMV，共四个关键事实。GMV 排除取消及不可用订单，客户数保留所有状态；讨论规模与客单结构。",
+        "gold_sql": "WITH c AS (\n        SELECT c.customer_state AS state, count(DISTINCT c.customer_unique_id) AS buyers FROM orders o JOIN customers c USING(customer_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state), g AS (\n        SELECT c.customer_state AS state, sum(i.price) AS gmv FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND o.order_status NOT IN ('canceled','unavailable') GROUP BY c.customer_state)\n        SELECT (SELECT buyers FROM c WHERE state='SP') AS sp_buyers, (SELECT buyers FROM c WHERE state='RJ') AS rj_buyers,\n        (SELECT gmv FROM g WHERE state='SP') AS sp_gmv, (SELECT gmv FROM g WHERE state='RJ') AS rj_gmv",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "sp_buyers",
+          "rj_buyers",
+          "sp_gmv",
+          "rj_gmv"
+        ],
+        "rubric_focus": "客户范围与 GMV 状态口径不同，不能直接解释成统一口径客单价。"
+      },
+      "rows": [
+        {
+          "sp_buyers": 8913,
+          "rj_buyers": 2345,
+          "sp_gmv": 1173308.82,
+          "rj_gmv": 352617.27
+        }
+      ],
+      "gold": {
+        "sp_buyers": 8913,
+        "rj_buyers": 2345,
+        "sp_gmv": 1173308.82,
+        "rj_gmv": 352617.27
+      },
+      "task_id": "a3d514c2-66b9-5134-8cab-176273f04720",
+      "result_id": "03a4761d-3eb7-5c71-9bdc-eaec7c76ae85",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "sp_buyers": 8913,
+              "rj_buyers": 2345,
+              "sp_gmv": 1173308.82,
+              "rj_gmv": 352617.27
+            },
+            "evidence": [
+              "03a4761d-3eb7-5c71-9bdc-eaec7c76ae85"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "61d3b751e4aee68fe3325bf07925b65eeaab7dd92e3158378b207c8359030bf6",
+      "duration_ms": 77.60847999998077
+    },
+    {
+      "question": {
+        "id": "D04",
+        "category": "D",
+        "question": "2018 年 Q1 与 Q2，已送达且有实际送达时间的订单，平均交付天数各是多少、两期相差多少天？按购买日期分期、小数天计算，讨论时效变化。",
+        "gold_sql": "WITH x AS (\n        SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) FILTER (WHERE order_purchase_timestamp < '2018-04-01') AS q1_days,\n        avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) FILTER (WHERE order_purchase_timestamp >= '2018-04-01') AS q2_days\n        FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01'\n        AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL)\n        SELECT *, q2_days-q1_days AS change_days FROM x",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "q1_days",
+          "q2_days",
+          "change_days"
+        ],
+        "rubric_focus": "使用实际交付时间，区分平均数变化与物流原因。"
+      },
+      "rows": [
+        {
+          "q1_days": 15.744880463892166,
+          "q2_days": 10.77030644457266,
+          "change_days": -4.9745740193195065
+        }
+      ],
+      "gold": {
+        "q1_days": 15.744880463892166,
+        "q2_days": 10.77030644457266,
+        "change_days": -4.9745740193195065
+      },
+      "task_id": "9a082221-c2fc-575d-9c87-aa5d25cf5a19",
+      "result_id": "71c48f50-4077-5557-94e5-5dd83e37da2b",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "q1_days": 15.744880463892166,
+              "q2_days": 10.77030644457266,
+              "change_days": -4.9745740193195065
+            },
+            "evidence": [
+              "71c48f50-4077-5557-94e5-5dd83e37da2b"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "882bb9e7f400a08a7b1e2de77879381f217743791881744277a2c0bf1c1c28d2",
+      "duration_ms": 22.392105000051288
+    },
+    {
+      "question": {
+        "id": "D05",
+        "category": "D",
+        "question": "2018 年 Q2 的已送达订单中，实际交付晚于预计交付的订单数、实际交付时间完整的订单数、迟到率（百分数）分别是多少？按原始时间戳比较，不截断为日期；解释分母。",
+        "gold_sql": "SELECT\n        count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,\n        count(*) AS measured_orders,\n        100.0*count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date)/nullif(count(*),0) AS late_pct\n        FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\n        AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "late_orders",
+          "measured_orders",
+          "late_pct"
+        ],
+        "rubric_focus": "空交付时间不得作为按时送达计入分母。"
+      },
+      "rows": [
+        {
+          "late_orders": 1000,
+          "measured_orders": 19643,
+          "late_pct": 5.090872066384971
+        }
+      ],
+      "gold": {
+        "late_orders": 1000,
+        "measured_orders": 19643,
+        "late_pct": 5.090872066384971
+      },
+      "task_id": "92b8fc50-fa28-5d0d-80cf-05c970ab4a81",
+      "result_id": "106c0f69-809d-5a52-9143-71c38db26d76",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "late_orders": 1000,
+              "measured_orders": 19643,
+              "late_pct": 5.090872066384971
+            },
+            "evidence": [
+              "106c0f69-809d-5a52-9143-71c38db26d76"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "838660176394a48b1d7c19849a9f6ef53b37fd2560c4359648d6f25b39d3dfc7",
+      "duration_ms": 8.78826000001709
+    },
+    {
+      "question": {
+        "id": "D06",
+        "category": "D",
+        "question": "2018 年 Q2 全部订单的商品金额、运费和支付金额各是多少？对比三者并解释为何不应直接把支付金额当作商品 GMV。",
+        "gold_sql": "WITH i AS (\n        SELECT sum(i.price) AS item_total, sum(i.freight_value) AS freight_total FROM order_items i JOIN orders o USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'), p AS (\n        SELECT sum(p.payment_value) AS payment_total FROM order_payments p JOIN orders o USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01') SELECT * FROM i CROSS JOIN p",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "item_total",
+          "freight_total",
+          "payment_total"
+        ],
+        "rubric_focus": "不同明细粒度单独汇总，不承诺支付额一定等于商品加运费。"
+      },
+      "rows": [
+        {
+          "item_total": 2858289.74,
+          "freight_total": 473867.23,
+          "payment_total": 3338648.13
+        }
+      ],
+      "gold": {
+        "item_total": 2858289.74,
+        "freight_total": 473867.23,
+        "payment_total": 3338648.13
+      },
+      "task_id": "8581b14b-7916-5bb6-8c64-fd2e22f43dc9",
+      "result_id": "4274de34-34f3-5ddb-8f1c-1649cabbca21",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "item_total": 2858289.74,
+              "freight_total": 473867.23,
+              "payment_total": 3338648.13
+            },
+            "evidence": [
+              "4274de34-34f3-5ddb-8f1c-1649cabbca21"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "59144c03243cb409670d1e1125d8d8d80348ca17a39b22c7f468a19f2a2902ca",
+      "duration_ms": 88.31091100000776
+    },
+    {
+      "question": {
+        "id": "D07",
+        "category": "D",
+        "question": "2017 年有过下单的真实客户数、年内至少下单两次的客户数及年内复购率（百分数）是多少？所有状态均保留，分析复购时说明观察窗口。",
+        "gold_sql": "WITH c AS (\n        SELECT c.customer_unique_id, count(*) AS n FROM orders o JOIN customers c USING(customer_id)\n        WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY c.customer_unique_id)\n        SELECT count(*) AS buyers, count(*) FILTER (WHERE n>=2) AS repeat_buyers,\n        100.0*count(*) FILTER (WHERE n>=2)/nullif(count(*),0) AS repeat_pct FROM c",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "buyers",
+          "repeat_buyers",
+          "repeat_pct"
+        ],
+        "rubric_focus": "同人用唯一客户标识；年内复购不能当终身复购。"
+      },
+      "rows": [
+        {
+          "buyers": 43713,
+          "repeat_buyers": 1256,
+          "repeat_pct": 2.873287122823874
+        }
+      ],
+      "gold": {
+        "buyers": 43713,
+        "repeat_buyers": 1256,
+        "repeat_pct": 2.873287122823874
+      },
+      "task_id": "14c8742e-dd58-5873-9952-232b3666eb91",
+      "result_id": "8d97f36c-54f1-5d94-b873-e1e21b99968d",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "buyers": 43713,
+              "repeat_buyers": 1256,
+              "repeat_pct": 2.873287122823874
+            },
+            "evidence": [
+              "8d97f36c-54f1-5d94-b873-e1e21b99968d"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "da245348c917c113def517d5ac6fbac89588c877cd5587a0ea35393d8f6fc504",
+      "duration_ms": 70.09093099998154
+    },
+    {
+      "question": {
+        "id": "D08",
+        "category": "D",
+        "question": "2018 年 Q2 的订单总数、已评价订单数和评价记录数各是多少？分析用评价记录数当已评价订单数会怎样。",
+        "gold_sql": "SELECT count(*) AS orders,\n        count(*) FILTER (WHERE EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)) AS reviewed_orders,\n        (SELECT count(*) FROM order_reviews r JOIN orders x USING(order_id) WHERE x.order_purchase_timestamp >= '2018-04-01' AND x.order_purchase_timestamp < '2018-07-01') AS review_rows\n        FROM orders o WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'",
+        "answer_type": "key_facts",
+        "split": "dev",
+        "required_facts": [
+          "orders",
+          "reviewed_orders",
+          "review_rows"
+        ],
+        "rubric_focus": "区分订单覆盖与一单多评，不把评价量直接视为满意人数。"
+      },
+      "rows": [
+        {
+          "orders": 19979,
+          "reviewed_orders": 19863,
+          "review_rows": 19889
+        }
+      ],
+      "gold": {
+        "orders": 19979,
+        "reviewed_orders": 19863,
+        "review_rows": 19889
+      },
+      "task_id": "de1de008-eec5-579e-9084-5dc5f2f440a5",
+      "result_id": "56f42748-5377-592e-ac1e-c2b96668434e",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "orders": 19979,
+              "reviewed_orders": 19863,
+              "review_rows": 19889
+            },
+            "evidence": [
+              "56f42748-5377-592e-ac1e-c2b96668434e"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "a0ad8133069bc92adec77f271fe59d4bc4f2d48d75e1ee8ff6e2c6b24181858b",
+      "duration_ms": 503.03427000000056
+    },
+    {
+      "question": {
+        "id": "D09",
+        "category": "D",
+        "question": "2018 年 Q2 的全部商品明细里，英文品类缺失的明细行数、对应商品金额及明细总行数是多少？说明内连接翻译表的损失。",
+        "gold_sql": "SELECT count(*) FILTER (WHERE t.product_category_name IS NULL) AS untranslated_items,\n        coalesce(sum(i.price) FILTER (WHERE t.product_category_name IS NULL),0) AS untranslated_price,\n        count(*) AS all_items FROM order_items i JOIN orders o USING(order_id) JOIN products p USING(product_id)\n        LEFT JOIN product_category_name_translation t USING(product_category_name)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'",
+        "answer_type": "key_facts",
+        "split": "holdout",
+        "required_facts": [
+          "untranslated_items",
+          "untranslated_price",
+          "all_items"
+        ],
+        "rubric_focus": "未知品类保留；不能把未翻译解释成没有销售。"
+      },
+      "rows": [
+        {
+          "untranslated_items": 144,
+          "untranslated_price": 15722.73,
+          "all_items": 22978
+        }
+      ],
+      "gold": {
+        "untranslated_items": 144,
+        "untranslated_price": 15722.73,
+        "all_items": 22978
+      },
+      "task_id": "8bfc377f-c1fc-5af0-a586-d235a5caa788",
+      "result_id": "f4cbfc7d-a4c6-5116-9753-8a2d83e0d49a",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "untranslated_items": 144,
+              "untranslated_price": 15722.73,
+              "all_items": 22978
+            },
+            "evidence": [
+              "f4cbfc7d-a4c6-5116-9753-8a2d83e0d49a"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "ef5d50b0c818059591e675585cd66d01771aef7a53dfea60ba9400905471dd90",
+      "duration_ms": 46.31418700000722
+    },
+    {
+      "question": {
+        "id": "D10",
+        "category": "D",
+        "question": "2018 年 Q2 同时具有商品与支付记录的订单，正确商品总额、直接关联支付明细后的商品总额、被多算的金额各是多少？解释关联粒度。",
+        "gold_sql": "WITH base AS (\n        SELECT i.order_id, i.price FROM order_items i JOIN orders o USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=i.order_id)), x AS (\n        SELECT (SELECT sum(price) FROM base) AS correct_price,\n        (SELECT sum(b.price) FROM base b JOIN order_payments p USING(order_id)) AS naive_price)\n        SELECT *, naive_price-correct_price AS overcount FROM x",
+        "answer_type": "key_facts",
+        "split": "holdout",
+        "required_facts": [
+          "correct_price",
+          "naive_price",
+          "overcount"
+        ],
+        "rubric_focus": "同一订单集合进行反事实 JOIN 对比，避免缺支付订单混淆差值。"
+      },
+      "rows": [
+        {
+          "correct_price": 2858289.74,
+          "naive_price": 2970843.84,
+          "overcount": 112554.1
+        }
+      ],
+      "gold": {
+        "correct_price": 2858289.74,
+        "naive_price": 2970843.84,
+        "overcount": 112554.1
+      },
+      "task_id": "cf502023-21ca-5759-96cd-c3a6813f5459",
+      "result_id": "d943ccd2-e0a5-5c1a-9bfa-b31d341a1275",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "correct_price": 2858289.74,
+              "naive_price": 2970843.84,
+              "overcount": 112554.1
+            },
+            "evidence": [
+              "d943ccd2-e0a5-5c1a-9bfa-b31d341a1275"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "1d0c2eafc2e2d9556806e01062ec07fc789f667dd617d366a16014d72c6213d2",
+      "duration_ms": 130.5345910000142
+    },
+    {
+      "question": {
+        "id": "D11",
+        "category": "D",
+        "question": "2018 年 Q1、Q2 的取消订单数和取消率（百分数）各是多少？按购买日期分期，分母为全部订单；解释是否能据此断言取消原因。",
+        "gold_sql": "SELECT\n        count(*) FILTER (WHERE order_purchase_timestamp < '2018-04-01' AND order_status='canceled') AS q1_canceled,\n        count(*) FILTER (WHERE order_purchase_timestamp >= '2018-04-01' AND order_status='canceled') AS q2_canceled,\n        100.0*count(*) FILTER (WHERE order_purchase_timestamp < '2018-04-01' AND order_status='canceled')/nullif(count(*) FILTER (WHERE order_purchase_timestamp < '2018-04-01'),0) AS q1_cancel_pct,\n        100.0*count(*) FILTER (WHERE order_purchase_timestamp >= '2018-04-01' AND order_status='canceled')/nullif(count(*) FILTER (WHERE order_purchase_timestamp >= '2018-04-01'),0) AS q2_cancel_pct\n        FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01'",
+        "answer_type": "key_facts",
+        "split": "holdout",
+        "required_facts": [
+          "q1_canceled",
+          "q2_canceled",
+          "q1_cancel_pct",
+          "q2_cancel_pct"
+        ],
+        "rubric_focus": "状态是观测结果，不能推出库存、价格或物流的确定因果。"
+      },
+      "rows": [
+        {
+          "q1_canceled": 133,
+          "q2_canceled": 57,
+          "q1_cancel_pct": 0.6271218408147868,
+          "q2_cancel_pct": 0.2852995645427699
+        }
+      ],
+      "gold": {
+        "q1_canceled": 133,
+        "q2_canceled": 57,
+        "q1_cancel_pct": 0.6271218408147868,
+        "q2_cancel_pct": 0.2852995645427699
+      },
+      "task_id": "42ee369d-b934-597b-93fd-9314a37d5637",
+      "result_id": "dbe96952-1bd5-5bef-afe5-7eab9f644308",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "q1_canceled": 133,
+              "q2_canceled": 57,
+              "q1_cancel_pct": 0.6271218408147868,
+              "q2_cancel_pct": 0.2852995645427699
+            },
+            "evidence": [
+              "dbe96952-1bd5-5bef-afe5-7eab9f644308"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "7709515c9f05de2e27aa6ee47695eb2870103e0648f71221cf60b68a139f84ce",
+      "duration_ms": 12.337933000026169
+    },
+    {
+      "question": {
+        "id": "D12",
+        "category": "D",
+        "question": "2018 年 Q2 已送达订单，按卖家商品金额排序的前三名合计金额、全部卖家金额、前三名占比（百分数）是多少？分析集中度。并列按卖家 ID 升序。",
+        "gold_sql": "WITH s AS (\n        SELECT i.seller_id, sum(i.price) AS amount FROM order_items i JOIN orders o USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND o.order_status='delivered' GROUP BY i.seller_id), x AS (\n        SELECT (SELECT sum(amount) FROM (SELECT amount FROM s ORDER BY amount DESC,seller_id LIMIT 3) z) AS top3_amount,\n        (SELECT sum(amount) FROM s) AS all_amount)\n        SELECT *,100.0*top3_amount/nullif(all_amount,0) AS top3_pct FROM x",
+        "answer_type": "key_facts",
+        "split": "holdout",
+        "required_facts": [
+          "top3_amount",
+          "all_amount",
+          "top3_pct"
+        ],
+        "rubric_focus": "集中度描述而非风险因果；范围仅为已送达商品金额。"
+      },
+      "rows": [
+        {
+          "top3_amount": 174852.86,
+          "all_amount": 2807156.64,
+          "top3_pct": 6.228824480560514
+        }
+      ],
+      "gold": {
+        "top3_amount": 174852.86,
+        "all_amount": 2807156.64,
+        "top3_pct": 6.228824480560514
+      },
+      "task_id": "a0d7b031-9965-5753-bf54-90df3dc5a1a2",
+      "result_id": "c37c9b23-3055-5a59-a9d2-3cf8e4a02f47",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "top3_amount": 174852.86,
+              "all_amount": 2807156.64,
+              "top3_pct": 6.228824480560514
+            },
+            "evidence": [
+              "c37c9b23-3055-5a59-a9d2-3cf8e4a02f47"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "2960971d755d4b2e9d4ed3a8cffa963db20c05d69cb66b26668c075863ff1c49",
+      "duration_ms": 38.56087999997726
+    },
+    {
+      "question": {
+        "id": "E01",
+        "category": "E",
+        "split": "dev",
+        "question": "2017-04-01 到 2017-07-01（不含）下单的销售额是多少？",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01'",
+        "answer_type": "number",
+        "template_id": "E_sales_amount",
+        "parameters": {
+          "start": "2017-04-01",
+          "end": "2017-07-01"
+        },
+        "setup_turns": [
+          "以后我说销售额，指商品价格之和，不含运费，保留所有订单状态。"
+        ],
+        "preference_key": "sales_amount_definition",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 1299036.97
+        }
+      ],
+      "gold": 1299036.97,
+      "task_id": "62d189eb-d142-526b-a53a-67ff14205cfe",
+      "result_id": "dedc24e8-40a5-5a32-bf78-efc728064c0a",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 1299036.97,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 1299036.97,
+            "evidence": [
+              "dedc24e8-40a5-5a32-bf78-efc728064c0a"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "3dbdc3b345aaf9f79e8125cd6d5d94437efb0ff9e2d48c9c97f293af05db4b97",
+      "duration_ms": 37.4865160000013
+    },
+    {
+      "question": {
+        "id": "E02",
+        "category": "E",
+        "split": "holdout",
+        "question": "按我之前的销售额口径，算一下 [2018-04-01, 2018-07-01) 的总额。",
+        "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'",
+        "answer_type": "number",
+        "template_id": "E_sales_amount",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01"
+        },
+        "setup_turns": [
+          "以后我说销售额，指商品价格之和，不含运费，保留所有订单状态。"
+        ],
+        "preference_key": "sales_amount_definition",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 2858289.74
+        }
+      ],
+      "gold": 2858289.74,
+      "task_id": "e3f8b163-f88c-56ab-9374-14c6a243031d",
+      "result_id": "609130e1-3798-53ef-b054-647cd01d4e83",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 2858289.74,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 2858289.74,
+            "evidence": [
+              "609130e1-3798-53ef-b054-647cd01d4e83"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "42f43ea7e99287a06b70defdfbd68d613cad0513c73c458c987c2b32a3c7f626",
+      "duration_ms": 39.44359700000177
+    },
+    {
+      "question": {
+        "id": "E03",
+        "category": "E",
+        "split": "dev",
+        "question": "[2017-04-01, 2017-07-01) 的客户数是多少？",
+        "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM customers c JOIN orders o USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01'",
+        "answer_type": "number",
+        "template_id": "E_customer_identity",
+        "parameters": {
+          "start": "2017-04-01",
+          "end": "2017-07-01"
+        },
+        "setup_turns": [
+          "以后客户数按 customer_unique_id 去重，统计所有下单客户，不筛订单状态。"
+        ],
+        "preference_key": "customer_identity",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 9139
+        }
+      ],
+      "gold": 9139,
+      "task_id": "65d6ea95-5b11-58ef-90ba-f9912124db1f",
+      "result_id": "242cf3fa-741f-576b-8026-77d5e281ba24",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 9139,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 9139,
+            "evidence": [
+              "242cf3fa-741f-576b-8026-77d5e281ba24"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "b49f7421558eb83a7d858a75b09797c712824f4afa69931464d43835e001b32d",
+      "duration_ms": 32.05208000002813
+    },
+    {
+      "question": {
+        "id": "E04",
+        "category": "E",
+        "split": "holdout",
+        "question": "沿用之前的客户口径，[2018-04-01, 2018-07-01) 一共有多少买家？",
+        "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM customers c JOIN orders o USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'",
+        "answer_type": "number",
+        "template_id": "E_customer_identity",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01"
+        },
+        "setup_turns": [
+          "以后客户数按 customer_unique_id 去重，统计所有下单客户，不筛订单状态。"
+        ],
+        "preference_key": "customer_identity",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 19715
+        }
+      ],
+      "gold": 19715,
+      "task_id": "c78cb463-a01a-5aa1-8ccf-3bbf0ffcd88e",
+      "result_id": "de142620-744c-5b3c-b057-37d58367ab98",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 19715,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 19715,
+            "evidence": [
+              "de142620-744c-5b3c-b057-37d58367ab98"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "81f2711759fd021472ef4d536cd699e975368a0c01c81efdebbeede5df3aa71d",
+      "duration_ms": 42.48634499998616
+    },
+    {
+      "question": {
+        "id": "E05",
+        "category": "E",
+        "split": "dev",
+        "question": "[2017-04-01, 2017-07-01) 有多少订单？",
+        "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01' AND order_status='delivered'",
+        "answer_type": "number",
+        "template_id": "E_order_status",
+        "parameters": {
+          "start": "2017-04-01",
+          "end": "2017-07-01"
+        },
+        "setup_turns": [
+          "以后我说订单数，只统计 delivered 状态。"
+        ],
+        "preference_key": "order_status_scope",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 8984
+        }
+      ],
+      "gold": 8984,
+      "task_id": "f9123b7d-32e6-5b3e-8151-97dd95b96905",
+      "result_id": "52808695-438b-5274-a23c-7535f2601da6",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 8984,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 8984,
+            "evidence": [
+              "52808695-438b-5274-a23c-7535f2601da6"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "d94a515bf972ae539dfd9146e3757dabf7bfb3c9abd5687bfb9e80336fe04737",
+      "duration_ms": 3.7322170000493315
+    },
+    {
+      "question": {
+        "id": "E06",
+        "category": "E",
+        "split": "holdout",
+        "question": "用我之前要求的状态范围，统计 [2018-04-01, 2018-07-01) 的订单数量。",
+        "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' AND order_status='delivered'",
+        "answer_type": "number",
+        "template_id": "E_order_status",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01"
+        },
+        "setup_turns": [
+          "以后我说订单数，只统计 delivered 状态。"
+        ],
+        "preference_key": "order_status_scope",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 19646
+        }
+      ],
+      "gold": 19646,
+      "task_id": "bc830ee0-35f4-5312-b927-0e0a4e6d61d6",
+      "result_id": "c1c87d6b-8463-5f4b-9951-840c7c9dfe1f",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 19646,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 19646,
+            "evidence": [
+              "c1c87d6b-8463-5f4b-9951-840c7c9dfe1f"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "ab9ddcd4fede70e7bb7c1cc1386a5d0b632925bac80385da8e03cfbbfcc35bcd",
+      "duration_ms": 6.5439090000154465
+    },
+    {
+      "question": {
+        "id": "E07",
+        "category": "E",
+        "split": "dev",
+        "question": "[2017-04-01, 2017-07-01) 的订单数是多少？",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "E_geography",
+        "parameters": {
+          "start": "2017-04-01",
+          "end": "2017-07-01"
+        },
+        "setup_turns": [
+          "以后经营数字默认只看客户在 SP 州的订单，不限制状态。"
+        ],
+        "preference_key": "default_state",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 3664
+        }
+      ],
+      "gold": 3664,
+      "task_id": "bcd352a7-4d15-589e-bfb9-b5ac0a63e01e",
+      "result_id": "00b23d3f-86ff-53f4-9b3b-e91352313fca",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 3664,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 3664,
+            "evidence": [
+              "00b23d3f-86ff-53f4-9b3b-e91352313fca"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "a84bcb79754872592266289046602e7471f9cbb8585a2704432f3d200812c101",
+      "duration_ms": 16.046044999995956
+    },
+    {
+      "question": {
+        "id": "E08",
+        "category": "E",
+        "split": "holdout",
+        "question": "按我设置的地区范围，汇总 [2018-04-01, 2018-07-01) 的订单量。",
+        "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='SP'",
+        "answer_type": "number",
+        "template_id": "E_geography",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01"
+        },
+        "setup_turns": [
+          "以后经营数字默认只看客户在 SP 州的订单，不限制状态。"
+        ],
+        "preference_key": "default_state",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 9039
+        }
+      ],
+      "gold": 9039,
+      "task_id": "a11052c9-c88e-51d7-b91c-11ee3de22caf",
+      "result_id": "7f5b2975-43ec-5f04-90d2-781f1798fe77",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 9039,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 9039,
+            "evidence": [
+              "7f5b2975-43ec-5f04-90d2-781f1798fe77"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "41da32d05813abb55609f7b4d0542e97cd4056f4cd3b2e51ddd7af87b99fa816",
+      "duration_ms": 19.81297099996482
+    },
+    {
+      "question": {
+        "id": "E09",
+        "category": "E",
+        "split": "dev",
+        "question": "[2017-04-01, 2017-07-01) 下单的平均交付天数是多少？",
+        "gold_sql": "SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) AS value FROM orders WHERE order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01' AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+        "answer_type": "number",
+        "template_id": "E_delivery_duration",
+        "parameters": {
+          "start": "2017-04-01",
+          "end": "2017-07-01"
+        },
+        "setup_turns": [
+          "以后平均交付天数只看已送达且实际送达时间存在的订单，从购买到实际送达按秒除以 86400 算小数天。"
+        ],
+        "preference_key": "delivery_duration",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 12.484694385433803
+        }
+      ],
+      "gold": 12.484694385433803,
+      "task_id": "43b4d680-78f1-5e45-88f4-9eb8698db4b6",
+      "result_id": "ab29c16c-994d-5f1e-8f21-78e0d30fbfdd",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 12.484694385433803,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 12.484694385433803,
+            "evidence": [
+              "ab29c16c-994d-5f1e-8f21-78e0d30fbfdd"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "9d24532d35e596b3f39da3b5f600d42b781a530cd713e7b2f192a7ef2b97148d",
+      "duration_ms": 6.665939000015442
+    },
+    {
+      "question": {
+        "id": "E10",
+        "category": "E",
+        "split": "dev",
+        "question": "按我设定的算法，[2018-04-01, 2018-07-01) 购买的订单平均要多久送到？",
+        "gold_sql": "SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) AS value FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+        "answer_type": "number",
+        "template_id": "E_delivery_duration",
+        "parameters": {
+          "start": "2018-04-01",
+          "end": "2018-07-01"
+        },
+        "setup_turns": [
+          "以后平均交付天数只看已送达且实际送达时间存在的订单，从购买到实际送达按秒除以 86400 算小数天。"
+        ],
+        "preference_key": "delivery_duration",
+        "new_session": true,
+        "required_facts": []
+      },
+      "rows": [
+        {
+          "value": 10.77030644457266
+        }
+      ],
+      "gold": 10.77030644457266,
+      "task_id": "d42a4f7a-f801-5fd4-8e25-fa293da6988e",
+      "result_id": "fda927a9-ece3-583c-8a1d-5115d79e85c9",
+      "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+      "response": {
+        "answer": 10.77030644457266,
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": 10.77030644457266,
+            "evidence": [
+              "fda927a9-ece3-583c-8a1d-5115d79e85c9"
+            ]
+          }
+        ]
+      },
+      "sql_sha256": "316ad501a76ff37ccd1a1c22420e40c70eb771e2dc7a04d1998f42f6d5b53cf8",
+      "duration_ms": 9.910936000039783
+    }
+  ],
+  "records_sha256": "cb0cc3a4022343da3e352acaf4d0369c2306f624d7bda061a6ce9e31f74141ad"
+}
