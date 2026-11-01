@@ -1,0 +1,27 @@
+{
+  "read_only": true,
+  "role": "agent_ro",
+  "data_version": "b258864763600cc722bc17f9962a617e97bf856bbda2a5e8e400e7490bdb663a:1",
+  "queries": [
+    {
+      "sql": "SELECT min(order_purchase_timestamp) AS first_purchase, max(order_purchase_timestamp) AS last_purchase FROM orders",
+      "rows": [
+        {
+          "first_purchase": "2016-09-04 21:15:19",
+          "last_purchase": "2018-10-17 17:30:18"
+        }
+      ]
+    },
+    {
+      "sql": "SELECT DISTINCT customer_state FROM customers WHERE customer_state IN ('SP','SR') ORDER BY customer_state",
+      "rows": [
+        {
+          "customer_state": "SP"
+        }
+      ]
+    }
+  ],
+  "source_log": "logs/step13_paired_context.jsonl",
+  "source_log_sha256": "80fd3db04cedcc7e9b30931cac32455db8624f5f3c84cb78a31ad9ff6cc585d3",
+  "coverage_definition": "完整指数据观察窗口覆盖自然年，不表示证明业务采集没有遗漏。"
+}

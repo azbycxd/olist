@@ -17,7 +17,7 @@ def workload(suite):
     if suite=='dev':
         from eval.dataset import load_questions
         return [q for q in load_questions() if q['split']=='dev']
-    if suite in {'supplement','paired'}:return read(ROOT/f'eval/step13_{suite}_cases.json')
+    if suite in {'supplement','paired','regression','capability'}:return read(ROOT/f'eval/step13_{suite}_cases.json')
     raise ValueError('Unknown suite')
 
 
@@ -97,6 +97,19 @@ def register(suite):
         'ordering':'round 1, round 2, round 3; dataset order within round',
         'manual_judgment':'Semantic clarification/coverage cases remain pending human judgment; no regex substitute',
         'review_provenance':'Supplement authored by Claude, gold by Codex, gold reviewed by Claude; cross-model review, not human review' if suite=='supplement' else None}
+    if suite=='paired':
+        validation=read(ROOT/'evidence/step13_paired_reference_audit.json')
+        if not all(r['reference_code_pass'] and r['mutation_killed'] for r in validation['cases']):
+            raise ValueError('Paired references/mutations must validate first')
+        protocol['reference_validation']={'path':'evidence/step13_paired_reference_audit.json','sha256':sha(ROOT/'evidence/step13_paired_reference_audit.json'),
+            'context_sha256':sha(ROOT/'evidence/step13_paired_context.json')}
+    if suite=='supplement':
+        approved=read(ROOT/'evidence/step13_supplement_reference.json')
+        by_id={r['question']['id']:r for r in approved['records']}
+        if any(q['gold_sql']!=by_id[q['id']]['question']['gold_sql'] for q in questions):
+            raise ValueError('Supplement gold changed after Claude review')
+        protocol['reference_validation']={'original_fixture_sha256':sha(ROOT/'evidence/step13_supplement_reference.json'),
+            'n08_approved_wording_recheck_sha256':sha(ROOT/'evidence/step13_n08_review.json')}
     with p['protocol'].open('x',encoding='utf-8',newline='\n') as f:json.dump(protocol,f,ensure_ascii=False,indent=2);f.write('\n')
     print(p['protocol'].relative_to(ROOT).as_posix())
 

@@ -1,0 +1,690 @@
+[
+  {
+    "id": "A01",
+    "category": "A",
+    "question": "订单表共有多少订单？",
+    "gold_sql": "SELECT count(*) AS value FROM orders",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "A02",
+    "category": "A",
+    "question": "状态为 delivered 的订单数是多少？",
+    "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_status='delivered'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "A03",
+    "category": "A",
+    "question": "商品表共有多少种商品？",
+    "gold_sql": "SELECT count(*) AS value FROM products",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "A04",
+    "category": "A",
+    "question": "卖家表共有多少卖家？",
+    "gold_sql": "SELECT count(*) AS value FROM sellers",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "A05",
+    "category": "A",
+    "question": "订单状态有哪些？列出全部状态。",
+    "gold_sql": "SELECT DISTINCT order_status FROM orders ORDER BY order_status",
+    "answer_type": "list",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "A06",
+    "category": "A",
+    "question": "2017 年 11 月购买的订单有多少？",
+    "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_purchase_timestamp >= '2017-11-01' AND order_purchase_timestamp < '2017-12-01'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "A07",
+    "category": "A",
+    "question": "全部订单商品明细的运费合计是多少？",
+    "gold_sql": "SELECT sum(freight_value) AS value FROM order_items",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B01",
+    "category": "B",
+    "question": "客户在 SP 州的订单有多少？所有状态都计入。",
+    "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE c.customer_state='SP'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B02",
+    "category": "B",
+    "question": "英文品类为 health_beauty 的商品明细价格合计是多少？不含运费，保留所有订单状态。",
+    "gold_sql": "SELECT sum(i.price) AS value FROM order_items i JOIN products p USING(product_id) JOIN product_category_name_translation t USING(product_category_name) WHERE t.product_category_name_english='health_beauty'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B03",
+    "category": "B",
+    "question": "2018 年 Q1 所有购买订单的支付总额是多少？",
+    "gold_sql": "SELECT sum(p.payment_value) AS value FROM order_payments p JOIN orders o USING(order_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-04-01'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B04",
+    "category": "B",
+    "question": "向 RJ 州客户卖过商品的不同卖家数是多少？",
+    "gold_sql": "SELECT count(DISTINCT i.seller_id) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE c.customer_state='RJ'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B05",
+    "category": "B",
+    "question": "2017 年至少有一条评价的订单数是多少？",
+    "gold_sql": "SELECT count(*) AS value FROM orders o WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B06",
+    "category": "B",
+    "question": "按所有状态商品金额排序，客户州排名前五的州代码有哪些？金额并列按州代码升序。",
+    "gold_sql": "SELECT c.customer_state FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) GROUP BY c.customer_state ORDER BY sum(i.price) DESC, c.customer_state LIMIT 5",
+    "answer_type": "list",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "B07",
+    "category": "B",
+    "question": "英文品类 computers_accessories 的全部商品明细有多少行？",
+    "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN products p USING(product_id) JOIN product_category_name_translation t USING(product_category_name) WHERE t.product_category_name_english='computers_accessories'",
+    "answer_type": "number",
+    "split": "dev",
+    "required_facts": [],
+    "rubric_focus": null,
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C01",
+    "category": "C",
+    "split": "dev",
+    "question": "SP 州从 2017-01-01 到 2017-12-31 有多少客户？",
+    "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+    "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+    "answer_type": "number",
+    "template_id": "C_unique_customer",
+    "parameters": {
+      "start": "2017-01-01",
+      "end": "2018-01-01",
+      "state": "SP"
+    },
+    "profile_section": "客户标识与复购",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C02",
+    "category": "C",
+    "split": "dev",
+    "question": "RJ 州从 2018-01-01 到 2018-06-30 有多少客户？",
+    "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+    "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+    "answer_type": "number",
+    "template_id": "C_unique_customer",
+    "parameters": {
+      "start": "2018-01-01",
+      "end": "2018-07-01",
+      "state": "RJ"
+    },
+    "profile_section": "客户标识与复购",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C03",
+    "category": "C",
+    "split": "dev",
+    "question": "MG 州从 2017-07-01 到 2017-12-31 有多少客户？",
+    "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='MG'",
+    "naive_sql": "SELECT count(DISTINCT c.customer_id) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='MG'",
+    "answer_type": "number",
+    "template_id": "C_unique_customer",
+    "parameters": {
+      "start": "2017-07-01",
+      "end": "2018-01-01",
+      "state": "MG"
+    },
+    "profile_section": "客户标识与复购",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C05",
+    "category": "C",
+    "split": "dev",
+    "question": "SP 州从 2017-07-01 到 2017-07-31 的 GMV 是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2017-08-01' AND c.customer_state='SP' AND o.order_status NOT IN ('canceled','unavailable')",
+    "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2017-07-01' AND o.order_purchase_timestamp < '2017-08-01' AND c.customer_state='SP'",
+    "answer_type": "number",
+    "template_id": "C_gmv_status",
+    "parameters": {
+      "start": "2017-07-01",
+      "end": "2017-08-01",
+      "state": "SP"
+    },
+    "profile_section": "金额口径与关联膨胀",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C06",
+    "category": "C",
+    "split": "dev",
+    "question": "RJ 州从 2018-02-01 到 2018-02-28 的 GMV 是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RJ' AND o.order_status NOT IN ('canceled','unavailable')",
+    "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RJ'",
+    "answer_type": "number",
+    "template_id": "C_gmv_status",
+    "parameters": {
+      "start": "2018-02-01",
+      "end": "2018-03-01",
+      "state": "RJ"
+    },
+    "profile_section": "金额口径与关联膨胀",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C08",
+    "category": "C",
+    "split": "dev",
+    "question": "SP 州从 2017-01-01 到 2017-12-31 的商品销售额是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+    "naive_sql": "SELECT coalesce(sum(i.price+i.freight_value),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+    "answer_type": "number",
+    "template_id": "C_freight",
+    "parameters": {
+      "start": "2017-01-01",
+      "end": "2018-01-01",
+      "state": "SP"
+    },
+    "profile_section": "金额口径与关联膨胀",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C09",
+    "category": "C",
+    "split": "dev",
+    "question": "RJ 州从 2018-01-01 到 2018-06-30 的商品销售额是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+    "naive_sql": "SELECT coalesce(sum(i.price+i.freight_value),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+    "answer_type": "number",
+    "template_id": "C_freight",
+    "parameters": {
+      "start": "2018-01-01",
+      "end": "2018-07-01",
+      "state": "RJ"
+    },
+    "profile_section": "金额口径与关联膨胀",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C11",
+    "category": "C",
+    "split": "dev",
+    "question": "SP 州从 2017-01-01 到 2017-12-31 的已付款订单，商品销售额是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=o.order_id)",
+    "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN order_payments p USING(order_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP'",
+    "answer_type": "number",
+    "template_id": "C_join_grain",
+    "parameters": {
+      "start": "2017-01-01",
+      "end": "2018-01-01",
+      "state": "SP"
+    },
+    "profile_section": "子表粒度与订单缺失关联",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C12",
+    "category": "C",
+    "split": "dev",
+    "question": "RJ 州从 2018-01-01 到 2018-06-30 的已付款订单，商品销售额是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ' AND EXISTS (SELECT 1 FROM order_payments p WHERE p.order_id=o.order_id)",
+    "naive_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN order_payments p USING(order_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ'",
+    "answer_type": "number",
+    "template_id": "C_join_grain",
+    "parameters": {
+      "start": "2018-01-01",
+      "end": "2018-07-01",
+      "state": "RJ"
+    },
+    "profile_section": "子表粒度与订单缺失关联",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C14",
+    "category": "C",
+    "split": "dev",
+    "question": "2016-09-01 至 2016-09-30 这段时间，成交记录覆盖了多少天？",
+    "gold_sql": "SELECT count(DISTINCT order_purchase_timestamp::date) AS value FROM orders WHERE order_purchase_timestamp >= '2016-09-01' AND order_purchase_timestamp < '2016-10-01'",
+    "naive_sql": "SELECT '2016-10-01'::date - '2016-09-01'::date AS value",
+    "answer_type": "number",
+    "template_id": "C_boundary_month",
+    "parameters": {
+      "start": "2016-09-01",
+      "end": "2016-10-01",
+      "state": "SP"
+    },
+    "profile_section": "每月订单数",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C15",
+    "category": "C",
+    "split": "dev",
+    "question": "2018-10-01 至 2018-10-31 这段时间，成交记录覆盖了多少天？",
+    "gold_sql": "SELECT count(DISTINCT order_purchase_timestamp::date) AS value FROM orders WHERE order_purchase_timestamp >= '2018-10-01' AND order_purchase_timestamp < '2018-11-01'",
+    "naive_sql": "SELECT '2018-11-01'::date - '2018-10-01'::date AS value",
+    "answer_type": "number",
+    "template_id": "C_boundary_month",
+    "parameters": {
+      "start": "2018-10-01",
+      "end": "2018-11-01",
+      "state": "SP"
+    },
+    "profile_section": "每月订单数",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C17",
+    "category": "C",
+    "split": "dev",
+    "question": "SP 州 2017-01-01 至 2017-12-31 的英文品类报表里，待归类的商品明细有多少？",
+    "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) LEFT JOIN product_category_name_translation t USING(product_category_name) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND t.product_category_name IS NULL",
+    "naive_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND p.product_category_name NOT IN (SELECT product_category_name FROM product_category_name_translation)",
+    "answer_type": "number",
+    "template_id": "C_category_coverage",
+    "parameters": {
+      "start": "2017-01-01",
+      "end": "2018-01-01",
+      "state": "SP"
+    },
+    "profile_section": "品类翻译覆盖率",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C18",
+    "category": "C",
+    "split": "dev",
+    "question": "RJ 州 2018-01-01 至 2018-06-30 的英文品类报表里，待归类的商品明细有多少？",
+    "gold_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) LEFT JOIN product_category_name_translation t USING(product_category_name) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ' AND t.product_category_name IS NULL",
+    "naive_sql": "SELECT count(*) AS value FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id) WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01' AND c.customer_state='RJ' AND p.product_category_name NOT IN (SELECT product_category_name FROM product_category_name_translation)",
+    "answer_type": "number",
+    "template_id": "C_category_coverage",
+    "parameters": {
+      "start": "2018-01-01",
+      "end": "2018-07-01",
+      "state": "RJ"
+    },
+    "profile_section": "品类翻译覆盖率",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C20",
+    "category": "C",
+    "split": "dev",
+    "question": "SP 州从 2017-01-01 到 2017-12-31 下的订单，有多少笔需要补录签收时间？",
+    "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND o.order_status='delivered' AND o.order_delivered_customer_date IS NULL",
+    "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='SP' AND o.order_delivered_customer_date IS NULL",
+    "answer_type": "number",
+    "template_id": "C_delivery_null",
+    "parameters": {
+      "start": "2017-01-01",
+      "end": "2018-01-01",
+      "state": "SP"
+    },
+    "profile_section": "交付时间缺失",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C21",
+    "category": "C",
+    "split": "dev",
+    "question": "RS 州从 2017-01-01 到 2017-12-31 下的订单，有多少笔需要补录签收时间？",
+    "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='RS' AND o.order_status='delivered' AND o.order_delivered_customer_date IS NULL",
+    "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' AND c.customer_state='RS' AND o.order_delivered_customer_date IS NULL",
+    "answer_type": "number",
+    "template_id": "C_delivery_null",
+    "parameters": {
+      "start": "2017-01-01",
+      "end": "2018-01-01",
+      "state": "RS"
+    },
+    "profile_section": "交付时间缺失",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C23",
+    "category": "C",
+    "split": "dev",
+    "question": "MG 州从 2018-02-01 到 2018-02-28 下的订单，有多少单获得了评价？",
+    "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='MG' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+    "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_reviews r USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='MG'",
+    "answer_type": "number",
+    "template_id": "C_review_grain",
+    "parameters": {
+      "start": "2018-02-01",
+      "end": "2018-03-01",
+      "state": "MG"
+    },
+    "profile_section": "评价与地理位置键",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "C24",
+    "category": "C",
+    "split": "dev",
+    "question": "RS 州从 2018-02-01 到 2018-02-28 下的订单，有多少单获得了评价？",
+    "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RS' AND EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)",
+    "naive_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) JOIN order_reviews r USING(order_id) WHERE o.order_purchase_timestamp >= '2018-02-01' AND o.order_purchase_timestamp < '2018-03-01' AND c.customer_state='RS'",
+    "answer_type": "number",
+    "template_id": "C_review_grain",
+    "parameters": {
+      "start": "2018-02-01",
+      "end": "2018-03-01",
+      "state": "RS"
+    },
+    "profile_section": "评价与地理位置键",
+    "profile_source": "docs/data_profile.md",
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "D01",
+    "category": "D",
+    "question": "比较 2018 年 Q1、Q2 的 GMV 和变化率（百分数）。先排除取消及不可用订单，再分析变化；不要把统计相关写成确定原因。",
+    "gold_sql": "WITH x AS (\n        SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp < '2018-04-01') AS q1_gmv,\n        sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= '2018-04-01') AS q2_gmv\n        FROM orders o JOIN order_items i USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-01-01' AND o.order_purchase_timestamp < '2018-07-01'\n        AND o.order_status NOT IN ('canceled','unavailable'))\n        SELECT q1_gmv, q2_gmv, 100.0*(q2_gmv-q1_gmv)/nullif(q1_gmv,0) AS change_pct FROM x",
+    "answer_type": "key_facts",
+    "split": "dev",
+    "required_facts": [
+      "q1_gmv",
+      "q2_gmv",
+      "change_pct"
+    ],
+    "rubric_focus": "比较季度变化；区分变化描述与因果假设。",
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "D03",
+    "category": "D",
+    "question": "2018 年 Q2，比较 SP 与 RJ 两州的真实下单客户数和 GMV，共四个关键事实。GMV 排除取消及不可用订单，客户数保留所有状态；讨论规模与客单结构。",
+    "gold_sql": "WITH c AS (\n        SELECT c.customer_state AS state, count(DISTINCT c.customer_unique_id) AS buyers FROM orders o JOIN customers c USING(customer_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' GROUP BY c.customer_state), g AS (\n        SELECT c.customer_state AS state, sum(i.price) AS gmv FROM orders o JOIN customers c USING(customer_id) JOIN order_items i USING(order_id)\n        WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01' AND o.order_status NOT IN ('canceled','unavailable') GROUP BY c.customer_state)\n        SELECT (SELECT buyers FROM c WHERE state='SP') AS sp_buyers, (SELECT buyers FROM c WHERE state='RJ') AS rj_buyers,\n        (SELECT gmv FROM g WHERE state='SP') AS sp_gmv, (SELECT gmv FROM g WHERE state='RJ') AS rj_gmv",
+    "answer_type": "key_facts",
+    "split": "dev",
+    "required_facts": [
+      "sp_buyers",
+      "rj_buyers",
+      "sp_gmv",
+      "rj_gmv"
+    ],
+    "rubric_focus": "客户范围与 GMV 状态口径不同，不能直接解释成统一口径客单价。",
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "D04",
+    "category": "D",
+    "question": "2018 年 Q1 与 Q2，已送达且有实际送达时间的订单，平均交付天数各是多少、两期相差多少天？按购买日期分期、小数天计算，讨论时效变化。",
+    "gold_sql": "WITH x AS (\n        SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) FILTER (WHERE order_purchase_timestamp < '2018-04-01') AS q1_days,\n        avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) FILTER (WHERE order_purchase_timestamp >= '2018-04-01') AS q2_days\n        FROM orders WHERE order_purchase_timestamp >= '2018-01-01' AND order_purchase_timestamp < '2018-07-01'\n        AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL)\n        SELECT *, q2_days-q1_days AS change_days FROM x",
+    "answer_type": "key_facts",
+    "split": "dev",
+    "required_facts": [
+      "q1_days",
+      "q2_days",
+      "change_days"
+    ],
+    "rubric_focus": "使用实际交付时间，区分平均数变化与物流原因。",
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "D05",
+    "category": "D",
+    "question": "2018 年 Q2 的已送达订单中，实际交付晚于预计交付的订单数、实际交付时间完整的订单数、迟到率（百分数）分别是多少？按原始时间戳比较，不截断为日期；解释分母。",
+    "gold_sql": "SELECT\n        count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,\n        count(*) AS measured_orders,\n        100.0*count(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date)/nullif(count(*),0) AS late_pct\n        FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01'\n        AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+    "answer_type": "key_facts",
+    "split": "dev",
+    "required_facts": [
+      "late_orders",
+      "measured_orders",
+      "late_pct"
+    ],
+    "rubric_focus": "空交付时间不得作为按时送达计入分母。",
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "D07",
+    "category": "D",
+    "question": "2017 年有过下单的真实客户数、年内至少下单两次的客户数及年内复购率（百分数）是多少？所有状态均保留，分析复购时说明观察窗口。",
+    "gold_sql": "WITH c AS (\n        SELECT c.customer_unique_id, count(*) AS n FROM orders o JOIN customers c USING(customer_id)\n        WHERE o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY c.customer_unique_id)\n        SELECT count(*) AS buyers, count(*) FILTER (WHERE n>=2) AS repeat_buyers,\n        100.0*count(*) FILTER (WHERE n>=2)/nullif(count(*),0) AS repeat_pct FROM c",
+    "answer_type": "key_facts",
+    "split": "dev",
+    "required_facts": [
+      "buyers",
+      "repeat_buyers",
+      "repeat_pct"
+    ],
+    "rubric_focus": "同人用唯一客户标识；年内复购不能当终身复购。",
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "D08",
+    "category": "D",
+    "question": "2018 年 Q2 的订单总数、已评价订单数和评价记录数各是多少？分析用评价记录数当已评价订单数会怎样。",
+    "gold_sql": "SELECT count(*) AS orders,\n        count(*) FILTER (WHERE EXISTS (SELECT 1 FROM order_reviews r WHERE r.order_id=o.order_id)) AS reviewed_orders,\n        (SELECT count(*) FROM order_reviews r JOIN orders x USING(order_id) WHERE x.order_purchase_timestamp >= '2018-04-01' AND x.order_purchase_timestamp < '2018-07-01') AS review_rows\n        FROM orders o WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'",
+    "answer_type": "key_facts",
+    "split": "dev",
+    "required_facts": [
+      "orders",
+      "reviewed_orders",
+      "review_rows"
+    ],
+    "rubric_focus": "区分订单覆盖与一单多评，不把评价量直接视为满意人数。",
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "E01",
+    "category": "E",
+    "split": "dev",
+    "question": "2017-04-01 到 2017-07-01（不含）下单的销售额是多少？",
+    "gold_sql": "SELECT coalesce(sum(i.price),0) AS value FROM order_items i JOIN orders o USING(order_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01'",
+    "answer_type": "number",
+    "template_id": "E_sales_amount",
+    "parameters": {
+      "start": "2017-04-01",
+      "end": "2017-07-01"
+    },
+    "setup_turns": [
+      "以后我说销售额，指商品价格之和，不含运费，保留所有订单状态。"
+    ],
+    "preference_key": "sales_amount_definition",
+    "new_session": true,
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "E03",
+    "category": "E",
+    "split": "dev",
+    "question": "[2017-04-01, 2017-07-01) 的客户数是多少？",
+    "gold_sql": "SELECT count(DISTINCT c.customer_unique_id) AS value FROM customers c JOIN orders o USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01'",
+    "answer_type": "number",
+    "template_id": "E_customer_identity",
+    "parameters": {
+      "start": "2017-04-01",
+      "end": "2017-07-01"
+    },
+    "setup_turns": [
+      "以后客户数按 customer_unique_id 去重，统计所有下单客户，不筛订单状态。"
+    ],
+    "preference_key": "customer_identity",
+    "new_session": true,
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "E05",
+    "category": "E",
+    "split": "dev",
+    "question": "[2017-04-01, 2017-07-01) 有多少订单？",
+    "gold_sql": "SELECT count(*) AS value FROM orders WHERE order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01' AND order_status='delivered'",
+    "answer_type": "number",
+    "template_id": "E_order_status",
+    "parameters": {
+      "start": "2017-04-01",
+      "end": "2017-07-01"
+    },
+    "setup_turns": [
+      "以后我说订单数，只统计 delivered 状态。"
+    ],
+    "preference_key": "order_status_scope",
+    "new_session": true,
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "E07",
+    "category": "E",
+    "split": "dev",
+    "question": "[2017-04-01, 2017-07-01) 的订单数是多少？",
+    "gold_sql": "SELECT count(*) AS value FROM orders o JOIN customers c USING(customer_id) WHERE o.order_purchase_timestamp >= '2017-04-01' AND o.order_purchase_timestamp < '2017-07-01' AND c.customer_state='SP'",
+    "answer_type": "number",
+    "template_id": "E_geography",
+    "parameters": {
+      "start": "2017-04-01",
+      "end": "2017-07-01"
+    },
+    "setup_turns": [
+      "以后经营数字默认只看客户在 SP 州的订单，不限制状态。"
+    ],
+    "preference_key": "default_state",
+    "new_session": true,
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "E09",
+    "category": "E",
+    "split": "dev",
+    "question": "[2017-04-01, 2017-07-01) 下单的平均交付天数是多少？",
+    "gold_sql": "SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) AS value FROM orders WHERE order_purchase_timestamp >= '2017-04-01' AND order_purchase_timestamp < '2017-07-01' AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+    "answer_type": "number",
+    "template_id": "E_delivery_duration",
+    "parameters": {
+      "start": "2017-04-01",
+      "end": "2017-07-01"
+    },
+    "setup_turns": [
+      "以后平均交付天数只看已送达且实际送达时间存在的订单，从购买到实际送达按秒除以 86400 算小数天。"
+    ],
+    "preference_key": "delivery_duration",
+    "new_session": true,
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  },
+  {
+    "id": "E10",
+    "category": "E",
+    "split": "dev",
+    "question": "按我设定的算法，[2018-04-01, 2018-07-01) 购买的订单平均要多久送到？",
+    "gold_sql": "SELECT avg(extract(epoch FROM (order_delivered_customer_date-order_purchase_timestamp))/86400.0) AS value FROM orders WHERE order_purchase_timestamp >= '2018-04-01' AND order_purchase_timestamp < '2018-07-01' AND order_status='delivered' AND order_delivered_customer_date IS NOT NULL",
+    "answer_type": "number",
+    "template_id": "E_delivery_duration",
+    "parameters": {
+      "start": "2018-04-01",
+      "end": "2018-07-01"
+    },
+    "setup_turns": [
+      "以后平均交付天数只看已送达且实际送达时间存在的订单，从购买到实际送达按秒除以 86400 算小数天。"
+    ],
+    "preference_key": "delivery_duration",
+    "new_session": true,
+    "required_facts": [],
+    "source_dataset": "eval/questions.jsonl"
+  }
+]

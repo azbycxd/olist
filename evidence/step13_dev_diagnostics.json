@@ -1,0 +1,1098 @@
+{
+  "source_receipt": "evidence/step13_dev_trials_results.json",
+  "sha256": "884335ba33110c49fa75cb6492209d524402e2414204b4d918acfb68218fdf70",
+  "source_logs": [
+    {
+      "receipt": "evidence/eval_step13-dev-once-r1_20261101T103936Z_b2185255.summary.json",
+      "log": "logs/eval_step13-dev-once-r1_20261101T103936Z_b2185255.jsonl",
+      "log_sha256": "9c14bb4c6a75d027663e967557776885297a167f29bf8c570a7afa616126615d"
+    },
+    {
+      "receipt": "evidence/eval_step13-dev-once-r2_20261101T104437Z_5ff01a6f.summary.json",
+      "log": "logs/eval_step13-dev-once-r2_20261101T104437Z_5ff01a6f.jsonl",
+      "log_sha256": "ab0a826a51fdf42dd4d09125dde576ae50d97ae2662ce5aee0dd173a41398748"
+    },
+    {
+      "receipt": "evidence/eval_step13-dev-once-r3_20261101T104934Z_1a08a913.summary.json",
+      "log": "logs/eval_step13-dev-once-r3_20261101T104934Z_1a08a913.jsonl",
+      "log_sha256": "b6821e0cd5aa9aee2a66119785ec2cc44ad0ecfd4c254870712ffa2421868ffb"
+    }
+  ],
+  "cases": [
+    {
+      "id": "A05",
+      "repeat": 1,
+      "task_id": "dfbd04aa-5269-4131-8905-68ccff0cfdb3",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "real_unsupported",
+      "reason": "claim.text自行写出8种订单状态，但引用SQL只返回状态行，没有返回数量8。",
+      "claims": [
+        {
+          "text": "订单表中共有 8 种订单状态：approved、canceled、created、delivered、invoiced、processing、shipped、unavailable。",
+          "value": [
+            {
+              "order_status": "approved"
+            },
+            {
+              "order_status": "canceled"
+            },
+            {
+              "order_status": "created"
+            },
+            {
+              "order_status": "delivered"
+            },
+            {
+              "order_status": "invoiced"
+            },
+            {
+              "order_status": "processing"
+            },
+            {
+              "order_status": "shipped"
+            },
+            {
+              "order_status": "unavailable"
+            }
+          ],
+          "evidence": [
+            "06c6aa66-66f5-4a57-8c02-53a49cac081b"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 1,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 1.0
+      }
+    },
+    {
+      "id": "D02",
+      "repeat": 1,
+      "task_id": "3483905f-27e0-4bcb-b281-12d4786eb28b",
+      "correct": false,
+      "strict_pass": false,
+      "diagnostic_type": "agent_error",
+      "reason": "D02把largest_drop_amount填为负差值-114709.72，gold要求下降幅度+114709.72。",
+      "claims": [
+        {
+          "text": "2018 Q2 相比 Q1，两季度均有成交的非空原始葡文品类中 GMV 下降的品类数为 30 个（可比品类 67 个）",
+          "value": [
+            {
+              "declining_categories": 30,
+              "compared_categories": 67,
+              "largest_drop_category": "informatica_acessorios",
+              "largest_drop_amount": "-114709.72"
+            }
+          ],
+          "evidence": [
+            "2d1819b2-099a-468e-a400-2f2f627f2465"
+          ]
+        },
+        {
+          "text": "降幅金额最大的品类为 informatica_acessorios，Q1 GMV 267645.70、Q2 GMV 152935.98，下降 114709.72（-42.86%），订单数 2018→1243，客单价 132.63→123.04",
+          "value": [
+            {
+              "cat": "informatica_acessorios",
+              "q1_gmv": "267645.70",
+              "q2_gmv": "152935.98",
+              "diff": "-114709.72",
+              "q1_orders": 2018,
+              "q2_orders": 1243,
+              "q1_aov": "132.63",
+              "q2_aov": "123.04",
+              "pct_change": "-42.86"
+            }
+          ],
+          "evidence": [
+            "dcb0416d-4b5a-45eb-9d3b-ce7e29f2616a"
+          ]
+        },
+        {
+          "text": "降幅第二大的 esporte_lazer 同样以订单量下滑为主（1830→1355），GMV 下降 78843.82（-31.37%），客单价 137.34→127.30",
+          "value": [
+            {
+              "cat": "esporte_lazer",
+              "q1_gmv": "251331.53",
+              "q2_gmv": "172487.71",
+              "diff": "-78843.82",
+              "q1_orders": 1830,
+              "q2_orders": 1355,
+              "q1_aov": "137.34",
+              "q2_aov": "127.30",
+              "pct_change": "-31.37"
+            }
+          ],
+          "evidence": [
+            "dcb0416d-4b5a-45eb-9d3b-ce7e29f2616a"
+          ]
+        },
+        {
+          "text": "informatica_acessorios 活跃卖家数由 124 增至 127，供给端未收缩，说明下滑主要来自需求/订单量而非卖家退出",
+          "value": [
+            {
+              "cat": "informatica_acessorios",
+              "q1_gmv": "267645.70",
+              "q2_gmv": "152935.98",
+              "diff": "-114709.72",
+              "q1_orders": 2018,
+              "q2_orders": 1243,
+              "q1_sellers": 124,
+              "q2_sellers": 127
+            }
+          ],
+          "evidence": [
+            "c06b2ac2-b807-4a0e-bf5e-6a64de44159a"
+          ]
+        },
+        {
+          "text": "降幅前十品类（按下降金额排序）显示可选消费品普遍回落",
+          "value": [
+            {
+              "cat": "informatica_acessorios",
+              "diff": "-114709.72"
+            },
+            {
+              "cat": "esporte_lazer",
+              "diff": "-78843.82"
+            },
+            {
+              "cat": "papelaria",
+              "diff": "-27690.34"
+            },
+            {
+              "cat": "cool_stuff",
+              "diff": "-24284.24"
+            },
+            {
+              "cat": "moveis_escritorio",
+              "diff": "-15263.65"
+            },
+            {
+              "cat": "consoles_games",
+              "diff": "-13531.50"
+            },
+            {
+              "cat": "malas_acessorios",
+              "diff": "-10703.72"
+            },
+            {
+              "cat": "agro_industria_e_comercio",
+              "diff": "-7980.99"
+            },
+            {
+              "cat": "eletronicos",
+              "diff": "-5687.39"
+            },
+            {
+              "cat": "audio",
+              "diff": "-5682.02"
+            }
+          ],
+          "evidence": [
+            "c06b2ac2-b807-4a0e-bf5e-6a64de44159a"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 5,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 36,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      }
+    },
+    {
+      "id": "E09",
+      "repeat": 1,
+      "task_id": "08ec7466-dc8b-4f55-9c7a-0c0742764a10",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "checker_false_positive",
+      "reason": "86400是秒转天的单位换算常数，不是无来源业务指标；claim值有SQL证据。",
+      "claims": [
+        {
+          "text": "2017-04-01 至 2017-07-01（不含）下单且已送达、实际送达时间存在的订单共 8983 单，平均交付天数为 12.48469438543380294495 天（按购买到实际送达的秒数除以 86400 计算）。",
+          "value": [
+            {
+              "delivery_days": "12.48469438543380294495",
+              "delivered_orders": 8983
+            }
+          ],
+          "evidence": [
+            "7318f375-9315-4a3c-aeb1-fa87df32b675"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      }
+    },
+    {
+      "id": "E10",
+      "repeat": 1,
+      "task_id": "21db1dac-a31b-4912-8151-ff41fa09d725",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "checker_false_positive",
+      "reason": "86400是秒转天的单位换算常数，不是无来源业务指标；claim值有SQL证据。",
+      "claims": [
+        {
+          "text": "按设定口径（仅 delivered 且实际送达时间非空，按购买时间落在 [2018-04-01, 2018-07-01) 的订单，用秒差/86400 求平均），平均交付天数为 10.77030644457265900003 天，样本订单 19643 单。",
+          "value": {
+            "delivery_days": "10.77030644457265900003",
+            "delivered_orders": 19643
+          },
+          "evidence": [
+            "91d7c882-feef-4e01-a491-df06eb85137d"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      }
+    },
+    {
+      "id": "A05",
+      "repeat": 2,
+      "task_id": "be219747-4118-4c3b-8d2c-e5b777d46424",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "real_unsupported",
+      "reason": "claim.text自行写出8种订单状态，但引用SQL只返回状态行，没有返回数量8。",
+      "claims": [
+        {
+          "text": "订单表中共有 8 种订单状态：approved、canceled、created、delivered、invoiced、processing、shipped、unavailable。",
+          "value": [
+            {
+              "order_status": "approved"
+            },
+            {
+              "order_status": "canceled"
+            },
+            {
+              "order_status": "created"
+            },
+            {
+              "order_status": "delivered"
+            },
+            {
+              "order_status": "invoiced"
+            },
+            {
+              "order_status": "processing"
+            },
+            {
+              "order_status": "shipped"
+            },
+            {
+              "order_status": "unavailable"
+            }
+          ],
+          "evidence": [
+            "3b89ffbf-6a90-4dc4-b227-6d37768892f5"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 1,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 1.0
+      }
+    },
+    {
+      "id": "D02",
+      "repeat": 2,
+      "task_id": "34c04195-2f32-4f95-8978-33aaed659287",
+      "correct": false,
+      "strict_pass": false,
+      "diagnostic_type": "agent_error",
+      "reason": "D02只提交declining_categories、compared_categories及cat/diff等字段，未按公开契约提交largest_drop_category和largest_drop_amount。",
+      "claims": [
+        {
+          "text": "2018 Q2 相比 Q1，两季度均有成交的非空原始品类中 GMV 下降的品类数为 30 个（可比品类 67 个）",
+          "value": {
+            "declining_categories": 30,
+            "compared_categories": 67
+          },
+          "evidence": [
+            "a7c15c75-840a-4234-a66d-22c4c56b7855"
+          ]
+        },
+        {
+          "text": "降幅金额最大的品类为 informatica_acessorios，Q1 GMV 267645.70，Q2 GMV 152935.98，下降 114709.72",
+          "value": {
+            "cat": "informatica_acessorios",
+            "q1_gmv": "267645.70",
+            "q2_gmv": "152935.98",
+            "diff": "-114709.72"
+          },
+          "evidence": [
+            "09c7f460-9415-40b3-a3c4-471308034db6"
+          ]
+        },
+        {
+          "text": "informatica_acessorios 下滑主要来自订单量：订单数 2018→1243、明细行 2432→1409，而客单价 132.63→123.04、件均价 110.05→108.54 基本稳定，卖家数 124→127 未减少",
+          "value": [
+            {
+              "qtr": "Q1",
+              "gmv": "267645.70",
+              "item_lines": 2432,
+              "orders": 2018,
+              "sellers": 124,
+              "gmv_per_order": "132.63",
+              "avg_item_price": "110.05"
+            },
+            {
+              "qtr": "Q2",
+              "gmv": "152935.98",
+              "item_lines": 1409,
+              "orders": 1243,
+              "sellers": 127,
+              "gmv_per_order": "123.04",
+              "avg_item_price": "108.54"
+            }
+          ],
+          "evidence": [
+            "a77c21ca-6c5d-4ce8-b0ac-f0344aa3665b"
+          ]
+        },
+        {
+          "text": "同期全品类（非空品类）GMV 由 2711884.66 升至 2836005.43，订单数由 20572 降至 19774，说明该品类跑输大盘而非市场整体萎缩",
+          "value": [
+            {
+              "qtr": "Q1",
+              "total_gmv": "2711884.66",
+              "orders": 20572
+            },
+            {
+              "qtr": "Q2",
+              "total_gmv": "2836005.43",
+              "orders": 19774
+            }
+          ],
+          "evidence": [
+            "5036c3b8-1c7b-4973-8ebc-69fc0423225e"
+          ]
+        },
+        {
+          "text": "其他降幅居前的品类：esporte_lazer -78843.82、papelaria -27690.34、cool_stuff -24284.24、moveis_escritorio -15263.65",
+          "value": [
+            {
+              "cat": "esporte_lazer",
+              "q1_gmv": "251331.53",
+              "q2_gmv": "172487.71",
+              "diff": "-78843.82"
+            },
+            {
+              "cat": "papelaria",
+              "q1_gmv": "65174.16",
+              "q2_gmv": "37483.82",
+              "diff": "-27690.34"
+            },
+            {
+              "cat": "cool_stuff",
+              "q1_gmv": "108665.13",
+              "q2_gmv": "84380.89",
+              "diff": "-24284.24"
+            },
+            {
+              "cat": "moveis_escritorio",
+              "q1_gmv": "69189.81",
+              "q2_gmv": "53926.16",
+              "diff": "-15263.65"
+            }
+          ],
+          "evidence": [
+            "09c7f460-9415-40b3-a3c4-471308034db6"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 5,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 45,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": 0.0
+      }
+    },
+    {
+      "id": "D06",
+      "repeat": 2,
+      "task_id": "f746a7fc-6f98-4808-984a-78249b71aad2",
+      "correct": false,
+      "strict_pass": false,
+      "diagnostic_type": "grader_issue",
+      "reason": "三个必需金额字段均有正确SQL证据；说明差异阈值0.01 BRL被当成未支持业务数字，key_facts证据约束使整题失败。",
+      "claims": [
+        {
+          "text": "2018 Q2 有效订单（排除 canceled/unavailable）商品金额合计 2,849,730.26 BRL",
+          "value": {
+            "item_total": "2849730.26"
+          },
+          "evidence": [
+            "a21c5819-3ce3-4b02-a761-6667f25b1ce1"
+          ]
+        },
+        {
+          "text": "2018 Q2 运费合计 472,586.99 BRL",
+          "value": {
+            "freight_total": "472586.99"
+          },
+          "evidence": [
+            "a21c5819-3ce3-4b02-a761-6667f25b1ce1"
+          ]
+        },
+        {
+          "text": "2018 Q2 支付金额合计 3,322,546.83 BRL",
+          "value": {
+            "payment_total": "3322546.83"
+          },
+          "evidence": [
+            "a21c5819-3ce3-4b02-a761-6667f25b1ce1"
+          ]
+        },
+        {
+          "text": "支付金额比商品金额高 472,816.57 BRL，比商品+运费高 229.58 BRL",
+          "value": [
+            {
+              "payment_minus_item": "472816.57",
+              "payment_minus_item_freight": "229.58"
+            }
+          ],
+          "evidence": [
+            "a21c5819-3ce3-4b02-a761-6667f25b1ce1"
+          ]
+        },
+        {
+          "text": "Q2 订单数：全部状态 19,979 笔，有效状态 19,897 笔",
+          "value": [
+            {
+              "q2_orders_all_status": 19979,
+              "q2_orders_valid": 19897
+            }
+          ],
+          "evidence": [
+            "a21c5819-3ce3-4b02-a761-6667f25b1ce1"
+          ]
+        },
+        {
+          "text": "支付金额相对商品金额高出 16.59%；524 笔订单存在多条支付记录；30 笔订单支付额与商品+运费差异超过 0.01 BRL，合计差额 229.58 BRL",
+          "value": [
+            {
+              "payment_over_item_pct": "16.59",
+              "orders_multi_payment_rows": 524,
+              "orders_pay_ne_item_plus_freight": 30,
+              "total_gap": "229.58"
+            }
+          ],
+          "evidence": [
+            "9b9b96bf-0346-4edc-a287-fe129f6b46e8"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 6,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 24,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.041666666666666664
+      }
+    },
+    {
+      "id": "E09",
+      "repeat": 2,
+      "task_id": "ca08144f-a37d-4b40-90e2-17f08d59dfe6",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "checker_false_positive",
+      "reason": "86400是秒转天的单位换算常数，不是无来源业务指标；claim值有SQL证据。",
+      "claims": [
+        {
+          "text": "2017-04-01 至 2017-07-01（不含）下单、状态为 delivered 且实际送达时间存在的订单，平均交付天数为 12.48469438543380294495 天（按秒/86400 计算），样本订单数 8983。",
+          "value": {
+            "delivery_days": "12.48469438543380294495",
+            "measured_orders": 8983
+          },
+          "evidence": [
+            "3f36f75c-28f2-424b-8995-2dc5930fde92"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      }
+    },
+    {
+      "id": "E10",
+      "repeat": 2,
+      "task_id": "7314653b-b7aa-40c3-9e07-9a41e2e90add",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "checker_false_positive",
+      "reason": "86400是秒转天的单位换算常数，不是无来源业务指标；claim值有SQL证据。",
+      "claims": [
+        {
+          "text": "按设定口径（仅 delivered 且实际送达时间非空，按秒差/86400 取平均），2018-04-01 至 2018-07-01（不含）购买区间内共 19643 单，平均交付天数约 10.77 天。",
+          "value": [
+            {
+              "delivery_days": "10.77030644457265900003",
+              "delivered_orders": 19643
+            }
+          ],
+          "evidence": [
+            "b8870ad8-5a26-4a00-aa66-14bdf2d97ffc"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      }
+    },
+    {
+      "id": "A05",
+      "repeat": 3,
+      "task_id": "5db06de6-49f7-4beb-b33d-af28ec73326c",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "real_unsupported",
+      "reason": "claim.text自行写出8种订单状态，但引用SQL只返回状态行，没有返回数量8。",
+      "claims": [
+        {
+          "text": "orders 表中出现的订单状态共 8 种：approved、canceled、created、delivered、invoiced、processing、shipped、unavailable。",
+          "value": [
+            {
+              "order_status": "approved"
+            },
+            {
+              "order_status": "canceled"
+            },
+            {
+              "order_status": "created"
+            },
+            {
+              "order_status": "delivered"
+            },
+            {
+              "order_status": "invoiced"
+            },
+            {
+              "order_status": "processing"
+            },
+            {
+              "order_status": "shipped"
+            },
+            {
+              "order_status": "unavailable"
+            }
+          ],
+          "evidence": [
+            "a26749e6-ca52-49fe-8d09-8430e13a9801"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 1,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 1.0
+      }
+    },
+    {
+      "id": "D02",
+      "repeat": 3,
+      "task_id": "f37de0b8-91a8-4fe0-b9e7-9a1b017f2285",
+      "correct": false,
+      "strict_pass": false,
+      "diagnostic_type": "agent_error",
+      "reason": "D02把largest_drop_amount填为负差值-114709.72，gold要求下降幅度+114709.72；第3轮另有跨结果/自算占比证据问题。",
+      "claims": [
+        {
+          "text": "2018 Q2 相比 Q1，两季均有成交的非空原始葡文品类中 GMV 下降的品类数为 30 个（可比品类 67 个，上升 37 个，持平 0 个）",
+          "value": [
+            {
+              "comparable_categories": 67,
+              "declining_categories": 30,
+              "growing_categories": 37,
+              "flat_categories": 0
+            }
+          ],
+          "evidence": [
+            "4fd88d55-0051-44e7-9986-ef7a844e24d9"
+          ]
+        },
+        {
+          "text": "降幅金额最大的品类为 informatica_acessorios，Q1 GMV 267645.70、Q2 GMV 152935.98，下降 114709.72",
+          "value": [
+            {
+              "largest_drop_category": "informatica_acessorios",
+              "largest_drop_amount": "-114709.72",
+              "largest_drop_q1_gmv": "267645.70",
+              "largest_drop_q2_gmv": "152935.98"
+            }
+          ],
+          "evidence": [
+            "4fd88d55-0051-44e7-9986-ef7a844e24d9"
+          ]
+        },
+        {
+          "text": "全部下降品类合计降幅为 -330586.70，informatica_acessorios 占其中约 34.7%",
+          "value": [
+            {
+              "total_decline_amount": "-330586.70",
+              "informatica_share_of_decline": "0.34698830896705765840"
+            }
+          ],
+          "evidence": [
+            "4fd88d55-0051-44e7-9986-ef7a844e24d9",
+            "0146f8b6-7ea6-411f-9287-bf47a0f2ac9d"
+          ]
+        },
+        {
+          "text": "informatica_acessorios 下滑由成交量驱动：明细条数 2432→1409（-1023），订单数 2018→1243（-775），单件均价仅 110.05→108.54，活跃卖家数 124→127（+3）",
+          "value": [
+            {
+              "cat": "informatica_acessorios",
+              "q1_items": 2432,
+              "q2_items": 1409,
+              "items_diff": -1023,
+              "q1_orders": 2018,
+              "q2_orders": 1243,
+              "orders_diff": -775,
+              "q1_sellers": 124,
+              "q2_sellers": 127,
+              "sellers_diff": 3,
+              "q1_avg_item_price": "110.05",
+              "q2_avg_item_price": "108.54"
+            }
+          ],
+          "evidence": [
+            "1b5cb86a-c6e0-4e53-8433-9774b6eac212"
+          ]
+        },
+        {
+          "text": "降幅前 10 品类明细（含 GMV 差额、订单与卖家变化）",
+          "value": [
+            {
+              "cat": "informatica_acessorios",
+              "diff": "-114709.72",
+              "orders_diff": -775,
+              "sellers_diff": 3
+            },
+            {
+              "cat": "esporte_lazer",
+              "diff": "-78843.82",
+              "orders_diff": -475,
+              "sellers_diff": 28
+            },
+            {
+              "cat": "papelaria",
+              "diff": "-27690.34",
+              "orders_diff": -261,
+              "sellers_diff": 17
+            },
+            {
+              "cat": "cool_stuff",
+              "diff": "-24284.24",
+              "orders_diff": -248,
+              "sellers_diff": -24
+            },
+            {
+              "cat": "moveis_escritorio",
+              "diff": "-15263.65",
+              "orders_diff": -98,
+              "sellers_diff": -1
+            },
+            {
+              "cat": "consoles_games",
+              "diff": "-13531.50",
+              "orders_diff": -37,
+              "sellers_diff": 5
+            },
+            {
+              "cat": "malas_acessorios",
+              "diff": "-10703.72",
+              "orders_diff": -85,
+              "sellers_diff": -2
+            },
+            {
+              "cat": "agro_industria_e_comercio",
+              "diff": "-7980.99",
+              "orders_diff": -31,
+              "sellers_diff": 5
+            },
+            {
+              "cat": "eletronicos",
+              "diff": "-5687.39",
+              "orders_diff": -268,
+              "sellers_diff": 14
+            },
+            {
+              "cat": "audio",
+              "diff": "-5682.02",
+              "orders_diff": -4,
+              "sellers_diff": -4
+            }
+          ],
+          "evidence": [
+            "1b5cb86a-c6e0-4e53-8433-9774b6eac212"
+          ]
+        },
+        {
+          "text": "可比品类大盘 GMV 由 2710064.77 升至 2833876.64（+123811.87），但订单数 20670→19961、明细条数 23485→22769，整体增长靠客单价/结构而非订单量",
+          "value": [
+            {
+              "total_q1_gmv": "2710064.77",
+              "total_q2_gmv": "2833876.64",
+              "total_diff": "123811.87",
+              "total_q1_orders": 20670,
+              "total_q2_orders": 19961,
+              "total_q1_items": 23485,
+              "total_q2_items": 22769
+            }
+          ],
+          "evidence": [
+            "0146f8b6-7ea6-411f-9287-bf47a0f2ac9d"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": false,
+            "reason": "value_not_in_result"
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 6,
+        "unsupported_claims": 1,
+        "unsupported_claim_ratio": 0.16666666666666666,
+        "report_number_count": 63,
+        "unsupported_numbers": 3,
+        "unsupported_number_ratio": 0.047619047619047616
+      }
+    },
+    {
+      "id": "D06",
+      "repeat": 3,
+      "task_id": "0c43038c-8509-4eb6-92f7-ae939d9b3c98",
+      "correct": false,
+      "strict_pass": false,
+      "diagnostic_type": "grader_issue",
+      "reason": "三个必需金额字段均有正确SQL证据；说明差异阈值0.01 BRL被当成未支持业务数字，key_facts证据约束使整题失败。",
+      "claims": [
+        {
+          "text": "2018 Q2 有效订单（排除 canceled/unavailable）商品金额合计 item_total = 2,849,730.26 BRL",
+          "value": {
+            "item_total": "2849730.26"
+          },
+          "evidence": [
+            "7666bcc7-ccde-4686-8d9d-5131c49c19a4"
+          ]
+        },
+        {
+          "text": "2018 Q2 有效订单运费合计 freight_total = 472,586.99 BRL",
+          "value": {
+            "freight_total": "472586.99"
+          },
+          "evidence": [
+            "7666bcc7-ccde-4686-8d9d-5131c49c19a4"
+          ]
+        },
+        {
+          "text": "2018 Q2 有效订单支付金额合计 payment_total = 3,322,546.83 BRL",
+          "value": {
+            "payment_total": "3322546.83"
+          },
+          "evidence": [
+            "7666bcc7-ccde-4686-8d9d-5131c49c19a4"
+          ]
+        },
+        {
+          "text": "支付金额减商品金额 = 472,816.57 BRL；支付金额减（商品+运费）= 229.58 BRL，说明差额几乎全部由运费构成",
+          "value": {
+            "payment_minus_item": "472816.57",
+            "payment_minus_item_freight": "229.58"
+          },
+          "evidence": [
+            "7666bcc7-ccde-4686-8d9d-5131c49c19a4"
+          ]
+        },
+        {
+          "text": "Q2 订单数：全部状态 19,979 笔，有效状态 19,897 笔",
+          "value": {
+            "order_count_all_status": 19979,
+            "order_count_valid": 19897
+          },
+          "evidence": [
+            "7666bcc7-ccde-4686-8d9d-5131c49c19a4"
+          ]
+        },
+        {
+          "text": "运费占商品金额 16.58%，支付金额占商品金额 116.59%",
+          "value": {
+            "freight_pct_of_item": "16.58",
+            "payment_pct_of_item": "116.59"
+          },
+          "evidence": [
+            "a6b1228d-a4fd-49b9-bfb0-5c5ad72ac526"
+          ]
+        },
+        {
+          "text": "支付表一单多行：524 笔订单存在多条支付记录，直接关联商品明细会重复计数；另有 30 笔订单支付金额与商品+运费相差超过 0.01 BRL，两者不保证恒等",
+          "value": {
+            "orders_multi_payment_rows": 524,
+            "orders_pay_ne_item_plus_freight": 30,
+            "orders_with_items": 19897,
+            "orders_with_payments": 19897
+          },
+          "evidence": [
+            "a6b1228d-a4fd-49b9-bfb0-5c5ad72ac526"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          },
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 7,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 29,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.034482758620689655
+      }
+    },
+    {
+      "id": "E10",
+      "repeat": 3,
+      "task_id": "a2fc172d-2153-4c97-a1f1-83e0290bc1df",
+      "correct": true,
+      "strict_pass": false,
+      "diagnostic_type": "checker_false_positive",
+      "reason": "86400是秒转天的单位换算常数，不是无来源业务指标；claim值有SQL证据。",
+      "claims": [
+        {
+          "text": "按设定口径（仅 delivered 且实际送达时间非空，按购买时间 2018-04-01 至 2018-07-01 前分期，秒数/86400 取平均），该期平均交付天数为 10.77030644457265900003 天，样本订单 19643 单。",
+          "value": {
+            "delivery_days": "10.77030644457265900003",
+            "delivered_orders": 19643
+          },
+          "evidence": [
+            "3e927c7f-5e1d-44d8-a89a-bd361b35640d"
+          ]
+        }
+      ],
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 4,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 0.25
+      }
+    }
+  ],
+  "note": "只读收据诊断，不修改任何评分；Codex分类待人工抽查。",
+  "answer_correct_evidence_issues": {
+    "total": 8,
+    "checker_false_positive": 5,
+    "real_unsupported": 3
+  }
+}

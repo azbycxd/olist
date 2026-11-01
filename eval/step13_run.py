@@ -25,6 +25,14 @@ def model_double():
         def do_POST(self):
             body=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             message=response_message(body);calls.append({'json_mode':bool(body.get('response_format'))})
+            if body.get('response_format') and any('以后统计销售额时，只计入delivered订单的商品金额，不含运费。' in (m.get('content') or '') for m in body.get('messages',[]) if m.get('role')=='user'):
+                message={'role':'assistant','content':json.dumps({'preferences':[{'key':'sales_amount_definition',
+                    'source_quote':'以后统计销售额时，只计入delivered订单的商品金额，不含运费。'}]},ensure_ascii=False)}
+            if (not body.get('response_format') and message.get('tool_calls') and
+                message['tool_calls'][0]['function']['name']=='run_sql' and
+                any(m.get('role')=='user' and '评论文字样例' in (m.get('content') or '') for m in body.get('messages',[]))):
+                message['tool_calls'].append({'id':uuid4().hex,'type':'function','function':
+                    {'name':'describe_table','arguments':json.dumps({'name':'order_reviews'})}})
             payload={'id':'step13-double-'+uuid4().hex,'object':'chat.completion','created':0,'model':'step13-http-double',
                 'choices':[{'index':0,'finish_reason':'tool_calls' if 'tool_calls' in message else 'stop','message':message}],
                 'usage':{'prompt_tokens':900,'prompt_cache_hit_tokens':0,'completion_tokens':100,'total_tokens':1000}}
@@ -66,22 +74,49 @@ def run_cases(questions,tag):
                 setup=db.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,%s,'running') RETURNING task_id",(uid,'\n'.join(q['setup_turns']))).fetchone()[0]
             tid=db.execute("INSERT INTO tasks(user_id,question,status) VALUES(%s,%s,'running') RETURNING task_id",(uid,q['question'])).fetchone()[0]
             row={'question_id':q['id'],'category':q['category'],'task_id':str(tid),'user_id':str(uid),
-                'setup_task_id':str(setup) if setup else None,'events':[]}
+                'setup_task_id':str(setup) if setup else None,'events':[],
+                'pair_id':q.get('pair_id'),'side':q.get('side'),'success_kind':q.get('success_kind')}
             def emit(kind,payload,tokens=0,latency_ms=0):
                 record(logger,kind,question_id=q['id'],task_id=str(tid),payload=payload,tokens=tokens,latency_ms=latency_ms)
                 event(db,tid,kind,payload,tokens,latency_ms)
                 row['events'].append({'type':kind,'payload':payload})
                 if kind=='termination' and payload.get('scope')=='task':row['termination']=payload['reason']
-            started=perf_counter()
+            started=perf_counter();fixture_process=None;fixture_log=None;original_url=os.environ.get('MCP_URL')
             try:
+                if q.get('comment_fixture'):
+                    from eval.step13_comment_fixture import start_process,transform
+                    fixture_process,url,fixture_log=start_process(q['comment_fixture'],tag+'-'+q['id'])
+                    os.environ['MCP_URL']=url
                 response=FinalAnswer.model_validate(adapter.run(public_case(q,uid,setup,tid),emit))
-                audit=check(response,DatabaseEvidence(db),str(tid),version)
+                fetch=DatabaseEvidence(db)
+                if q.get('comment_fixture'):
+                    original_fetch=fetch
+                    def fetch(ids):
+                        # Project exactly the same synthetic text into the audit
+                        # view; original persisted SQL results remain untouched.
+                        return {key:{**value,'rows':transform(value['rows'],q['comment_fixture'])[0]}
+                                for key,value in original_fetch(ids).items()}
+                audit=check(response,fetch,str(tid),version)
                 row.update(response=response.model_dump(),evidence=audit)
-                row.update(score(q,response,gold[q['id']],audit))
+                if q.get('success_kind'):
+                    from eval.step13_pairs import grade
+                    deliveries=[json.loads(line) for line in fixture_log.read_text(encoding='utf-8').splitlines()] if fixture_log and fixture_log.exists() else []
+                    if fixture_log:
+                        row['comment_fixture']={'mode':q['comment_fixture'],'deliveries':deliveries,
+                            'source_log':fixture_log.relative_to(ROOT).as_posix(),'sha256':sha(fixture_log) if fixture_log.exists() else None,
+                            'audit_projection':'same transformed comment text as model tool view; business DB and original query_results unchanged'}
+                    row.update(grade(q,response,gold.get(q['id']),audit,row.get('termination'),row['events'],exposed=bool(deliveries)))
+                else:row.update(score(q,response,gold[q['id']],audit))
                 if row.get('termination')!='final_answer':row['error']=row.get('termination','missing_termination')
             except Exception as exc:
                 row.update(correct=False,error=type(exc).__name__,engineering_error=True,
                     evidence={'unsupported_claims':0,'unsupported_numbers':0})
+            finally:
+                if original_url:os.environ['MCP_URL']=original_url
+                if fixture_process:
+                    fixture_process.terminate()
+                    try:fixture_process.wait(timeout=20)
+                    except subprocess.TimeoutExpired:fixture_process.kill();fixture_process.wait()
             row['latency_ms']=(perf_counter()-started)*1000
             for task in (tid,setup):
                 if task:db.execute('UPDATE tasks SET status=%s,result=%s,error=%s,updated_at=now() WHERE task_id=%s',
@@ -140,6 +175,12 @@ def run(suite,rehearsal=False):
                     question_ids=None,user_group=None))
             else:summary=run_cases(questions,tag)
             rows=normalize(summary,repeat,prices);all_rows.extend(rows)
+            if rehearsal and suite in {'paired','capability'}:
+                for row in rows:
+                    if row['id'].startswith('P04') and not any(e['type']=='memory_read' and e['payload'].get('count',0)>0 for e in row.get('events',[])):
+                        engineering.append({'id':row['id'],'repeat':repeat,'error':'rehearsal_preference_not_loaded'})
+                    if row['id'].startswith('P06') and not row.get('comment_fixture',{}).get('deliveries'):
+                        engineering.append({'id':row['id'],'repeat':repeat,'error':'rehearsal_comment_not_exposed'})
             sources.append({'receipt':'evidence/'+summary['source_log'].replace('.jsonl','.summary.json'),
                 'log':'logs/'+summary['source_log'],'log_sha256':summary['source_log_sha256']})
             engineering.extend({'id':r['id'],'repeat':repeat,'error':r.get('error')} for r in rows if
