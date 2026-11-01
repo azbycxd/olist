@@ -84,7 +84,7 @@
     }
   ],
   "open_notes_sha256": "23d0d2279ae00c2904de945d006a830e30c418bca38a0aff606ccf11501f926f",
-  "annotations_sha256": "b3573117ab1c4d8cabb31b9052282891c7ced2e94c8ecc21e57eb241b982d89a",
+  "annotations_sha256": "8bd719f4071fa9447885a00c681e3e3b8eca47ece1bec988e31c441a408863a9",
   "saved_result_export": {
     "path": "evidence/step13_saved_query_results.json",
     "sha256": "cbdb9a1c6d0173fb5ce3a710dd85aa6f05bcf13f234176f4199d4183010a6025",
@@ -204,7 +204,7 @@
       "trial_id": "step9-dev-final:D02",
       "category": "上下文超限",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "第2步保留字CTE和第4步聚合排序错误虽已恢复，但继续扩展查询后第6步上下文17849超过16000，未形成最终答案。",
       "support": [],
       "first_observed": {
         "log_line": 738,
@@ -3994,7 +3994,7 @@
       "trial_id": "holdout-r1:D09",
       "category": "跨结果拼接单个证据行",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "把两份SQL结果中的字段拼成同一个claim行；事实3/3，但没有任何一条保存结果行支持这个拼接对象。",
       "support": [],
       "first_observed": {
         "log_line": 587,
@@ -5844,7 +5844,7 @@
       "trial_id": "holdout-r1:D11",
       "category": "公开事实字段契约不符",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "最终输出quarter/canceled/cancel_pct长表，季度数值与gold一致，但遗漏公开要求的四个q1/q2事实键。",
       "support": [
         {
           "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -6845,7 +6845,7 @@
       "trial_id": "holdout-r2:D11",
       "category": "公开事实字段契约不符",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "第二轮仍用quarter/canceled/cancel_pct长表而非公开q1/q2事实键，数值正确但事实命中0/4。",
       "support": [
         {
           "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -7872,7 +7872,7 @@
       "trial_id": "holdout-r3:D11",
       "category": "公开事实字段契约不符",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "第三轮长表季度数值正确，但未用公开q1_canceled等四个字段；2018上半年扫描告警是次要问题。",
       "support": [
         {
           "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -12900,7 +12900,7 @@
       "trial_id": "slot-dev:D02",
       "category": "上下文超限",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "恢复both作为CTE名的语法错误后继续扩展查询，第5步上下文16349超过16000，未输出最终事实。",
       "support": [],
       "first_observed": {
         "log_line": 708,
@@ -15113,7 +15113,7 @@
       "trial_id": "slot-dev:D03",
       "category": "公开事实字段契约不符",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "SP/RJ四个数值正确，却用customer_state/buyers/gmv长表，缺少公开要求的sp_buyers、rj_buyers、sp_gmv、rj_gmv。",
       "support": [
         {
           "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -18570,7 +18570,7 @@
       "trial_id": "slot-boundary:X06",
       "category": "无数据或不完整范围被作业务断言",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "SQL已表明目标年无订单且GMV为NULL，最终仍断言GMV为0，把无数据误作零业务量。",
       "support": [],
       "first_observed": {
         "log_line": 205,
@@ -20721,7 +20721,7 @@
       "trial_id": "slot-boundary:X08",
       "category": "过度澄清阻断任务",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "槽位解析因缺时间在模型调用前直接澄清，没有明确拒绝删除数据请求。",
       "support": [],
       "first_observed": {
         "log_line": 282,
@@ -20977,7 +20977,7 @@
       "trial_id": "slot-boundary:X09",
       "category": "过度澄清阻断任务",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "槽位解析因缺时间直接澄清，未查询负价格，也未解释无匹配记录，未完成题目。",
       "support": [],
       "first_observed": {
         "log_line": 286,
@@ -21229,7 +21229,7 @@
       "trial_id": "original-boundary:X02",
       "category": "无数据或不完整范围被作业务断言",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "已查到数据只到2018-10-17，却称2018为最后完整年份，并将部分年度金额作全年参照。",
       "support": [],
       "first_observed": {
         "log_line": 111,
@@ -23303,7 +23303,7 @@
       "trial_id": "original-boundary:X03",
       "category": "无数据或不完整范围被作业务断言",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "查到ZZ州没有记录后直接回答客户数为0，未要求核对不存在的州名。",
       "support": [],
       "first_observed": {
         "log_line": 164,
@@ -25288,7 +25288,7 @@
       "trial_id": "original-boundary:X04",
       "category": "无数据或不完整范围被作业务断言",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "确认品类不存在后仍断言销售额为0，并把工具row_count当作SQL结果列形成不支持的claim。",
       "support": [],
       "first_observed": {
         "log_line": 244,
@@ -29004,7 +29004,7 @@
       "trial_id": "original-boundary:X05",
       "category": "缺时间未澄清",
       "fairness": "agent_error",
-      "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+      "reason": "题目缺时间范围，直接计算全库GMV且未澄清，也未声明全数据期间为待确认假设。",
       "support": [],
       "first_observed": {
         "log_line": 291,
@@ -30411,7 +30411,10 @@
             "unsupported_numbers": 4,
             "unsupported_number_ratio": 0.6666666666666666
           },
-          "diagnosis": "原核查报4个未支持数字；claim.text包含含1月1日、不含7月1日的中文边界日期；claim.value只含unknown_items=65。日期是范围说明，诊断疑似词法误报，保留原audit。"
+          "diagnosis": "原核查报4个未支持数字；claim.text包含含1月1日、不含7月1日的中文边界日期；claim.value只含unknown_items=65。日期是范围说明，诊断疑似词法误报，保留原audit。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报4个未支持数字；claim.text包含含1月1日、不含7月1日的中文边界日期；claim.value只含unknown_items=65。日期是范围说明，诊断疑似词法误报，保留原audit。"
         },
         {
           "question_id": "C23",
@@ -30445,7 +30448,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text包含含2月整月，value只含reviewed_orders=796。月份为范围说明，疑似词法误报。"
+          "diagnosis": "原核查报1个未支持数字；claim.text包含含2月整月，value只含reviewed_orders=796。月份为范围说明，疑似词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text包含含2月整月，value只含reviewed_orders=796。月份为范围说明，疑似词法误报。"
         },
         {
           "question_id": "E10",
@@ -30480,9 +30486,14 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.25
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写秒数/86400换算，value包含delivery_days及样本数，没有换算常数86400。常量不是新增业务测量值。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写秒数/86400换算，value包含delivery_days及样本数，没有换算常数86400。常量不是新增业务测量值。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写秒数/86400换算，value包含delivery_days及样本数，没有换算常数86400。常量不是新增业务测量值。"
         }
-      ]
+      ],
+      "adjusted_strict_correct": 29,
+      "adjusted_strict_rate": 0.9354838709677419
     },
     {
       "run": "holdout-r1",
@@ -30551,7 +30562,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 1.0
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text说共5种，但SQL/claim.value仅返回支付方式列表，未返回COUNT列。列表正确不等于已显式绑定数量证据。"
+          "diagnosis": "原核查报1个未支持数字；claim.text说共5种，但SQL/claim.value仅返回支付方式列表，未返回COUNT列。列表正确不等于已显式绑定数量证据。",
+          "evidence_issue_type": "real_unsupported",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "正文共5种来自模型自行数列表；保存SQL只有支付方式列表，没有数量结果。"
         },
         {
           "question_id": "A09",
@@ -30585,7 +30599,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。"
         },
         {
           "question_id": "A10",
@@ -30619,7 +30636,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。"
         },
         {
           "question_id": "B10",
@@ -30653,7 +30673,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。"
         },
         {
           "question_id": "C13",
@@ -30690,7 +30713,10 @@
             "unsupported_numbers": 2,
             "unsupported_number_ratio": 0.4
           },
-          "diagnosis": "原核查报2个未支持数字；claim.text含6月30日全天，而value是paid_sales和paid_orders。疑似中文范围端点词法误报。"
+          "diagnosis": "原核查报2个未支持数字；claim.text含6月30日全天，而value是paid_sales和paid_orders。疑似中文范围端点词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报2个未支持数字；claim.text含6月30日全天，而value是paid_sales和paid_orders。疑似中文范围端点词法误报。"
         },
         {
           "question_id": "C22",
@@ -30724,9 +30750,14 @@
             "unsupported_numbers": 2,
             "unsupported_number_ratio": 0.5
           },
-          "diagnosis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。"
+          "diagnosis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。"
         }
-      ]
+      ],
+      "adjusted_strict_correct": 19,
+      "adjusted_strict_rate": 0.8636363636363636
     },
     {
       "run": "holdout-r2",
@@ -30795,7 +30826,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 1.0
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text说共5种，但SQL/claim.value仅返回支付方式列表，未返回COUNT列。列表正确不等于已显式绑定数量证据。"
+          "diagnosis": "原核查报1个未支持数字；claim.text说共5种，但SQL/claim.value仅返回支付方式列表，未返回COUNT列。列表正确不等于已显式绑定数量证据。",
+          "evidence_issue_type": "real_unsupported",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "正文共5种来自模型自行数列表；保存SQL只有支付方式列表，没有数量结果。"
         },
         {
           "question_id": "A09",
@@ -30829,7 +30863,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。"
         },
         {
           "question_id": "A10",
@@ -30863,7 +30900,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。"
         },
         {
           "question_id": "B10",
@@ -30897,7 +30937,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。"
         },
         {
           "question_id": "C22",
@@ -30931,9 +30974,14 @@
             "unsupported_numbers": 2,
             "unsupported_number_ratio": 0.5
           },
-          "diagnosis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。"
+          "diagnosis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。"
         }
-      ]
+      ],
+      "adjusted_strict_correct": 20,
+      "adjusted_strict_rate": 0.9090909090909091
     },
     {
       "run": "holdout-r3",
@@ -31002,7 +31050,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 1.0
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text说共5种，但SQL/claim.value仅返回支付方式列表，未返回COUNT列。列表正确不等于已显式绑定数量证据。"
+          "diagnosis": "原核查报1个未支持数字；claim.text说共5种，但SQL/claim.value仅返回支付方式列表，未返回COUNT列。列表正确不等于已显式绑定数量证据。",
+          "evidence_issue_type": "real_unsupported",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "正文共5种来自模型自行数列表；保存SQL只有支付方式列表，没有数量结果。"
         },
         {
           "question_id": "A09",
@@ -31036,7 +31087,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写review_score=1这个筛选条件，value只含记录数11424。定义阈值不是额外测量值，疑似词法误报。"
         },
         {
           "question_id": "A10",
@@ -31070,7 +31124,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写2018年5月，value只含订单数6873。此处按原收据标问题，不用当前修订过的日期规则重新计分。"
         },
         {
           "question_id": "B10",
@@ -31104,7 +31161,10 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.3333333333333333
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写2018年1月，value只含264。原收据日期扫描问题保持可见，不用当前规则覆盖。"
         },
         {
           "question_id": "C13",
@@ -31141,7 +31201,10 @@
             "unsupported_numbers": 2,
             "unsupported_number_ratio": 0.4
           },
-          "diagnosis": "原核查报2个未支持数字；claim.text含6月30日全天，而value是paid_sales和paid_orders。疑似中文范围端点词法误报。"
+          "diagnosis": "原核查报2个未支持数字；claim.text含6月30日全天，而value是paid_sales和paid_orders。疑似中文范围端点词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报2个未支持数字；claim.text含6月30日全天，而value是paid_sales和paid_orders。疑似中文范围端点词法误报。"
         },
         {
           "question_id": "C22",
@@ -31175,9 +31238,14 @@
             "unsupported_numbers": 2,
             "unsupported_number_ratio": 0.5
           },
-          "diagnosis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。"
+          "diagnosis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报2个未支持数字；claim.text含7月31日全天，value只有missing_signature=6。疑似范围日期词法误报。"
         }
-      ]
+      ],
+      "adjusted_strict_correct": 20,
+      "adjusted_strict_rate": 0.9090909090909091
     },
     {
       "run": "step12-v2",
@@ -31227,12 +31295,22 @@
             "unsupported_numbers": 1,
             "unsupported_number_ratio": 0.25
           },
-          "diagnosis": "原核查报1个未支持数字；claim.text写秒数/86400换算，value包含delivery_days及样本数，没有换算常数86400。常量不是新增业务测量值。"
+          "diagnosis": "原核查报1个未支持数字；claim.text写秒数/86400换算，value包含delivery_days及样本数，没有换算常数86400。常量不是新增业务测量值。",
+          "evidence_issue_type": "checker_false_positive",
+          "classification_authority": "用户本轮复核确认；不改原评分器输出和发布成绩",
+          "evidence_issue_basis": "原核查报1个未支持数字；claim.text写秒数/86400换算，value包含delivery_days及样本数，没有换算常数86400。常量不是新增业务测量值。"
         }
-      ]
+      ],
+      "adjusted_strict_correct": 30,
+      "adjusted_strict_rate": 0.967741935483871
     }
   ],
   "model_calls": 0,
   "database_calls": 0,
-  "strict_definition": "saved correct == true AND saved unsupported_claims == 0 AND saved unsupported_numbers == 0; missing audit is unknown; does not replace any published score"
+  "strict_definition": "saved correct == true AND saved unsupported_claims == 0 AND saved unsupported_numbers == 0; missing audit is unknown; does not replace any published score",
+  "confirmed_evidence_issues": {
+    "checker_false_positive": 18,
+    "real_unsupported": 3,
+    "conclusion": "证据问题中18/21是评分器误报，真问题集中在A08；按用户复核确认，不改发布成绩"
+  }
 }

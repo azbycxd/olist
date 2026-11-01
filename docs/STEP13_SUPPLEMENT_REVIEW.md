@@ -1,6 +1,6 @@
 # Step 13 补充题 A 段逐题审阅
 
-仅SQL/pandas和离线评分器验证，未调用模型。题干按用户原文录入，split=supplement；等待用户确认后才可进入后续模型协议。
+仅SQL/pandas和离线评分器验证，未调用模型。题干按用户原文录入，split=supplement；本轮已获Claude交叉审查确认；N08仅追加时间戳比较说明，gold不变，后续模型另走协议。
 
 数据库采用agent_ro、REPEATABLE READ READ ONLY，SET LOCAL app.allowed_states=ALL。SQL参考结果见[收据](../evidence/step13_supplement_reference.json)，独立CSV计算见[交叉核对](../evidence/step13_supplement_crosscheck.json)，其中保存源文件/日志名与SHA-256。pandas不读取SQL、SQL结果或旧cross_check计算器，计算完成后才比较；12/12在1%以内，当前记录的数值差为0。
 
@@ -278,7 +278,7 @@ pandas：
 
 ## N08
 
-2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。
+2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。按原始时间戳比较,不截断为日期。
 
 `answer_type=key_facts`；`required_facts=worst_seller,late_pct`。
 

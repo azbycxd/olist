@@ -46,7 +46,9 @@ def load_fixture(path='evidence/step13_gold_reference.json'):
     if hashlib.sha256(payload).hexdigest()!=bundle['records_sha256']:
         raise ValueError('Saved reference records hash mismatch')
     if sha(ROOT/bundle['question_file'])!=bundle['question_file_sha256']:
-        raise ValueError('Question file changed after reference capture')
+        snapshot=ROOT/'evidence/source_snapshots'/bundle['question_file_sha256']
+        if not snapshot.exists() or sha(snapshot)!=bundle['question_file_sha256']:
+            raise ValueError('Question file changed after reference capture without its exact historical snapshot')
     return bundle
 
 

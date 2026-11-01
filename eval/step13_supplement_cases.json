@@ -95,7 +95,7 @@
   {
     "id": "N08",
     "category": "N",
-    "question": "2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。",
+    "question": "2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。按原始时间戳比较,不截断为日期。",
     "gold_sql": "WITH pairs AS (\n SELECT DISTINCT i.seller_id, o.order_id, o.order_delivered_customer_date AS actual,\n o.order_estimated_delivery_date AS expected FROM orders o JOIN order_items i USING (order_id)\n WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n AND o.order_status = 'delivered'\n), rates AS (\n SELECT seller_id, 100.0*count(*) FILTER (WHERE actual > expected)\n /nullif(count(*) FILTER (WHERE actual IS NOT NULL),0) AS late_pct\n FROM pairs GROUP BY seller_id HAVING count(*) >= 50\n)\nSELECT seller_id AS worst_seller, late_pct FROM rates WHERE late_pct = (SELECT max(late_pct) FROM rates)",
     "answer_type": "key_facts",
     "split": "supplement",

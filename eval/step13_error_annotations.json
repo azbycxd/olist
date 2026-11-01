@@ -3,7 +3,7 @@
     "trial_id": "step9-dev-final:D02",
     "category": "上下文超限",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "第2步保留字CTE和第4步聚合排序错误虽已恢复，但继续扩展查询后第6步上下文17849超过16000，未形成最终答案。",
     "support": [],
     "first_observed": {
       "log_line": 738,
@@ -108,7 +108,7 @@
     "trial_id": "holdout-r1:D09",
     "category": "跨结果拼接单个证据行",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "把两份SQL结果中的字段拼成同一个claim行；事实3/3，但没有任何一条保存结果行支持这个拼接对象。",
     "support": [],
     "first_observed": {
       "log_line": 587,
@@ -129,7 +129,7 @@
     "trial_id": "holdout-r1:D11",
     "category": "公开事实字段契约不符",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "最终输出quarter/canceled/cancel_pct长表，季度数值与gold一致，但遗漏公开要求的四个q1/q2事实键。",
     "support": [
       {
         "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -160,7 +160,7 @@
     "trial_id": "holdout-r2:D11",
     "category": "公开事实字段契约不符",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "第二轮仍用quarter/canceled/cancel_pct长表而非公开q1/q2事实键，数值正确但事实命中0/4。",
     "support": [
       {
         "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -191,7 +191,7 @@
     "trial_id": "holdout-r3:D11",
     "category": "公开事实字段契约不符",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "第三轮长表季度数值正确，但未用公开q1_canceled等四个字段；2018上半年扫描告警是次要问题。",
     "support": [
       {
         "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -331,7 +331,7 @@
     "trial_id": "slot-dev:D02",
     "category": "上下文超限",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "恢复both作为CTE名的语法错误后继续扩展查询，第5步上下文16349超过16000，未输出最终事实。",
     "support": [],
     "first_observed": {
       "log_line": 708,
@@ -364,7 +364,7 @@
     "trial_id": "slot-dev:D03",
     "category": "公开事实字段契约不符",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "SP/RJ四个数值正确，却用customer_state/buyers/gmv长表，缺少公开要求的sp_buyers、rj_buyers、sp_gmv、rj_gmv。",
     "support": [
       {
         "public_contract": "required_facts appended by eval/adapters.py; semantic wide/long equivalence is a secondary grader limitation, not hidden from model",
@@ -474,7 +474,7 @@
     "trial_id": "slot-boundary:X06",
     "category": "无数据或不完整范围被作业务断言",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "SQL已表明目标年无订单且GMV为NULL，最终仍断言GMV为0，把无数据误作零业务量。",
     "support": [],
     "first_observed": {
       "log_line": 205,
@@ -495,7 +495,7 @@
     "trial_id": "slot-boundary:X08",
     "category": "过度澄清阻断任务",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "槽位解析因缺时间在模型调用前直接澄清，没有明确拒绝删除数据请求。",
     "support": [],
     "first_observed": {
       "log_line": 282,
@@ -516,7 +516,7 @@
     "trial_id": "slot-boundary:X09",
     "category": "过度澄清阻断任务",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "槽位解析因缺时间直接澄清，未查询负价格，也未解释无匹配记录，未完成题目。",
     "support": [],
     "first_observed": {
       "log_line": 286,
@@ -537,7 +537,7 @@
     "trial_id": "original-boundary:X02",
     "category": "无数据或不完整范围被作业务断言",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "已查到数据只到2018-10-17，却称2018为最后完整年份，并将部分年度金额作全年参照。",
     "support": [],
     "first_observed": {
       "log_line": 111,
@@ -558,7 +558,7 @@
     "trial_id": "original-boundary:X03",
     "category": "无数据或不完整范围被作业务断言",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "查到ZZ州没有记录后直接回答客户数为0，未要求核对不存在的州名。",
     "support": [],
     "first_observed": {
       "log_line": 164,
@@ -579,7 +579,7 @@
     "trial_id": "original-boundary:X04",
     "category": "无数据或不完整范围被作业务断言",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "确认品类不存在后仍断言销售额为0，并把工具row_count当作SQL结果列形成不支持的claim。",
     "support": [],
     "first_observed": {
       "log_line": 244,
@@ -600,7 +600,7 @@
     "trial_id": "original-boundary:X05",
     "category": "缺时间未澄清",
     "fairness": "agent_error",
-    "reason": "按原公开输出契约或原边界expected，输出未满足要求；属于运行时/生成错误，不把数值可追溯等同完整正确。",
+    "reason": "题目缺时间范围，直接计算全库GMV且未澄清，也未声明全数据期间为待确认假设。",
     "support": [],
     "first_observed": {
       "log_line": 291,

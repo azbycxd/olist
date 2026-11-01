@@ -1,0 +1,259 @@
+{
+  "kind": "N08批准修订后离线参考解与变异复测；未调用模型或重跑SQL",
+  "question": {
+    "id": "N08",
+    "category": "N",
+    "question": "2018 年 Q2,已送达订单不少于 50 单的卖家里,迟到率最高的是哪个卖家?迟到率多少?一个订单含多个卖家时,计入每个卖家;迟到指实际送达晚于预计送达。按原始时间戳比较,不截断为日期。",
+    "gold_sql": "WITH pairs AS (\n SELECT DISTINCT i.seller_id, o.order_id, o.order_delivered_customer_date AS actual,\n o.order_estimated_delivery_date AS expected FROM orders o JOIN order_items i USING (order_id)\n WHERE o.order_purchase_timestamp >= '2018-04-01' AND o.order_purchase_timestamp < '2018-07-01'\n AND o.order_status = 'delivered'\n), rates AS (\n SELECT seller_id, 100.0*count(*) FILTER (WHERE actual > expected)\n /nullif(count(*) FILTER (WHERE actual IS NOT NULL),0) AS late_pct\n FROM pairs GROUP BY seller_id HAVING count(*) >= 50\n)\nSELECT seller_id AS worst_seller, late_pct FROM rates WHERE late_pct = (SELECT max(late_pct) FROM rates)",
+    "answer_type": "key_facts",
+    "split": "supplement",
+    "required_facts": [
+      "worst_seller",
+      "late_pct"
+    ],
+    "rubric_focus": null
+  },
+  "reference": {
+    "score": {
+      "correct": true,
+      "fact_hits": 2,
+      "fact_total": 2,
+      "fact_hit_rate": 1.0
+    },
+    "audit": {
+      "claims": [
+        {
+          "supported": true,
+          "reason": null
+        }
+      ],
+      "claim_count": 1,
+      "unsupported_claims": 0,
+      "unsupported_claim_ratio": 0.0,
+      "report_number_count": 0,
+      "unsupported_numbers": 0,
+      "unsupported_number_ratio": null
+    },
+    "strict_pass": true
+  },
+  "mutations": [
+    {
+      "kind": "offset_5pct",
+      "applicable": true,
+      "reason": null,
+      "score": {
+        "correct": false,
+        "fact_hits": 1,
+        "fact_total": 2,
+        "fact_hit_rate": 0.5
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": false,
+            "reason": "value_not_in_result"
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 1,
+        "unsupported_claim_ratio": 1.0,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "strict_pass": false,
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_pct": 18.69109947643979
+            },
+            "evidence": [
+              "0c3b0358-4ff4-5cf5-9bdf-65ee2e9defc9"
+            ]
+          }
+        ]
+      },
+      "killed": true
+    },
+    {
+      "kind": "negate_sign",
+      "applicable": true,
+      "reason": null,
+      "score": {
+        "correct": false,
+        "fact_hits": 1,
+        "fact_total": 2,
+        "fact_hit_rate": 0.5
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": false,
+            "reason": "value_not_in_result"
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 1,
+        "unsupported_claim_ratio": 1.0,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "strict_pass": false,
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_pct": -17.801047120418847
+            },
+            "evidence": [
+              "0c3b0358-4ff4-5cf5-9bdf-65ee2e9defc9"
+            ]
+          }
+        ]
+      },
+      "killed": true
+    },
+    {
+      "kind": "remove_evidence",
+      "applicable": true,
+      "reason": null,
+      "score": {
+        "correct": false,
+        "fact_hits": 2,
+        "fact_total": 2,
+        "fact_hit_rate": 1.0
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": false,
+            "reason": "no_evidence"
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 1,
+        "unsupported_claim_ratio": 1.0,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "strict_pass": false,
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_pct": 17.801047120418847
+            },
+            "evidence": []
+          }
+        ]
+      },
+      "killed": true
+    },
+    {
+      "kind": "foreign_evidence",
+      "applicable": true,
+      "reason": null,
+      "score": {
+        "correct": false,
+        "fact_hits": 2,
+        "fact_total": 2,
+        "fact_hit_rate": 1.0
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": false,
+            "reason": "wrong_task"
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 1,
+        "unsupported_claim_ratio": 1.0,
+        "report_number_count": 0,
+        "unsupported_numbers": 0,
+        "unsupported_number_ratio": null
+      },
+      "strict_pass": false,
+      "response": {
+        "answer": "参考事实见证据。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_pct": 17.801047120418847
+            },
+            "evidence": [
+              "ed1cb6a5-09b4-53cb-86b5-f76a1c2acc99"
+            ]
+          }
+        ]
+      },
+      "killed": true
+    },
+    {
+      "kind": "replace_label",
+      "applicable": false,
+      "reason": "答案中没有可替换的品类/州名；题干标签不当作答案标签"
+    },
+    {
+      "kind": "unsupported_number",
+      "applicable": true,
+      "reason": null,
+      "score": {
+        "correct": false,
+        "fact_hits": 2,
+        "fact_total": 2,
+        "fact_hit_rate": 1.0
+      },
+      "audit": {
+        "claims": [
+          {
+            "supported": true,
+            "reason": null
+          }
+        ],
+        "claim_count": 1,
+        "unsupported_claims": 0,
+        "unsupported_claim_ratio": 0.0,
+        "report_number_count": 1,
+        "unsupported_numbers": 1,
+        "unsupported_number_ratio": 1.0
+      },
+      "strict_pass": false,
+      "response": {
+        "answer": "参考事实见证据。 另有未经查询的业务收入 9876543210123 元。",
+        "claims": [
+          {
+            "text": "只读查询结果。",
+            "value": {
+              "worst_seller": "06a2c3af7b3aee5d69171b0e14f0ee87",
+              "late_pct": 17.801047120418847
+            },
+            "evidence": [
+              "0c3b0358-4ff4-5cf5-9bdf-65ee2e9defc9"
+            ]
+          }
+        ]
+      },
+      "killed": true
+    }
+  ],
+  "gold_unchanged": true,
+  "original_fixture_sha256": "a3bf494daedcc8a9adfbd2ffd5d066a6cf931ddd4224cc5b39727a8cfd047c4b",
+  "question_file_sha256": "bb515ea499df55a18cb1da4ab004098429dd84b17c659eb21eddced4f638e711",
+  "source_log": "logs/step13_n08_review.jsonl",
+  "source_log_sha256": "2e1dafa3898cb98f44b83dba00043fbe4abe6e4e0089f507b6d4b5e5dbb26898"
+}

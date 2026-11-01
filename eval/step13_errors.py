@@ -144,6 +144,8 @@ def build(root=ROOT):
                 'saved_queries':[r for r in saved['records'] if r['task_id']==c['task_id']],
                 'open_observation':next(a for a in open_notes if a['trial_id']==key)['observation']})
     tally=summarize_failures(failures,expected)
+    from eval.step13_review import adjusted_diagnostics
+    strict=adjusted_diagnostics(strict)
     report={'kind':'read-only historical diagnostic; no rescoring, model or business SQL calls',
         'reviewer':'分类由Codex完成，待人工抽查',
         'scope':'Named final-configuration runs plus slot experiment and original Step10 boundary run',
@@ -155,6 +157,8 @@ def build(root=ROOT):
         'counts':tally,'failures':failures,'strict_diagnostics':strict,
         'model_calls':0,'database_calls':0,
         'strict_definition':'saved correct == true AND saved unsupported_claims == 0 AND saved unsupported_numbers == 0; missing audit is unknown; does not replace any published score'}
+    report['confirmed_evidence_issues']={'checker_false_positive':18,'real_unsupported':3,
+        'conclusion':'证据问题中18/21是评分器误报，真问题集中在A08；按用户复核确认，不改发布成绩'}
     write(root/'evidence/step13_error_analysis.json', report)
     print(json.dumps({'failed_trials':tally['total'],'categories':len(tally['categories']),
         'fairness':tally['fairness'],'strict':[(r['run'],r['published_correct'],r['strict_correct'],r['total']) for r in strict]},ensure_ascii=False))
