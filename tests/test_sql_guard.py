@@ -1,6 +1,6 @@
 import pytest
 
-from mcp_olist.sql_guard import UnsafeSQL, guard_sql
+from mcp_olist.sql_guard import UnsafeSQL, guard_sql, probe_sql
 
 
 @pytest.mark.parametrize("statement", [
@@ -44,3 +44,40 @@ def test_read_only_queries_are_capped(statement):
 def test_explicit_limit_is_enforced():
     assert guard_sql("SELECT * FROM orders LIMIT 2000").sql.endswith("LIMIT 1000")
     assert guard_sql("SELECT * FROM orders LIMIT 7").sql.endswith("LIMIT 7")
+
+
+def test_sql_length_boundary():
+    statement = "SELECT '" + "x" * (30000 - len("SELECT ''")) + "'"
+    assert len(statement) == 30000
+    assert guard_sql(statement).sql.endswith("LIMIT 1000")
+
+    too_long = statement[:-1] + "x'"
+    assert len(too_long) == 30001
+    with pytest.raises(UnsafeSQL, match="at most 30000"):
+        guard_sql(too_long)
+
+
+def test_zero_limit_is_preserved_without_probe():
+    guarded = guard_sql("SELECT * FROM orders LIMIT 0")
+    assert guarded.sql.endswith("LIMIT 0")
+    assert guarded.capped is False
+    assert probe_sql(guarded.sql, guarded.capped) == guarded.sql
+
+
+@pytest.mark.parametrize("limit", ["1.5", "1+1"])
+def test_noninteger_or_expression_limit_is_rejected(limit):
+    with pytest.raises(UnsafeSQL, match="LIMIT must be a nonnegative integer literal"):
+        guard_sql(f"SELECT * FROM orders LIMIT {limit}")
+
+
+def test_oversized_limit_is_capped_and_probed():
+    guarded = guard_sql("SELECT * FROM orders LIMIT 2000")
+    assert guarded.sql.endswith("LIMIT 1000")
+    assert guarded.capped is True
+    assert probe_sql(guarded.sql, guarded.capped).endswith("LIMIT 1001")
+
+
+def test_nested_cte_does_not_authorize_outer_system_table():
+    statement = "SELECT * FROM (WITH pg_settings AS (SELECT 1) SELECT * FROM pg_settings) AS a, pg_settings"
+    with pytest.raises(UnsafeSQL, match="business allowlist"):
+        guard_sql(statement)
